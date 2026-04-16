@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img src="../assets/logo.png" alt="Krispie's" class="sidebar__logo">
+      <div class="sidebar__brand-text">
+        <span class="sidebar__brand-name">Krispie's</span>
+        <span class="sidebar__brand-sub">Admin Panel</span>
+      </div>
+    </div>
+    <nav class="sidebar__nav">
+      <span class="sidebar__nav-section">Main</span>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Dashboard</a>
+      <a href="products.html"  class="sidebar__link active"><span class="sidebar__link-icon">🎂</span> Products</a>
+      <a href="enquiries.html" class="sidebar__link"><span class="sidebar__link-icon">📋</span> Enquiries</a>
+      <a href="orders.html"    class="sidebar__link"><span class="sidebar__link-icon">📦</span> Orders</a>
+      <div class="sidebar__divider"></div>
+      <a href="../index.html" target="_blank" class="sidebar__link"><span class="sidebar__link-icon">🌐</span> View Website ↗</a>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__footer">
+        <button onclick="logout()" class="sidebar__link btn" style="color:var(--red);width:100%"><span class="sidebar__link-icon">⎋</span> Logout</button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <h1 class="admin-header__title">Products</h1>
+      <div class="admin-header__actions">
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add Product</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <input type="search" class="filter-bar__search" id="searchInput" placeholder="Search products…">
+        <select class="filter-select" id="catFilter">
+          <option value="">All Categories</option>
+          <option value="customized-cakes">Customized Cakes</option>
+          <option value="birthday-cakes">Birthday Cakes</option>
+          <option value="biscuits">Biscuits & Cookies</option>
+          <option value="cheesecakes">Cheesecakes</option>
+          <option value="donuts">Donuts</option>
+        </select>
+        <select class="filter-select" id="tagFilter">
+          <option value="">All Tags</option>
+          <option value="bestseller">Bestseller</option>
+          <option value="new">New</option>
+          <option value="seasonal">Seasonal</option>
+          <option value="custom">Made to Order</option>
+        </select>
+        <select class="filter-select" id="activeFilter">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      <!-- TABLE -->
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Tag</th>
+                <th>Featured</th>
+                <th>Status</th>
+                <th>Added</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTable"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="tableCount" style="font-size:0.75rem; color:var(--muted); margin-top:8px;"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title" id="modalTitle">Add Product</h3>
+      <button class="modal__close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal__body" id="modalBody"></div>
+    <div class="modal__footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="admin.js"></script>
+<script>
+  checkAuth();
+  initDefaults();
+
+  function esc(s) {
+    const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+  }
+
+  // ── RENDER TABLE ─────────────────────────
+  function render() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const cat    = document.getElementById('catFilter').value;
+    const tag    = document.getElementById('tagFilter').value;
+    const act    = document.getElementById('activeFilter').value;
+
+    let products = getData(KEYS.products);
+    if (search) products = products.filter(p => p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search));
+    if (cat)    products = products.filter(p => p.category === cat);
+    if (tag)    products = products.filter(p => p.tag === tag);
+    if (act === 'active')   products = products.filter(p => p.active);
+    if (act === 'inactive') products = products.filter(p => !p.active);
+
+    document.getElementById('tableCount').textContent = `Showing ${products.length} product${products.length !== 1 ? 's' : ''}`;
+
+    const tbody = document.getElementById('productsTable');
+    if (!products.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state__icon">🔍</div><div class="empty-state__text">No products match your filters</div></div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td class="td-name">${esc(p.name)}</td>
+        <td class="muted">${CATEGORY_LABELS[p.category] || p.category}</td>
+        <td>${tagBadge(p.tag)}</td>
+        <td style="text-align:center">${p.featured ? '⭐' : '<span style="color:var(--muted)">—</span>'}</td>
+        <td>${p.active
+          ? '<span class="badge badge-active">Active</span>'
+          : '<span class="badge badge-inactive">Inactive</span>'}</td>
+        <td class="muted">${fmtDate(p.createdAt)}</td>
+        <td>
+          <div class="td-actions">
+            <button class="btn btn-outline btn-sm" onclick="openEditModal('${p.id}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  // ── PRODUCT FORM HTML ─────────────────────
+  function productFormHTML(p = {}) {
+    return `
+      <div class="form-group">
+        <label>Product Name *</label>
+        <input type="text" id="f_name" class="form-control" value="${esc(p.name || '')}" placeholder="e.g. Chocolate Overload" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="f_category" class="form-control">
+            ${['customized-cakes','birthday-cakes','biscuits','cheesecakes','donuts'].map(c =>
+              `<option value="${c}" ${p.category===c?'selected':''}>${CATEGORY_LABELS[c]}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tag</label>
+          <select id="f_tag" class="form-control">
+            <option value="" ${!p.tag?'selected':''}>None</option>
+            <option value="bestseller" ${p.tag==='bestseller'?'selected':''}>Bestseller</option>
+            <option value="new"        ${p.tag==='new'?'selected':''}>New</option>
+            <option value="seasonal"   ${p.tag==='seasonal'?'selected':''}>Seasonal</option>
+            <option value="custom"     ${p.tag==='custom'?'selected':''}>Made to Order</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description *</label>
+        <textarea id="f_desc" class="form-control" placeholder="Short description for the menu…">${esc(p.description || '')}</textarea>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" id="f_featured" ${p.featured?'checked':''}>
+        <label for="f_featured">⭐ Featured on Homepage</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" id="f_active" ${p.active!==false?'checked':''}>
+        <label for="f_active">✓ Active (visible on website)</label>
+      </div>`;
+  }
+
+  // ── COLLECT FORM VALUES ───────────────────
+  function collectForm(existingId) {
+    const name = document.getElementById('f_name').value.trim();
+    const desc = document.getElementById('f_desc').value.trim();
+    if (!name || !desc) { showToast('Name and description are required.', 'error'); return null; }
+    return {
+      id:          existingId || uid(),
+      name,
+      category:    document.getElementById('f_category').value,
+      tag:         document.getElementById('f_tag').value || null,
+      description: desc,
+      featured:    document.getElementById('f_featured').checked,
+      active:      document.getElementById('f_active').checked,
+      createdAt:   existingId ? undefined : new Date().toISOString(),
+      updatedAt:   new Date().toISOString(),
+    };
+  }
+
+  // ── ADD ───────────────────────────────────
+  function openAddModal() {
+    openModal('Add Product', productFormHTML(), () => {
+      const data = collectForm(null);
+      if (!data) return;
+      const products = getData(KEYS.products);
+      data.createdAt = new Date().toISOString();
+      products.unshift(data);
+      setData(KEYS.products, products);
+      closeModal();
+      showToast('Product added!');
+      render();
+    }, 'Add Product');
+  }
+
+  // ── EDIT ──────────────────────────────────
+  function openEditModal(id) {
+    const products = getData(KEYS.products);
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    openModal('Edit Product', productFormHTML(p), () => {
+      const data = collectForm(id);
+      if (!data) return;
+      const idx = products.findIndex(x => x.id === id);
+      products[idx] = { ...products[idx], ...data };
+      setData(KEYS.products, products);
+      closeModal();
+      showToast('Product updated!');
+      render();
+    }, 'Save Changes');
+  }
+
+  // ── DELETE ────────────────────────────────
+  function deleteProduct(id) {
+    const products = getData(KEYS.products);
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+    setData(KEYS.products, products.filter(x => x.id !== id));
+    showToast('Product deleted.', 'info');
+    render();
+  }
+
+  // ── FILTERS ───────────────────────────────
+  ['searchInput','catFilter','tagFilter','activeFilter'].forEach(id =>
+    document.getElementById(id).addEventListener('input', render)
+  );
+
+  render();
+</script>
+</body>
+</html>

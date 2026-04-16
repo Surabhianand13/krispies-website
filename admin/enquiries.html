@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enquiries — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img src="../assets/logo.png" alt="Krispie's" class="sidebar__logo">
+      <div class="sidebar__brand-text">
+        <span class="sidebar__brand-name">Krispie's</span>
+        <span class="sidebar__brand-sub">Admin Panel</span>
+      </div>
+    </div>
+    <nav class="sidebar__nav">
+      <span class="sidebar__nav-section">Main</span>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Dashboard</a>
+      <a href="products.html"  class="sidebar__link"><span class="sidebar__link-icon">🎂</span> Products</a>
+      <a href="enquiries.html" class="sidebar__link active"><span class="sidebar__link-icon">📋</span> Enquiries</a>
+      <a href="orders.html"    class="sidebar__link"><span class="sidebar__link-icon">📦</span> Orders</a>
+      <div class="sidebar__divider"></div>
+      <a href="../index.html" target="_blank" class="sidebar__link"><span class="sidebar__link-icon">🌐</span> View Website ↗</a>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__footer">
+        <button onclick="logout()" class="sidebar__link btn" style="color:var(--red);width:100%"><span class="sidebar__link-icon">⎋</span> Logout</button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <h1 class="admin-header__title">Enquiries</h1>
+      <div class="admin-header__actions">
+        <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Mark All Read</button>
+        <button class="btn btn-danger btn-sm" onclick="clearAll()">Clear All</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <input type="search" class="filter-bar__search" id="searchInput" placeholder="Search by name, email, phone…">
+        <select class="filter-select" id="statusFilter">
+          <option value="">All Status</option>
+          <option value="unread">Unread</option>
+          <option value="read">Read</option>
+          <option value="responded">Responded</option>
+        </select>
+        <select class="filter-select" id="eventFilter">
+          <option value="">All Event Types</option>
+          <option value="birthday">Birthday</option>
+          <option value="wedding">Wedding</option>
+          <option value="anniversary">Anniversary</option>
+          <option value="baby-shower">Baby Shower</option>
+          <option value="corporate">Corporate Event</option>
+          <option value="graduation">Graduation</option>
+          <option value="festival">Festival</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- TABLE -->
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Event</th>
+                <th>Event Date</th>
+                <th>Outlet</th>
+                <th>Received</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="enquiriesTable"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="tableCount" style="font-size:0.75rem; color:var(--muted); margin-top:8px;"></div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="admin.js"></script>
+<script>
+  checkAuth();
+
+  function esc(s) {
+    const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+  }
+
+  function render() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+    const event  = document.getElementById('eventFilter').value;
+
+    let enqs = getData(KEYS.enquiries);
+    if (search) enqs = enqs.filter(e =>
+      (e.name||'').toLowerCase().includes(search) ||
+      (e.email||'').toLowerCase().includes(search) ||
+      (e.phone||'').toLowerCase().includes(search)
+    );
+    if (status) enqs = enqs.filter(e => e.status === status);
+    if (event)  enqs = enqs.filter(e => e.eventType === event);
+
+    document.getElementById('tableCount').textContent = `${enqs.length} enquir${enqs.length !== 1 ? 'ies' : 'y'}`;
+
+    const tbody = document.getElementById('enquiriesTable');
+    if (!enqs.length) {
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
+        <div class="empty-state__icon">📋</div>
+        <div class="empty-state__text">No enquiries yet. They will appear here once someone submits the contact form.</div>
+      </div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = enqs.map(e => `
+      <tr id="row_${e.id}" style="${e.status==='unread' ? 'background:rgba(201,168,112,0.04)' : ''}">
+        <td style="padding:12px 8px 12px 14px">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="toggleExpand('${e.id}')" title="View details">▾</button>
+        </td>
+        <td>
+          <div class="td-name" style="${e.status==='unread'?'color:var(--gold)':''}">${esc(e.name)}</div>
+        </td>
+        <td>
+          <div style="font-size:0.8rem">${esc(e.phone || '—')}</div>
+          <div class="muted" style="font-size:0.73rem">${esc(e.email || '')}</div>
+        </td>
+        <td class="muted">${EVENT_LABELS[e.eventType] || e.eventType || '—'}</td>
+        <td class="muted">${fmtDate(e.eventDate)}</td>
+        <td class="muted">${OUTLET_LABELS[e.outlet] || e.outlet || '—'}</td>
+        <td class="muted">${fmtDT(e.submittedAt)}</td>
+        <td>${statusBadge(e.status)}</td>
+        <td>
+          <div class="td-actions">
+            <select class="filter-select" style="padding:5px 28px 5px 8px; font-size:0.73rem" onchange="updateStatus('${e.id}', this.value)">
+              <option value="unread"    ${e.status==='unread'   ?'selected':''}>Unread</option>
+              <option value="read"      ${e.status==='read'     ?'selected':''}>Read</option>
+              <option value="responded" ${e.status==='responded'?'selected':''}>Responded</option>
+            </select>
+            <button class="btn btn-danger btn-sm btn-icon" onclick="deleteEnquiry('${e.id}')" title="Delete">✕</button>
+          </div>
+        </td>
+      </tr>
+      <tr class="expand-row" id="expand_${e.id}">
+        <td colspan="9">
+          <div class="expand-content">
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:12px">
+              <div><strong>Quantity / Guests:</strong><br>${esc(e.quantity || '—')}</div>
+              <div><strong>Products Requested:</strong><br>${esc(e.products || '—')}</div>
+              <div><strong>Outlet Preference:</strong><br>${OUTLET_LABELS[e.outlet] || e.outlet || '—'}</div>
+            </div>
+            <div><strong>Message:</strong><br>${esc(e.message || '—')}</div>
+            ${e.email ? `<div style="margin-top:12px"><a href="mailto:${esc(e.email)}" class="btn btn-outline btn-sm">Reply via Email ↗</a></div>` : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function toggleExpand(id) {
+    const row = document.getElementById(`expand_${id}`);
+    row.classList.toggle('open');
+    // Mark as read when expanded
+    const enqs = getData(KEYS.enquiries);
+    const idx = enqs.findIndex(e => e.id === id);
+    if (idx !== -1 && enqs[idx].status === 'unread') {
+      enqs[idx].status = 'read';
+      setData(KEYS.enquiries, enqs);
+      render();
+    }
+  }
+
+  function updateStatus(id, status) {
+    const enqs = getData(KEYS.enquiries);
+    const idx = enqs.findIndex(e => e.id === id);
+    if (idx === -1) return;
+    enqs[idx].status = status;
+    setData(KEYS.enquiries, enqs);
+    showToast(`Marked as ${status}.`);
+    render();
+  }
+
+  function deleteEnquiry(id) {
+    if (!confirm('Delete this enquiry? This cannot be undone.')) return;
+    setData(KEYS.enquiries, getData(KEYS.enquiries).filter(e => e.id !== id));
+    showToast('Enquiry deleted.', 'info');
+    render();
+  }
+
+  function markAllRead() {
+    const enqs = getData(KEYS.enquiries).map(e => ({ ...e, status: e.status === 'unread' ? 'read' : e.status }));
+    setData(KEYS.enquiries, enqs);
+    showToast('All enquiries marked as read.');
+    render();
+  }
+
+  function clearAll() {
+    if (!confirm('Delete ALL enquiries? This cannot be undone.')) return;
+    setData(KEYS.enquiries, []);
+    showToast('All enquiries cleared.', 'info');
+    render();
+  }
+
+  ['searchInput','statusFilter','eventFilter'].forEach(id =>
+    document.getElementById(id).addEventListener('input', render)
+  );
+
+  render();
+</script>
+</body>
+</html>

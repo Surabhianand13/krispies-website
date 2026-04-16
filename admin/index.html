@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Krispie's</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <div class="login-page">
+    <div class="login-card">
+      <img src="../assets/logo.png" alt="Krispie's" class="login-card__logo">
+      <h1 class="login-card__title">Admin Panel</h1>
+      <p class="login-card__sub">Your Celebrations Partner</p>
+
+      <div class="login-card__error" id="loginError">Incorrect password. Please try again.</div>
+
+      <form class="login-card__form" id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Enter admin password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary login-card__btn">Access Dashboard →</button>
+      </form>
+
+      <p class="login-card__hint">
+        Session expires when you close the browser tab.<br>
+        To change the password, edit <code>admin/admin.js</code> → <code>ADMIN_PASSWORD</code>
+      </p>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+  <script>
+    // Redirect if already logged in
+    if (sessionStorage.getItem('krispies_admin_auth')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const pw = document.getElementById('password').value;
+      const err = document.getElementById('loginError');
+
+      if (login(pw)) {
+        window.location.href = 'dashboard.html';
+      } else {
+        err.style.display = 'block';
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+      }
+    });
+  </script>
+</body>
+</html>

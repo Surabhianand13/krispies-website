@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img src="../assets/logo.png" alt="Krispie's" class="sidebar__logo">
+      <div class="sidebar__brand-text">
+        <span class="sidebar__brand-name">Krispie's</span>
+        <span class="sidebar__brand-sub">Admin Panel</span>
+      </div>
+    </div>
+    <nav class="sidebar__nav">
+      <span class="sidebar__nav-section">Main</span>
+      <a href="dashboard.html" class="sidebar__link active">
+        <span class="sidebar__link-icon">📊</span> Dashboard
+      </a>
+      <a href="products.html" class="sidebar__link">
+        <span class="sidebar__link-icon">🎂</span> Products
+      </a>
+      <a href="enquiries.html" class="sidebar__link" id="navEnquiries">
+        <span class="sidebar__link-icon">📋</span> Enquiries
+        <span class="sidebar__badge" id="unreadBadge" style="display:none"></span>
+      </a>
+      <a href="orders.html" class="sidebar__link">
+        <span class="sidebar__link-icon">📦</span> Orders
+      </a>
+      <div class="sidebar__divider"></div>
+      <span class="sidebar__nav-section">Website</span>
+      <a href="../index.html" target="_blank" class="sidebar__link">
+        <span class="sidebar__link-icon">🌐</span> View Website ↗
+      </a>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__footer">
+        <button onclick="logout()" class="sidebar__link btn" style="color:var(--red); width:100%">
+          <span class="sidebar__link-icon">⎋</span> Logout
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <h1 class="admin-header__title">Dashboard</h1>
+      <div class="admin-header__actions">
+        <a href="products.html" class="btn btn-primary btn-sm">+ Add Product</a>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <!-- STAT CARDS -->
+      <div class="stat-cards" id="statCards">
+        <!-- rendered by JS -->
+      </div>
+
+      <!-- TWO COLUMNS -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+        <!-- RECENT ENQUIRIES -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">Recent Enquiries</span>
+            <a href="enquiries.html" class="btn btn-ghost btn-sm">View All</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Event</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentEnquiries">
+                <!-- rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RECENT ORDERS -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">Recent Orders</span>
+            <a href="orders.html" class="btn btn-ghost btn-sm">View All</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Platform</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrders">
+                <!-- rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PRODUCTS BY CATEGORY -->
+      <div class="panel" style="margin-top:20px">
+        <div class="panel__header">
+          <span class="panel__title">Products Overview</span>
+          <a href="products.html" class="btn btn-ghost btn-sm">Manage Products</a>
+        </div>
+        <div id="productsSummary" style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border);">
+          <!-- rendered by JS -->
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+  checkAuth();
+  initDefaults();
+
+  function render() {
+    const products  = getData(KEYS.products);
+    const enquiries = getData(KEYS.enquiries);
+    const orders    = getData(KEYS.orders);
+
+    const unread    = enquiries.filter(e => e.status === 'unread').length;
+    const pending   = orders.filter(o => o.status === 'pending').length;
+    const active    = products.filter(p => p.active).length;
+
+    // Sidebar badge
+    const badge = document.getElementById('unreadBadge');
+    if (unread > 0) { badge.textContent = unread; badge.style.display = 'inline-flex'; }
+
+    // Stat cards
+    document.getElementById('statCards').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-card__label">Total Products</div>
+        <div class="stat-card__value">${products.length}</div>
+        <div class="stat-card__sub">${active} active</div>
+      </div>
+      <div class="stat-card ${unread > 0 ? 'stat-card--alert' : ''}">
+        <div class="stat-card__label">Enquiries</div>
+        <div class="stat-card__value">${enquiries.length}</div>
+        <div class="stat-card__sub">${unread} unread</div>
+      </div>
+      <div class="stat-card ${pending > 0 ? 'stat-card--alert' : ''}">
+        <div class="stat-card__label">Orders</div>
+        <div class="stat-card__value">${orders.length}</div>
+        <div class="stat-card__sub">${pending} pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Outlets</div>
+        <div class="stat-card__value">5</div>
+        <div class="stat-card__sub">Hyderabad</div>
+      </div>
+    `;
+
+    // Recent enquiries
+    const recentEnqHTML = enquiries.length === 0
+      ? `<tr><td colspan="4"><div class="empty-state"><div class="empty-state__icon">📋</div><div class="empty-state__text">No enquiries yet</div></div></td></tr>`
+      : enquiries.slice(0, 6).map(e => `
+          <tr>
+            <td class="td-name">${esc(e.name)}</td>
+            <td class="muted">${EVENT_LABELS[e.eventType] || e.eventType || '—'}</td>
+            <td class="muted">${fmtDT(e.submittedAt)}</td>
+            <td>${statusBadge(e.status)}</td>
+          </tr>`).join('');
+    document.getElementById('recentEnquiries').innerHTML = recentEnqHTML;
+
+    // Recent orders
+    const recentOrdHTML = orders.length === 0
+      ? `<tr><td colspan="3"><div class="empty-state"><div class="empty-state__icon">📦</div><div class="empty-state__text">No orders yet</div></div></td></tr>`
+      : orders.slice(0, 6).map(o => `
+          <tr>
+            <td class="td-name">${esc(o.customerName)}</td>
+            <td class="muted">${PLATFORM_LABELS[o.platform] || o.platform || '—'}</td>
+            <td>${statusBadge(o.status)}</td>
+          </tr>`).join('');
+    document.getElementById('recentOrders').innerHTML = recentOrdHTML;
+
+    // Products by category
+    const cats = ['customized-cakes','birthday-cakes','biscuits','cheesecakes','donuts'];
+    document.getElementById('productsSummary').innerHTML = cats.map(cat => {
+      const count = products.filter(p => p.category === cat).length;
+      const icons = { 'customized-cakes':'🎂','birthday-cakes':'🎉','biscuits':'🍪','cheesecakes':'🍰','donuts':'🍩' };
+      return `
+        <div style="background:var(--black-2); padding:20px 16px; text-align:center;">
+          <div style="font-size:1.8rem; margin-bottom:8px">${icons[cat]}</div>
+          <div style="font-size:1.4rem; color:var(--gold); font-family:var(--font-h)">${count}</div>
+          <div style="font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:4px">${CATEGORY_LABELS[cat]}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  render();
+</script>
+</body>
+</html>
