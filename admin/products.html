@@ -51,9 +51,10 @@
         <input type="search" class="filter-bar__search" id="searchInput" placeholder="Search products…">
         <select class="filter-select" id="catFilter">
           <option value="">All Categories</option>
-          <option value="customized-cakes">Customized Cakes</option>
           <option value="birthday-cakes">Birthday Cakes</option>
-          <option value="biscuits">Biscuits & Cookies</option>
+          <option value="customized-cakes">Customized Cakes</option>
+          <option value="wedding-cakes">Wedding Cakes</option>
+          <option value="engagement-cakes">Engagement Cakes</option>
           <option value="cheesecakes">Cheesecakes</option>
           <option value="donuts">Donuts</option>
         </select>
@@ -80,9 +81,12 @@
                 <th>Product Name</th>
                 <th>Category</th>
                 <th>Tag</th>
+                <th>MRP</th>
+                <th>Discount</th>
+                <th>Final Price</th>
+                <th>Images</th>
                 <th>Featured</th>
                 <th>Status</th>
-                <th>Added</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -140,31 +144,39 @@
 
     const tbody = document.getElementById('productsTable');
     if (!products.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state__icon">🔍</div><div class="empty-state__text">No products match your filters</div></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-state__icon">🔍</div><div class="empty-state__text">No products match your filters</div></div></td></tr>`;
       return;
     }
 
-    tbody.innerHTML = products.map(p => `
+    tbody.innerHTML = products.map(p => {
+      const finalPrice = p.mrp ? Math.round(p.mrp * (1 - (p.discount||0) / 100)) : null;
+      return `
       <tr>
         <td class="td-name">${esc(p.name)}</td>
-        <td class="muted">${CATEGORY_LABELS[p.category] || p.category}</td>
+        <td class="muted" style="font-size:0.8rem">${CATEGORY_LABELS[p.category] || p.category}</td>
         <td>${tagBadge(p.tag)}</td>
+        <td class="muted">${p.mrp ? fmtPrice(p.mrp) : '—'}</td>
+        <td class="muted">${p.discount ? `<span style="color:var(--gold)">${p.discount}%</span>` : '—'}</td>
+        <td style="color:var(--gold);font-weight:600">${finalPrice ? fmtPrice(finalPrice) : '—'}</td>
+        <td class="muted" style="text-align:center">${(p.images||[]).filter(Boolean).length || '—'}</td>
         <td style="text-align:center">${p.featured ? '⭐' : '<span style="color:var(--muted)">—</span>'}</td>
         <td>${p.active
           ? '<span class="badge badge-active">Active</span>'
           : '<span class="badge badge-inactive">Inactive</span>'}</td>
-        <td class="muted">${fmtDate(p.createdAt)}</td>
         <td>
           <div class="td-actions">
             <button class="btn btn-outline btn-sm" onclick="openEditModal('${p.id}')">Edit</button>
             <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
           </div>
         </td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
   }
 
   // ── PRODUCT FORM HTML ─────────────────────
   function productFormHTML(p = {}) {
+    const cats = ['birthday-cakes','customized-cakes','wedding-cakes','engagement-cakes','cheesecakes','donuts'];
+    const imgs = (p.images || []).filter(Boolean);
     return `
       <div class="form-group">
         <label>Product Name *</label>
@@ -174,9 +186,7 @@
         <div class="form-group">
           <label>Category *</label>
           <select id="f_category" class="form-control">
-            ${['customized-cakes','birthday-cakes','biscuits','cheesecakes','donuts'].map(c =>
-              `<option value="${c}" ${p.category===c?'selected':''}>${CATEGORY_LABELS[c]}</option>`
-            ).join('')}
+            ${cats.map(c => `<option value="${c}" ${p.category===c?'selected':''}>${CATEGORY_LABELS[c]||c}</option>`).join('')}
           </select>
         </div>
         <div class="form-group">
@@ -194,14 +204,85 @@
         <label>Description *</label>
         <textarea id="f_desc" class="form-control" placeholder="Short description for the menu…">${esc(p.description || '')}</textarea>
       </div>
-      <div class="form-check">
-        <input type="checkbox" id="f_featured" ${p.featured?'checked':''}>
-        <label for="f_featured">⭐ Featured on Homepage</label>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>MRP (₹) *</label>
+          <input type="number" id="f_mrp" class="form-control" min="0" step="1"
+            value="${p.mrp || ''}" placeholder="e.g. 1299" oninput="updatePricePreview()">
+        </div>
+        <div class="form-group">
+          <label>Discount %</label>
+          <input type="number" id="f_discount" class="form-control" min="0" max="100" step="1"
+            value="${p.discount || 0}" placeholder="0" oninput="updatePricePreview()">
+        </div>
       </div>
-      <div class="form-check">
-        <input type="checkbox" id="f_active" ${p.active!==false?'checked':''}>
-        <label for="f_active">✓ Active (visible on website)</label>
+      <div id="f_price_preview" style="font-size:0.82rem; color:var(--gold); margin:-8px 0 12px; padding:8px 12px; background:rgba(201,168,112,0.07); border-radius:4px; display:none"></div>
+
+      <div class="form-group">
+        <label>Product Images <span style="color:var(--muted);font-weight:400">(paste direct image URLs)</span></label>
+        <div id="f_images_list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+          ${imgs.length
+            ? imgs.map((url, i) => imageFieldHTML(url, i)).join('')
+            : imageFieldHTML('', 0)
+          }
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="addImageField()" style="width:auto">+ Add Another Image</button>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:6px">
+          💡 Use Cloudinary, Google Drive (direct link), or any public image URL.
+          Supports multiple images — customers can swipe through them on the menu.
+        </div>
+      </div>
+
+      <div style="display:flex;gap:24px;margin-top:4px">
+        <div class="form-check">
+          <input type="checkbox" id="f_featured" ${p.featured?'checked':''}>
+          <label for="f_featured">⭐ Featured on Homepage</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="f_active" ${p.active!==false?'checked':''}>
+          <label for="f_active">✓ Active (visible on website)</label>
+        </div>
       </div>`;
+  }
+
+  function imageFieldHTML(url, idx) {
+    return `<div class="img-field-row" style="display:flex;gap:8px;align-items:center">
+      <input type="url" class="form-control f_img_url" placeholder="https://..." value="${esc(url)}"
+        style="flex:1" oninput="previewThumb(this)">
+      ${url ? `<img src="${esc(url)}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--border)" onerror="this.style.display='none'">` : '<span style="width:36px"></span>'}
+      <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="this.closest('.img-field-row').remove()" title="Remove">✕</button>
+    </div>`;
+  }
+
+  function addImageField() {
+    const list = document.getElementById('f_images_list');
+    const div = document.createElement('div');
+    div.innerHTML = imageFieldHTML('', list.children.length);
+    list.appendChild(div.firstElementChild);
+  }
+
+  function previewThumb(input) {
+    const img = input.nextElementSibling;
+    if (img && img.tagName === 'IMG') { img.src = input.value; img.style.display = input.value ? '' : 'none'; }
+  }
+
+  function updatePricePreview() {
+    const mrp      = parseFloat(document.getElementById('f_mrp')?.value) || 0;
+    const discount = parseFloat(document.getElementById('f_discount')?.value) || 0;
+    const preview  = document.getElementById('f_price_preview');
+    if (!preview) return;
+    if (mrp > 0) {
+      const final = Math.round(mrp * (1 - discount / 100));
+      preview.style.display = 'block';
+      if (discount > 0) {
+        preview.innerHTML = `MRP <s>₹${mrp.toLocaleString('en-IN')}</s> → Final Price <strong>₹${final.toLocaleString('en-IN')}</strong> &nbsp;<span style="color:#2D8B4E">(${discount}% OFF — saving ₹${(mrp - final).toLocaleString('en-IN')})</span>`;
+      } else {
+        preview.innerHTML = `Price: <strong>₹${mrp.toLocaleString('en-IN')}</strong> (no discount)`;
+      }
+    } else {
+      preview.style.display = 'none';
+    }
   }
 
   // ── COLLECT FORM VALUES ───────────────────
@@ -209,12 +290,19 @@
     const name = document.getElementById('f_name').value.trim();
     const desc = document.getElementById('f_desc').value.trim();
     if (!name || !desc) { showToast('Name and description are required.', 'error'); return null; }
+    const mrp = parseFloat(document.getElementById('f_mrp').value) || 0;
+    if (!mrp) { showToast('MRP (price) is required.', 'error'); return null; }
+    const images = [...document.querySelectorAll('.f_img_url')]
+      .map(i => i.value.trim()).filter(Boolean);
     return {
       id:          existingId || uid(),
       name,
       category:    document.getElementById('f_category').value,
       tag:         document.getElementById('f_tag').value || null,
       description: desc,
+      mrp,
+      discount:    parseFloat(document.getElementById('f_discount').value) || 0,
+      images,
       featured:    document.getElementById('f_featured').checked,
       active:      document.getElementById('f_active').checked,
       createdAt:   existingId ? undefined : new Date().toISOString(),

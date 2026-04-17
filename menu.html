@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Our Menu — Krispie's Bakery & Cafe | Customized Cakes, Cheesecakes, Donuts, Hyderabad</title>
-  <meta name="description" content="Explore Krispie's full menu — customized celebration cakes, birthday cakes, Iyengar biscuits, creamy cheesecakes, and fresh donuts. Order in Hyderabad via Zomato or Swiggy.">
+  <title>Our Menu — Krispie's | Birthday, Wedding & Customized Cakes, Cheesecakes, Donuts — Hyderabad</title>
+  <meta name="description" content="Explore Krispie's full menu — birthday cakes, wedding cakes, engagement cakes, customized cakes, cheesecakes, and donuts. With prices and images. Order in Hyderabad.">
   <link rel="icon" href="assets/logo.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,236 +57,201 @@
     </div>
   </header>
 
+  <!-- STICKY CATEGORY TABS -->
+  <div class="menu-tabs" id="menuTabs">
+    <div class="menu-tabs__scroll">
+      <button class="menu-tab active" data-cat="birthday-cakes">🎂 Birthday Cakes</button>
+      <button class="menu-tab" data-cat="customized-cakes">🎨 Customized Cakes</button>
+      <button class="menu-tab" data-cat="wedding-cakes">💍 Wedding Cakes</button>
+      <button class="menu-tab" data-cat="engagement-cakes">💐 Engagement Cakes</button>
+      <button class="menu-tab" data-cat="cheesecakes">🍰 Cheesecakes</button>
+      <button class="menu-tab" data-cat="donuts">🍩 Donuts</button>
+    </div>
+  </div>
+
   <!-- MENU CONTENT -->
-  <main>
-    <div class="container">
+  <main class="menu-main">
 
-      <!-- CUSTOMIZED CAKES -->
-      <section class="menu-section" aria-labelledby="custom-cakes-heading">
-        <div class="menu-section__header">
-          <h2 class="menu-section__title" id="custom-cakes-heading">
-            <span class="menu-section__icon">🎂</span> Customized Cakes
-          </h2>
-          <p class="menu-section__desc">Every great celebration deserves a one-of-a-kind cake. We bring your vision to life — from concept to centrepiece.</p>
+    <!-- BIRTHDAY CAKES -->
+    <section class="menu-cat-section" id="cat-birthday-cakes">
+      <div class="container">
+        <div class="menu-cat-header fade-up">
+          <span class="section-label">Every Birthday Deserves Magic</span>
+          <h2>Birthday Cakes</h2>
+          <p>From classic favourites to spectacular themed creations — cakes that taste as magical as they look.</p>
         </div>
-        <div class="items-grid">
-          <div class="item-card fade-up">
-            <div class="item-card__name">Wedding Cakes</div>
-            <p class="item-card__desc">Multi-tiered masterpieces with floral, royal or modern designs. Fully customizable flavours, fillings and fondant art.</p>
-            <div class="item-card__footer">
-              <span class="item-card__tag tag-custom">Made to Order</span>
+        <div class="pcard-grid" id="grid-birthday-cakes"></div>
+        <div class="cant-find-cta" id="cta-birthday-cakes">
+          <div class="cant-find-cta__inner">
+            <div class="cant-find-cta__text">
+              <h3>Not finding what you're looking for?</h3>
+              <p>Don't worry! Fill this form with your reference cake design and we'll get back to you in minutes to confirm your order.</p>
+              <ul class="cant-find-cta__perks">
+                <li>✓ Response within minutes</li>
+                <li>✓ Custom design matching your vision</li>
+                <li>✓ Available at all 5 outlets</li>
+              </ul>
             </div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Anniversary Cakes</div>
-            <p class="item-card__desc">Celebrate your milestones with a cake as special as your love story — personalized message, date &amp; design.</p>
-            <div class="item-card__footer">
-              <span class="item-card__tag tag-best">Bestseller</span>
-            </div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Baby Shower Cakes</div>
-            <p class="item-card__desc">Adorable, whimsical cakes to welcome the newest member of your family. Gender reveal options available.</p>
-            <div class="item-card__footer">
-              <span class="item-card__tag tag-custom">Made to Order</span>
-            </div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Corporate Event Cakes</div>
-            <p class="item-card__desc">Brand-logo cakes, office celebration cakes, and bulk dessert platters for conferences, launches &amp; team events.</p>
-            <div class="item-card__footer">
-              <span class="item-card__tag tag-custom">Bulk Available</span>
-            </div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Graduation Cakes</div>
-            <p class="item-card__desc">Mark the milestone with pride. Custom mortarboard, scroll and theme designs in your favourite flavours.</p>
-            <div class="item-card__footer">
-              <span class="item-card__tag tag-seasonal">Seasonal</span>
-            </div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Farewell & Retirement</div>
-            <p class="item-card__desc">A heartfelt way to say goodbye and thank you — personalised with photos, quotes or career themes.</p>
-            <div class="item-card__footer">
-              <span class="item-card__tag tag-custom">Made to Order</span>
+            <div class="cant-find-form-wrap">
+              <form class="cant-find-form" data-category="Birthday Cake">
+                <div class="cant-find-form__row">
+                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
+                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
+                </div>
+                <textarea class="form-ctrl" data-field="message" rows="3"
+                  placeholder="Describe your dream cake — flavour, design, theme, size… or paste a reference image link"></textarea>
+                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
+                <div class="cant-find-success" style="display:none">
+                  <span>🎂</span> We got your request! Expect a call back within minutes.
+                </div>
+              </form>
             </div>
           </div>
         </div>
-        <div style="margin-top:32px">
-          <a href="contact.html" class="btn btn-gold">Enquire for Custom Cake →</a>
-        </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- BIRTHDAY CAKES -->
-      <section class="menu-section" aria-labelledby="bday-heading">
-        <div class="menu-section__header">
-          <h2 class="menu-section__title" id="bday-heading">
-            <span class="menu-section__icon">🎉</span> Birthday Cakes
-          </h2>
-          <p class="menu-section__desc">Because every birthday deserves something extraordinary — cakes that taste as magical as they look.</p>
+    <!-- CUSTOMIZED CAKES -->
+    <section class="menu-cat-section" id="cat-customized-cakes">
+      <div class="container">
+        <div class="menu-cat-header fade-up">
+          <span class="section-label">Your Vision, Our Craft</span>
+          <h2>Customized Cakes</h2>
+          <p>Every great celebration deserves a one-of-a-kind cake. We bring your vision to life — from concept to centrepiece.</p>
         </div>
-        <div class="items-grid">
-          <div class="item-card fade-up">
-            <div class="item-card__name">Classic Vanilla Dream</div>
-            <p class="item-card__desc">Moist vanilla sponge layered with silky buttercream — a timeless favourite loved by every generation.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Bestseller</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Chocolate Overload</div>
-            <p class="item-card__desc">Dark chocolate sponge, ganache drip, and chocolate shards for the ultimate chocoholic celebration.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Fan Favourite</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Fruit Fiesta</div>
-            <p class="item-card__desc">Fresh seasonal fruits, light chantilly cream, and a vanilla sponge — refreshing, vibrant and beautiful.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-new">New</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Theme Cakes</div>
-            <p class="item-card__desc">Superheroes, unicorns, sports, movies — any theme your heart desires, sculpted in cake form.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-custom">Kids' Special</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Red Velvet Royale</div>
-            <p class="item-card__desc">Striking red velvet layers with luscious cream cheese frosting — dramatic, decadent, and unforgettable.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Bestseller</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Black Forest Bliss</div>
-            <p class="item-card__desc">Classic Black Forest with cherries, whipped cream and dark chocolate — a heritage recipe baked fresh.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Heritage</span></div>
+        <div class="pcard-grid" id="grid-customized-cakes"></div>
+        <div class="cant-find-cta" id="cta-customized-cakes">
+          <div class="cant-find-cta__inner">
+            <div class="cant-find-cta__text">
+              <h3>Have a unique design in mind?</h3>
+              <p>Share your idea or reference image with us — we'll confirm the design and pricing in minutes. No vision is too big or too specific.</p>
+              <ul class="cant-find-cta__perks">
+                <li>✓ Any theme, any design</li>
+                <li>✓ Photo prints, sculpted fondant, 3D cakes</li>
+                <li>✓ Bulk orders welcome</li>
+              </ul>
+            </div>
+            <div class="cant-find-form-wrap">
+              <form class="cant-find-form" data-category="Customized Cake">
+                <div class="cant-find-form__row">
+                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
+                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
+                </div>
+                <textarea class="form-ctrl" data-field="message" rows="3"
+                  placeholder="Describe your design or paste a reference image link…"></textarea>
+                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
+                <div class="cant-find-success" style="display:none">
+                  <span>🎨</span> Design request received! We'll call you back shortly.
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- BISCUITS -->
-      <section class="menu-section" aria-labelledby="biscuits-heading">
-        <div class="menu-section__header">
-          <h2 class="menu-section__title" id="biscuits-heading">
-            <span class="menu-section__icon">🍪</span> Biscuits & Cookies
-          </h2>
-          <p class="menu-section__desc">Rooted in Iyengar bakery tradition — our biscuits are baked to crisp, buttery perfection, just like they always have been.</p>
+    <!-- WEDDING CAKES -->
+    <section class="menu-cat-section" id="cat-wedding-cakes">
+      <div class="container">
+        <div class="menu-cat-header fade-up">
+          <span class="section-label">For Your Most Special Day</span>
+          <h2>Wedding Cakes</h2>
+          <p>Masterfully crafted tiered cakes that match the grandeur of your celebration. Every detail designed for your big day.</p>
         </div>
-        <div class="items-grid">
-          <div class="item-card fade-up">
-            <div class="item-card__name">Butter Cookies</div>
-            <p class="item-card__desc">Rich, melt-in-the-mouth butter cookies using a recipe perfected over three decades. Pure, simple bliss.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Heritage Recipe</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Osmania Biscuits</div>
-            <p class="item-card__desc">The iconic Hyderabadi biscuit — slightly sweet, perfectly crisp, made for dunking into chai. Our tribute to the city.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">City Favourite</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Nan Khatai</div>
-            <p class="item-card__desc">Traditional shortbread with a hint of cardamom and ghee — the original comfort biscuit of Iyengar bakeries.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Iyengar Classic</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Coconut Cookies</div>
-            <p class="item-card__desc">Crispy, golden-edged cookies with tropical coconut flavour and a satisfying crunch in every bite.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-seasonal">Seasonal</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Jeera Biscuits</div>
-            <p class="item-card__desc">Savoury cumin-spiced biscuits — a beloved Iyengar bakery staple that pairs perfectly with evening tea.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Iyengar Classic</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Choco-Chip Cookies</div>
-            <p class="item-card__desc">Golden-brown, slightly chewy cookies packed with premium chocolate chips — a universal crowd pleaser.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-new">New</span></div>
+        <div class="pcard-grid" id="grid-wedding-cakes"></div>
+        <div class="cant-find-cta" id="cta-wedding-cakes">
+          <div class="cant-find-cta__inner">
+            <div class="cant-find-cta__text">
+              <h3>Planning your dream wedding cake?</h3>
+              <p>Share your inspiration — photos, colours, themes — and we'll craft a bespoke wedding cake that takes everyone's breath away.</p>
+              <ul class="cant-find-cta__perks">
+                <li>✓ Free consultation available</li>
+                <li>✓ Multiple tiers, any flavour</li>
+                <li>✓ Delivered and set up at your venue</li>
+              </ul>
+            </div>
+            <div class="cant-find-form-wrap">
+              <form class="cant-find-form" data-category="Wedding Cake">
+                <div class="cant-find-form__row">
+                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
+                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
+                </div>
+                <textarea class="form-ctrl" data-field="message" rows="3"
+                  placeholder="Wedding date, guest count, design inspiration, reference links…"></textarea>
+                <button type="submit" class="btn btn-gold" style="width:100%">Book a Consultation →</button>
+                <div class="cant-find-success" style="display:none">
+                  <span>💍</span> Wonderful! We'll be in touch to plan your perfect wedding cake.
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- CHEESECAKES -->
-      <section class="menu-section" aria-labelledby="cheese-heading">
-        <div class="menu-section__header">
-          <h2 class="menu-section__title" id="cheese-heading">
-            <span class="menu-section__icon">🍰</span> Cheesecakes
-          </h2>
-          <p class="menu-section__desc">Silky, indulgent, and masterfully baked — our cheesecakes are a celebration in every slice.</p>
+    <!-- ENGAGEMENT CAKES -->
+    <section class="menu-cat-section" id="cat-engagement-cakes">
+      <div class="container">
+        <div class="menu-cat-header fade-up">
+          <span class="section-label">Celebrate the Beginning</span>
+          <h2>Engagement Cakes</h2>
+          <p>Mark this beautiful milestone with a cake as unique as your love story. Personalized, elegant, and unforgettable.</p>
         </div>
-        <div class="items-grid">
-          <div class="item-card fade-up">
-            <div class="item-card__name">New York Classic</div>
-            <p class="item-card__desc">Dense, creamy, perfectly set baked cheesecake on a buttery graham cracker crust — the gold standard.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Bestseller</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Blueberry Cheesecake</div>
-            <p class="item-card__desc">Classic cheesecake crowned with a vibrant, tangy blueberry compote — visually stunning and delicious.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Fan Favourite</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Mango Cheesecake</div>
-            <p class="item-card__desc">Tropical Alphonso mango atop a light cream cheese base — summer celebrations perfected in a slice.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-seasonal">Seasonal</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Oreo Cheesecake</div>
-            <p class="item-card__desc">Creamy cheesecake with an Oreo crumb crust, chunks throughout, and crushed Oreo topping. Decadence defined.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-new">New</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Strawberry Swirl</div>
-            <p class="item-card__desc">Beautiful strawberry ribbons swirled through a vanilla cheesecake base — as gorgeous as it is delicious.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-new">New</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">No-Bake Lotus Biscoff</div>
-            <p class="item-card__desc">Velvety no-bake cheesecake with Biscoff spread and crushed caramel cookies — indulgently irresistible.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Trending</span></div>
+        <div class="pcard-grid" id="grid-engagement-cakes"></div>
+        <div class="cant-find-cta" id="cta-engagement-cakes">
+          <div class="cant-find-cta__inner">
+            <div class="cant-find-cta__text">
+              <h3>Planning a surprise proposal cake?</h3>
+              <p>Tell us your story — the name, the date, the design — and we'll create something truly magical for the most important yes of your life.</p>
+              <ul class="cant-find-cta__perks">
+                <li>✓ Surprise delivery arrangements</li>
+                <li>✓ Personalised toppers &amp; messages</li>
+                <li>✓ Same-day orders on availability</li>
+              </ul>
+            </div>
+            <div class="cant-find-form-wrap">
+              <form class="cant-find-form" data-category="Engagement Cake">
+                <div class="cant-find-form__row">
+                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
+                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
+                </div>
+                <textarea class="form-ctrl" data-field="message" rows="3"
+                  placeholder="Names, date of engagement, design inspiration or reference image link…"></textarea>
+                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
+                <div class="cant-find-success" style="display:none">
+                  <span>💐</span> How exciting! We'll reach out right away to make it perfect.
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- DONUTS -->
-      <section class="menu-section" aria-labelledby="donuts-heading">
-        <div class="menu-section__header">
-          <h2 class="menu-section__title" id="donuts-heading">
-            <span class="menu-section__icon">🍩</span> Donuts
-          </h2>
-          <p class="menu-section__desc">Freshly made every morning — pillowy-soft dough, glazed to perfection with flavours that delight at every age.</p>
+    <!-- CHEESECAKES -->
+    <section class="menu-cat-section" id="cat-cheesecakes">
+      <div class="container">
+        <div class="menu-cat-header fade-up">
+          <span class="section-label">Silky · Rich · Indulgent</span>
+          <h2>Cheesecakes</h2>
+          <p>Masterfully baked and perfectly set — our cheesecakes are a celebration in every single slice.</p>
         </div>
-        <div class="items-grid">
-          <div class="item-card fade-up">
-            <div class="item-card__name">Glazed Original</div>
-            <p class="item-card__desc">The classic — a perfectly yeasted donut ring with a sheer vanilla glaze. Simple. Perfect. Timeless.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Daily Fresh</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Chocolate Frosted</div>
-            <p class="item-card__desc">Rich dark chocolate ganache on a fluffy donut — the go-to for every chocolate lover's morning.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Bestseller</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Strawberry Sprinkle</div>
-            <p class="item-card__desc">Pink strawberry glaze showered with rainbow sprinkles — fun, colourful, and guaranteed to make you smile.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Kids' Favourite</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Matcha Green Tea</div>
-            <p class="item-card__desc">Earthy ceremonial-grade matcha glaze on a light donut — a sophisticated twist for the adventurous palate.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-new">New</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Caramel Crunch</div>
-            <p class="item-card__desc">Buttery caramel glaze with a sprinkle of caramelized sugar crystals — indulgent, golden, and extraordinary.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-new">New</span></div>
-          </div>
-          <div class="item-card fade-up">
-            <div class="item-card__name">Cinnamon Sugar</div>
-            <p class="item-card__desc">Warm cinnamon and sugar coating on a soft fried donut — a bakery classic that never goes out of style.</p>
-            <div class="item-card__footer"><span class="item-card__tag tag-best">Heritage</span></div>
-          </div>
-        </div>
-      </section>
+        <div class="pcard-grid" id="grid-cheesecakes"></div>
+      </div>
+    </section>
 
-    </div><!-- /container -->
+    <!-- DONUTS -->
+    <section class="menu-cat-section" id="cat-donuts">
+      <div class="container">
+        <div class="menu-cat-header fade-up">
+          <span class="section-label">Made Fresh Every Morning</span>
+          <h2>Donuts</h2>
+          <p>Pillowy-soft dough, glazed to perfection — with flavours that delight at every age.</p>
+        </div>
+        <div class="pcard-grid" id="grid-donuts"></div>
+      </div>
+    </section>
+
   </main>
 
   <!-- ORDER CTA -->
@@ -325,22 +290,19 @@
         <div class="footer__col">
           <h4 class="footer__col-title">Our Outlets</h4>
           <ul>
-            <li><a href="#">Lalbazar</a></li>
-            <li><a href="#">Suchitra</a></li>
-            <li><a href="#">Boduppal</a></li>
-            <li><a href="#">Ramantapur</a></li>
-            <li><a href="#">Tukkuguda</a></li>
+            <li>Lalbazar</li><li>Suchitra</li><li>Boduppal</li>
+            <li>Ramantapur</li><li>Tukkuguda</li>
           </ul>
         </div>
         <div class="footer__col">
           <h4 class="footer__col-title">Connect</h4>
           <div class="footer__contact-row">
             <span class="footer__contact-icon">📸</span>
-            <span class="footer__contact-text"><a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener">@krispies.in</a></span>
+            <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener">@krispies.in</a>
           </div>
           <div class="footer__contact-row">
             <span class="footer__contact-icon">📘</span>
-            <span class="footer__contact-text"><a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener">krispies.in</a></span>
+            <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener">krispies.in</a>
           </div>
         </div>
       </div>
@@ -359,5 +321,246 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+  /* ── DATA ── */
+  const PROD_KEY = 'krispies_products';
+
+  const TAG_LABELS = { bestseller:'Bestseller', new:'New', seasonal:'Seasonal', custom:'Made to Order' };
+  const CAT_EMOJI  = { 'birthday-cakes':'🎂','customized-cakes':'🎨','wedding-cakes':'💍','engagement-cakes':'💐','cheesecakes':'🍰','donuts':'🍩' };
+
+  function getProducts() {
+    try { return JSON.parse(localStorage.getItem(PROD_KEY)) || []; }
+    catch { return []; }
+  }
+
+  /* Seed defaults if localStorage is empty (mirrors admin.js) */
+  function ensureDefaults() {
+    if (localStorage.getItem(PROD_KEY)) return;
+    const now = new Date().toISOString();
+    const mk = (name, cat, desc, tag, mrp, disc, feat) => ({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      name, category: cat, description: desc, tag, mrp, discount: disc||0,
+      images:[], featured:!!feat, active:true, createdAt:now
+    });
+    const products = [
+      mk('Classic Vanilla Dream','birthday-cakes','Moist vanilla sponge layered with silky buttercream — a timeless favourite.','bestseller',899,10,true),
+      mk('Chocolate Overload','birthday-cakes','Dark chocolate sponge, ganache drip, and chocolate shards.','bestseller',999,15,true),
+      mk('Red Velvet Royale','birthday-cakes','Striking red velvet layers with luscious cream cheese frosting.','bestseller',1099,10,true),
+      mk('Black Forest Bliss','birthday-cakes','Classic Black Forest with cherries, whipped cream and dark chocolate.','bestseller',999,0,false),
+      mk('Fruit Fiesta','birthday-cakes','Fresh seasonal fruits, light chantilly cream, and vanilla sponge.','new',849,0,false),
+      mk('Theme Cakes','birthday-cakes','Any theme — sculpted in cake form. Unicorns, superheroes, sports.','custom',1499,0,false),
+      mk('Butterscotch Dream','birthday-cakes','Crunchy butterscotch praline layered in creamy buttercream.',null,849,10,false),
+      mk('Rainbow Funfetti','birthday-cakes','Colourful sprinkles baked right in — a party in every slice!','new',949,0,false),
+      mk('Photo-Print Cake','customized-cakes','Edible photo print on moist sponge. Any image, any occasion.','bestseller',1299,10,true),
+      mk('Floral Fondant Cake','customized-cakes','Hand-sculpted fondant blooms in your choice of colours.','custom',2499,0,true),
+      mk('Character Theme Cake','customized-cakes','Kids\' favourite characters in 3-D fondant.','custom',1799,0,false),
+      mk('Geode Crystal Cake','customized-cakes','Rock-candy geode inlaid in rich buttercream.','new',2999,0,false),
+      mk('Name-Script Cake','customized-cakes','Elegant piped lettering over velvet ganache.',null,1199,15,false),
+      mk('Baby Shower Cake','customized-cakes','Adorable whimsical cakes. Gender reveal options available.','custom',1499,0,false),
+      mk('Classic 2-Tier White','wedding-cakes','Elegant two-tier vanilla sponge with smooth white fondant.','bestseller',7500,10,true),
+      mk('Floral 3-Tier Fondant','wedding-cakes','Three tiers with hand-sculpted sugar flowers.','custom',14000,0,true),
+      mk('Rustic Naked Cake','wedding-cakes','Semi-naked cake with fresh florals and berries.','new',8500,10,false),
+      mk('Gold Leaf Luxury Tier','wedding-cakes','Metallic gold fondant with real edible gold leaf.','custom',18000,0,false),
+      mk('Minimalist Modern Tier','wedding-cakes','Clean geometric lines, matte fondant, single accent bloom.','new',9500,0,false),
+      mk('Ring Box Cake','engagement-cakes','A showstopping ring-box sculpture cake.','bestseller',2999,10,true),
+      mk('Heart & Roses Cake','engagement-cakes','Two-tier heart-shaped cake with handmade fondant roses.','bestseller',3500,0,true),
+      mk('Gold Drip Engagement','engagement-cakes','Smooth ganache with luxurious gold drip and personalised topper.','new',2499,15,false),
+      mk('Photo Collage Tier','engagement-cakes','Edible photo prints of your favourite couple moments.','custom',3999,0,false),
+      mk('Floral Wreath Cake','engagement-cakes','Buttercream painted floral wreath on a semi-naked cake.',null,2799,10,false),
+      mk('New York Classic','cheesecakes','Dense, creamy, perfectly set baked cheesecake on a graham crust.','bestseller',699,0,true),
+      mk('Blueberry Cheesecake','cheesecakes','Classic cheesecake crowned with tangy blueberry compote.','bestseller',749,10,true),
+      mk('Mango Cheesecake','cheesecakes','Tropical Alphonso mango atop a light cream cheese base.','seasonal',749,0,false),
+      mk('Oreo Cheesecake','cheesecakes','Creamy cheesecake with Oreo crust and crushed Oreo topping.','new',799,0,false),
+      mk('Lotus Biscoff','cheesecakes','No-bake cheesecake with Biscoff spread and caramel cookies.','bestseller',849,0,false),
+      mk('Strawberry Swirl','cheesecakes','Strawberry ribbons swirled through a vanilla cheesecake base.','new',729,10,false),
+      mk('Glazed Original','donuts','Classic yeasted donut ring with a sheer vanilla glaze.',null,99,0,true),
+      mk('Chocolate Frosted','donuts','Rich dark chocolate ganache on a fluffy donut.','bestseller',119,0,true),
+      mk('Strawberry Sprinkle','donuts','Pink strawberry glaze with rainbow sprinkles.','bestseller',119,0,false),
+      mk('Caramel Crunch','donuts','Buttery caramel glaze with caramelized sugar crystals.','new',129,0,false),
+      mk('Matcha Green Tea','donuts','Earthy ceremonial-grade matcha glaze on a light donut.','new',129,0,false),
+      mk('Cinnamon Sugar','donuts','Warm cinnamon and sugar coating on a soft fried donut.',null,99,0,false),
+    ];
+    localStorage.setItem(PROD_KEY, JSON.stringify(products));
+  }
+
+  /* ── RENDER ── */
+  function esc(s) {
+    const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+  }
+
+  function renderCard(p) {
+    const imgs     = (p.images || []).filter(Boolean);
+    const hasImgs  = imgs.length > 0;
+    const emoji    = CAT_EMOJI[p.category] || '🎂';
+    const discount = Number(p.discount) || 0;
+    const mrp      = Number(p.mrp) || 0;
+    const final    = mrp ? Math.round(mrp * (1 - discount / 100)) : 0;
+    const tagHtml  = p.tag
+      ? `<div class="pcard__tag-badge ${p.tag}">${TAG_LABELS[p.tag] || p.tag}</div>` : '';
+
+    const gallerySlides = hasImgs
+      ? imgs.map(url =>
+          `<div class="pcard__gal-slide">
+             <img src="${esc(url)}" alt="${esc(p.name)}" loading="lazy"
+               onerror="this.closest('.pcard__gal-slide').innerHTML='<div class=pcard__gal-placeholder>${emoji}</div>'">
+           </div>`).join('')
+      : `<div class="pcard__gal-slide"><div class="pcard__gal-placeholder">${emoji}</div></div>`;
+
+    const controls = imgs.length > 1 ? `
+      <button class="pcard__gal-btn pcard__gal-prev" aria-label="Previous">&#8249;</button>
+      <button class="pcard__gal-btn pcard__gal-next" aria-label="Next">&#8250;</button>
+      <div class="pcard__gal-dots">
+        ${imgs.map((_,i) => `<span class="pcard__gal-dot${i===0?' active':''}"></span>`).join('')}
+      </div>` : '';
+
+    const pricingHtml = mrp ? `
+      <div class="pcard__pricing">
+        ${discount > 0 ? `<span class="pcard__mrp">₹${mrp.toLocaleString('en-IN')}</span>` : ''}
+        <span class="pcard__price">₹${final.toLocaleString('en-IN')}</span>
+        ${discount > 0 ? `<span class="pcard__discount">${discount}% OFF</span>` : ''}
+      </div>` : `<p class="pcard__price-note">Price on request</p>`;
+
+    return `
+      <div class="pcard">
+        <div class="pcard__gallery">
+          <div class="pcard__gal-track">${gallerySlides}</div>
+          ${controls}
+          ${tagHtml}
+        </div>
+        <div class="pcard__body">
+          <h3 class="pcard__name">${esc(p.name)}</h3>
+          <p class="pcard__desc">${esc(p.description)}</p>
+          ${pricingHtml}
+          <a href="contact.html" class="btn btn-gold pcard__btn">Enquire Now</a>
+        </div>
+      </div>`;
+  }
+
+  function renderAll() {
+    const categories = [
+      'birthday-cakes','customized-cakes','wedding-cakes',
+      'engagement-cakes','cheesecakes','donuts'
+    ];
+    const all = getProducts();
+    categories.forEach(cat => {
+      const grid = document.getElementById(`grid-${cat}`);
+      if (!grid) return;
+      const items = all.filter(p => p.category === cat && p.active !== false);
+      grid.innerHTML = items.length
+        ? items.map(renderCard).join('')
+        : `<div class="menu-empty">
+             <div style="font-size:3rem;margin-bottom:12px">${CAT_EMOJI[cat]||'🎂'}</div>
+             <p>Products coming soon. Check back shortly!</p>
+           </div>`;
+    });
+    initGalleries();
+  }
+
+  /* ── GALLERY INIT ── */
+  function initGalleries() {
+    document.querySelectorAll('.pcard__gallery').forEach(gallery => {
+      const track  = gallery.querySelector('.pcard__gal-track');
+      const slides = track ? [...track.querySelectorAll('.pcard__gal-slide')] : [];
+      if (slides.length < 2) return;
+
+      const dots    = [...gallery.querySelectorAll('.pcard__gal-dot')];
+      const prevBtn = gallery.querySelector('.pcard__gal-prev');
+      const nextBtn = gallery.querySelector('.pcard__gal-next');
+      let cur = 0;
+
+      function goTo(idx) {
+        cur = (idx + slides.length) % slides.length;
+        track.style.transform = `translateX(-${cur * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === cur));
+      }
+
+      prevBtn?.addEventListener('click', e => { e.preventDefault(); goTo(cur - 1); });
+      nextBtn?.addEventListener('click', e => { e.preventDefault(); goTo(cur + 1); });
+      dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
+
+      /* Touch swipe */
+      let startX = null;
+      track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive:true });
+      track.addEventListener('touchend', e => {
+        if (startX === null) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 40) dx < 0 ? goTo(cur+1) : goTo(cur-1);
+        startX = null;
+      }, { passive:true });
+    });
+  }
+
+  /* ── TABS ── */
+  const tabs = document.querySelectorAll('.menu-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const catId = tab.dataset.cat;
+      const section = document.getElementById(`cat-${catId}`);
+      if (!section) return;
+      const offset = document.getElementById('menuTabs').offsetHeight + 90;
+      const top = section.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    });
+  });
+
+  /* Update active tab on scroll */
+  const sections = [...document.querySelectorAll('.menu-cat-section')];
+  const tabsBar  = document.getElementById('menuTabs');
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY + tabsBar.offsetHeight + 100;
+    let active = sections[0];
+    sections.forEach(s => { if (s.offsetTop <= scrollY) active = s; });
+    if (active) {
+      const catId = active.id.replace('cat-','');
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.cat === catId));
+    }
+  }, { passive: true });
+
+  /* ── CANT-FIND FORMS ── */
+  // BACKEND_URL is defined in main.js — update it there when you deploy
+  document.querySelectorAll('.cant-find-form').forEach(form => {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = form.querySelector('[type="submit"]');
+      btn.textContent = 'Sending…'; btn.disabled = true;
+
+      const category = form.dataset.category || 'Custom Cake';
+      const name     = form.querySelector('[data-field="name"]')?.value.trim()    || '';
+      const phone    = form.querySelector('[data-field="phone"]')?.value.trim()   || '';
+      const message  = form.querySelector('[data-field="message"]')?.value.trim() || '';
+
+      if (!name || !phone) { showToast('Please enter your name and phone number.'); btn.textContent='Get a Quote in Minutes →'; btn.disabled=false; return; }
+
+      try {
+        await fetch(`${BACKEND_URL}/api/messages`, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ name, phone, message: `[${category}] ${message}`, eventType: 'other' })
+        });
+      } catch(_) {
+        /* fallback: save to localStorage */
+        try {
+          const existing = JSON.parse(localStorage.getItem('krispies_enquiries')||'[]');
+          existing.unshift({ id: Date.now().toString(36), name, phone, message:`[${category}] ${message}`,
+            eventType:'other', status:'unread', submittedAt: new Date().toISOString() });
+          localStorage.setItem('krispies_enquiries', JSON.stringify(existing));
+        } catch(_) {}
+      }
+
+      form.querySelectorAll('input,textarea,button[type=submit]').forEach(el => el.style.display='none');
+      form.querySelector('.cant-find-success').style.display = 'flex';
+    });
+  });
+
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#FAF7F0;padding:12px 24px;border-radius:8px;border:1px solid rgba(201,168,112,0.3);font-size:0.875rem;z-index:9999';
+    t.textContent = msg; document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  /* ── INIT ── */
+  ensureDefaults();
+  renderAll();
+  </script>
 </body>
 </html>
