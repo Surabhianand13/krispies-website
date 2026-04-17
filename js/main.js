@@ -112,42 +112,131 @@ if (fadeEls.length && 'IntersectionObserver' in window) {
 })();
 
 /* ---- CONTACT FORM ---- */
+// Change this URL once you deploy the backend
+const BACKEND_URL = 'http://localhost:3000';
+
 const form = document.getElementById('contactForm');
 const successPanel = document.querySelector('.form-success');
 if (form) {
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const btn = form.querySelector('[type="submit"]');
     btn.textContent = 'Sending…';
     btn.disabled = true;
 
-    // Save enquiry to localStorage so admin panel can view it
-    const enquiry = {
-      id:          Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-      name:        (form.querySelector('#name')        ?.value || '').trim(),
-      phone:       (form.querySelector('#phone')       ?.value || '').trim(),
-      email:       (form.querySelector('#email')       ?.value || '').trim(),
-      eventType:   (form.querySelector('#event-type')  ?.value || ''),
-      outlet:      (form.querySelector('#outlet')      ?.value || ''),
-      quantity:    (form.querySelector('#quantity')    ?.value || '').trim(),
-      eventDate:   (form.querySelector('#event-date')  ?.value || ''),
-      products:    (form.querySelector('#products')    ?.value || '').trim(),
-      message:     (form.querySelector('#message')     ?.value || '').trim(),
-      status:      'unread',
-      submittedAt: new Date().toISOString(),
+    const payload = {
+      name:      (form.querySelector('#name')       ?.value || '').trim(),
+      phone:     (form.querySelector('#phone')      ?.value || '').trim(),
+      email:     (form.querySelector('#email')      ?.value || '').trim(),
+      eventType: (form.querySelector('#event-type') ?.value || ''),
+      outlet:    (form.querySelector('#outlet')     ?.value || ''),
+      quantity:  (form.querySelector('#quantity')   ?.value || '').trim(),
+      eventDate: (form.querySelector('#event-date') ?.value || ''),
+      products:  (form.querySelector('#products')   ?.value || '').trim(),
+      message:   (form.querySelector('#message')    ?.value || '').trim(),
     };
-    try {
-      const existing = JSON.parse(localStorage.getItem('krispies_enquiries') || '[]');
-      existing.unshift(enquiry);
-      localStorage.setItem('krispies_enquiries', JSON.stringify(existing));
-    } catch (_) { /* storage unavailable — fail silently */ }
 
-    setTimeout(() => {
-      form.style.display = 'none';
-      if (successPanel) successPanel.style.display = 'block';
-    }, 1200);
+    let sent = false;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/messages`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+      sent = res.ok;
+    } catch (_) { /* backend unavailable — fall through to localStorage */ }
+
+    // Fallback: save to localStorage for admin panel when backend is offline
+    if (!sent) {
+      try {
+        const enquiry = {
+          ...payload,
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          status: 'unread',
+          submittedAt: new Date().toISOString(),
+        };
+        const existing = JSON.parse(localStorage.getItem('krispies_enquiries') || '[]');
+        existing.unshift(enquiry);
+        localStorage.setItem('krispies_enquiries', JSON.stringify(existing));
+      } catch (_) { /* storage unavailable */ }
+    }
+
+    form.style.display = 'none';
+    if (successPanel) successPanel.style.display = 'block';
+    btn.textContent = 'Send Enquiry';
+    btn.disabled = false;
   });
 }
+
+/* ---- HERO BANNER CAROUSEL ---- */
+(function () {
+  const track    = document.getElementById('heroTrack');
+  const dotsWrap = document.getElementById('heroDots');
+  const prevBtn  = document.getElementById('heroPrev');
+  const nextBtn  = document.getElementById('heroNext');
+  if (!track) return;
+
+  const slides = [...track.querySelectorAll('.hero__slide')];
+  const total  = slides.length;
+  let cur      = 0;
+  let timer;
+  let startX   = null; // for swipe support
+
+  // Build dots
+  if (dotsWrap) {
+    slides.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className  = 'hero__dot' + (i === 0 ? ' active' : '');
+      d.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      d.setAttribute('role', 'tab');
+      d.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+      d.addEventListener('click', () => go(i));
+      dotsWrap.appendChild(d);
+    });
+  }
+
+  function go(idx) {
+    cur = (idx + total) % total;
+    track.style.transform = `translateX(-${cur * 100}%)`;
+    if (dotsWrap) {
+      dotsWrap.querySelectorAll('.hero__dot').forEach((d, i) => {
+        d.classList.toggle('active', i === cur);
+        d.setAttribute('aria-selected', i === cur ? 'true' : 'false');
+      });
+    }
+  }
+
+  function next() { go(cur + 1); }
+  function prev() { go(cur - 1); }
+
+  if (nextBtn) nextBtn.addEventListener('click', () => { next(); resetTimer(); });
+  if (prevBtn) prevBtn.addEventListener('click', () => { prev(); resetTimer(); });
+
+  // Auto-advance every 5 seconds
+  function startTimer() { timer = setInterval(next, 5000); }
+  function resetTimer() { clearInterval(timer); startTimer(); }
+
+  // Pause on hover
+  track.closest('.hero')?.addEventListener('mouseenter', () => clearInterval(timer));
+  track.closest('.hero')?.addEventListener('mouseleave', startTimer);
+
+  // Touch / swipe support
+  track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    if (startX === null) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); resetTimer(); }
+    startX = null;
+  }, { passive: true });
+
+  // Keyboard accessibility
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { next(); resetTimer(); }
+    if (e.key === 'ArrowLeft')  { prev(); resetTimer(); }
+  });
+
+  startTimer();
+})();
 
 /* ---- SMOOTH SECTION SCROLL from hash links ---- */
 document.querySelectorAll('a[href^="#"]').forEach(a => {

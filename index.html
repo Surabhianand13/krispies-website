@@ -53,27 +53,135 @@
     </div>
   </nav>
 
-  <!-- ========== HERO ========== -->
+  <!-- ========== HERO BANNER CAROUSEL ========== -->
+  <!--
+    HOW TO ADD REAL PHOTOS:
+    Replace each .hero__art div with an <img> tag:
+      <img src="../assets/banner-1.jpg" alt="Custom cakes" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+    And change the .hero__slide-bg background to:
+      background-image: url('../assets/banner-bg-1.jpg');
+    Recommended image size: 1400×900px or wider. Use WebP for best performance.
+  -->
   <section class="hero" aria-label="Welcome to Krispie's">
-    <div class="hero__bg"></div>
-    <div class="hero__grid"></div>
-    <div class="hero__content">
-      <span class="hero__eyebrow">✦ Est. 1996 · Hyderabad · Celebrations Partner</span>
-      <h1 class="hero__title">
-        Every Bite <em>Tells</em><br>a Story
-      </h1>
-      <p class="hero__sub">Handcrafted cakes, sweets &amp; treats baked with 30 years of love — from our Iyengar roots to your celebration table.</p>
-      <div class="hero__actions">
-        <a href="menu.html" class="btn btn-gold">Explore Our Menu</a>
-        <a href="contact.html" class="btn btn-outline">Order in Bulk</a>
-        <a href="https://www.zomato.com/hyderabad/search?q=krispies" target="_blank" rel="noopener" class="btn btn-zomato">🍕 Order on Zomato</a>
-        <a href="https://www.swiggy.com/search?query=krispies+hyderabad" target="_blank" rel="noopener" class="btn btn-swiggy">🛵 Order on Swiggy</a>
+
+    <!-- Slides track -->
+    <div class="hero__track" id="heroTrack">
+
+      <!-- Slide 1: Customized Cakes -->
+      <div class="hero__slide hero__slide--1" aria-label="Slide 1 of 5">
+        <div class="hero__slide-bg"></div>
+        <div class="hero__slide-overlay"></div>
+        <div class="hero__slide-inner">
+          <div class="hero__content">
+            <span class="hero__eyebrow">✦ Est. 1996 · Hyderabad</span>
+            <h1 class="hero__title">
+              Every Bite <em>Tells</em><br>a Story
+            </h1>
+            <p class="hero__sub">Handcrafted cakes baked with 30 years of Iyengar love — made for every celebration, big or small.</p>
+            <div class="hero__actions">
+              <a href="menu.html" class="btn btn-gold">Explore Menu</a>
+              <a href="contact.html" class="btn btn-outline-dark">Order in Bulk</a>
+            </div>
+          </div>
+          <div class="hero__art" aria-hidden="true">🎂</div>
+        </div>
       </div>
-    </div>
+
+      <!-- Slide 2: Birthday Cakes -->
+      <div class="hero__slide hero__slide--2" aria-label="Slide 2 of 5">
+        <div class="hero__slide-bg"></div>
+        <div class="hero__slide-overlay"></div>
+        <div class="hero__slide-inner">
+          <div class="hero__content">
+            <span class="hero__eyebrow">✦ Birthday Cakes</span>
+            <h2 class="hero__title">
+              Make Every<br><em>Birthday</em> Magical
+            </h2>
+            <p class="hero__sub">From classic Black Forest to towering tiered creations — we bake the cake that steals the show.</p>
+            <div class="hero__actions">
+              <a href="menu.html#birthday-cakes" class="btn btn-gold">See Birthday Cakes</a>
+              <a href="contact.html" class="btn btn-outline-dark">Custom Order</a>
+            </div>
+          </div>
+          <div class="hero__art" aria-hidden="true">🎉</div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Biscuits & Cookies -->
+      <div class="hero__slide hero__slide--3" aria-label="Slide 3 of 5">
+        <div class="hero__slide-bg"></div>
+        <div class="hero__slide-overlay"></div>
+        <div class="hero__slide-inner">
+          <div class="hero__content">
+            <span class="hero__eyebrow">✦ Iyengar Heritage · Since 1996</span>
+            <h2 class="hero__title">
+              30 Years of<br><em>Nankhatai</em> Love
+            </h2>
+            <p class="hero__sub">Our signature Iyengar biscuits — cardamom ghee shortbread crafted from a recipe that has stood the test of time.</p>
+            <div class="hero__actions">
+              <a href="menu.html#biscuits" class="btn btn-gold">Try Our Biscuits</a>
+              <a href="story.html" class="btn btn-outline-dark">Our Story</a>
+            </div>
+          </div>
+          <div class="hero__art" aria-hidden="true">🍪</div>
+        </div>
+      </div>
+
+      <!-- Slide 4: Cheesecakes -->
+      <div class="hero__slide hero__slide--4" aria-label="Slide 4 of 5">
+        <div class="hero__slide-bg"></div>
+        <div class="hero__slide-overlay"></div>
+        <div class="hero__slide-inner">
+          <div class="hero__content">
+            <span class="hero__eyebrow">✦ Premium Cheesecakes</span>
+            <h2 class="hero__title">
+              Creamy, Dreamy<br><em>Cheesecakes</em>
+            </h2>
+            <p class="hero__sub">New York classic, blueberry swirl, mango, Lotus Biscoff — rich, velvety, and made fresh every day.</p>
+            <div class="hero__actions">
+              <a href="menu.html#cheesecakes" class="btn btn-gold">Browse Cheesecakes</a>
+              <a href="https://www.zomato.com/hyderabad/search?q=krispies" target="_blank" rel="noopener" class="btn btn-outline-dark">Order Now ↗</a>
+            </div>
+          </div>
+          <div class="hero__art" aria-hidden="true">🍰</div>
+        </div>
+      </div>
+
+      <!-- Slide 5: Corporate / Bulk Orders -->
+      <div class="hero__slide hero__slide--5" aria-label="Slide 5 of 5">
+        <div class="hero__slide-bg"></div>
+        <div class="hero__slide-overlay"></div>
+        <div class="hero__slide-inner">
+          <div class="hero__content">
+            <span class="hero__eyebrow">✦ Corporate &amp; Bulk Orders</span>
+            <h2 class="hero__title">
+              Celebrations at<br><em>Every Scale</em>
+            </h2>
+            <p class="hero__sub">Weddings, corporate events, baby showers, festivals — we handle any quantity across all 5 Hyderabad outlets.</p>
+            <div class="hero__actions">
+              <a href="contact.html" class="btn btn-gold">Get a Quote</a>
+              <a href="story.html" class="btn btn-outline-dark">Meet the Team</a>
+            </div>
+          </div>
+          <div class="hero__art" aria-hidden="true">🎊</div>
+        </div>
+      </div>
+
+    </div><!-- /hero__track -->
+
+    <!-- Arrows -->
+    <button class="hero__arrow hero__arrow--prev" id="heroPrev" aria-label="Previous slide">&#8592;</button>
+    <button class="hero__arrow hero__arrow--next" id="heroNext" aria-label="Next slide">&#8594;</button>
+
+    <!-- Dots -->
+    <div class="hero__dots" role="tablist" id="heroDots" aria-label="Slide navigation"></div>
+
+    <!-- Scroll hint -->
     <div class="hero__scroll" aria-hidden="true">
       <div class="hero__scroll-line"></div>
       <span>Scroll</span>
     </div>
+
   </section>
 
   <!-- ========== STATS STRIP ========== -->
