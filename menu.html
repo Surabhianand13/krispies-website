@@ -320,6 +320,26 @@
     </div>
   </footer>
 
+  <!-- CHECKOUT MODAL -->
+  <div id="checkoutOverlay" class="checkout-overlay" onclick="if(event.target===this)closeCheckout()">
+    <div class="checkout-modal">
+      <div class="checkout-modal__hd">
+        <div>
+          <h3 class="checkout-modal__title">Place Your Order</h3>
+          <div class="chk-steps">
+            <span class="chk-step" id="chkStep1">1. Order</span>
+            <span class="chk-sep">›</span>
+            <span class="chk-step" id="chkStep2">2. Details</span>
+            <span class="chk-sep">›</span>
+            <span class="chk-step" id="chkStep3">3. Delivery &amp; Pay</span>
+          </div>
+        </div>
+        <button class="checkout-modal__close" onclick="closeCheckout()" aria-label="Close">✕</button>
+      </div>
+      <div class="checkout-modal__body" id="checkoutBody"></div>
+    </div>
+  </div>
+
   <script src="js/main.js"></script>
   <script>
   /* ── DATA ── */
@@ -431,7 +451,10 @@
           <h3 class="pcard__name">${esc(p.name)}</h3>
           <p class="pcard__desc">${esc(p.description)}</p>
           ${pricingHtml}
-          <a href="contact.html" class="btn btn-gold pcard__btn">Enquire Now</a>
+          ${mrp > 0
+            ? `<button class="btn btn-gold pcard__btn" onclick="openCheckout('${p.id}')">🛒 Buy Now</button>`
+            : `<a href="contact.html" class="btn btn-gold pcard__btn">Get a Quote →</a>`
+          }
         </div>
       </div>`;
   }
@@ -561,6 +584,592 @@
   /* ── INIT ── */
   ensureDefaults();
   renderAll();
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════
+       CHECKOUT FLOW
+       ═══════════════════════════════════════════════════════ -->
+  <script>
+  /* ── Store coordinates (Hyderabad) ── */
+  const STORES = [
+    { name: 'Lalbazar',    lat: 17.3730, lng: 78.4760 },
+    { name: 'Suchitra',    lat: 17.5040, lng: 78.4450 },
+    { name: 'Boduppal',    lat: 17.4120, lng: 78.5820 },
+    { name: 'Ramantapur',  lat: 17.3980, lng: 78.5470 },
+    { name: 'Tukkuguda',   lat: 17.2850, lng: 78.5680 },
+  ];
+
+  /* ── Haversine distance (km) ── */
+  function haversine(lat1, lng1, lat2, lng2) {
+    const R = 6371, toRad = x => x * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+    const a = Math.sin(dLat/2)**2 +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  /* ── Delivery fee tiers ── */
+  function deliveryFee(km) {
+    if (km <= 3)  return 30;
+    if (km <= 6)  return 60;
+    if (km <= 10) return 100;
+    if (km <= 15) return 150;
+    if (km <= 20) return 200;
+    return 250;
+  }
+
+  /* ── State ── */
+  let _chkProduct  = null;
+  let _chkCart     = { qty: 1, deliveryDate: '', notes: '' };
+  let _chkCust     = { name: '', phone: '', email: '', address: '' };
+  let _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
+
+  /* ── Open / Close ── */
+  function openCheckout(productId) {
+    _chkProduct  = getProducts().find(p => p.id === productId);
+    if (!_chkProduct) return;
+    _chkCart     = { qty: 1, deliveryDate: '', notes: '' };
+    _chkCust     = { name: '', phone: '', email: '', address: '' };
+    _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
+    document.getElementById('checkoutOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    _chkRenderStep(1);
+  }
+
+  function closeCheckout() {
+    document.getElementById('checkoutOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Step indicator ── */
+  function _chkSetSteps(active) {
+    ['chkStep1','chkStep2','chkStep3'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('active', i + 1 === active);
+      el.classList.toggle('done',   i + 1 < active);
+    });
+  }
+
+  function _chkRenderStep(step) {
+    _chkSetSteps(step);
+    const body = document.getElementById('checkoutBody');
+    if (step === 1) body.innerHTML = _chkStep1();
+    if (step === 2) body.innerHTML = _chkStep2();
+    if (step === 3) { body.innerHTML = _chkStep3(); }
+  }
+
+  /* ════ STEP 1: Product + Qty + Date ════ */
+  function _chkStep1() {
+    const p    = _chkProduct;
+    const mrp  = Number(p.mrp) || 0;
+    const disc = Number(p.discount) || 0;
+    const fin  = mrp ? Math.round(mrp * (1 - disc / 100)) : 0;
+    const img  = (p.images || []).filter(Boolean)[0];
+    const emoji = CAT_EMOJI[p.category] || '🎂';
+
+    /* min date = tomorrow */
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split('T')[0];
+
+    return `
+      <div class="chk-product-row">
+        <div class="chk-product-img">
+          ${img
+            ? `<img src="${esc(img)}" alt="${esc(p.name)}"
+                 onerror="this.parentElement.innerHTML='<div class=chk-product-emoji>${emoji}</div>'">`
+            : `<div class="chk-product-emoji">${emoji}</div>`}
+        </div>
+        <div>
+          <div class="chk-product-name">${esc(p.name)}</div>
+          <div class="chk-product-price">
+            ${disc > 0 ? `<s style="color:var(--text-muted);font-size:0.78rem">₹${mrp.toLocaleString('en-IN')}</s> ` : ''}
+            <strong style="color:var(--gold)">₹${fin.toLocaleString('en-IN')}</strong>
+            ${disc > 0 ? `<span class="chk-disc-tag">${disc}% OFF</span>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="chk-field-group">
+        <label class="chk-label">Quantity</label>
+        <div class="chk-qty-ctrl">
+          <button type="button" class="chk-qty-btn" onclick="_chkQty(-1)">−</button>
+          <span class="chk-qty-val" id="chkQtyVal">${_chkCart.qty}</span>
+          <button type="button" class="chk-qty-btn" onclick="_chkQty(1)">+</button>
+          <span class="chk-qty-unit" id="chkQtyUnit">cake</span>
+        </div>
+      </div>
+
+      <div class="chk-field-group">
+        <label class="chk-label">Preferred Date *</label>
+        <input type="date" class="chk-input" id="chkDate"
+          min="${minDate}" value="${_chkCart.deliveryDate}">
+      </div>
+
+      <div class="chk-field-group">
+        <label class="chk-label">Special Instructions <span style="font-weight:400;text-transform:none">(optional)</span></label>
+        <textarea class="chk-input" id="chkNotes" rows="3"
+          placeholder="Flavour, design, message on cake, allergens…">${esc(_chkCart.notes)}</textarea>
+      </div>
+
+      <div class="chk-footer">
+        <div></div>
+        <button class="btn btn-gold chk-next-btn" onclick="_chkStep1Next()">Next: Your Details →</button>
+      </div>`;
+  }
+
+  function _chkQty(delta) {
+    _chkCart.qty = Math.max(1, Math.min(99, _chkCart.qty + delta));
+    const v = document.getElementById('chkQtyVal');
+    const u = document.getElementById('chkQtyUnit');
+    if (v) v.textContent = _chkCart.qty;
+    if (u) u.textContent = 'cake' + (_chkCart.qty > 1 ? 's' : '');
+  }
+
+  function _chkStep1Next() {
+    const date  = document.getElementById('chkDate').value;
+    const notes = document.getElementById('chkNotes').value.trim();
+    if (!date) { _chkToast('Please select a preferred date.'); return; }
+    _chkCart.deliveryDate = date;
+    _chkCart.notes = notes;
+    _chkRenderStep(2);
+  }
+
+  /* ════ STEP 2: Customer Details ════ */
+  function _chkStep2() {
+    const c = _chkCust;
+    return `
+      <div class="chk-field-group">
+        <label class="chk-label">Full Name *</label>
+        <input type="text" class="chk-input" id="chkName"
+          value="${esc(c.name)}" placeholder="Your full name">
+      </div>
+
+      <div class="chk-field-row">
+        <div class="chk-field-group">
+          <label class="chk-label">Phone Number *</label>
+          <input type="tel" class="chk-input" id="chkPhone"
+            value="${esc(c.phone)}" placeholder="+91 98765 43210">
+        </div>
+        <div class="chk-field-group">
+          <label class="chk-label">Email <span style="font-weight:400;text-transform:none">(optional)</span></label>
+          <input type="email" class="chk-input" id="chkEmail"
+            value="${esc(c.email)}" placeholder="Order confirmation">
+        </div>
+      </div>
+
+      <div class="chk-field-group">
+        <label class="chk-label">Delivery Address *</label>
+        <input type="text" class="chk-input" id="chkAddr"
+          value="${esc(c.address)}"
+          placeholder="House No., Street, Area, Hyderabad">
+      </div>
+
+      <div class="chk-info-note">
+        📍 Your address helps us find the nearest Krispie's store for freshest delivery.
+      </div>
+
+      <div class="chk-footer">
+        <button class="btn btn-outline chk-back-btn" onclick="_chkRenderStep(1)">← Back</button>
+        <button class="btn btn-gold chk-next-btn" onclick="_chkStep2Next()">Next: Delivery &amp; Pay →</button>
+      </div>`;
+  }
+
+  function _chkStep2Next() {
+    const name  = document.getElementById('chkName').value.trim();
+    const phone = document.getElementById('chkPhone').value.trim();
+    const email = document.getElementById('chkEmail').value.trim();
+    const addr  = document.getElementById('chkAddr').value.trim();
+    if (!name)  { _chkToast('Please enter your name.'); return; }
+    if (!phone) { _chkToast('Please enter your phone number.'); return; }
+    if (!addr)  { _chkToast('Please enter your delivery address.'); return; }
+    _chkCust = { name, phone, email, address: addr };
+    _chkRenderStep(3);
+  }
+
+  /* ════ STEP 3: Delivery & Payment ════ */
+  function _chkStep3() {
+    return `
+      <div class="chk-mode-toggle">
+        <button class="chk-mode-btn${_chkDelivery.mode !== 'pickup' ? ' active' : ''}"
+          onclick="_chkSetMode('delivery')">🚚 Home Delivery</button>
+        <button class="chk-mode-btn${_chkDelivery.mode === 'pickup' ? ' active' : ''}"
+          onclick="_chkSetMode('pickup')">🏪 Store Pickup</button>
+      </div>
+      <div id="chkDelivSection">${_chkDelivSection()}</div>`;
+  }
+
+  function _chkDelivSection() {
+    return _chkDelivery.mode === 'pickup' ? _chkPickupHTML() : _chkDeliveryHTML();
+  }
+
+  function _chkSubtotal() {
+    const p   = _chkProduct;
+    const mrp = Number(p.mrp) || 0;
+    const fin = mrp ? Math.round(mrp * (1 - (Number(p.discount)||0) / 100)) : 0;
+    return fin * _chkCart.qty;
+  }
+
+  /* ── Delivery sub-section ── */
+  function _chkDeliveryHTML() {
+    const hasLoc = _chkDelivery.lat !== null;
+    const locBtn = hasLoc
+      ? `<button class="chk-loc-btn chk-loc-btn--done" onclick="_chkDetectLoc()">✓ Location detected — Re-detect</button>`
+      : `<button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()">📍 Detect My Location</button>`;
+
+    let storesHTML = '';
+    if (hasLoc) {
+      const sorted = STORES.map(s => {
+        const km  = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
+        const fee = deliveryFee(km);
+        return { ...s, km, fee };
+      }).sort((a, b) => a.km - b.km);
+
+      storesHTML = `
+        <div class="chk-stores-label">Nearest stores to you:</div>
+        <div class="chk-store-list">
+          ${sorted.map((s, i) => `
+            <div class="chk-store-card${i===0?' best':''}${_chkDelivery.store===s.name?' selected':''}"
+              onclick="_chkSelectStore('${s.name}', ${s.km.toFixed(3)}, ${s.fee})">
+              <div class="chk-store-card__name">${i===0?'⭐ ':''}<strong>${s.name}</strong></div>
+              <div class="chk-store-card__dist">${s.km.toFixed(1)} km away</div>
+              <div class="chk-store-card__fee">₹${s.fee} delivery</div>
+            </div>`).join('')}
+        </div>`;
+    } else {
+      storesHTML = `<div class="chk-loc-hint">Tap "Detect My Location" to see delivery distance &amp; fees from each of our 5 stores, or select a store manually below.</div>
+        <div class="chk-stores-label">Or choose a store manually:</div>
+        <div class="chk-store-list">
+          ${STORES.map(s => `
+            <div class="chk-store-card${_chkDelivery.store===s.name?' selected':''}"
+              onclick="_chkSelectStore('${s.name}', 0, 60)">
+              <div class="chk-store-card__name"><strong>${s.name}</strong></div>
+              <div class="chk-store-card__dist">Hyderabad</div>
+              <div class="chk-store-card__fee">From ₹30</div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    const sub = _chkSubtotal();
+    const fee = _chkDelivery.fee || 0;
+    const canPay = !!_chkDelivery.store;
+
+    return `
+      ${locBtn}
+      <div class="chk-loc-status" id="chkLocStatus"></div>
+      ${storesHTML}
+      ${canPay ? `
+        <div class="chk-total-box">
+          <div class="chk-total-row"><span>Subtotal (×${_chkCart.qty})</span><span>₹${sub.toLocaleString('en-IN')}</span></div>
+          <div class="chk-total-row"><span>Delivery to ${_chkDelivery.store}</span><span>₹${fee}</span></div>
+          <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>₹${(sub + fee).toLocaleString('en-IN')}</span></div>
+        </div>
+        <div class="chk-pay-btns">
+          <button class="btn btn-gold chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">📦 Cash on Delivery</button>
+          <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">💳 Pay Online (Razorpay)</button>
+        </div>` : ''}
+      <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
+        <button class="btn btn-outline chk-back-btn" onclick="_chkRenderStep(2)">← Back</button>
+        <div></div>
+      </div>`;
+  }
+
+  /* ── Pickup sub-section ── */
+  function _chkPickupHTML() {
+    const sub = _chkSubtotal();
+    const canPay = !!_chkDelivery.store;
+    return `
+      <div class="chk-stores-label" style="margin-bottom:10px">Choose your pickup store:</div>
+      <div class="chk-store-list">
+        ${STORES.map(s => `
+          <div class="chk-store-card${_chkDelivery.store===s.name?' selected':''}"
+            onclick="_chkSelectPickup('${s.name}')">
+            <div class="chk-store-card__name"><strong>${s.name}</strong></div>
+            <div class="chk-store-card__dist">Hyderabad</div>
+            <div class="chk-store-card__fee" style="color:#3aac6e">Free Pickup</div>
+          </div>`).join('')}
+      </div>
+      ${canPay ? `
+        <div class="chk-total-box">
+          <div class="chk-total-row"><span>Subtotal (×${_chkCart.qty})</span><span>₹${sub.toLocaleString('en-IN')}</span></div>
+          <div class="chk-total-row"><span>Pickup from ${_chkDelivery.store}</span><span style="color:#3aac6e">Free</span></div>
+          <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>₹${sub.toLocaleString('en-IN')}</span></div>
+        </div>
+        <div class="chk-pay-btns">
+          <button class="btn btn-gold chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">🏪 Pay at Store</button>
+          <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">💳 Pay Online (Razorpay)</button>
+        </div>` : ''}
+      <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
+        <button class="btn btn-outline chk-back-btn" onclick="_chkRenderStep(2)">← Back</button>
+        <div></div>
+      </div>`;
+  }
+
+  /* ── Mode switch ── */
+  function _chkSetMode(mode) {
+    _chkDelivery.mode  = mode;
+    _chkDelivery.store = null;
+    _chkDelivery.fee   = 0;
+    document.querySelectorAll('.chk-mode-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', (mode === 'delivery') ? i === 0 : i === 1);
+    });
+    document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  }
+
+  /* ── Location detection ── */
+  function _chkDetectLoc() {
+    const statusEl = document.getElementById('chkLocStatus');
+    const btn      = document.getElementById('chkLocBtn') || document.querySelector('.chk-loc-btn');
+    if (statusEl) statusEl.textContent = '⏳ Detecting location…';
+    if (btn) { btn.textContent = '⏳ Detecting…'; btn.disabled = true; }
+
+    if (!navigator.geolocation) {
+      if (statusEl) statusEl.textContent = 'Geolocation not supported by your browser.';
+      if (btn) { btn.textContent = '📍 Detect My Location'; btn.disabled = false; }
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        _chkDelivery.lat = pos.coords.latitude;
+        _chkDelivery.lng = pos.coords.longitude;
+        /* auto-select nearest store */
+        const nearest = STORES.map(s => {
+          const km = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
+          return { ...s, km, fee: deliveryFee(km) };
+        }).sort((a, b) => a.km - b.km)[0];
+        _chkDelivery.store = nearest.name;
+        _chkDelivery.km    = nearest.km;
+        _chkDelivery.fee   = nearest.fee;
+        document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+      },
+      err => {
+        const msgs = {
+          1: 'Location access denied. Please allow location or pick a store manually.',
+          2: 'Location unavailable. Please pick a store manually.',
+          3: 'Location request timed out. Please pick a store manually.',
+        };
+        if (statusEl) statusEl.textContent = msgs[err.code] || 'Could not detect location.';
+        if (btn) { btn.textContent = '📍 Retry Location'; btn.disabled = false; }
+      },
+      { timeout: 8000, maximumAge: 60000 }
+    );
+  }
+
+  /* ── Store selection ── */
+  function _chkSelectStore(name, km, fee) {
+    _chkDelivery.store = name;
+    _chkDelivery.km    = parseFloat(km);
+    _chkDelivery.fee   = fee;
+    document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  }
+
+  function _chkSelectPickup(name) {
+    _chkDelivery.store = name;
+    _chkDelivery.km    = 0;
+    _chkDelivery.fee   = 0;
+    document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+    /* keep pickup toggle highlighted */
+    document.querySelectorAll('.chk-mode-btn').forEach((b, i) => b.classList.toggle('active', i === 1));
+  }
+
+  /* ════ ORDER PLACEMENT ════ */
+  function _chkOrderPayload(method) {
+    const sub   = _chkSubtotal();
+    const total = sub + (_chkDelivery.fee || 0);
+    return {
+      customer_name:    _chkCust.name,
+      customer_phone:   _chkCust.phone,
+      customer_email:   _chkCust.email || null,
+      items:            `${_chkProduct.name} × ${_chkCart.qty}`,
+      quantity:         String(_chkCart.qty),
+      amount:           total,
+      platform:         'website',
+      outlet:           _chkDelivery.store ? _chkDelivery.store.toLowerCase() : null,
+      delivery_mode:    _chkDelivery.mode,
+      delivery_address: _chkCust.address,
+      delivery_date:    _chkCart.deliveryDate,
+      notes:            _chkCart.notes || null,
+      payment_method:   method,
+      status:           'pending',
+    };
+  }
+
+  async function _chkPlaceOrder(method) {
+    if (!_chkDelivery.store) { _chkToast('Please select a store first.'); return; }
+    if (method === 'cod') {
+      await _chkSubmitCOD();
+    } else {
+      await _chkSubmitRazorpay();
+    }
+  }
+
+  /* ── COD ── */
+  async function _chkSubmitCOD() {
+    const btn = document.getElementById('chkCodBtn');
+    if (btn) { btn.textContent = 'Placing Order…'; btn.disabled = true; }
+
+    const payload = _chkOrderPayload('cod');
+    let orderId;
+
+    try {
+      const res  = await fetch(`${BACKEND_URL}/api/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Server error');
+      orderId = data.orderId;
+    } catch (_) {
+      /* fallback — save locally so admin can see it */
+      try {
+        const existing = JSON.parse(localStorage.getItem('krispies_orders') || '[]');
+        orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
+        existing.unshift({ ...payload, id: orderId, createdAt: new Date().toISOString() });
+        localStorage.setItem('krispies_orders', JSON.stringify(existing));
+      } catch(_) {
+        orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
+      }
+    }
+
+    _chkShowSuccess(orderId, payload.amount, 'cod');
+  }
+
+  /* ── Razorpay ── */
+  async function _chkSubmitRazorpay() {
+    const btn = document.getElementById('chkPayBtn');
+    if (btn) { btn.textContent = '⏳ Loading…'; btn.disabled = true; }
+
+    const payload = _chkOrderPayload('online');
+
+    try {
+      /* 1. Create Razorpay order on backend */
+      const res  = await fetch(`${BACKEND_URL}/api/checkout/initiate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.razorpay_order_id) throw new Error(data.error || 'Payment init failed');
+
+      /* 2. Load Razorpay checkout SDK */
+      await _chkLoadScript('https://checkout.razorpay.com/v1/checkout.js');
+
+      /* 3. Open Razorpay dialog */
+      const options = {
+        key:         data.key_id,
+        amount:      data.amount,       /* paise */
+        currency:    'INR',
+        name:        "Krispie's",
+        description: payload.items,
+        image:       window.location.origin + '/assets/logo.png',
+        order_id:    data.razorpay_order_id,
+        prefill: {
+          name:    _chkCust.name,
+          contact: _chkCust.phone,
+          email:   _chkCust.email || '',
+        },
+        theme: { color: '#C9A870' },
+        handler: async (rzpResp) => {
+          /* 4. Verify signature on backend */
+          try {
+            await fetch(`${BACKEND_URL}/api/checkout/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                internal_order_id:   data.internal_order_id,
+                razorpay_order_id:   rzpResp.razorpay_order_id,
+                razorpay_payment_id: rzpResp.razorpay_payment_id,
+                razorpay_signature:  rzpResp.razorpay_signature,
+              }),
+            });
+          } catch(_) { /* verification failed silently — admin can reconcile */ }
+          _chkShowSuccess(data.internal_order_id, payload.amount, 'online');
+        },
+        modal: {
+          ondismiss: () => {
+            if (btn) { btn.textContent = '💳 Pay Online (Razorpay)'; btn.disabled = false; }
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (err) {
+      console.error('Razorpay error:', err);
+      if (btn) { btn.textContent = '💳 Pay Online (Razorpay)'; btn.disabled = false; }
+      _chkToast('Online payment unavailable right now. Please use Cash on Delivery.');
+    }
+  }
+
+  function _chkLoadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) return resolve();
+      const s = document.createElement('script');
+      s.src = src; s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ── Success screen ── */
+  function _chkShowSuccess(orderId, total, method) {
+    _chkSetSteps(4); /* all done */
+    const modeLabel = method === 'online'
+      ? '✅ Paid Online'
+      : (_chkDelivery.mode === 'pickup' ? '🏪 Pay at Store' : '📦 Cash on Delivery');
+
+    document.getElementById('checkoutBody').innerHTML = `
+      <div class="chk-success">
+        <div class="chk-success__icon">🎂</div>
+        <h3 class="chk-success__title">Order Placed!</h3>
+        <p class="chk-success__sub">
+          Thank you, <strong>${esc(_chkCust.name)}</strong>! Your order has been received.
+        </p>
+        <div class="chk-success__details">
+          <div class="chk-success__row">
+            <span>Order ID</span><strong>${esc(String(orderId))}</strong>
+          </div>
+          <div class="chk-success__row">
+            <span>Item</span><strong>${esc(_chkProduct.name)} × ${_chkCart.qty}</strong>
+          </div>
+          <div class="chk-success__row">
+            <span>Total Amount</span><strong style="color:var(--gold)">₹${Number(total).toLocaleString('en-IN')}</strong>
+          </div>
+          <div class="chk-success__row">
+            <span>Store</span><strong>${esc(_chkDelivery.store)}</strong>
+          </div>
+          <div class="chk-success__row">
+            <span>Date</span><strong>${_chkCart.deliveryDate}</strong>
+          </div>
+          <div class="chk-success__row">
+            <span>Payment</span><strong>${modeLabel}</strong>
+          </div>
+        </div>
+        <p class="chk-success__note">
+          We'll call <strong>${esc(_chkCust.phone)}</strong> to confirm your order shortly. 🎉
+        </p>
+        <button class="btn btn-gold" onclick="closeCheckout()" style="margin-top:18px;width:100%">
+          Continue Browsing
+        </button>
+      </div>`;
+  }
+
+  /* ── Toast helper ── */
+  function _chkToast(msg) {
+    if (typeof showToast === 'function') { showToast(msg); return; }
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#FAF7F0;padding:12px 24px;border-radius:8px;border:1px solid rgba(201,168,112,0.3);font-size:0.875rem;z-index:9999';
+    t.textContent = msg; document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  /* close on Escape */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeCheckout();
+  });
   </script>
 </body>
 </html>

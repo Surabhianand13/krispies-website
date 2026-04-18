@@ -43,6 +43,7 @@ app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders',   require('./routes/orders'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/checkout', require('./routes/checkout')); // public — no auth
 
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
