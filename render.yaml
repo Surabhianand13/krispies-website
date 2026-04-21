@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: krispies-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: ADMIN_PASSWORD
+        value: krispies2024
+      - key: FRONTEND_URL
+        value: https://www.krispies.in
+      - key: RAZORPAY_KEY_ID
+        value: rzp_test_Sg9MmSCY5HNxW7
+      - key: RAZORPAY_KEY_SECRET
+        value: aiasgFXjSwEBQsuEIuRra4Au
+      - key: ADMIN_EMAIL
+        value: your@email.com
+      - key: EMAIL_USER
+        value: your.gmail@gmail.com
+      - key: EMAIL_PASS
+        value: your_gmail_app_password_here
