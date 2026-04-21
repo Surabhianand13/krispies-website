@@ -112,8 +112,7 @@ if (fadeEls.length && 'IntersectionObserver' in window) {
 })();
 
 /* ---- CONTACT FORM ---- */
-// Change this URL once you deploy the backend
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://krispies-website.onrender.com';
 
 const form = document.getElementById('contactForm');
 const successPanel = document.querySelector('.form-success');
