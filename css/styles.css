@@ -650,13 +650,16 @@ h1, h2, h3, h4 {
 /* ---- WhatsApp floating button ---- */
 .wa-float {
   position: fixed; bottom: 28px; right: 28px; z-index: 9999;
-  width: 58px; height: 58px; background: #25D366; border-radius: 50%;
+  width: 68px; height: 68px; background: #25D366; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(37,211,102,0.45);
-  text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 24px rgba(37,211,102,0.55);
+  text-decoration: none; transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease;
 }
-.wa-float:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(37,211,102,0.6); }
-.wa-float svg { width: 30px; height: 30px; fill: #fff; position: relative; z-index: 1; }
+.wa-float:hover {
+  transform: scale(1.22);
+  box-shadow: 0 10px 40px rgba(37,211,102,0.75), 0 0 0 6px rgba(37,211,102,0.18);
+}
+.wa-float svg { width: 36px; height: 36px; fill: #fff; position: relative; z-index: 1; }
 .wa-float__pulse {
   position: absolute; inset: 0; border-radius: 50%;
   background: rgba(37,211,102,0.35);
