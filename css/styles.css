@@ -201,9 +201,19 @@ h1, h2, h3, h4 {
   position: relative;
   width: 100%;
   height: 100vh;
-  min-height: 580px;
+  min-height: 860px;
   overflow: hidden;
   background: #FDF8F0;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent 0%, rgba(201,168,112,0.2) 10%, var(--gold) 40%, var(--gold-dark) 50%, var(--gold) 60%, rgba(201,168,112,0.2) 90%, transparent 100%);
+  z-index: 20;
 }
 
 /* Track holds all slides side-by-side */
