@@ -27,7 +27,7 @@
   --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   --nav-h:   90px;
-  --promo-h: 0px;
+  --promo-h: 42px;
   --pad-xl:  120px;
   --pad-lg:  100px;
   --pad-md:  70px;
@@ -990,7 +990,7 @@ h1, h2, h3, h4 {
   .hero__scroll { display: none; }
 }
 @media (max-width: 640px) {
-  :root { --pad-lg: 64px; --pad-md: 44px; --promo-h: 0px; }
+  :root { --pad-lg: 64px; --pad-md: 44px; --promo-h: 64px; }
   .promo-bar { font-size: 0.8rem; height: auto; min-height: var(--promo-h); padding: 8px 44px; }
   .promo-bar__long { display: none; }
   .promo-bar__short { display: inline; }
