@@ -647,6 +647,26 @@ h1, h2, h3, h4 {
 .social-link:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-faint); }
 .social-link svg { width: 18px; height: 18px; flex-shrink: 0; }
 
+/* ---- WhatsApp floating button ---- */
+.wa-float {
+  position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+  width: 58px; height: 58px; background: #25D366; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(37,211,102,0.45);
+  text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.wa-float:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(37,211,102,0.6); }
+.wa-float svg { width: 30px; height: 30px; fill: #fff; position: relative; z-index: 1; }
+.wa-float__pulse {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(37,211,102,0.35);
+  animation: wa-pulse 2.2s ease-out infinite;
+}
+@keyframes wa-pulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
 /* ---- 16. FOOTER ---- */
 .footer {
   background: var(--black);
