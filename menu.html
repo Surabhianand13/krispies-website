@@ -876,7 +876,6 @@
           <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>₹${(sub + fee).toLocaleString('en-IN')}</span></div>
         </div>
         <div class="chk-pay-btns">
-          <button class="btn btn-gold chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">📦 Cash on Delivery</button>
           <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">💳 Pay Online (Razorpay)</button>
         </div>` : ''}
       <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
@@ -907,7 +906,6 @@
           <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>₹${sub.toLocaleString('en-IN')}</span></div>
         </div>
         <div class="chk-pay-btns">
-          <button class="btn btn-gold chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">🏪 Pay at Store</button>
           <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">💳 Pay Online (Razorpay)</button>
         </div>` : ''}
       <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
@@ -1111,7 +1109,7 @@
     } catch (err) {
       console.error('Razorpay error:', err);
       if (btn) { btn.textContent = '💳 Pay Online (Razorpay)'; btn.disabled = false; }
-      _chkToast('Online payment unavailable right now. Please use Cash on Delivery.');
+      _chkToast('Payment failed. Please try again or contact us directly.');
     }
   }
 
