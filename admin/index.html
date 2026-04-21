@@ -37,7 +37,7 @@
   <script>
     // Redirect if already logged in
     if (sessionStorage.getItem('krispies_admin_auth')) {
-      window.location.href = 'dashboard.html';
+      window.location.href = 'dashboard';
     }
 
     document.getElementById('loginForm').addEventListener('submit', e => {
@@ -46,7 +46,7 @@
       const err = document.getElementById('loginError');
 
       if (login(pw)) {
-        window.location.href = 'dashboard.html';
+        window.location.href = 'dashboard';
       } else {
         err.style.display = 'block';
         document.getElementById('password').value = '';
