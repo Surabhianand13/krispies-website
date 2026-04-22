@@ -121,7 +121,7 @@
           <span class="panel__title">Products Overview</span>
           <a href="products" class="btn btn-ghost btn-sm">Manage Products</a>
         </div>
-        <div id="productsSummary" style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border);">
+        <div id="productsSummary" style="display:grid; grid-template-columns:repeat(6,1fr); gap:1px; background:var(--border);">
           <!-- rendered by JS -->
         </div>
       </div>
@@ -196,10 +196,10 @@
     document.getElementById('recentOrders').innerHTML = recentOrdHTML;
 
     // Products by category
-    const cats = ['customized-cakes','birthday-cakes','biscuits','cheesecakes','donuts'];
+    const cats = ['birthday-cakes','customized-cakes','wedding-cakes','engagement-cakes','cheesecakes','donuts'];
     document.getElementById('productsSummary').innerHTML = cats.map(cat => {
       const count = products.filter(p => p.category === cat).length;
-      const icons = { 'customized-cakes':'🎂','birthday-cakes':'🎉','biscuits':'🍪','cheesecakes':'🍰','donuts':'🍩' };
+      const icons = { 'birthday-cakes':'🎂','customized-cakes':'🎨','wedding-cakes':'💍','engagement-cakes':'💐','cheesecakes':'🍰','donuts':'🍩' };
       return `
         <div style="background:var(--black-2); padding:20px 16px; text-align:center;">
           <div style="font-size:1.8rem; margin-bottom:8px">${icons[cat]}</div>
