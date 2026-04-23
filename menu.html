@@ -630,7 +630,7 @@
 
   /* ── State ── */
   let _chkProduct  = null;
-  let _chkCart     = { qty: 1, deliveryDate: '', notes: '' };
+  let _chkCart     = { qty: 1, deliveryDate: '', deliveryTime: '', notes: '' };
   let _chkCust     = { name: '', phone: '', email: '', address: '' };
   let _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
 
@@ -638,7 +638,7 @@
   function openCheckout(productId) {
     _chkProduct  = getProducts().find(p => p.id === productId);
     if (!_chkProduct) return;
-    _chkCart     = { qty: 1, deliveryDate: '', notes: '' };
+    _chkCart     = { qty: 1, deliveryDate: '', deliveryTime: '', notes: '' };
     _chkCust     = { name: '', phone: '', email: '', address: '' };
     _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
     document.getElementById('checkoutOverlay').classList.add('open');
@@ -678,10 +678,41 @@
     const img  = (p.images || []).filter(Boolean)[0];
     const emoji = CAT_EMOJI[p.category] || '🎂';
 
-    /* min date = tomorrow */
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const minDate = tomorrow.toISOString().split('T')[0];
+    const advanceCategories = ['wedding-cakes', 'engagement-cakes', 'customized-cakes'];
+    const needsAdvance = advanceCategories.includes(p.category);
+    const isBirthday = p.category === 'birthday-cakes';
+
+    /* min date: today for birthday/donuts/cheesecakes, tomorrow for advance-order categories */
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const minBase = needsAdvance ? new Date(today.getTime() + 24 * 60 * 60 * 1000) : today;
+    const minDate = minBase.toISOString().split('T')[0];
+
+    const catLabel = p.category === 'wedding-cakes' ? 'wedding' : p.category === 'engagement-cakes' ? 'engagement' : 'customized';
+
+    const advanceNotice = needsAdvance ? `
+      <div class="chk-info-note" style="margin-top:8px; border-color:rgba(201,168,112,0.4)">
+        ⏰ <strong>24-hour advance order required</strong> for ${catLabel} cakes. Please select a date at least 1 day ahead.
+      </div>` : '';
+
+    const birthdayNote = isBirthday ? `
+      <div class="chk-info-note" style="margin-top:8px">
+        🚗 Delivery time will depend on the distance from our nearest store to your location.
+      </div>` : '';
+
+    const timeField = needsAdvance ? `
+      <div class="chk-field-group" style="margin-top:14px">
+        <label class="chk-label">Preferred Delivery Time *</label>
+        <select class="chk-input" id="chkTime">
+          <option value="" ${!_chkCart.deliveryTime ? 'selected' : ''} disabled>Select a time slot</option>
+          <option value="09:00–11:00" ${_chkCart.deliveryTime === '09:00–11:00' ? 'selected' : ''}>9:00 AM – 11:00 AM</option>
+          <option value="11:00–13:00" ${_chkCart.deliveryTime === '11:00–13:00' ? 'selected' : ''}>11:00 AM – 1:00 PM</option>
+          <option value="13:00–15:00" ${_chkCart.deliveryTime === '13:00–15:00' ? 'selected' : ''}>1:00 PM – 3:00 PM</option>
+          <option value="15:00–17:00" ${_chkCart.deliveryTime === '15:00–17:00' ? 'selected' : ''}>3:00 PM – 5:00 PM</option>
+          <option value="17:00–19:00" ${_chkCart.deliveryTime === '17:00–19:00' ? 'selected' : ''}>5:00 PM – 7:00 PM</option>
+          <option value="19:00–21:00" ${_chkCart.deliveryTime === '19:00–21:00' ? 'selected' : ''}>7:00 PM – 9:00 PM</option>
+        </select>
+      </div>` : '';
 
     return `
       <div class="chk-product-row">
@@ -712,10 +743,13 @@
       </div>
 
       <div class="chk-field-group">
-        <label class="chk-label">Preferred Date *</label>
+        <label class="chk-label">Delivery Date *</label>
         <input type="date" class="chk-input" id="chkDate"
           min="${minDate}" value="${_chkCart.deliveryDate}">
+        ${advanceNotice}
+        ${birthdayNote}
       </div>
+      ${timeField}
 
       <div class="chk-field-group">
         <label class="chk-label">Special Instructions <span style="font-weight:400;text-transform:none">(optional)</span></label>
@@ -740,7 +774,24 @@
   function _chkStep1Next() {
     const date  = document.getElementById('chkDate').value;
     const notes = document.getElementById('chkNotes').value.trim();
-    if (!date) { _chkToast('Please select a preferred date.'); return; }
+    const advanceCategories = ['wedding-cakes', 'engagement-cakes', 'customized-cakes'];
+    const needsAdvance = advanceCategories.includes(_chkProduct.category);
+
+    if (!date) { _chkToast('Please select a delivery date.'); return; }
+
+    /* Reject past dates */
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (new Date(date) < today) { _chkToast('Delivery date cannot be in the past.'); return; }
+
+    /* Advance-order categories need at least tomorrow */
+    if (needsAdvance) {
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      if (new Date(date) < tomorrow) { _chkToast('Please select a date at least 24 hours ahead for this order.'); return; }
+      const timeEl = document.getElementById('chkTime');
+      if (!timeEl || !timeEl.value) { _chkToast('Please select a preferred delivery time.'); return; }
+      _chkCart.deliveryTime = timeEl.value;
+    }
+
     _chkCart.deliveryDate = date;
     _chkCart.notes = notes;
     _chkRenderStep(2);
@@ -998,6 +1049,7 @@
       delivery_mode:    _chkDelivery.mode,
       delivery_address: _chkCust.address,
       delivery_date:    _chkCart.deliveryDate,
+      delivery_time:    _chkCart.deliveryTime || null,
       notes:            _chkCart.notes || null,
       payment_method:   method,
       status:           'pending',
@@ -1150,8 +1202,11 @@
             <span>Store</span><strong>${esc(_chkDelivery.store)}</strong>
           </div>
           <div class="chk-success__row">
-            <span>Date</span><strong>${_chkCart.deliveryDate}</strong>
+            <span>Delivery Date</span><strong>${_chkCart.deliveryDate}</strong>
           </div>
+          ${_chkCart.deliveryTime ? `<div class="chk-success__row">
+            <span>Delivery Time</span><strong>${_chkCart.deliveryTime}</strong>
+          </div>` : ''}
           <div class="chk-success__row">
             <span>Payment</span><strong>${modeLabel}</strong>
           </div>
