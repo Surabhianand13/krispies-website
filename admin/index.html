@@ -40,17 +40,22 @@
       window.location.href = 'dashboard';
     }
 
-    document.getElementById('loginForm').addEventListener('submit', e => {
+    document.getElementById('loginForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const pw = document.getElementById('password').value;
+      const pw  = document.getElementById('password').value;
       const err = document.getElementById('loginError');
+      const btn = document.querySelector('.login-card__btn');
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
 
-      if (login(pw)) {
+      if (await login(pw)) {
         window.location.href = 'dashboard';
       } else {
         err.style.display = 'block';
         document.getElementById('password').value = '';
         document.getElementById('password').focus();
+        btn.disabled = false;
+        btn.textContent = 'Access Dashboard →';
       }
     });
   </script>

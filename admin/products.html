@@ -40,6 +40,7 @@
     <header class="admin-header">
       <h1 class="admin-header__title">Products</h1>
       <div class="admin-header__actions">
+        <button class="btn btn-outline" id="syncAllBtn" onclick="syncAllToBackend()" style="margin-right:8px">☁ Sync All to Backend</button>
         <button class="btn btn-primary" onclick="openAddModal()">+ Add Product</button>
       </div>
     </header>
@@ -312,7 +313,7 @@
 
   // ── ADD ───────────────────────────────────
   function openAddModal() {
-    openModal('Add Product', productFormHTML(), () => {
+    openModal('Add Product', productFormHTML(), async () => {
       const data = collectForm(null);
       if (!data) return;
       const products = getData(KEYS.products);
@@ -320,8 +321,9 @@
       products.unshift(data);
       setData(KEYS.products, products);
       closeModal();
-      showToast('Product added!');
       render();
+      await syncProductToBackend(data, true);
+      showToast('Product added!');
     }, 'Add Product');
   }
 
@@ -330,27 +332,65 @@
     const products = getData(KEYS.products);
     const p = products.find(x => x.id === id);
     if (!p) return;
-    openModal('Edit Product', productFormHTML(p), () => {
+    openModal('Edit Product', productFormHTML(p), async () => {
       const data = collectForm(id);
       if (!data) return;
       const idx = products.findIndex(x => x.id === id);
       products[idx] = { ...products[idx], ...data };
       setData(KEYS.products, products);
       closeModal();
-      showToast('Product updated!');
       render();
+      await syncProductToBackend(products[idx], false);
+      showToast('Product updated!');
     }, 'Save Changes');
   }
 
   // ── DELETE ────────────────────────────────
-  function deleteProduct(id) {
+  async function deleteProduct(id) {
     const products = getData(KEYS.products);
     const p = products.find(x => x.id === id);
     if (!p) return;
     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
     setData(KEYS.products, products.filter(x => x.id !== id));
-    showToast('Product deleted.', 'info');
     render();
+    await deleteProductFromBackend(id);
+    showToast('Product deleted.', 'info');
+  }
+
+  // ── SYNC ALL TO BACKEND ───────────────────
+  async function syncAllToBackend() {
+    const jwt = getJWT();
+    if (!jwt) { showToast('Not connected to backend — please log out and log in again.', 'error'); return; }
+    const products = getData(KEYS.products);
+    const btn = document.getElementById('syncAllBtn');
+    btn.disabled = true;
+    btn.textContent = 'Syncing…';
+    let ok = 0, fail = 0;
+    for (const p of products) {
+      try {
+        // Try PUT first; if 404 then POST
+        const res = await fetch(`${BACKEND_URL}/api/products/${p.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` },
+          body: JSON.stringify({ name: p.name, category: p.category, tag: p.tag || null,
+            description: p.description, mrp: p.mrp || 0, discount: p.discount || 0,
+            images: p.images || [], featured: p.featured, active: p.active }),
+        });
+        if (res.status === 404) {
+          await fetch(`${BACKEND_URL}/api/products`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` },
+            body: JSON.stringify({ name: p.name, category: p.category, tag: p.tag || null,
+              description: p.description, mrp: p.mrp || 0, discount: p.discount || 0,
+              images: p.images || [], featured: p.featured, active: p.active }),
+          });
+        }
+        ok++;
+      } catch { fail++; }
+    }
+    btn.disabled = false;
+    btn.textContent = '☁ Sync All to Backend';
+    showToast(fail ? `Synced ${ok}, failed ${fail}` : `All ${ok} products synced!`, fail ? 'error' : 'success');
   }
 
   // ── FILTERS ───────────────────────────────

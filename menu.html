@@ -592,8 +592,23 @@
   }
 
   /* ── INIT ── */
-  ensureDefaults();
-  renderAll();
+  async function init() {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/products`);
+      if (res.ok) {
+        const products = await res.json();
+        if (products.length > 0) {
+          localStorage.setItem(PROD_KEY, JSON.stringify(products));
+          renderAll();
+          return;
+        }
+      }
+    } catch {}
+    // Backend unreachable or empty — fall back to localStorage
+    ensureDefaults();
+    renderAll();
+  }
+  init();
   </script>
 
   <!-- ═══════════════════════════════════════════════════════

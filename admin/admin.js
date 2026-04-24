@@ -9,6 +9,8 @@
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const ADMIN_PASSWORD = 'krispies2024';
 const SESSION_KEY    = 'krispies_admin_auth';
+const JWT_KEY        = 'krispies_admin_jwt';
+const BACKEND_URL    = 'https://krispies-website.onrender.com';
 
 const KEYS = {
   products:  'krispies_products',
@@ -21,11 +23,59 @@ function checkAuth() {
   if (!sessionStorage.getItem(SESSION_KEY)) { window.location.href = 'index.html'; return false; }
   return true;
 }
-function login(pw) {
-  if (pw === ADMIN_PASSWORD) { sessionStorage.setItem(SESSION_KEY, '1'); return true; }
-  return false;
+async function login(pw) {
+  if (pw !== ADMIN_PASSWORD) return false;
+  sessionStorage.setItem(SESSION_KEY, '1');
+  // Also authenticate against backend to get JWT for API operations
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'admin', password: pw }),
+    });
+    if (res.ok) {
+      const { token } = await res.json();
+      sessionStorage.setItem(JWT_KEY, token);
+    }
+  } catch {}
+  return true;
 }
-function logout() { sessionStorage.removeItem(SESSION_KEY); window.location.href = 'index.html'; }
+function logout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(JWT_KEY);
+  window.location.href = 'index.html';
+}
+function getJWT() { return sessionStorage.getItem(JWT_KEY) || ''; }
+
+// ── BACKEND PRODUCT SYNC ──────────────────
+async function syncProductToBackend(product, isNew) {
+  const jwt = getJWT();
+  if (!jwt) return;
+  const url    = isNew ? `${BACKEND_URL}/api/products` : `${BACKEND_URL}/api/products/${product.id}`;
+  const method = isNew ? 'POST' : 'PUT';
+  try {
+    await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` },
+      body: JSON.stringify({
+        name: product.name, category: product.category, tag: product.tag || null,
+        description: product.description, mrp: product.mrp || 0,
+        discount: product.discount || 0, images: product.images || [],
+        featured: product.featured, active: product.active,
+      }),
+    });
+  } catch {}
+}
+async function deleteProductFromBackend(id) {
+  const jwt = getJWT();
+  if (!jwt) return;
+  try {
+    await fetch(`${BACKEND_URL}/api/products/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${jwt}` },
+    });
+  } catch {}
+}
 
 // ── ID GENERATOR ──────────────────────────
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
