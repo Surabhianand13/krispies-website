@@ -11,7 +11,7 @@ function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-const VALID_CATEGORIES = ['customized-cakes', 'birthday-cakes', 'biscuits', 'cheesecakes', 'donuts'];
+const VALID_CATEGORIES = ['birthday-cakes', 'customized-cakes', 'wedding-cakes', 'engagement-cakes', 'cheesecakes', 'donuts'];
 const VALID_TAGS       = ['bestseller', 'new', 'seasonal', 'custom'];
 
 // GET /api/products — public, returns only active products
@@ -50,11 +50,14 @@ router.post('/',
       description: req.body.description.trim(),
       featured:    req.body.featured ? 1 : 0,
       active:      req.body.active !== false ? 1 : 0,
+      mrp:         Number(req.body.mrp) || 0,
+      discount:    Number(req.body.discount) || 0,
+      images:      JSON.stringify(Array.isArray(req.body.images) ? req.body.images : []),
     };
 
     db.prepare(`
-      INSERT INTO products (id, name, category, tag, description, featured, active)
-      VALUES (@id, @name, @category, @tag, @description, @featured, @active)
+      INSERT INTO products (id, name, category, tag, description, featured, active, mrp, discount, images)
+      VALUES (@id, @name, @category, @tag, @description, @featured, @active, @mrp, @discount, @images)
     `).run(p);
 
     res.status(201).json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(p.id)));
@@ -75,7 +78,9 @@ router.put('/:id',
     db.prepare(`
       UPDATE products
       SET name = @name, category = @category, tag = @tag, description = @description,
-          featured = @featured, active = @active, updated_at = datetime('now')
+          featured = @featured, active = @active,
+          mrp = @mrp, discount = @discount, images = @images,
+          updated_at = datetime('now')
       WHERE id = @id
     `).run({
       id:          req.params.id,
@@ -85,6 +90,9 @@ router.put('/:id',
       description: req.body.description.trim(),
       featured:    req.body.featured ? 1 : 0,
       active:      req.body.active !== false ? 1 : 0,
+      mrp:         Number(req.body.mrp) || 0,
+      discount:    Number(req.body.discount) || 0,
+      images:      JSON.stringify(Array.isArray(req.body.images) ? req.body.images : []),
     });
 
     res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id)));
@@ -101,12 +109,17 @@ router.delete('/:id', requireAuth, (req, res) => {
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function toProduct(row) {
+  let images = [];
+  try { images = JSON.parse(row.images || '[]'); } catch {}
   return {
     id:          row.id,
     name:        row.name,
     category:    row.category,
     tag:         row.tag,
     description: row.description,
+    mrp:         row.mrp || 0,
+    discount:    row.discount || 0,
+    images,
     featured:    row.featured === 1,
     active:      row.active === 1,
     createdAt:   row.created_at,

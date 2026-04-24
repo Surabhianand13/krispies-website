@@ -65,6 +65,11 @@ db.exec(`
   );
 `);
 
+// ── Migrate: add pricing + images columns if missing ──────────────────────────
+try { db.exec("ALTER TABLE products ADD COLUMN mrp INTEGER NOT NULL DEFAULT 0"); } catch {}
+try { db.exec("ALTER TABLE products ADD COLUMN discount INTEGER NOT NULL DEFAULT 0"); } catch {}
+try { db.exec("ALTER TABLE products ADD COLUMN images TEXT NOT NULL DEFAULT '[]'"); } catch {}
+
 // ── Seed admin user ────────────────────────────────────────────────────────────
 const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
 if (!adminExists) {
@@ -78,41 +83,49 @@ if (!adminExists) {
 const productCount = db.prepare('SELECT COUNT(*) as c FROM products').get().c;
 if (productCount === 0) {
   const insertProduct = db.prepare(`
-    INSERT INTO products (id, name, category, tag, description, featured, active)
-    VALUES (@id, @name, @category, @tag, @description, @featured, @active)
+    INSERT INTO products (id, name, category, tag, description, featured, active, mrp, discount, images)
+    VALUES (@id, @name, @category, @tag, @description, @featured, @active, @mrp, @discount, @images)
   `);
 
   const defaults = [
-    // Customized Cakes
-    { id: 'p1',  name: 'Photo-Print Cake',          category: 'customized-cakes', tag: 'bestseller', description: 'Edible photo print on a moist sponge — any image, any occasion.', featured: 1, active: 1 },
-    { id: 'p2',  name: 'Floral Fondant Cake',        category: 'customized-cakes', tag: 'custom',     description: 'Hand-sculpted fondant blooms in your choice of colours.', featured: 1, active: 1 },
-    { id: 'p3',  name: 'Name-Script Cake',           category: 'customized-cakes', tag: null,         description: 'Elegant piped lettering over velvet ganache. Simple & stunning.', featured: 0, active: 1 },
-    { id: 'p4',  name: 'Geode Crystal Cake',         category: 'customized-cakes', tag: 'new',        description: 'Rock-candy geode inlaid in rich buttercream. A show stopper.', featured: 0, active: 1 },
-    { id: 'p5',  name: 'Tier Wedding Cake',          category: 'customized-cakes', tag: 'custom',     description: '3-tier heirloom design. Lace, flowers, or minimalist — your call.', featured: 0, active: 1 },
-    { id: 'p6',  name: 'Character Theme Cake',       category: 'customized-cakes', tag: null,         description: 'Kids\' favourite characters in 3-D fondant. Pure joy, guaranteed.', featured: 0, active: 1 },
     // Birthday Cakes
-    { id: 'p7',  name: 'Chocolate Truffle',          category: 'birthday-cakes',   tag: 'bestseller', description: 'Layers of dark chocolate ganache & moist sponge. The classic.', featured: 1, active: 1 },
-    { id: 'p8',  name: 'Black Forest',               category: 'birthday-cakes',   tag: null,         description: 'Cherries, chantilly cream & dark chocolate shavings on every slice.', featured: 0, active: 1 },
-    { id: 'p9',  name: 'Mango Mousse Cake',          category: 'birthday-cakes',   tag: 'seasonal',   description: 'Fresh Alphonso mango mousse on a buttery sponge — summer special.', featured: 0, active: 1 },
-    { id: 'p10', name: 'Butterscotch Dream',         category: 'birthday-cakes',   tag: null,         description: 'Crunchy butterscotch praline layered in creamy buttercream.', featured: 0, active: 1 },
-    { id: 'p11', name: 'Strawberry Shortcake',       category: 'birthday-cakes',   tag: 'new',        description: 'Fresh strawberries folded into lightly sweetened whipped cream.', featured: 0, active: 1 },
-    { id: 'p12', name: 'Rainbow Funfetti',           category: 'birthday-cakes',   tag: null,         description: 'Colourful sprinkles baked right in. A party inside a cake!', featured: 0, active: 1 },
-    // Biscuits
-    { id: 'p13', name: 'Nankhatai',                  category: 'biscuits',         tag: 'bestseller', description: 'Our 30-year-old Iyengar recipe. Cardamom ghee shortbread at its finest.', featured: 1, active: 1 },
-    { id: 'p14', name: 'Coconut Cookies',            category: 'biscuits',         tag: null,         description: 'Toasted desiccated coconut in a crisp golden cookie.', featured: 0, active: 1 },
-    { id: 'p15', name: 'Chocolate Chip Cookies',     category: 'biscuits',         tag: 'new',        description: 'Gooey centres, crisp edges. Packed with Belgian chocolate chips.', featured: 0, active: 1 },
-    { id: 'p16', name: 'Butter Biscuits',            category: 'biscuits',         tag: null,         description: 'Pure butter, a touch of vanilla — melt-in-the-mouth perfection.', featured: 0, active: 1 },
-    { id: 'p17', name: 'Jeera (Cumin) Cookies',      category: 'biscuits',         tag: null,         description: 'Savoury-sweet cumin biscuits — a uniquely Indian snack.', featured: 0, active: 1 },
-    { id: 'p18', name: 'Tutti Frutti Cake Rusk',     category: 'biscuits',         tag: 'bestseller', description: 'Double-baked sponge rusk loaded with tutti frutti gems.', featured: 0, active: 1 },
+    { id: 'p7',  name: 'Classic Vanilla Dream',      category: 'birthday-cakes',   tag: 'bestseller', description: 'Moist vanilla sponge layered with silky buttercream — a timeless favourite loved by every generation.',                 featured: 1, active: 1, mrp: 899,   discount: 10, images: '[]' },
+    { id: 'p8',  name: 'Chocolate Overload',         category: 'birthday-cakes',   tag: 'bestseller', description: 'Dark chocolate sponge, ganache drip, and chocolate shards for the ultimate chocoholic celebration.',                    featured: 1, active: 1, mrp: 999,   discount: 15, images: '[]' },
+    { id: 'p9',  name: 'Red Velvet Royale',          category: 'birthday-cakes',   tag: 'bestseller', description: 'Striking red velvet layers with luscious cream cheese frosting — dramatic, decadent, and unforgettable.',               featured: 1, active: 1, mrp: 1099,  discount: 10, images: '[]' },
+    { id: 'p10', name: 'Black Forest Bliss',         category: 'birthday-cakes',   tag: 'bestseller', description: 'Classic Black Forest with cherries, whipped cream and dark chocolate — a heritage recipe baked fresh.',                 featured: 0, active: 1, mrp: 999,   discount: 0,  images: '[]' },
+    { id: 'p11', name: 'Fruit Fiesta',               category: 'birthday-cakes',   tag: 'new',        description: 'Fresh seasonal fruits, light chantilly cream, and a vanilla sponge — refreshing, vibrant and beautiful.',               featured: 0, active: 1, mrp: 849,   discount: 0,  images: '[]' },
+    { id: 'p12', name: 'Theme Cakes',                category: 'birthday-cakes',   tag: 'custom',     description: 'Superheroes, unicorns, sports, movies — any theme your heart desires, sculpted in cake form.',                          featured: 0, active: 1, mrp: 1499,  discount: 0,  images: '[]' },
+    // Customized Cakes
+    { id: 'p1',  name: 'Photo-Print Cake',           category: 'customized-cakes', tag: 'bestseller', description: 'Edible photo print on a moist sponge — any image, any occasion. Truly personal.',                                       featured: 1, active: 1, mrp: 1299,  discount: 10, images: '[]' },
+    { id: 'p2',  name: 'Floral Fondant Cake',        category: 'customized-cakes', tag: 'custom',     description: 'Hand-sculpted fondant blooms in your choice of colours — a showstopper for any celebration.',                           featured: 1, active: 1, mrp: 2499,  discount: 0,  images: '[]' },
+    { id: 'p3',  name: 'Geode Crystal Cake',         category: 'customized-cakes', tag: 'new',        description: 'Rock-candy geode inlaid in rich buttercream — a true showstopper.',                                                     featured: 0, active: 1, mrp: 2999,  discount: 0,  images: '[]' },
+    { id: 'p4',  name: 'Name-Script Cake',           category: 'customized-cakes', tag: null,         description: 'Elegant piped lettering over velvet ganache. Simple and stunning.',                                                     featured: 0, active: 1, mrp: 1199,  discount: 15, images: '[]' },
+    { id: 'p5',  name: 'Baby Shower Cake',           category: 'customized-cakes', tag: 'custom',     description: 'Adorable, whimsical cakes to welcome the newest family member. Gender reveal options available.',                       featured: 0, active: 1, mrp: 1499,  discount: 0,  images: '[]' },
+    { id: 'p6',  name: 'Character Theme Cake',       category: 'customized-cakes', tag: 'custom',     description: 'Kids\' favourite characters in 3-D fondant. Pure joy, guaranteed.',                                                    featured: 0, active: 1, mrp: 1799,  discount: 0,  images: '[]' },
+    // Wedding Cakes
+    { id: 'p13', name: 'Classic 2-Tier White',       category: 'wedding-cakes',    tag: 'bestseller', description: 'Elegant two-tier vanilla sponge with smooth white fondant and pearl details. Timeless bridal beauty.',                  featured: 1, active: 1, mrp: 7500,  discount: 10, images: '[]' },
+    { id: 'p14', name: 'Floral 3-Tier Fondant',      category: 'wedding-cakes',    tag: 'custom',     description: 'Three tiers of moist sponge draped in ivory fondant with hand-sculpted sugar flowers.',                                featured: 1, active: 1, mrp: 14000, discount: 0,  images: '[]' },
+    { id: 'p15', name: 'Rustic Naked Cake',          category: 'wedding-cakes',    tag: 'new',        description: 'Semi-naked layered cake with fresh florals and berries — bohemian, warm, and utterly beautiful.',                       featured: 0, active: 1, mrp: 8500,  discount: 10, images: '[]' },
+    { id: 'p16', name: 'Gold Leaf Luxury Tier',      category: 'wedding-cakes',    tag: 'custom',     description: 'Glamorous metallic gold fondant with real edible gold leaf. For the grandest of weddings.',                             featured: 0, active: 1, mrp: 18000, discount: 0,  images: '[]' },
+    { id: 'p17', name: 'Minimalist Modern Tier',     category: 'wedding-cakes',    tag: 'new',        description: 'Clean geometric lines, matte fondant, and a single accent bloom — contemporary elegance.',                              featured: 0, active: 1, mrp: 9500,  discount: 0,  images: '[]' },
+    // Engagement Cakes
+    { id: 'p18', name: 'Ring Box Cake',              category: 'engagement-cakes', tag: 'bestseller', description: 'A showstopping ring-box sculpture cake — the perfect surprise for the big moment.',                                     featured: 1, active: 1, mrp: 2999,  discount: 10, images: '[]' },
+    { id: 'p19', name: 'Heart & Roses Cake',         category: 'engagement-cakes', tag: 'bestseller', description: 'Two-tier heart-shaped cake adorned with handmade fondant roses in your wedding colours.',                              featured: 1, active: 1, mrp: 3500,  discount: 0,  images: '[]' },
+    { id: 'p20', name: 'Gold Drip Engagement',       category: 'engagement-cakes', tag: 'new',        description: 'Smooth ganache with a luxurious gold drip finish and personalised topper.',                                            featured: 0, active: 1, mrp: 2499,  discount: 15, images: '[]' },
+    { id: 'p21', name: 'Photo Collage Tier',         category: 'engagement-cakes', tag: 'custom',     description: 'Edible photo prints of your favourite couple moments, beautifully tier-stacked.',                                      featured: 0, active: 1, mrp: 3999,  discount: 0,  images: '[]' },
+    { id: 'p22', name: 'Floral Wreath Cake',         category: 'engagement-cakes', tag: null,         description: 'Buttercream painted floral wreath on a semi-naked cake — romantic and whimsical.',                                     featured: 0, active: 1, mrp: 2799,  discount: 10, images: '[]' },
     // Cheesecakes
-    { id: 'p19', name: 'Classic New York',           category: 'cheesecakes',      tag: 'bestseller', description: 'Dense, creamy, no-nonsense New York cheesecake on a graham crust.', featured: 1, active: 1 },
-    { id: 'p20', name: 'Blueberry Swirl',            category: 'cheesecakes',      tag: null,         description: 'Wild blueberry compote ribboned through silky cream cheese.', featured: 0, active: 1 },
-    { id: 'p21', name: 'Mango Cheesecake',           category: 'cheesecakes',      tag: 'seasonal',   description: 'No-bake Alphonso mango cheesecake — light, tropical, irresistible.', featured: 0, active: 1 },
-    { id: 'p22', name: 'Lotus Biscoff',              category: 'cheesecakes',      tag: 'new',        description: 'Biscoff cookie base with a caramelised spread swirl. Utterly addictive.', featured: 0, active: 1 },
+    { id: 'p23', name: 'New York Classic',           category: 'cheesecakes',      tag: 'bestseller', description: 'Dense, creamy, perfectly set baked cheesecake on a buttery graham cracker crust.',                                     featured: 1, active: 1, mrp: 699,   discount: 0,  images: '[]' },
+    { id: 'p24', name: 'Blueberry Cheesecake',       category: 'cheesecakes',      tag: 'bestseller', description: 'Classic cheesecake crowned with a vibrant, tangy blueberry compote.',                                                 featured: 1, active: 1, mrp: 749,   discount: 10, images: '[]' },
+    { id: 'p25', name: 'Mango Cheesecake',           category: 'cheesecakes',      tag: 'seasonal',   description: 'Tropical Alphonso mango atop a light cream cheese base — summer celebrations perfected.',                              featured: 0, active: 1, mrp: 749,   discount: 0,  images: '[]' },
+    { id: 'p26', name: 'Oreo Cheesecake',            category: 'cheesecakes',      tag: 'new',        description: 'Creamy cheesecake with Oreo crust, chunks throughout, and crushed Oreo topping.',                                     featured: 0, active: 1, mrp: 799,   discount: 0,  images: '[]' },
+    { id: 'p27', name: 'Lotus Biscoff',              category: 'cheesecakes',      tag: 'bestseller', description: 'Velvety no-bake cheesecake with Biscoff spread and crushed caramel cookies.',                                          featured: 0, active: 1, mrp: 849,   discount: 0,  images: '[]' },
     // Donuts
-    { id: 'p23', name: 'Glazed Classic',             category: 'donuts',           tag: null,         description: 'The OG — fluffy yeast donut with a shiny sugar glaze.', featured: 0, active: 1 },
-    { id: 'p24', name: 'Choco Overload Donut',       category: 'donuts',           tag: 'bestseller', description: 'Triple chocolate: dough, glaze & chocolate chip topping.', featured: 1, active: 1 },
-    { id: 'p25', name: 'Strawberry Sprinkle Donut',  category: 'donuts',           tag: null,         description: 'Pink strawberry glaze with rainbow sprinkles. Cheerful & delicious.', featured: 0, active: 1 },
+    { id: 'p28', name: 'Glazed Original',            category: 'donuts',           tag: null,         description: 'The classic — perfectly yeasted donut ring with a sheer vanilla glaze. Simple. Perfect. Timeless.',                    featured: 1, active: 1, mrp: 99,    discount: 0,  images: '[]' },
+    { id: 'p29', name: 'Chocolate Frosted',          category: 'donuts',           tag: 'bestseller', description: 'Rich dark chocolate ganache on a fluffy donut.',                                                                       featured: 1, active: 1, mrp: 119,   discount: 0,  images: '[]' },
+    { id: 'p30', name: 'Strawberry Sprinkle',        category: 'donuts',           tag: 'bestseller', description: 'Pink strawberry glaze showered with rainbow sprinkles — fun, colourful, and guaranteed to make you smile.',            featured: 0, active: 1, mrp: 119,   discount: 0,  images: '[]' },
+    { id: 'p31', name: 'Caramel Crunch',             category: 'donuts',           tag: 'new',        description: 'Buttery caramel glaze with caramelized sugar crystals — indulgent, golden, extraordinary.',                            featured: 0, active: 1, mrp: 129,   discount: 0,  images: '[]' },
+    { id: 'p32', name: 'Cinnamon Sugar',             category: 'donuts',           tag: null,         description: 'Warm cinnamon and sugar coating on a soft fried donut — a bakery classic that never goes out of style.',               featured: 0, active: 1, mrp: 99,    discount: 0,  images: '[]' },
   ];
 
   const insertMany = db.transaction((items) => {
