@@ -132,6 +132,23 @@
     const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
   }
 
+  /* Normalize orders that come from the website checkout (snake_case keys)
+     vs manually logged orders (camelCase keys). */
+  function normalizeOrder(o) {
+    return {
+      ...o,
+      customerName:    o.customerName    || o.customer_name    || '',
+      phone:           o.phone           || o.customer_phone   || '',
+      email:           o.email           || o.customer_email   || '',
+      deliveryAddress: o.deliveryAddress || o.delivery_address || '',
+      deliveryMode:    o.deliveryMode    || o.delivery_mode    || '',
+      deliveryTime:    o.deliveryTime    || o.delivery_time    || '',
+      paymentMethod:   o.paymentMethod   || o.payment_method   || '',
+      deliveryDate:    o.deliveryDate    || o.delivery_date    || '',
+      orderDate:       o.orderDate       || o.order_date       || '',
+    };
+  }
+
   function renderStats() {
     const orders = getData(KEYS.orders);
     const counts = { pending:0, confirmed:0, ready:0, delivered:0, cancelled:0 };
@@ -170,8 +187,8 @@
     const platform = document.getElementById('platformFilter').value;
     const outlet   = document.getElementById('outletFilter').value;
 
-    let orders = getData(KEYS.orders);
-    if (search)   orders = orders.filter(o => (o.customerName||'').toLowerCase().includes(search) || (o.items||'').toLowerCase().includes(search));
+    let orders = getData(KEYS.orders).map(normalizeOrder);
+    if (search)   orders = orders.filter(o => (o.customerName||'').toLowerCase().includes(search) || (o.items||'').toLowerCase().includes(search) || (o.phone||'').includes(search));
     if (status)   orders = orders.filter(o => o.status === status);
     if (platform) orders = orders.filter(o => o.platform === platform);
     if (outlet)   orders = orders.filter(o => o.outlet === outlet);
@@ -220,11 +237,38 @@
       <tr class="expand-row" id="expand_${o.id}">
         <td colspan="10">
           <div class="expand-content">
-            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px">
-              <div><strong>Items:</strong><br>${esc(o.items || '—')}</div>
-              <div><strong>Quantity:</strong><br>${esc(o.quantity || '—')}</div>
-              <div><strong>Notes:</strong><br>${esc(o.notes || '—')}</div>
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px 24px">
+
+              <div>
+                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Customer</div>
+                <div style="font-weight:600;margin-bottom:2px">${esc(o.customerName || '—')}</div>
+                ${o.phone ? `<div style="margin-bottom:2px">📞 <a href="tel:${esc(o.phone)}" style="color:var(--gold)">${esc(o.phone)}</a></div>` : ''}
+                ${o.email ? `<div>✉ <a href="mailto:${esc(o.email)}" style="color:var(--gold)">${esc(o.email)}</a></div>` : ''}
+              </div>
+
+              <div>
+                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Delivery</div>
+                ${o.deliveryMode ? `<div style="margin-bottom:4px"><span style="background:var(--gold-faint);color:var(--gold);padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600">${o.deliveryMode === 'home-delivery' ? '🏠 Home Delivery' : '🏪 Store Pickup'}</span></div>` : ''}
+                ${o.deliveryAddress ? `<div style="margin-top:4px;font-size:0.82rem;color:var(--text)">${esc(o.deliveryAddress)}</div>` : ''}
+                ${!o.deliveryMode && !o.deliveryAddress ? '<div>—</div>' : ''}
+              </div>
+
+              <div>
+                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Schedule</div>
+                ${o.deliveryDate ? `<div style="margin-bottom:2px">📅 ${fmtDate(o.deliveryDate)}</div>` : ''}
+                ${o.deliveryTime ? `<div>🕐 ${esc(o.deliveryTime)}</div>` : ''}
+                ${!o.deliveryDate && !o.deliveryTime ? '<div>—</div>' : ''}
+              </div>
+
+              <div>
+                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Order Info</div>
+                <div style="margin-bottom:2px">${esc(o.items || '—')}</div>
+                ${o.quantity ? `<div style="font-size:0.8rem;color:var(--muted)">Qty: ${esc(o.quantity)}</div>` : ''}
+                ${o.paymentMethod ? `<div style="margin-top:4px;font-size:0.8rem">💳 ${o.paymentMethod === 'cod' ? 'Cash on Delivery' : o.paymentMethod === 'razorpay' ? 'Paid Online' : esc(o.paymentMethod)}</div>` : ''}
+              </div>
+
             </div>
+            ${o.notes ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)"><span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Special Instructions</span><div style="margin-top:4px;font-size:0.85rem">${esc(o.notes)}</div></div>` : ''}
           </div>
         </td>
       </tr>`).join('');
@@ -248,6 +292,10 @@
         </div>
       </div>
       <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="f_email" class="form-control" value="${esc(o.email||'')}" placeholder="customer@email.com">
+      </div>
+      <div class="form-group">
         <label>Items / Description *</label>
         <input type="text" id="f_items" class="form-control" value="${esc(o.items||'')}" placeholder="e.g. Birthday Cake 2kg (Chocolate)">
       </div>
@@ -260,6 +308,30 @@
           <label>Amount (₹)</label>
           <input type="number" id="f_amount" class="form-control" value="${o.amount||''}" placeholder="0">
         </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Delivery Mode</label>
+          <select id="f_deliveryMode" class="form-control">
+            <option value="">— Select —</option>
+            <option value="home-delivery" ${o.deliveryMode==='home-delivery'?'selected':''}>🏠 Home Delivery</option>
+            <option value="store-pickup"  ${o.deliveryMode==='store-pickup' ?'selected':''}>🏪 Store Pickup</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select id="f_paymentMethod" class="form-control">
+            <option value="">— Select —</option>
+            <option value="cod"      ${o.paymentMethod==='cod'     ?'selected':''}>Cash on Delivery</option>
+            <option value="razorpay" ${o.paymentMethod==='razorpay'?'selected':''}>Paid Online (Razorpay)</option>
+            <option value="upi"      ${o.paymentMethod==='upi'     ?'selected':''}>UPI</option>
+            <option value="cash"     ${o.paymentMethod==='cash'    ?'selected':''}>Cash</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Delivery Address</label>
+        <textarea id="f_deliveryAddress" class="form-control" rows="2" placeholder="Full delivery address">${esc(o.deliveryAddress||'')}</textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -295,19 +367,25 @@
           <input type="date" id="f_deliveryDate" class="form-control" value="${o.deliveryDate||''}">
         </div>
       </div>
-      <div class="form-group">
-        <label>Status</label>
-        <select id="f_status" class="form-control">
-          <option value="pending"   ${(o.status||'pending')==='pending'  ?'selected':''}>Pending</option>
-          <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
-          <option value="ready"     ${o.status==='ready'    ?'selected':''}>Ready</option>
-          <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
-          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
-        </select>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Delivery Time</label>
+          <input type="time" id="f_deliveryTime" class="form-control" value="${o.deliveryTime||''}">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f_status" class="form-control">
+            <option value="pending"   ${(o.status||'pending')==='pending'  ?'selected':''}>Pending</option>
+            <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
+            <option value="ready"     ${o.status==='ready'    ?'selected':''}>Ready</option>
+            <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
+            <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+          </select>
+        </div>
       </div>
       <div class="form-group">
-        <label>Notes</label>
-        <textarea id="f_notes" class="form-control" placeholder="Special instructions, allergy info, etc.">${esc(o.notes||'')}</textarea>
+        <label>Special Instructions</label>
+        <textarea id="f_notes" class="form-control" placeholder="Flavour, message on cake, allergy info, etc.">${esc(o.notes||'')}</textarea>
       </div>`;
   }
 
@@ -316,19 +394,24 @@
     const items = document.getElementById('f_items').value.trim();
     if (!name || !items) { showToast('Customer name and items are required.', 'error'); return null; }
     return {
-      id:           existingId || uid(),
-      customerName: name,
-      phone:        document.getElementById('f_phone').value.trim(),
+      id:              existingId || uid(),
+      customerName:    name,
+      phone:           document.getElementById('f_phone').value.trim(),
+      email:           document.getElementById('f_email').value.trim(),
       items,
-      quantity:     document.getElementById('f_qty').value.trim(),
-      amount:       document.getElementById('f_amount').value,
-      platform:     document.getElementById('f_platform').value,
-      outlet:       document.getElementById('f_outlet').value,
-      orderDate:    document.getElementById('f_orderDate').value,
-      deliveryDate: document.getElementById('f_deliveryDate').value,
-      status:       document.getElementById('f_status').value,
-      notes:        document.getElementById('f_notes').value.trim(),
-      createdAt:    existingId ? undefined : new Date().toISOString(),
+      quantity:        document.getElementById('f_qty').value.trim(),
+      amount:          document.getElementById('f_amount').value,
+      deliveryMode:    document.getElementById('f_deliveryMode').value,
+      paymentMethod:   document.getElementById('f_paymentMethod').value,
+      deliveryAddress: document.getElementById('f_deliveryAddress').value.trim(),
+      platform:        document.getElementById('f_platform').value,
+      outlet:          document.getElementById('f_outlet').value,
+      orderDate:       document.getElementById('f_orderDate').value,
+      deliveryDate:    document.getElementById('f_deliveryDate').value,
+      deliveryTime:    document.getElementById('f_deliveryTime').value,
+      status:          document.getElementById('f_status').value,
+      notes:           document.getElementById('f_notes').value.trim(),
+      createdAt:       existingId ? undefined : new Date().toISOString(),
     };
   }
 
