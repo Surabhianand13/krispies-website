@@ -8,13 +8,23 @@
  * POST /api/checkout/verify    — verify Razorpay payment signature and confirm order
  */
 
-const express  = require('express');
-const crypto   = require('crypto');
+const express    = require('express');
+const crypto     = require('crypto');
+const rateLimit  = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
-const db       = require('../db/database');
+const db         = require('../db/database');
 const { newOrderEmail } = require('../utils/email');
 
 const router = express.Router();
+
+/* ── Rate limiter: 10 order attempts per hour per IP ── */
+const checkoutLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many order attempts. Please try again in an hour.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 /* ── Razorpay — loaded lazily so the server starts even without the package ── */
 function getRazorpay() {
@@ -34,7 +44,7 @@ const orderValidators = [
   body('customer_name').trim().notEmpty().withMessage('Name is required.'),
   body('customer_phone').trim().notEmpty().withMessage('Phone number is required.'),
   body('items').trim().notEmpty().withMessage('Items are required.'),
-  body('amount').isNumeric().withMessage('Amount must be a number.'),
+  body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be greater than 0.'),
 ];
 
 /* ── Build DB row from request body ── */
@@ -75,7 +85,7 @@ const INSERT_SQL = `
 /* ════════════════════════════════════════════════
    POST /api/checkout   — Cash on Delivery order
    ════════════════════════════════════════════════ */
-router.post('/', orderValidators, async (req, res) => {
+router.post('/', checkoutLimiter, orderValidators, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
@@ -95,7 +105,7 @@ router.post('/', orderValidators, async (req, res) => {
 /* ════════════════════════════════════════════════
    POST /api/checkout/initiate  — Razorpay order
    ════════════════════════════════════════════════ */
-router.post('/initiate', orderValidators, async (req, res) => {
+router.post('/initiate', checkoutLimiter, orderValidators, async (req, res) => {
   const Razorpay = getRazorpay();
   const keyId     = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;

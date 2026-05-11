@@ -2,6 +2,14 @@
 
 require('dotenv').config();
 
+// Refuse to start if JWT_SECRET is missing or is the example placeholder
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET === 'change_this_to_a_long_random_string_before_going_live') {
+  console.error('\n[FATAL] JWT_SECRET is not set or is still the default placeholder.');
+  console.error('        Set a strong random value in your .env file before starting the server.\n');
+  process.exit(1);
+}
+
 const express    = require('express');
 const cors       = require('cors');
 const rateLimit  = require('express-rate-limit');
