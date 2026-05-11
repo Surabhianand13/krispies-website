@@ -15,15 +15,15 @@ const VALID_CATEGORIES = ['customized-cakes', 'birthday-cakes', 'biscuits', 'che
 const VALID_TAGS       = ['bestseller', 'new', 'seasonal', 'custom'];
 
 // GET /api/products — public, returns only active products
-// GET /api/products?all=1 — protected, returns all (including inactive)
-router.get('/', (req, res) => {
-  const isAdmin = req.headers['authorization'];
-  let rows;
-  if (isAdmin && req.query.all === '1') {
-    rows = db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
-  } else {
-    rows = db.prepare('SELECT * FROM products WHERE active = 1 ORDER BY created_at DESC').all();
+// GET /api/products?all=1 — protected (JWT required), returns all including inactive
+router.get('/', (req, res, next) => {
+  if (req.query.all === '1') {
+    return requireAuth(req, res, () => {
+      const rows = db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
+      res.json(rows.map(toProduct));
+    });
   }
+  const rows = db.prepare('SELECT * FROM products WHERE active = 1 ORDER BY created_at DESC').all();
   res.json(rows.map(toProduct));
 });
 
