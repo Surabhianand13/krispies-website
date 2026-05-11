@@ -23,34 +23,54 @@
           <label for="password">Password</label>
           <input type="password" id="password" class="form-control" placeholder="Enter admin password" autocomplete="current-password" required>
         </div>
-        <button type="submit" class="btn btn-primary login-card__btn">Access Dashboard →</button>
+        <button type="submit" class="btn btn-primary login-card__btn" id="loginBtn">Access Dashboard →</button>
       </form>
 
       <p class="login-card__hint">
-        Session expires when you close the browser tab.<br>
-        To change the password, edit <code>admin/admin.js</code> → <code>ADMIN_PASSWORD</code>
+        Session expires when you close the browser tab.
       </p>
     </div>
   </div>
 
   <script src="admin.js"></script>
   <script>
-    // Redirect if already logged in
-    if (sessionStorage.getItem('krispies_admin_auth')) {
-      window.location.href = 'dashboard';
-    }
+    // Redirect if already logged in and token is still valid
+    (function () {
+      const token = sessionStorage.getItem(SESSION_KEY);
+      if (token) {
+        try {
+          const p = JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+          if (p.exp * 1000 > Date.now()) window.location.href = 'dashboard';
+        } catch {}
+      }
+    })();
 
-    document.getElementById('loginForm').addEventListener('submit', e => {
+    document.getElementById('loginForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const pw = document.getElementById('password').value;
+      const pw  = document.getElementById('password').value;
       const err = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
 
-      if (login(pw)) {
-        window.location.href = 'dashboard';
-      } else {
+      btn.disabled    = true;
+      btn.textContent = 'Signing in…';
+      err.style.display = 'none';
+
+      try {
+        const ok = await login(pw);
+        if (ok) {
+          window.location.href = 'dashboard';
+        } else {
+          err.textContent       = 'Incorrect password. Please try again.';
+          err.style.display     = 'block';
+          document.getElementById('password').value = '';
+          document.getElementById('password').focus();
+        }
+      } catch {
+        err.textContent   = 'Could not reach server. Check your connection.';
         err.style.display = 'block';
-        document.getElementById('password').value = '';
-        document.getElementById('password').focus();
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = 'Access Dashboard →';
       }
     });
   </script>

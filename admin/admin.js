@@ -5,10 +5,10 @@
 'use strict';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CONFIG  ← Change the password here
+// CONFIG
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const ADMIN_PASSWORD = 'krispies2024';
-const SESSION_KEY    = 'krispies_admin_auth';
+const BACKEND_URL = 'https://krispies-website.onrender.com';
+const SESSION_KEY = 'krispies_admin_token'; // stores the JWT
 
 const KEYS = {
   products:  'krispies_products',
@@ -17,14 +17,41 @@ const KEYS = {
 };
 
 // ── AUTH ──────────────────────────────────
+function _decodeJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+  } catch { return null; }
+}
+
 function checkAuth() {
-  if (!sessionStorage.getItem(SESSION_KEY)) { window.location.href = 'index.html'; return false; }
+  const token = sessionStorage.getItem(SESSION_KEY);
+  if (!token) { window.location.href = 'index.html'; return false; }
+  const payload = _decodeJwt(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    sessionStorage.removeItem(SESSION_KEY);
+    window.location.href = 'index.html';
+    return false;
+  }
   return true;
 }
-function login(pw) {
-  if (pw === ADMIN_PASSWORD) { sessionStorage.setItem(SESSION_KEY, '1'); return true; }
-  return false;
+
+// Returns {Authorization: 'Bearer <token>'} for use in fetch() headers
+function authHeader() {
+  return { 'Authorization': 'Bearer ' + sessionStorage.getItem(SESSION_KEY) };
 }
+
+async function login(password) {
+  const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'admin', password }),
+  });
+  if (!res.ok) return false;
+  const { token } = await res.json();
+  sessionStorage.setItem(SESSION_KEY, token);
+  return true;
+}
+
 function logout() { sessionStorage.removeItem(SESSION_KEY); window.location.href = 'index.html'; }
 
 // ── ID GENERATOR ──────────────────────────
