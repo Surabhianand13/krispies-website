@@ -145,13 +145,20 @@ if (form) {
       sent = res.ok;
     } catch (_) { /* backend unavailable — fall through to localStorage */ }
 
-    // Fallback: save to localStorage for admin panel when backend is offline
+    // Fallback: save minimal record to localStorage when backend is offline.
+    // Email and other non-essential PII are intentionally omitted — name + phone
+    // are enough for the admin to follow up.
     if (!sent) {
       try {
         const enquiry = {
-          ...payload,
-          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-          status: 'unread',
+          id:          Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          name:        payload.name,
+          phone:       payload.phone,
+          eventType:   payload.eventType,
+          outlet:      payload.outlet,
+          eventDate:   payload.eventDate,
+          message:     payload.message,
+          status:      'unread',
           submittedAt: new Date().toISOString(),
         };
         const existing = JSON.parse(localStorage.getItem('krispies_enquiries') || '[]');

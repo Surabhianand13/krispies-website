@@ -18,11 +18,16 @@ const path       = require('path');
 const app = express();
 
 // ── CORS ───────────────────────────────────────────────────────────────────────
+// Localhost is only allowed when explicitly running in development mode
+const isDev = process.env.NODE_ENV === 'development';
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3737',
-  'http://localhost:3737',
-  'http://127.0.0.1:3737',
-];
+  process.env.FRONTEND_URL,
+  ...(isDev ? ['http://localhost:3737', 'http://127.0.0.1:3737'] : []),
+].filter(Boolean);
+
+if (!process.env.FRONTEND_URL) {
+  console.warn('[WARN] FRONTEND_URL is not set — CORS will block all browser requests.');
+}
 
 app.use(cors({
   origin: (origin, cb) => {
@@ -36,6 +41,20 @@ app.use(cors({
 // ── Body parsing ───────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// ── CSRF guard ─────────────────────────────────────────────────────────────────
+// State-changing requests must declare application/json. Browser forms cannot
+// set this content-type cross-origin without a CORS preflight (already blocked),
+// so this prevents form-based CSRF attacks on every POST/PUT/PATCH/DELETE route.
+app.use((req, res, next) => {
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    const ct = req.headers['content-type'] || '';
+    if (!ct.includes('application/json')) {
+      return res.status(415).json({ error: 'Content-Type must be application/json.' });
+    }
+  }
+  next();
+});
 
 // ── Global rate limit ──────────────────────────────────────────────────────────
 app.use(rateLimit({

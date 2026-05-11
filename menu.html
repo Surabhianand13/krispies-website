@@ -1091,11 +1091,24 @@
       if (!res.ok) throw new Error(data.error || 'Server error');
       orderId = data.orderId;
     } catch (_) {
-      /* fallback — save locally so admin can see it */
+      /* fallback — save minimal receipt locally; email and address are omitted
+         to avoid persisting sensitive PII in localStorage */
       try {
         const existing = JSON.parse(localStorage.getItem('krispies_orders') || '[]');
         orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
-        existing.unshift({ ...payload, id: orderId, createdAt: new Date().toISOString() });
+        existing.unshift({
+          id:            orderId,
+          customer_name: payload.customer_name,
+          customer_phone: payload.customer_phone,
+          items:         payload.items,
+          quantity:      payload.quantity,
+          amount:        payload.amount,
+          outlet:        payload.outlet || null,
+          delivery_date: payload.delivery_date || null,
+          platform:      'website',
+          status:        'pending',
+          createdAt:     new Date().toISOString(),
+        });
         localStorage.setItem('krispies_orders', JSON.stringify(existing));
       } catch(_) {
         orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
