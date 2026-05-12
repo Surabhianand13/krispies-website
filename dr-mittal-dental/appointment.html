@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Appointment | Dr. Mittal's Kids &amp; Family Dental</title>
+  <meta name="description" content="Book an appointment at Dr. Mittal's Kids Dental. Choose in-clinic or video consultation. Secure online payment via Razorpay. Confirmation within 30 minutes." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦷</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    /* ── Appointment Page Specifics ──────────────────────── */
+    .appt-page { background: var(--bg-soft); min-height: 100vh; padding: 120px 5% 80px; }
+
+    .appt-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* ── Step Progress ────────────────────────────────────── */
+    .step-progress {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 60%;
+      right: -40%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+      transition: background 0.4s ease;
+    }
+    .step-item.completed:not(:last-child)::after { background: var(--blue); }
+    .step-dot {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      background: var(--white);
+      color: var(--gray);
+      position: relative; z-index: 1;
+      transition: all 0.4s ease;
+    }
+    .step-item.active .step-dot   { background: var(--blue); border-color: var(--blue); color: var(--white); box-shadow: 0 0 0 4px rgba(44,157,168,0.2); }
+    .step-item.completed .step-dot { background: var(--green); border-color: var(--green); color: var(--white); }
+    .step-label { font-size: 0.72rem; font-weight: 600; color: var(--gray); text-align: center; transition: color 0.4s; }
+    .step-item.active .step-label    { color: var(--blue); }
+    .step-item.completed .step-label { color: var(--green-dark); }
+
+    /* ── Form Card ────────────────────────────────────────── */
+    .form-card {
+      background: var(--white);
+      border-radius: var(--r-xl);
+      padding: 48px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+    }
+    .form-card__title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .form-card__subtitle { font-size: 0.9rem; color: var(--gray); margin-bottom: 32px; line-height: 1.6; }
+
+    /* ── Type Toggle ──────────────────────────────────────── */
+    .type-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .type-option {
+      border: 2px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 20px 18px;
+      cursor: pointer;
+      transition: var(--transition-bounce);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .type-option:hover { border-color: var(--blue); transform: translateY(-2px); }
+    .type-option.selected {
+      border-color: var(--blue);
+      background: var(--blue-lighter);
+    }
+    .type-option.selected::before {
+      content: '✓';
+      position: absolute;
+      top: 8px; right: 12px;
+      width: 20px; height: 20px;
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .type-option__icon { font-size: 28px; margin-bottom: 8px; display: block; }
+    .type-option__label { font-family: var(--font-fun); font-size: 0.9rem; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+    .type-option__sub { font-size: 0.72rem; color: var(--gray); }
+
+    /* ── Form Fields (light) ──────────────────────────────── */
+    .fg { margin-bottom: 18px; }
+    .fg label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 7px;
+    }
+    .fg label span { color: #EF4444; margin-left: 2px; }
+    .fg input, .fg select, .fg textarea {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--dark);
+      background: var(--bg-soft);
+      outline: none;
+      transition: var(--transition);
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus {
+      border-color: var(--blue);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(44,157,168,0.1);
+    }
+    .fg input::placeholder, .fg textarea::placeholder { color: var(--gray-light); }
+    .fg select option { background: var(--white); }
+    .fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── Slot Picker ──────────────────────────────────────── */
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .slot-btn {
+      padding: 10px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--dark);
+      background: var(--bg-soft);
+      cursor: pointer;
+      transition: var(--transition-bounce);
+      text-align: center;
+    }
+    .slot-btn:hover:not(.slot-taken) { border-color: var(--blue); background: var(--blue-lighter); color: var(--blue-dark); }
+    .slot-btn.slot-selected { background: var(--blue); border-color: var(--blue); color: var(--white); }
+    .slot-btn.slot-taken { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; }
+
+    /* ── Service Pills ────────────────────────────────────── */
+    .service-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .service-pill {
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--dark);
+      background: var(--bg-soft);
+      cursor: pointer;
+      transition: var(--transition-bounce);
+    }
+    .service-pill:hover { border-color: var(--blue); }
+    .service-pill.selected { background: var(--blue); border-color: var(--blue); color: var(--white); }
+
+    /* ── Navigation Buttons ───────────────────────────────── */
+    .step-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-back {
+      flex: 0;
+      padding: 14px 28px;
+      border-radius: var(--r-full);
+      font-family: var(--font-fun);
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--gray);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-back:hover { border-color: var(--blue); color: var(--blue); }
+    .btn-next {
+      flex: 1;
+      padding: 14px;
+      border-radius: var(--r-full);
+      font-family: var(--font-fun);
+      font-size: 1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color: var(--white);
+      border: none;
+      cursor: pointer;
+      transition: var(--transition-bounce);
+      box-shadow: 0 8px 24px rgba(44,157,168,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-next:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(44,157,168,0.4); }
+
+    /* ── Payment Section ──────────────────────────────────── */
+    .payment-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .payment-option {
+      border: 2px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 18px 20px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 14px;
+      transition: var(--transition);
+    }
+    .payment-option:hover { border-color: var(--blue); }
+    .payment-option.selected { border-color: var(--blue); background: var(--blue-lighter); }
+    .payment-option input[type="radio"] { accent-color: var(--blue); width: 18px; height: 18px; }
+    .payment-option__icon { font-size: 24px; }
+    .payment-option__label { font-family: var(--font-fun); font-size: 0.95rem; font-weight: 700; color: var(--dark); }
+    .payment-option__sub { font-size: 0.75rem; color: var(--gray); }
+    .payment-option__badges { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+    .payment-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; background: rgba(44,157,168,0.1); color: var(--blue-dark); }
+
+    /* ── Order Summary Card ───────────────────────────────── */
+    .summary-card {
+      background: var(--white);
+      border-radius: var(--r-xl);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: sticky;
+      top: 100px;
+    }
+    .summary-card__header {
+      padding: 24px 28px 20px;
+      background: linear-gradient(135deg, var(--dark), var(--dark-2));
+      color: var(--white);
+    }
+    .summary-card__title { font-family: var(--font-fun); font-size: 1.05rem; font-weight: 800; margin-bottom: 4px; }
+    .summary-card__sub { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+
+    .summary-card__body { padding: 24px 28px; }
+    .summary-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row__label { color: var(--gray); }
+    .summary-row__value { font-weight: 600; color: var(--dark); }
+    .summary-row--total .summary-row__label { font-weight: 700; color: var(--dark); font-size: 1rem; }
+    .summary-row--total .summary-row__value { font-family: var(--font-display); font-size: 1.3rem; font-weight: 900; color: var(--blue); }
+
+    .consultation-fee-note {
+      background: var(--green-lighter);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      font-size: 0.8rem;
+      color: var(--green-dark);
+      margin-top: 16px;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+
+    /* Trust badges on summary */
+    .trust-badges { display: flex; flex-direction: column; gap: 10px; padding: 20px 28px; border-top: 1px solid var(--border); }
+    .trust-badge { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; color: var(--gray); }
+    .trust-badge__icon { font-size: 16px; }
+
+    /* ── Success Screen ───────────────────────────────────── */
+    #success-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 48px;
+      background: var(--white);
+      border-radius: var(--r-xl);
+      border: 1px solid var(--border);
+    }
+    .success-icon {
+      font-size: 80px;
+      display: block;
+      margin-bottom: 20px;
+      animation: floatBounce 3s ease-in-out infinite;
+    }
+    .success-title { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; }
+    .success-title span { color: var(--blue); }
+    .success-desc { font-size: 1rem; color: var(--gray); line-height: 1.8; margin-bottom: 32px; }
+    .success-details {
+      display: inline-flex; flex-direction: column; gap: 10px;
+      background: var(--bg-soft);
+      border-radius: var(--r-lg);
+      padding: 24px 36px;
+      margin-bottom: 32px;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .success-detail { display: flex; gap: 12px; align-items: center; font-size: 0.9rem; }
+    .success-detail__label { color: var(--gray); width: 100px; flex-shrink: 0; }
+    .success-detail__value { font-weight: 600; color: var(--dark); }
+    .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Whats included sidebar block ────────────────────── */
+    .whats-included {
+      background: linear-gradient(135deg, var(--yellow-lighter), rgba(116,143,58,0.08));
+      border-radius: var(--r-lg);
+      padding: 24px;
+      margin-top: 20px;
+      border: 1px solid rgba(229,190,75,0.3);
+    }
+    .whats-included__title { font-family: var(--font-fun); font-size: 0.9rem; font-weight: 700; color: var(--dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .whats-included__item { display: flex; align-items: flex-start; gap: 8px; font-size: 0.8rem; color: var(--dark); margin-bottom: 8px; line-height: 1.4; }
+    .whats-included__check { color: var(--green); font-weight: 700; margin-top: 1px; }
+
+    @media (max-width: 900px) {
+      .appt-container { grid-template-columns: 1fr; }
+      .summary-card { position: static; }
+      .fg-row { grid-template-columns: 1fr; }
+      .slot-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+
+<nav class="nav">
+  <div class="nav__container">
+    <a href="index.html" class="nav__logo"><div class="nav__logo-icon">🦷</div><div class="nav__logo-text"><span class="nav__logo-name">Dr. Mittal's Dental</span><span class="nav__logo-sub">Kids &amp; Family Care</span></div></a>
+    <ul class="nav__links">
+      <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
+      <li><a href="about.html">About Us</a></li><li><a href="nri.html">NRI Care</a></li>
+      <li><a href="school.html">School Program</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav__cta"><div class="nav__phone"><div class="nav__phone-icon">📞</div>+91 98765 43210</div><a href="appointment.html" class="btn-nav" style="background:linear-gradient(135deg,var(--yellow-dark),var(--yellow));color:var(--dark);">📅 Booking</a></div>
+    <button class="nav__hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav__mobile">
+  <a href="index.html">🏠 Home</a><a href="services.html">🦷 Services</a><a href="about.html">👨‍⚕️ About</a>
+  <a href="nri.html">✈️ NRI</a><a href="school.html">🏫 School</a><a href="blog.html">📝 Blog</a><a href="contact.html">📍 Contact</a>
+</div>
+
+<div class="appt-page">
+  <div style="max-width:1200px;margin:0 auto 32px;">
+    <div class="page-header__breadcrumb" style="display:flex;gap:8px;font-size:0.8rem;"><a href="index.html" style="color:var(--blue);">Home</a><span style="color:var(--gray-light);">/</span><span style="color:var(--gray);">Book Appointment</span></div>
+    <h1 style="font-family:var(--font-display);font-size:clamp(1.8rem,3vw,2.5rem);font-weight:800;color:var(--dark);margin-top:12px;">Book an <span style="color:var(--blue);">Appointment</span></h1>
+    <p style="color:var(--gray);font-size:1rem;margin-top:6px;">Simple, fast and secure. Confirmation within 30 minutes during clinic hours.</p>
+  </div>
+
+  <div class="appt-container">
+    <!-- MAIN FORM -->
+    <div>
+      <!-- Step Progress -->
+      <div class="step-progress fade-up" id="step-progress">
+        <div class="step-item active" data-step="1">
+          <div class="step-dot">1</div>
+          <span class="step-label">Appointment</span>
+        </div>
+        <div class="step-item" data-step="2">
+          <div class="step-dot">2</div>
+          <span class="step-label">Patient Details</span>
+        </div>
+        <div class="step-item" data-step="3">
+          <div class="step-dot">3</div>
+          <span class="step-label">Payment</span>
+        </div>
+        <div class="step-item" data-step="4">
+          <div class="step-dot">✓</div>
+          <span class="step-label">Confirmed</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: Appointment Details -->
+      <div class="form-card fade-up" id="step1">
+        <div class="form-card__title">📅 Appointment Details</div>
+        <div class="form-card__subtitle">Choose the type of consultation and service you need. Takes about 1 minute.</div>
+
+        <div class="fg"><label>Consultation Type</label>
+          <div class="type-toggle">
+            <div class="type-option selected" data-type="clinic" onclick="selectType(this,'clinic')">
+              <span class="type-option__icon">🏥</span>
+              <div class="type-option__label">In-Clinic Visit</div>
+              <div class="type-option__sub">123 Smile Avenue, Gurgaon</div>
+            </div>
+            <div class="type-option" data-type="video" onclick="selectType(this,'video')">
+              <span class="type-option__icon">📹</span>
+              <div class="type-option__label">Video Consultation</div>
+              <div class="type-option__sub">Zoom / WhatsApp / Meet</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fg"><label>Service Needed <span>*</span></label>
+          <div class="service-pills" id="service-pills">
+            <div class="service-pill selected" onclick="selectService(this)">🔍 First Checkup</div>
+            <div class="service-pill" onclick="selectService(this)">🧹 Cleaning</div>
+            <div class="service-pill" onclick="selectService(this)">📐 Orthodontics</div>
+            <div class="service-pill" onclick="selectService(this)">🛡️ Sealants</div>
+            <div class="service-pill" onclick="selectService(this)">😌 Sedation</div>
+            <div class="service-pill" onclick="selectService(this)">✨ Whitening</div>
+            <div class="service-pill" onclick="selectService(this)">🚨 Emergency</div>
+            <div class="service-pill" onclick="selectService(this)">🌍 NRI Consult</div>
+          </div>
+        </div>
+
+        <div class="fg-row">
+          <div class="fg"><label>Preferred Date <span>*</span></label><input type="date" id="appt-date" onchange="generateSlots(this.value)" /></div>
+          <div class="fg"><label>Child's Age <span>*</span></label>
+            <select id="child-age">
+              <option value="">Select age...</option>
+              <option>Under 1 year</option>
+              <option>1–2 years</option>
+              <option>3–5 years</option>
+              <option>6–9 years</option>
+              <option>10–13 years</option>
+              <option>14–18 years</option>
+              <option>Adult (Family)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fg" id="slot-section" style="display:none;">
+          <label>Available Time Slots</label>
+          <div class="slot-grid" id="slot-grid"></div>
+        </div>
+
+        <div class="fg"><label>Special Instructions</label>
+          <textarea rows="3" placeholder="Any specific concerns, allergies, or information we should know before your visit..." id="special-notes"></textarea>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-next" onclick="goToStep(2)">Continue to Patient Details →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Patient Details -->
+      <div class="form-card fade-up" id="step2" style="display:none;">
+        <div class="form-card__title">👤 Patient & Parent Details</div>
+        <div class="form-card__subtitle">We need these details to confirm your appointment and send you reminders.</div>
+
+        <div class="fg-row">
+          <div class="fg"><label>Child's Full Name <span>*</span></label><input type="text" id="child-name" placeholder="First and last name" /></div>
+          <div class="fg"><label>Date of Birth</label><input type="date" id="child-dob" /></div>
+        </div>
+        <div class="fg-row">
+          <div class="fg"><label>Parent / Guardian Name <span>*</span></label><input type="text" id="parent-name" placeholder="Your full name" /></div>
+          <div class="fg"><label>Relationship</label>
+            <select id="relationship"><option>Mother</option><option>Father</option><option>Guardian</option><option>Grandparent</option></select>
+          </div>
+        </div>
+        <div class="fg-row">
+          <div class="fg"><label>Phone Number <span>*</span></label><input type="tel" id="phone" placeholder="+91 ..." /></div>
+          <div class="fg"><label>Email Address</label><input type="email" id="email" placeholder="email@example.com" /></div>
+        </div>
+        <div class="fg"><label>Country of Residence</label>
+          <select id="country">
+            <option value="IN">India 🇮🇳</option>
+            <option value="US">United States 🇺🇸</option>
+            <option value="GB">United Kingdom 🇬🇧</option>
+            <option value="AU">Australia 🇦🇺</option>
+            <option value="CA">Canada 🇨🇦</option>
+            <option value="SG">Singapore 🇸🇬</option>
+            <option value="AE">UAE 🇦🇪</option>
+            <option value="DE">Germany 🇩🇪</option>
+            <option value="NZ">New Zealand 🇳🇿</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+        <div class="fg"><label>Previous Dental History</label>
+          <select id="dental-history">
+            <option>First visit ever — no previous dental care</option>
+            <option>Regular checkups only</option>
+            <option>Had cavities / fillings before</option>
+            <option>Currently undergoing orthodontic treatment</option>
+            <option>Had dental anxiety / trauma in the past</option>
+            <option>Special needs / medical conditions</option>
+          </select>
+        </div>
+        <div class="fg"><label>How did you hear about us?</label>
+          <select><option>Google Search</option><option>Google Maps</option><option>Instagram</option><option>Facebook</option><option>WhatsApp / Referral</option><option>School Dental Camp</option><option>Doctor Referral</option><option>NRI Community / Forum</option></select>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="goToStep(1)">← Back</button>
+          <button class="btn-next" onclick="goToStep(3)">Continue to Payment →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Payment -->
+      <div class="form-card fade-up" id="step3" style="display:none;">
+        <div class="form-card__title">💳 Secure Payment</div>
+        <div class="form-card__subtitle">A small consultation fee holds your appointment slot. The balance is payable at the clinic.</div>
+
+        <div class="fg"><label>Appointment Summary</label>
+          <div style="background:var(--bg-soft);border-radius:var(--r-lg);padding:20px;border:1px solid var(--border);font-size:0.9rem;display:flex;flex-direction:column;gap:8px;" id="appt-summary-box">
+            <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--blue);">🔍</span><div><span style="font-weight:600;" id="summary-service">First Checkup</span> — <span id="summary-type">In-Clinic Visit</span></div></div>
+            <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--green);">📅</span><span id="summary-date">Select a date</span></div>
+            <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--yellow-dark);">👤</span><span id="summary-patient">Patient name</span></div>
+          </div>
+        </div>
+
+        <div class="fg"><label>Select Payment Method</label>
+          <div class="payment-options">
+            <label class="payment-option selected" onclick="selectPayment(this,'advance')">
+              <input type="radio" name="payment" value="advance" checked />
+              <span class="payment-option__icon">💳</span>
+              <div>
+                <div class="payment-option__label">Pay Consultation Fee Online (₹500)</div>
+                <div class="payment-option__sub">Secure payment via Razorpay — UPI, Cards, Net Banking, Wallets</div>
+                <div class="payment-option__badges">
+                  <span class="payment-badge">UPI</span>
+                  <span class="payment-badge">Visa</span>
+                  <span class="payment-badge">Mastercard</span>
+                  <span class="payment-badge">PhonePe</span>
+                  <span class="payment-badge">GPay</span>
+                  <span class="payment-badge">International Cards</span>
+                </div>
+              </div>
+            </label>
+            <label class="payment-option" onclick="selectPayment(this,'clinic')">
+              <input type="radio" name="payment" value="clinic" />
+              <span class="payment-option__icon">🏥</span>
+              <div>
+                <div class="payment-option__label">Pay at Clinic</div>
+                <div class="payment-option__sub">No advance required — pay on the day of your visit. Slot is tentative.</div>
+              </div>
+            </label>
+            <label class="payment-option" onclick="selectPayment(this,'whatsapp')">
+              <input type="radio" name="payment" value="whatsapp" />
+              <span class="payment-option__icon">💬</span>
+              <div>
+                <div class="payment-option__label">Confirm via WhatsApp</div>
+                <div class="payment-option__sub">We'll WhatsApp you to confirm details and share payment link if needed.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Razorpay secure badge -->
+        <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:rgba(44,157,168,0.06);border-radius:var(--r-md);border:1px solid rgba(44,157,168,0.15);margin-bottom:24px;">
+          <span style="font-size:22px;">🔒</span>
+          <div style="font-size:0.78rem;color:var(--gray);line-height:1.5;">Payments are processed securely by <strong style="color:var(--dark);">Razorpay</strong>. Your card details are never stored with us. 256-bit SSL encryption.</div>
+        </div>
+
+        <!-- Terms -->
+        <div style="font-size:0.78rem;color:var(--gray);line-height:1.6;margin-bottom:24px;padding:14px;background:var(--bg-soft);border-radius:var(--r-md);">
+          By confirming this appointment, you agree to our <a href="#" style="color:var(--blue);">Appointment Policy</a>. Cancellations with 24+ hours notice receive a full refund. No-shows forfeit the consultation fee.
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="goToStep(2)">← Back</button>
+          <button class="btn-next" id="confirm-btn" onclick="confirmAppointment()" style="background:linear-gradient(135deg,var(--yellow-dark),var(--yellow));color:var(--dark);box-shadow:0 8px 24px rgba(229,190,75,0.4);">
+            🔒 Confirm &amp; Pay ₹500
+          </button>
+        </div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div id="success-screen" class="fade-up">
+        <span class="success-icon">🎉</span>
+        <h2 class="success-title">Appointment <span>Confirmed!</span></h2>
+        <p class="success-desc">Your appointment has been successfully booked. You'll receive a confirmation WhatsApp message within 30 minutes.<br/>We look forward to meeting your little one! 😊</p>
+        <div class="success-details">
+          <div class="success-detail"><span class="success-detail__label">Patient:</span><span class="success-detail__value" id="conf-patient">—</span></div>
+          <div class="success-detail"><span class="success-detail__label">Service:</span><span class="success-detail__value" id="conf-service">—</span></div>
+          <div class="success-detail"><span class="success-detail__label">Date:</span><span class="success-detail__value" id="conf-date">—</span></div>
+          <div class="success-detail"><span class="success-detail__label">Slot:</span><span class="success-detail__value" id="conf-slot">—</span></div>
+          <div class="success-detail"><span class="success-detail__label">Ref. No:</span><span class="success-detail__value" id="conf-ref">—</span></div>
+        </div>
+        <div class="success-actions">
+          <a href="https://wa.me/919876543210" class="btn-primary btn-ripple" target="_blank" rel="noopener">💬 WhatsApp Us</a>
+          <a href="index.html" class="btn-secondary" style="background:var(--bg-soft);color:var(--dark);border-color:var(--border);">🏠 Back to Home</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR SUMMARY -->
+    <div>
+      <div class="summary-card fade-up">
+        <div class="summary-card__header">
+          <div class="summary-card__title">📋 Booking Summary</div>
+          <div class="summary-card__sub">Updates as you fill in the form</div>
+        </div>
+        <div class="summary-card__body">
+          <div class="summary-row"><span class="summary-row__label">Consultation Type</span><span class="summary-row__value" id="sum-type">In-Clinic</span></div>
+          <div class="summary-row"><span class="summary-row__label">Service</span><span class="summary-row__value" id="sum-service">First Checkup</span></div>
+          <div class="summary-row"><span class="summary-row__label">Date</span><span class="summary-row__value" id="sum-date">Not selected</span></div>
+          <div class="summary-row"><span class="summary-row__label">Time Slot</span><span class="summary-row__value" id="sum-slot">Not selected</span></div>
+          <div class="summary-row"><span class="summary-row__label">Consultation Fee</span><span class="summary-row__value">₹500</span></div>
+          <div class="summary-row summary-row--total"><span class="summary-row__label">Due Now</span><span class="summary-row__value" id="sum-total">₹500</span></div>
+        </div>
+        <div class="consultation-fee-note" style="margin:0 20px 20px;">
+          <span>ℹ️</span>
+          <span>Consultation fee is adjusted against your treatment cost on the day of your visit.</span>
+        </div>
+        <div class="trust-badges">
+          <div class="trust-badge"><span class="trust-badge__icon">🔒</span>Secure payment via Razorpay</div>
+          <div class="trust-badge"><span class="trust-badge__icon">✅</span>Confirmation within 30 minutes</div>
+          <div class="trust-badge"><span class="trust-badge__icon">↩️</span>Full refund if cancelled 24h+ prior</div>
+          <div class="trust-badge"><span class="trust-badge__icon">⭐</span>4.9★ · 2,400+ Google reviews</div>
+        </div>
+      </div>
+
+      <div class="whats-included fade-up">
+        <div class="whats-included__title">🦷 What's Included in Your Visit</div>
+        <div class="whats-included__item"><span class="whats-included__check">✓</span>Comprehensive oral examination</div>
+        <div class="whats-included__item"><span class="whats-included__check">✓</span>Digital X-ray (if required)</div>
+        <div class="whats-included__item"><span class="whats-included__check">✓</span>Fluoride varnish application</div>
+        <div class="whats-included__item"><span class="whats-included__check">✓</span>Written treatment plan with costs</div>
+        <div class="whats-included__item"><span class="whats-included__check">✓</span>Parent consultation &amp; Q&amp;A</div>
+        <div class="whats-included__item"><span class="whats-included__check">✓</span>Reward gift for the child 🎁</div>
+      </div>
+
+      <!-- Need Help? -->
+      <div style="background:var(--white);border-radius:var(--r-lg);padding:24px;border:1px solid var(--border);margin-top:20px;" class="fade-up">
+        <div style="font-family:var(--font-fun);font-weight:700;color:var(--dark);margin-bottom:14px;font-size:0.95rem;">Need Help Booking?</div>
+        <a href="tel:+919876543210" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--blue-lighter);border-radius:var(--r-md);text-decoration:none;margin-bottom:10px;transition:var(--transition);" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform=''">
+          <span style="font-size:20px;">📞</span>
+          <div><div style="font-family:var(--font-fun);font-size:0.85rem;font-weight:700;color:var(--blue-dark);">Call Us</div><div style="font-size:0.75rem;color:var(--gray);">+91 98765 43210</div></div>
+        </a>
+        <a href="https://wa.me/919876543210" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(37,211,102,0.1);border-radius:var(--r-md);text-decoration:none;transition:var(--transition);" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform=''">
+          <span style="font-size:20px;">💬</span>
+          <div><div style="font-family:var(--font-fun);font-size:0.85rem;font-weight:700;color:#15803d;">WhatsApp</div><div style="font-size:0.75rem;color:var(--gray);">Usually replies in 30 min</div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:0;">
+  <div class="footer__grid">
+    <div><div class="footer__brand-logo"><div class="footer__brand-icon">🦷</div><div><div class="footer__brand-name">Dr. Mittal's Kids Dental</div><div class="footer__brand-sub">Where Smiles Begin · Est. 2009</div></div></div><p class="footer__desc">Premium pediatric dental care for children and families across India and worldwide.</p><div class="footer__socials"><a href="#" class="social-btn">📸</a><a href="#" class="social-btn">👥</a><a href="#" class="social-btn">💬</a></div></div>
+    <div><div class="footer__col-title">Services</div><ul class="footer__links"><li><a href="services.html">Preventive Care</a></li><li><a href="services.html">Orthodontics</a></li><li><a href="services.html">Emergency</a></li></ul></div>
+    <div><div class="footer__col-title">Quick Links</div><ul class="footer__links"><li><a href="about.html">About Us</a></li><li><a href="nri.html">NRI Care</a></li><li><a href="school.html">School Program</a></li><li><a href="blog.html">Blog</a></li></ul></div>
+    <div><div class="footer__col-title">Contact</div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:0.875rem;color:rgba(255,255,255,0.45);">📍 123 Smile Avenue, Gurgaon</div><a href="tel:+919876543210" style="font-size:0.875rem;color:rgba(255,255,255,0.45);">📞 +91 98765 43210</a></div></div>
+  </div>
+  <div class="footer__bottom"><div>© 2025 Dr. Mittal's Kids &amp; Family Dental</div><div style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:rgba(255,255,255,0.3);">Secured by <strong style="color:rgba(44,157,168,0.6);">Razorpay</strong> 🔒</div></div>
+</footer>
+
+<button id="back-to-top">↑</button>
+<a href="https://wa.me/919876543210" class="whatsapp-float" target="_blank" rel="noopener">💬</a>
+
+<!-- Razorpay SDK (loaded on demand) -->
+<script src="js/main.js"></script>
+<script>
+  /* ── State ──────────────────────────────────────────────── */
+  let currentStep = 1;
+  let selectedSlot = '';
+  let selectedService = 'First Checkup';
+  let selectedType = 'In-Clinic';
+  let selectedPayment = 'advance';
+
+  /* ── Step Navigation ─────────────────────────────────────── */
+  function goToStep(step) {
+    if (step === 2 && !validateStep1()) return;
+    if (step === 3 && !validateStep2()) return;
+
+    document.getElementById('step' + currentStep).style.display = 'none';
+    document.getElementById('step' + step).style.display = 'block';
+    document.getElementById('step' + step).style.animation = 'fadeSlideUp 0.5s ease both';
+
+    // Update progress
+    document.querySelectorAll('.step-item').forEach((item, i) => {
+      item.classList.remove('active', 'completed');
+      if (i + 1 < step)  item.classList.add('completed');
+      if (i + 1 === step) item.classList.add('active');
+    });
+
+    // Update summary on step 3
+    if (step === 3) updateSummaryBox();
+
+    currentStep = step;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateStep1() {
+    const date = document.getElementById('appt-date').value;
+    const age  = document.getElementById('child-age').value;
+    if (!date) { showToast('Please select a preferred date.', 'warning'); return false; }
+    if (!age)  { showToast('Please select the child\'s age.', 'warning'); return false; }
+    return true;
+  }
+
+  function validateStep2() {
+    const name  = document.getElementById('child-name').value.trim();
+    const pname = document.getElementById('parent-name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    if (!name)  { showToast('Please enter the child\'s name.', 'warning'); return false; }
+    if (!pname) { showToast('Please enter the parent\'s name.', 'warning'); return false; }
+    if (!phone) { showToast('Please enter a phone number.', 'warning'); return false; }
+    return true;
+  }
+
+  /* ── Type Toggle ─────────────────────────────────────────── */
+  function selectType(el, type) {
+    document.querySelectorAll('.type-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedType = type === 'clinic' ? 'In-Clinic' : 'Video Consultation';
+    document.getElementById('sum-type').textContent = selectedType;
+    const total = type === 'video' ? '₹300' : '₹500';
+    document.getElementById('sum-total').textContent = total;
+    document.getElementById('confirm-btn').innerHTML = `🔒 Confirm &amp; Pay ${total}`;
+  }
+
+  /* ── Service Pills ───────────────────────────────────────── */
+  function selectService(el) {
+    document.querySelectorAll('.service-pill').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedService = el.textContent.trim();
+    document.getElementById('sum-service').textContent = selectedService;
+  }
+
+  /* ── Slot Generator ──────────────────────────────────────── */
+  function generateSlots(date) {
+    if (!date) return;
+    const slots = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM',
+                   '2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'];
+    const taken = [1, 3, 7]; // simulate booked slots
+    const grid = document.getElementById('slot-grid');
+    grid.innerHTML = '';
+    slots.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'slot-btn' + (taken.includes(i) ? ' slot-taken' : '');
+      btn.textContent = s;
+      if (!taken.includes(i)) {
+        btn.onclick = function() {
+          document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('slot-selected'));
+          this.classList.add('slot-selected');
+          selectedSlot = s;
+          document.getElementById('sum-slot').textContent = s;
+          const d = new Date(date);
+          document.getElementById('sum-date').textContent = d.toDateString();
+        };
+      }
+      grid.appendChild(btn);
+    });
+    document.getElementById('slot-section').style.display = 'block';
+    const d = new Date(date);
+    document.getElementById('sum-date').textContent = d.toDateString();
+  }
+
+  /* ── Payment Selection ───────────────────────────────────── */
+  function selectPayment(el, type) {
+    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedPayment = type;
+    const btn = document.getElementById('confirm-btn');
+    if (type === 'clinic') {
+      btn.innerHTML = '✅ Confirm Appointment (Pay at Clinic)';
+      btn.style.background = 'linear-gradient(135deg,var(--green),var(--green-dark))';
+      btn.style.color = 'white';
+      btn.style.boxShadow = '0 8px 24px rgba(116,143,58,0.4)';
+    } else if (type === 'whatsapp') {
+      btn.innerHTML = '💬 Confirm via WhatsApp';
+      btn.style.background = 'linear-gradient(135deg,#25D366,#128C7E)';
+      btn.style.color = 'white';
+      btn.style.boxShadow = '0 8px 24px rgba(37,211,102,0.4)';
+    } else {
+      btn.innerHTML = '🔒 Confirm &amp; Pay ₹500';
+      btn.style.background = 'linear-gradient(135deg,var(--yellow-dark),var(--yellow))';
+      btn.style.color = 'var(--dark)';
+      btn.style.boxShadow = '0 8px 24px rgba(229,190,75,0.4)';
+    }
+  }
+
+  /* ── Summary Box ─────────────────────────────────────────── */
+  function updateSummaryBox() {
+    const date = document.getElementById('appt-date').value;
+    const name = document.getElementById('child-name').value || 'Not entered';
+    document.getElementById('summary-service').textContent = selectedService;
+    document.getElementById('summary-type').textContent = selectedType;
+    document.getElementById('summary-date').textContent = date ? new Date(date).toDateString() + (selectedSlot ? ' at ' + selectedSlot : '') : 'Not selected';
+    document.getElementById('summary-patient').textContent = name;
+  }
+
+  /* ── Confirm Appointment ─────────────────────────────────── */
+  function confirmAppointment() {
+    const btn = document.getElementById('confirm-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '⏳ Processing...';
+    btn.disabled = true;
+
+    if (selectedPayment === 'advance') {
+      // Load Razorpay SDK dynamically
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => openRazorpay(btn, orig);
+      script.onerror = () => {
+        // Fallback if Razorpay not available (demo mode)
+        showSuccess();
+      };
+      document.head.appendChild(script);
+    } else {
+      setTimeout(showSuccess, 1800);
+    }
+  }
+
+  function openRazorpay(btn, orig) {
+    const amt = selectedType === 'Video Consultation' ? 30000 : 50000; // paise
+    const options = {
+      key: 'rzp_test_REPLACE_WITH_YOUR_KEY', // Replace with your Razorpay key
+      amount: amt,
+      currency: 'INR',
+      name: "Dr. Mittal's Kids Dental",
+      description: 'Appointment Consultation Fee',
+      image: '',
+      prefill: {
+        name:  document.getElementById('parent-name').value,
+        email: document.getElementById('email').value,
+        contact: document.getElementById('phone').value,
+      },
+      theme: { color: '#2C9DA8' },
+      handler: function(response) {
+        // Payment successful
+        console.log('Payment ID:', response.razorpay_payment_id);
+        showSuccess(response.razorpay_payment_id);
+      },
+      modal: {
+        ondismiss: function() {
+          btn.innerHTML = orig;
+          btn.disabled = false;
+          showToast('Payment cancelled. Your slot is still available.', 'warning');
+        }
+      }
+    };
+    try {
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch(e) {
+      // Demo fallback
+      showSuccess();
+    }
+  }
+
+  function showSuccess(paymentId) {
+    // Hide all steps
+    ['step1','step2','step3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    // Mark all steps completed
+    document.querySelectorAll('.step-item').forEach(item => item.classList.add('completed'));
+
+    // Fill success details
+    const date = document.getElementById('appt-date').value;
+    const ref = 'DM' + Date.now().toString().slice(-6);
+    document.getElementById('conf-patient').textContent = document.getElementById('child-name').value || '—';
+    document.getElementById('conf-service').textContent = selectedService;
+    document.getElementById('conf-date').textContent = date ? new Date(date).toDateString() : '—';
+    document.getElementById('conf-slot').textContent = selectedSlot || 'To be confirmed';
+    document.getElementById('conf-ref').textContent = ref;
+
+    const success = document.getElementById('success-screen');
+    success.style.display = 'block';
+    success.style.animation = 'scaleIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both';
+
+    // Update step indicator
+    document.querySelectorAll('.step-item').forEach((item, i) => {
+      item.classList.add('completed');
+      item.classList.remove('active');
+    });
+    document.querySelector('[data-step="4"]').classList.add('active');
+
+    showToast('🎉 Appointment confirmed! Check your WhatsApp for details.', 'success');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ── Set min date to today ───────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('appt-date').min = today;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('appt-date').value = tomorrow.toISOString().split('T')[0];
+    generateSlots(document.getElementById('appt-date').value);
+  });
+
+  function showToast(msg, type) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const t = document.createElement('div');
+    t.className = `toast toast--${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 4000);
+  }
+</script>
+</body>
+</html>

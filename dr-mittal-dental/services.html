@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Services | Dr. Mittal's Kids &amp; Family Dental</title>
+  <meta name="description" content="Comprehensive pediatric dental services — preventive care, orthodontics, sealants, sedation dentistry, emergency care, and cosmetic treatments for children." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦷</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    .services-hero { background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 60%, #0a2d30 100%); }
+
+    .service-detail-card {
+      background: var(--white);
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin-bottom: 32px;
+      transition: var(--transition);
+      box-shadow: var(--shadow-soft);
+    }
+    .service-detail-card:nth-child(even) { direction: rtl; }
+    .service-detail-card:nth-child(even) > * { direction: ltr; }
+    .service-detail-card:hover { box-shadow: 0 32px 80px rgba(44,157,168,0.14); transform: translateY(-4px); }
+
+    .service-detail-card__image {
+      min-height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-detail-card__image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: inherit;
+      opacity: 0.6;
+      transition: opacity 0.4s;
+    }
+
+    .service-detail-card:hover .service-detail-card__image::after { opacity: 0.4; }
+
+    .service-detail-card__image span {
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 8px 32px rgba(0,0,0,0.2));
+      animation: floatBounce 4s ease-in-out infinite;
+    }
+
+    .service-detail-card__body { padding: 52px; display: flex; flex-direction: column; justify-content: center; }
+
+    .service-detail-card__number {
+      font-family: var(--font-display);
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+      opacity: 0.08;
+    }
+
+    .service-detail-card__tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: var(--r-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .service-detail-card__title {
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+
+    .service-detail-card__desc {
+      font-size: 0.975rem;
+      color: var(--gray);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .service-detail-card__points {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .service-point {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--dark);
+    }
+
+    .service-point__check {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .service-point__check--blue   { background: var(--blue-lighter); color: var(--blue); }
+    .service-point__check--yellow { background: var(--yellow-lighter); color: var(--yellow-dark); }
+    .service-point__check--green  { background: var(--green-lighter); color: var(--green); }
+
+    .service-detail-card__price {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--bg-soft);
+      border-radius: var(--r-md);
+      border: 1px dashed var(--border);
+    }
+
+    .price-from { font-size: 0.75rem; color: var(--gray); font-weight: 500; }
+    .price-amount { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; color: var(--blue); }
+    .price-note { font-size: 0.72rem; color: var(--gray-light); margin-left: auto; }
+
+    /* Accordion FAQ */
+    .faq-section { background: var(--bg-soft); }
+
+    .faq-item {
+      background: var(--white);
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .faq-item:hover { border-color: rgba(44,157,168,0.3); }
+
+    .faq-question {
+      width: 100%;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+      font-family: var(--font-fun);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--dark);
+      text-align: left;
+      background: none;
+      border: none;
+    }
+
+    .faq-question__icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--blue-lighter);
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .faq-item.open .faq-question__icon {
+      transform: rotate(45deg);
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+      padding: 0 28px;
+      font-size: 0.9rem;
+      color: var(--gray);
+      line-height: 1.8;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+      padding: 0 28px 22px;
+    }
+
+    /* Age Guide */
+    .age-guide {
+      background: linear-gradient(135deg, var(--dark), var(--dark-2));
+    }
+
+    .age-timeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .age-timeline::before {
+      content: '';
+      position: absolute;
+      top: 40px; left: 10%; right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--yellow), var(--green), var(--yellow), var(--blue));
+      opacity: 0.3;
+    }
+
+    .age-step {
+      text-align: center;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .age-step__dot {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      position: relative;
+      z-index: 1;
+      transition: var(--transition-bounce);
+    }
+
+    .age-step:hover .age-step__dot { transform: scale(1.15); }
+
+    .age-step:nth-child(1) .age-step__dot { background: rgba(44,157,168,0.2); border: 2px solid var(--blue); }
+    .age-step:nth-child(2) .age-step__dot { background: rgba(229,190,75,0.2); border: 2px solid var(--yellow); }
+    .age-step:nth-child(3) .age-step__dot { background: rgba(116,143,58,0.2); border: 2px solid var(--green); }
+    .age-step:nth-child(4) .age-step__dot { background: rgba(44,157,168,0.2); border: 2px solid var(--blue); }
+    .age-step:nth-child(5) .age-step__dot { background: rgba(229,190,75,0.2); border: 2px solid var(--yellow); }
+
+    .age-step__range {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .age-step__label {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .service-detail-card { grid-template-columns: 1fr; }
+      .service-detail-card:nth-child(even) { direction: ltr; }
+      .service-detail-card__image { min-height: 200px; font-size: 4rem; }
+      .service-detail-card__body { padding: 32px 24px; }
+      .age-timeline { grid-template-columns: 1fr 1fr; }
+      .age-timeline::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav__container">
+    <a href="index.html" class="nav__logo">
+      <div class="nav__logo-icon">🦷</div>
+      <div class="nav__logo-text">
+        <span class="nav__logo-name">Dr. Mittal's Dental</span>
+        <span class="nav__logo-sub">Kids &amp; Family Care</span>
+      </div>
+    </a>
+    <ul class="nav__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="services.html" class="active">Services</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="nri.html">NRI Care</a></li>
+      <li><a href="school.html">School Program</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav__cta">
+      <div class="nav__phone"><div class="nav__phone-icon">📞</div> +91 98765 43210</div>
+      <a href="appointment.html" class="btn-nav btn-ripple">Book Appointment</a>
+    </div>
+    <button class="nav__hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav__mobile">
+  <a href="index.html">🏠 Home</a><a href="services.html">🦷 Services</a>
+  <a href="about.html">👨‍⚕️ About Us</a><a href="nri.html">✈️ NRI Care</a>
+  <a href="school.html">🏫 School Program</a><a href="blog.html">📝 Blog</a>
+  <a href="contact.html">📍 Contact</a>
+  <div class="nav__mobile-cta"><a href="appointment.html" class="btn-nav btn-ripple" style="display:block;text-align:center;padding:14px;">📅 Book Appointment</a></div>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header services-hero">
+  <div class="page-header__bg"></div>
+  <div class="page-header__container">
+    <div class="page-header__breadcrumb">
+      <a href="index.html">Home</a><span>/</span><span>Services</span>
+    </div>
+    <h1 class="page-header__title anim-fade-up">
+      Comprehensive Dental Care<br/><span>Built for Children</span>
+    </h1>
+    <p class="page-header__desc anim-fade-up delay-2">
+      Every service is delivered with world-class technology, gentle technique, and a smile.
+      From first checkup to complete orthodontic transformations.
+    </p>
+    <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;" class="anim-fade-up delay-3">
+      <a href="appointment.html" class="btn-primary btn-ripple">📅 Book a Service</a>
+      <a href="#faq" class="btn-secondary">❓ Common Questions</a>
+    </div>
+  </div>
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" height="80">
+      <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="white"/>
+    </svg>
+  </div>
+</div>
+
+<!-- AGE GUIDE -->
+<section class="age-guide">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label" style="color:var(--blue-light);">Age-Appropriate Care</div>
+      <h2 class="section-title" style="color:white;">Right Treatment at Every <span style="color:var(--yellow);">Stage of Growth</span></h2>
+    </div>
+    <div class="age-timeline stagger">
+      <div class="age-step">
+        <div class="age-step__dot">👶</div>
+        <div class="age-step__range">0–2 yrs</div>
+        <div class="age-step__label">First tooth eruption, infant oral care, parent counselling</div>
+      </div>
+      <div class="age-step">
+        <div class="age-step__dot">🧒</div>
+        <div class="age-step__range">3–5 yrs</div>
+        <div class="age-step__label">First checkup, habit breaking, fluoride application</div>
+      </div>
+      <div class="age-step">
+        <div class="age-step__dot">🧑</div>
+        <div class="age-step__range">6–9 yrs</div>
+        <div class="age-step__label">Space maintainers, sealants, early orthodontic screening</div>
+      </div>
+      <div class="age-step">
+        <div class="age-step__dot">👦</div>
+        <div class="age-step__range">10–14 yrs</div>
+        <div class="age-step__label">Braces, retainers, sports guards, cavity prevention</div>
+      </div>
+      <div class="age-step">
+        <div class="age-step__dot">🧑‍🎓</div>
+        <div class="age-step__range">15–18 yrs</div>
+        <div class="age-step__label">Clear aligners, whitening, wisdom tooth evaluation</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICE DETAIL CARDS -->
+<section style="background:var(--bg-soft);padding:80px 5%;">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label section-label--blue">All Services</div>
+      <h2 class="section-title">Everything Your Child <span class="text-blue">Needs</span></h2>
+    </div>
+
+    <!-- 1 Preventive -->
+    <div class="service-detail-card fade-up">
+      <div class="service-detail-card__image" style="background:linear-gradient(135deg,var(--blue-lighter),rgba(44,157,168,0.3));">
+        <span>🔍</span>
+      </div>
+      <div class="service-detail-card__body">
+        <div class="service-detail-card__number" style="color:var(--blue);">01</div>
+        <span class="service-detail-card__tag" style="background:var(--blue-lighter);color:var(--blue-dark);">🌟 Most Recommended</span>
+        <h3 class="service-detail-card__title">Preventive Checkup &amp; Professional Cleaning</h3>
+        <p class="service-detail-card__desc">Our comprehensive checkup covers every aspect of your child's oral health — from gum health to bite alignment — using the latest diagnostic tools.</p>
+        <div class="service-detail-card__points">
+          <div class="service-point"><div class="service-point__check service-point__check--blue">✓</div>Full oral examination with digital X-rays</div>
+          <div class="service-point"><div class="service-point__check service-point__check--blue">✓</div>Professional scaling and polishing</div>
+          <div class="service-point"><div class="service-point__check service-point__check--blue">✓</div>Fluoride varnish application</div>
+          <div class="service-point"><div class="service-point__check service-point__check--blue">✓</div>Personalised home care instructions</div>
+        </div>
+        <div class="service-detail-card__price">
+          <div><div class="price-from">Starting from</div><div class="price-amount">₹800</div></div>
+          <div class="price-note">Includes X-rays &amp; fluoride</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 Orthodontics -->
+    <div class="service-detail-card fade-up">
+      <div class="service-detail-card__image" style="background:linear-gradient(135deg,var(--yellow-lighter),rgba(229,190,75,0.35));">
+        <span>📐</span>
+      </div>
+      <div class="service-detail-card__body">
+        <div class="service-detail-card__number" style="color:var(--yellow);">02</div>
+        <span class="service-detail-card__tag" style="background:var(--yellow-lighter);color:var(--yellow-dark);">⭐ Premium Service</span>
+        <h3 class="service-detail-card__title">Orthodontics, Braces &amp; Aligners</h3>
+        <p class="service-detail-card__desc">Customised orthodontic solutions for ages 6–18, using the latest braces and aligner technology to create perfectly aligned, confident smiles.</p>
+        <div class="service-detail-card__points">
+          <div class="service-point"><div class="service-point__check service-point__check--yellow">✓</div>Metal &amp; ceramic braces</div>
+          <div class="service-point"><div class="service-point__check service-point__check--yellow">✓</div>Invisalign Teen certified provider</div>
+          <div class="service-point"><div class="service-point__check service-point__check--yellow">✓</div>Early interceptive orthodontics (Phase 1)</div>
+          <div class="service-point"><div class="service-point__check service-point__check--yellow">✓</div>Retainers &amp; post-treatment monitoring</div>
+        </div>
+        <div class="service-detail-card__price">
+          <div><div class="price-from">Metal braces from</div><div class="price-amount">₹18,000</div></div>
+          <div class="price-note">Aligners from ₹45,000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Sealants -->
+    <div class="service-detail-card fade-up">
+      <div class="service-detail-card__image" style="background:linear-gradient(135deg,var(--green-lighter),rgba(116,143,58,0.3));">
+        <span>🛡️</span>
+      </div>
+      <div class="service-detail-card__body">
+        <div class="service-detail-card__number" style="color:var(--green);">03</div>
+        <span class="service-detail-card__tag" style="background:var(--green-lighter);color:var(--green-dark);">💉 Painless</span>
+        <h3 class="service-detail-card__title">Pit &amp; Fissure Sealants</h3>
+        <p class="service-detail-card__desc">A thin protective coating applied to the chewing surfaces of back teeth — sealing the deep pits and grooves where 80% of cavities in children begin.</p>
+        <div class="service-detail-card__points">
+          <div class="service-point"><div class="service-point__check service-point__check--green">✓</div>Prevents 80% of childhood cavities</div>
+          <div class="service-point"><div class="service-point__check service-point__check--green">✓</div>Quick, painless, no drilling</div>
+          <div class="service-point"><div class="service-point__check service-point__check--green">✓</div>Lasts 5–10 years</div>
+          <div class="service-point"><div class="service-point__check service-point__check--green">✓</div>BPA-free sealant material</div>
+        </div>
+        <div class="service-detail-card__price">
+          <div><div class="price-from">Per tooth from</div><div class="price-amount">₹600</div></div>
+          <div class="price-note">Package deals available</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 Sedation -->
+    <div class="service-detail-card fade-up">
+      <div class="service-detail-card__image" style="background:linear-gradient(135deg,var(--blue-lighter),rgba(44,157,168,0.2));">
+        <span>😌</span>
+      </div>
+      <div class="service-detail-card__body">
+        <div class="service-detail-card__number" style="color:var(--blue);">04</div>
+        <span class="service-detail-card__tag" style="background:var(--blue-lighter);color:var(--blue-dark);">😊 Zero Anxiety</span>
+        <h3 class="service-detail-card__title">Sedation Dentistry for Anxious Children</h3>
+        <p class="service-detail-card__desc">For children with high dental anxiety, special needs, or requiring extensive treatment — our safe sedation options ensure a calm, comfortable experience.</p>
+        <div class="service-detail-card__points">
+          <div class="service-point"><div class="service-point__check service-point__check--blue">✓</div>Nitrous oxide (laughing gas) — fully reversible</div>
+          <div class="service-point"><div class="service-point__check service-point__check--blue">✓</div>Oral sedation for moderate anxiety</div>
+          <div class="service-point"><div class="service-point__check service-point__check--blue">✓</div>Certified paediatric anaesthesiologist on-call</div>
+          <div class="service-point"><div class="service-point__check service-point__check--blue">✓</div>Continuous monitoring throughout</div>
+        </div>
+        <div class="service-detail-card__price">
+          <div><div class="price-from">Nitrous oxide from</div><div class="price-amount">₹1,200</div></div>
+          <div class="price-note">Per session</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 Emergency -->
+    <div class="service-detail-card fade-up">
+      <div class="service-detail-card__image" style="background:linear-gradient(135deg,rgba(229,75,75,0.1),rgba(229,190,75,0.2));">
+        <span>🚨</span>
+      </div>
+      <div class="service-detail-card__body">
+        <div class="service-detail-card__number" style="color:var(--yellow-dark);">05</div>
+        <span class="service-detail-card__tag" style="background:#FEE2E2;color:#DC2626;">🆘 24/7 Available</span>
+        <h3 class="service-detail-card__title">Emergency Dental Care</h3>
+        <p class="service-detail-card__desc">Dental emergencies don't wait. We offer same-day and after-hours appointments for dental trauma, severe toothache, and broken teeth.</p>
+        <div class="service-detail-card__points">
+          <div class="service-point"><div class="service-point__check service-point__check--yellow">✓</div>Knocked-out (avulsed) tooth reimplantation</div>
+          <div class="service-point"><div class="service-point__check service-point__check--yellow">✓</div>Fractured &amp; cracked teeth repair</div>
+          <div class="service-point"><div class="service-point__check service-point__check--yellow">✓</div>Severe toothache &amp; abscess treatment</div>
+          <div class="service-point"><div class="service-point__check service-point__check--yellow">✓</div>Sports injury management</div>
+        </div>
+        <div class="service-detail-card__price">
+          <div><div class="price-from">Emergency consultation</div><div class="price-amount">₹500</div></div>
+          <div class="price-note">Call now: +91 98765 43210</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 Cosmetic -->
+    <div class="service-detail-card fade-up">
+      <div class="service-detail-card__image" style="background:linear-gradient(135deg,var(--green-lighter),rgba(116,143,58,0.2));">
+        <span>✨</span>
+      </div>
+      <div class="service-detail-card__body">
+        <div class="service-detail-card__number" style="color:var(--green);">06</div>
+        <span class="service-detail-card__tag" style="background:var(--green-lighter);color:var(--green-dark);">✨ For Teens</span>
+        <h3 class="service-detail-card__title">Cosmetic Dentistry for Teenagers</h3>
+        <p class="service-detail-card__desc">Age-appropriate cosmetic solutions to boost teen confidence — from safe whitening to composite bonding and smile makeovers.</p>
+        <div class="service-detail-card__points">
+          <div class="service-point"><div class="service-point__check service-point__check--green">✓</div>Professional teeth whitening (age 14+)</div>
+          <div class="service-point"><div class="service-point__check service-point__check--green">✓</div>Composite bonding for chipped teeth</div>
+          <div class="service-point"><div class="service-point__check service-point__check--green">✓</div>Smile design consultation</div>
+          <div class="service-point"><div class="service-point__check service-point__check--green">✓</div>Digital smile preview before treatment</div>
+        </div>
+        <div class="service-detail-card__price">
+          <div><div class="price-from">Whitening from</div><div class="price-amount">₹3,500</div></div>
+          <div class="price-note">Digital preview included</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label section-label--yellow">Common Questions</div>
+      <h2 class="section-title">Parents Ask, <span class="text-yellow-dark">Dr. Mittal Answers</span></h2>
+    </div>
+    <div style="max-width:760px;margin:0 auto;">
+      <div class="faq-item fade-up">
+        <button class="faq-question">At what age should my child first see a dentist?<div class="faq-question__icon">+</div></button>
+        <div class="faq-answer">We recommend the first dental visit within 6 months of the first tooth appearing, or by 12 months of age — whichever comes first. Early visits help us detect issues early and help your child become comfortable with dental visits.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question">My child is terrified of dentists. Can you still help?<div class="faq-question__icon">+</div></button>
+        <div class="faq-answer">Absolutely! Dental anxiety is our speciality. We use tell-show-do technique, distraction therapy, and nitrous oxide sedation for anxious children. Our clinic is designed to feel fun and safe, not clinical and scary.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question">How does your NRI package work?<div class="faq-question__icon">+</div></button>
+        <div class="faq-answer">We start with a free video consultation before your trip to India. We assess your child's needs, prepare a complete treatment plan, and schedule all appointments around your travel dates. Everything is ready when you arrive — no wasted visits.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question">Are your X-rays safe for children?<div class="faq-question__icon">+</div></button>
+        <div class="faq-answer">Yes. Our digital X-rays use 90% less radiation than traditional film X-rays. We also use lead aprons and thyroid collars as standard protocol. We only take X-rays when clinically necessary.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question">What age is best for braces?<div class="faq-question__icon">+</div></button>
+        <div class="faq-answer">Most children are ready for braces between ages 10–14, once permanent teeth have erupted. However, we recommend an orthodontic evaluation at age 7 to catch any issues that benefit from early intervention.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question">Do you offer EMI / payment plans?<div class="faq-question__icon">+</div></button>
+        <div class="faq-answer">Yes. We offer 0% interest EMI options through major cards and online payment platforms including Razorpay. Orthodontic treatments can be spread across monthly installments to make them affordable.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="appt-cta" style="padding:64px 5%;">
+  <div class="appt-cta__bg-pattern"></div>
+  <div style="max-width:700px;margin:0 auto;text-align:center;position:relative;z-index:2;">
+    <h2 class="appt-cta__title fade-up">Ready to Give Your Child a <span>Healthier Smile?</span></h2>
+    <p class="appt-cta__desc fade-up" style="margin:0 auto 32px;">Book a consultation today. First visit is always friendly, gentle, and fun.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;" class="fade-up">
+      <a href="appointment.html" class="btn-primary btn-ripple">📅 Book Appointment</a>
+      <a href="contact.html" class="btn-secondary">📞 Call Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__grid">
+    <div>
+      <div class="footer__brand-logo"><div class="footer__brand-icon">🦷</div><div><div class="footer__brand-name">Dr. Mittal's Kids Dental</div><div class="footer__brand-sub">Where Smiles Begin · Est. 2009</div></div></div>
+      <p class="footer__desc">Premium pediatric dental care for children and families, trusted by 12,000+ happy smiles.</p>
+      <div class="footer__socials"><a href="#" class="social-btn">📸</a><a href="#" class="social-btn">👥</a><a href="#" class="social-btn">💬</a></div>
+    </div>
+    <div><div class="footer__col-title">Services</div><ul class="footer__links"><li><a href="#">Preventive Care</a></li><li><a href="#">Orthodontics</a></li><li><a href="#">Sealants</a></li><li><a href="#">Sedation</a></li><li><a href="#">Emergency</a></li></ul></div>
+    <div><div class="footer__col-title">Quick Links</div><ul class="footer__links"><li><a href="about.html">About Us</a></li><li><a href="nri.html">NRI Care</a></li><li><a href="school.html">School Program</a></li><li><a href="blog.html">Blog</a></li><li><a href="appointment.html">Appointment</a></li></ul></div>
+    <div><div class="footer__col-title">Contact</div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:0.875rem;color:rgba(255,255,255,0.45);">📍 123 Smile Avenue, Gurgaon</div><a href="tel:+919876543210" style="font-size:0.875rem;color:rgba(255,255,255,0.45);">📞 +91 98765 43210</a><div style="font-size:0.875rem;color:rgba(255,255,255,0.45);">🕐 Mon–Sat: 9AM–8PM</div></div></div>
+  </div>
+  <div class="footer__bottom"><div>© 2025 Dr. Mittal's Kids &amp; Family Dental</div><div class="footer__accreditations"><span class="accreditation-badge">🏥 NABH</span><span class="accreditation-badge">🎓 IDA</span></div></div>
+</footer>
+
+<button id="back-to-top">↑</button>
+<a href="https://wa.me/919876543210" class="whatsapp-float" target="_blank" rel="noopener">💬</a>
+
+<script src="js/main.js"></script>
+<script>
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const item = this.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>

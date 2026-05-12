@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>School Dental Program | Dr. Mittal's Kids &amp; Family Dental</title>
+  <meta name="description" content="Bringing dental health to every classroom. Free screenings, fluoride treatments & oral health education in 80+ schools. Partner with us today." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦷</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    .school-hero { background: linear-gradient(135deg, #0a2208 0%, #0a2d14 50%, #0f2d2a 100%); }
+
+    .program-card {
+      background: var(--white);
+      border-radius: var(--r-xl);
+      padding: 40px 32px;
+      border: 1px solid var(--border);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .program-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+    }
+    .program-card--blue::before   { background: linear-gradient(90deg, var(--blue), var(--blue-light)); }
+    .program-card--yellow::before { background: linear-gradient(90deg, var(--yellow-dark), var(--yellow)); }
+    .program-card--green::before  { background: linear-gradient(90deg, var(--green-dark), var(--green-light)); }
+    .program-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-soft); border-color: transparent; }
+    .program-card__icon { font-size: 48px; margin-bottom: 20px; display: block; animation: floatBounce 4s ease-in-out infinite; }
+    .program-card__title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: var(--dark); margin-bottom: 12px; }
+    .program-card__desc { font-size: 0.9rem; color: var(--gray); line-height: 1.8; margin-bottom: 20px; }
+    .program-card__includes { display: flex; flex-direction: column; gap: 8px; }
+    .program-include { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--dark); }
+    .program-include::before { content: '✓'; font-weight: 700; font-size: 12px; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .program-card--blue .program-include::before   { background: var(--blue-lighter); color: var(--blue); }
+    .program-card--yellow .program-include::before { background: var(--yellow-lighter); color: var(--yellow-dark); }
+    .program-card--green .program-include::before  { background: var(--green-lighter); color: var(--green-dark); }
+    .program-card__price {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: var(--r-md);
+      text-align: center;
+      font-family: var(--font-fun);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .program-card--blue .program-card__price   { background: var(--blue-lighter); color: var(--blue-dark); }
+    .program-card--yellow .program-card__price { background: var(--yellow-lighter); color: var(--yellow-dark); }
+    .program-card--green .program-card__price  { background: var(--green-lighter); color: var(--green-dark); }
+
+    .impact-number {
+      font-family: var(--font-display);
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .school-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .gallery-item {
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      position: relative;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .gallery-item:first-child { grid-column: span 2; aspect-ratio: 2/1; font-size: 4rem; }
+    .gallery-item:hover { transform: scale(0.98); }
+    .gallery-item:hover .gallery-item__overlay { opacity: 1; }
+    .gallery-item__overlay {
+      position: absolute; inset: 0;
+      background: rgba(44,157,168,0.7);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 2rem;
+    }
+    .gallery-item--1 { background: linear-gradient(135deg, var(--blue-lighter), rgba(44,157,168,0.3)); }
+    .gallery-item--2 { background: linear-gradient(135deg, var(--yellow-lighter), rgba(229,190,75,0.3)); }
+    .gallery-item--3 { background: linear-gradient(135deg, var(--green-lighter), rgba(116,143,58,0.3)); }
+    .gallery-item--4 { background: linear-gradient(135deg, rgba(44,157,168,0.2), var(--blue-lighter)); }
+
+    .partner-school {
+      background: var(--white);
+      border-radius: var(--r-md);
+      padding: 20px 24px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: var(--transition);
+    }
+    .partner-school:hover { border-color: var(--green); transform: translateX(4px); }
+    .partner-school__icon { font-size: 28px; flex-shrink: 0; }
+    .partner-school__name { font-family: var(--font-fun); font-size: 0.9rem; font-weight: 700; color: var(--dark); }
+    .partner-school__type { font-size: 0.75rem; color: var(--gray); }
+
+    .school-register-form {
+      background: var(--white);
+      border-radius: var(--r-xl);
+      padding: 48px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+    }
+    .school-register-form h3 { font-family: var(--font-fun); font-size: 1.4rem; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+    .school-register-form p { font-size: 0.9rem; color: var(--gray); margin-bottom: 28px; }
+
+    .form-group-light label { color: var(--gray); font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-group-light input,
+    .form-group-light select,
+    .form-group-light textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--dark);
+      background: var(--bg-soft);
+      outline: none;
+      transition: var(--transition);
+    }
+    .form-group-light input:focus,
+    .form-group-light select:focus,
+    .form-group-light textarea:focus {
+      border-color: var(--green);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(116,143,58,0.12);
+    }
+  </style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+
+<nav class="nav">
+  <div class="nav__container">
+    <a href="index.html" class="nav__logo"><div class="nav__logo-icon">🦷</div><div class="nav__logo-text"><span class="nav__logo-name">Dr. Mittal's Dental</span><span class="nav__logo-sub">Kids &amp; Family Care</span></div></a>
+    <ul class="nav__links">
+      <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
+      <li><a href="about.html">About Us</a></li><li><a href="nri.html">NRI Care</a></li>
+      <li><a href="school.html" class="active">School Program</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav__cta"><div class="nav__phone"><div class="nav__phone-icon">📞</div>+91 98765 43210</div><a href="appointment.html" class="btn-nav btn-ripple">Book Appointment</a></div>
+    <button class="nav__hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav__mobile">
+  <a href="index.html">🏠 Home</a><a href="services.html">🦷 Services</a><a href="about.html">👨‍⚕️ About Us</a>
+  <a href="nri.html">✈️ NRI Care</a><a href="school.html">🏫 School Program</a><a href="blog.html">📝 Blog</a><a href="contact.html">📍 Contact</a>
+  <div class="nav__mobile-cta"><a href="appointment.html" class="btn-nav btn-ripple" style="display:block;text-align:center;padding:14px;">📅 Book Appointment</a></div>
+</div>
+
+<!-- HERO -->
+<div class="page-header school-hero">
+  <div class="page-header__bg"></div>
+  <div class="page-header__container">
+    <div class="page-header__breadcrumb"><a href="index.html">Home</a><span>/</span><span>School Program</span></div>
+    <h1 class="page-header__title anim-fade-up">Bringing Dental Health<br/><span>to Every Classroom</span></h1>
+    <p class="page-header__desc anim-fade-up delay-2">Free dental screenings, fluoride treatments, and oral health education — delivered right at your school. 80+ schools served, 45,000+ kids and counting.</p>
+    <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;" class="anim-fade-up delay-3">
+      <a href="#register" class="btn-primary btn-ripple" style="background:linear-gradient(135deg,var(--green),var(--green-dark));">🏫 Register Your School</a>
+      <a href="#programs" class="btn-secondary">📋 View Programs</a>
+    </div>
+  </div>
+  <div class="wave-divider"><svg viewBox="0 0 1440 80" preserveAspectRatio="none" height="80"><path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="white"/></svg></div>
+</div>
+
+<!-- IMPACT NUMBERS -->
+<div style="background:linear-gradient(135deg,var(--green),var(--green-dark));padding:48px 5%;">
+  <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;">
+    <div style="text-align:center;padding:24px;border-right:1px solid rgba(255,255,255,0.15);" class="fade-up">
+      <div class="impact-number" style="color:var(--white);"><span data-counter data-target="80" data-suffix="+">80+</span></div>
+      <div style="font-size:0.875rem;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Partner Schools</div>
+    </div>
+    <div style="text-align:center;padding:24px;border-right:1px solid rgba(255,255,255,0.15);" class="fade-up">
+      <div class="impact-number" style="color:var(--yellow);"><span data-counter data-target="45000" data-suffix="+">45K+</span></div>
+      <div style="font-size:0.875rem;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Children Screened</div>
+    </div>
+    <div style="text-align:center;padding:24px;border-right:1px solid rgba(255,255,255,0.15);" class="fade-up">
+      <div class="impact-number" style="color:var(--white);">100%</div>
+      <div style="font-size:0.875rem;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Free Screenings</div>
+    </div>
+    <div style="text-align:center;padding:24px;" class="fade-up">
+      <div class="impact-number" style="color:var(--yellow);"><span data-counter data-target="6" data-suffix="">6</span></div>
+      <div style="font-size:0.875rem;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Years Running</div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY SCHOOL DENTAL MATTERS -->
+<section style="padding:80px 5%;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+      <div class="fade-right">
+        <div class="section-label section-label--green">Why It Matters</div>
+        <h2 class="section-title">70% of Dental Problems<br/><span class="text-green">Start Before Age 12</span></h2>
+        <p class="section-desc" style="margin-bottom:24px;">Most childhood dental disease is entirely preventable — yet it remains one of the most common chronic conditions in children. Early intervention through school programs changes this.</p>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:32px;">
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:48px;height:48px;border-radius:var(--r-sm);background:var(--green-lighter);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🦷</div>
+            <div><div style="font-family:var(--font-fun);font-weight:700;color:var(--dark);margin-bottom:4px;">Early Detection Saves Smiles</div><div style="font-size:0.875rem;color:var(--gray);">Screenings catch cavities, bite issues, and gum disease before they become serious — and expensive — problems.</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:48px;height:48px;border-radius:var(--r-sm);background:var(--blue-lighter);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📚</div>
+            <div><div style="font-family:var(--font-fun);font-weight:700;color:var(--dark);margin-bottom:4px;">Dental Pain Affects Learning</div><div style="font-size:0.875rem;color:var(--gray);">Children with untreated dental pain miss school, struggle to concentrate, and fall behind. Healthy teeth = better academic performance.</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:48px;height:48px;border-radius:var(--r-sm);background:var(--yellow-lighter);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">💪</div>
+            <div><div style="font-family:var(--font-fun);font-weight:700;color:var(--dark);margin-bottom:4px;">Habits Formed Young Last a Lifetime</div><div style="font-size:0.875rem;color:var(--gray);">Children who learn proper oral care in school maintain better dental health throughout their adult lives.</div></div>
+          </div>
+        </div>
+        <a href="#register" class="btn-primary btn-ripple" style="display:inline-flex;background:linear-gradient(135deg,var(--green),var(--green-dark));">Partner With Us →</a>
+      </div>
+      <div class="school-gallery fade-left">
+        <div class="gallery-item gallery-item--1"><span>🏫</span><div class="gallery-item__overlay">📷</div></div>
+        <div class="gallery-item gallery-item--2"><span>👦</span><div class="gallery-item__overlay">📷</div></div>
+        <div class="gallery-item gallery-item--3"><span>🦷</span><div class="gallery-item__overlay">📷</div></div>
+        <div class="gallery-item gallery-item--4"><span>👩‍⚕️</span><div class="gallery-item__overlay">📷</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMS -->
+<section id="programs" style="background:var(--bg-soft);padding:80px 5%;">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label section-label--blue">Program Options</div>
+      <h2 class="section-title">Choose What's <span class="text-blue">Right for Your School</span></h2>
+      <p class="section-desc">All programs are customisable — we work around your school calendar, schedule, and student needs.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;" class="stagger">
+      <div class="program-card program-card--blue">
+        <span class="program-card__icon">🔍</span>
+        <div class="program-card__title">Basic Screening Camp</div>
+        <div class="program-card__desc">A one-day visit from our mobile dental unit. Every child receives a visual examination and a take-home report card for parents.</div>
+        <div class="program-card__includes">
+          <div class="program-include">Visual oral examination per child</div>
+          <div class="program-include">Individual dental report cards</div>
+          <div class="program-include">Oral hygiene demonstration</div>
+          <div class="program-include">Take-home toothbrush kit</div>
+          <div class="program-include">Referral letters for treatment</div>
+        </div>
+        <div class="program-card__price">🎁 Completely Free to Schools</div>
+      </div>
+      <div class="program-card program-card--yellow">
+        <span class="program-card__icon">🛡️</span>
+        <div class="program-card__title">Prevention Plus Program</div>
+        <div class="program-card__desc">A comprehensive half-day camp including fluoride applications and sealants — preventing cavities before they start.</div>
+        <div class="program-card__includes">
+          <div class="program-include">Everything in Basic Screening</div>
+          <div class="program-include">Fluoride varnish application</div>
+          <div class="program-include">Pit &amp; fissure sealants (at cost)</div>
+          <div class="program-include">Classroom education session</div>
+          <div class="program-include">Parent information pamphlets</div>
+          <div class="program-include">Follow-up visit in 6 months</div>
+        </div>
+        <div class="program-card__price">⭐ Most Popular Program</div>
+      </div>
+      <div class="program-card program-card--green">
+        <span class="program-card__icon">📚</span>
+        <div class="program-card__title">Full Oral Health Curriculum</div>
+        <div class="program-card__desc">An ongoing partnership — monthly classroom visits, teacher training, and annual camps. For schools committed to long-term oral health.</div>
+        <div class="program-card__includes">
+          <div class="program-include">Everything in Prevention Plus</div>
+          <div class="program-include">Monthly classroom sessions (all grades)</div>
+          <div class="program-include">Teacher oral health training</div>
+          <div class="program-include">Dedicated clinic discount (15%) for students</div>
+          <div class="program-include">Annual school health report</div>
+          <div class="program-include">Branded dental hygiene kits</div>
+        </div>
+        <div class="program-card__price">🏆 Premium Partnership</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT HAPPENS ON CAMP DAY -->
+<section style="padding:80px 5%;">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label section-label--yellow">Camp Day Walkthrough</div>
+      <h2 class="section-title">What Happens on <span class="text-yellow-dark">Camp Day</span></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;max-width:1100px;margin:0 auto;position:relative;">
+      <div style="position:absolute;top:40px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--blue),var(--yellow),var(--green));opacity:0.3;"></div>
+      <div class="age-step fade-up" style="text-align:center;padding:0 12px;">
+        <div class="age-step__dot" style="background:rgba(44,157,168,0.15);border:2px solid var(--blue);color:var(--blue);">🚌</div>
+        <div class="age-step__range" style="color:var(--dark);">7:30 AM</div>
+        <div class="age-step__label" style="color:var(--gray);">Mobile unit arrives, equipment setup</div>
+      </div>
+      <div class="age-step fade-up" style="text-align:center;padding:0 12px;">
+        <div class="age-step__dot" style="background:rgba(229,190,75,0.15);border:2px solid var(--yellow-dark);color:var(--yellow-dark);">📋</div>
+        <div class="age-step__range" style="color:var(--dark);">8:30 AM</div>
+        <div class="age-step__label" style="color:var(--gray);">Class-by-class screenings begin</div>
+      </div>
+      <div class="age-step fade-up" style="text-align:center;padding:0 12px;">
+        <div class="age-step__dot" style="background:rgba(116,143,58,0.15);border:2px solid var(--green);color:var(--green);">🦷</div>
+        <div class="age-step__range" style="color:var(--dark);">10:00 AM</div>
+        <div class="age-step__label" style="color:var(--gray);">Fluoride & sealant applications</div>
+      </div>
+      <div class="age-step fade-up" style="text-align:center;padding:0 12px;">
+        <div class="age-step__dot" style="background:rgba(44,157,168,0.15);border:2px solid var(--blue);color:var(--blue);">📚</div>
+        <div class="age-step__range" style="color:var(--dark);">1:00 PM</div>
+        <div class="age-step__label" style="color:var(--gray);">Classroom education &amp; demo</div>
+      </div>
+      <div class="age-step fade-up" style="text-align:center;padding:0 12px;">
+        <div class="age-step__dot" style="background:rgba(229,190,75,0.15);border:2px solid var(--yellow-dark);color:var(--yellow-dark);">📝</div>
+        <div class="age-step__range" style="color:var(--dark);">3:00 PM</div>
+        <div class="age-step__label" style="color:var(--gray);">Report cards sent home with students</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNER SCHOOLS -->
+<section style="background:var(--bg-soft);padding:80px 5%;">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label section-label--green">Our Partners</div>
+      <h2 class="section-title">Schools That Have <span class="text-green">Joined Our Mission</span></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;" class="stagger">
+      <div class="partner-school"><span class="partner-school__icon">🏫</span><div><div class="partner-school__name">DPS Gurgaon</div><div class="partner-school__type">CBSE · Since 2018</div></div></div>
+      <div class="partner-school"><span class="partner-school__icon">🏫</span><div><div class="partner-school__name">Ryan International</div><div class="partner-school__type">CBSE · Since 2017</div></div></div>
+      <div class="partner-school"><span class="partner-school__icon">🏫</span><div><div class="partner-school__name">The Shri Ram School</div><div class="partner-school__type">IB · Since 2019</div></div></div>
+      <div class="partner-school"><span class="partner-school__icon">🏫</span><div><div class="partner-school__name">GD Goenka World School</div><div class="partner-school__type">IGCSE · Since 2020</div></div></div>
+      <div class="partner-school"><span class="partner-school__icon">🏫</span><div><div class="partner-school__name">Euro International</div><div class="partner-school__type">CBSE · Since 2019</div></div></div>
+      <div class="partner-school"><span class="partner-school__icon">🏫</span><div><div class="partner-school__name">Amity International</div><div class="partner-school__type">CBSE · Since 2021</div></div></div>
+      <div class="partner-school"><span class="partner-school__icon">🏫</span><div><div class="partner-school__name">Heritage Xperiential</div><div class="partner-school__type">IB · Since 2022</div></div></div>
+      <div class="partner-school"><span class="partner-school__icon">🏫</span><div><div class="partner-school__name">+ 73 More Schools</div><div class="partner-school__type">Across NCR region</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRINCIPAL TESTIMONIALS -->
+<section style="padding:80px 5%;background:linear-gradient(135deg,var(--dark),var(--dark-2));">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label" style="color:var(--green-light);">What Principals Say</div>
+      <h2 class="section-title" style="color:var(--white);">Trusted by <span style="color:var(--yellow);">School Leaders</span></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-card__stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="testimonial-card__quote">"The camp was impeccably organised. Every child was treated with care, reports were accurate, and parents were genuinely grateful. We renew every year without hesitation."</p>
+        <div class="testimonial-card__author">
+          <div class="testimonial-card__avatar testimonial-card__avatar--green">👩</div>
+          <div><div class="testimonial-card__name">Mrs. Anjali Sharma</div><div class="testimonial-card__meta">Principal · DPS Gurgaon</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-card__stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="testimonial-card__quote">"Dr. Mittal's team caught 47 cases of early cavities and 12 orthodontic concerns in our school last year — children who would otherwise have gone undetected. This program is invaluable."</p>
+        <div class="testimonial-card__author">
+          <div class="testimonial-card__avatar testimonial-card__avatar--blue">👨</div>
+          <div><div class="testimonial-card__name">Mr. Rajesh Khanna</div><div class="testimonial-card__meta">Principal · Ryan International</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-card__stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="testimonial-card__quote">"The curriculum program has transformed our students' understanding of oral health. Teachers love the resources, kids love the sessions, and parents love the results. A perfect school partnership."</p>
+        <div class="testimonial-card__author">
+          <div class="testimonial-card__avatar testimonial-card__avatar--yellow">👩</div>
+          <div><div class="testimonial-card__name">Ms. Preethi Nair</div><div class="testimonial-card__meta">Principal · Heritage Xperiential</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REGISTER FORM -->
+<section id="register" style="padding:80px 5%;background:var(--bg-soft);">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;">
+      <div class="fade-right">
+        <div class="section-label section-label--green">Partner With Us</div>
+        <h2 class="section-title">Register Your <span class="text-green">School</span></h2>
+        <p class="section-desc" style="margin-bottom:28px;">Join 80+ schools that have transformed their students' oral health. Registration is free, and our team handles all logistics.</p>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:32px;">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <span style="font-size:24px;">📋</span><span style="font-size:0.9rem;color:var(--dark);">Fill the form — we respond within 1 working day</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <span style="font-size:24px;">📅</span><span style="font-size:0.9rem;color:var(--dark);">We schedule around your academic calendar</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <span style="font-size:24px;">🚌</span><span style="font-size:0.9rem;color:var(--dark);">We bring everything — fully equipped mobile unit</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <span style="font-size:24px;">🎁</span><span style="font-size:0.9rem;color:var(--dark);">Basic screening is 100% free to your school</span>
+          </div>
+        </div>
+        <div style="padding:24px;background:var(--green-lighter);border-radius:var(--r-lg);border-left:4px solid var(--green);">
+          <div style="font-family:var(--font-fun);font-weight:700;color:var(--green-dark);margin-bottom:4px;">📞 Prefer to call directly?</div>
+          <div style="font-size:0.875rem;color:var(--gray);">Reach our school outreach coordinator:<br/><strong style="color:var(--dark);">+91 98765 11111</strong> · schools@drmittaldental.com</div>
+        </div>
+      </div>
+      <div class="school-register-form fade-left">
+        <h3>🏫 School Registration Form</h3>
+        <p>Tell us about your school and we'll be in touch within 24 hours.</p>
+        <form id="school-form">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <div class="form-group-light"><label>School Name</label><input type="text" placeholder="Enter school name" required /></div>
+            <div class="form-group-light"><label>Board / Curriculum</label><select><option>CBSE</option><option>ICSE</option><option>IB</option><option>IGCSE</option><option>State Board</option></select></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <div class="form-group-light"><label>Contact Person</label><input type="text" placeholder="Principal / Coordinator" required /></div>
+            <div class="form-group-light"><label>Designation</label><input type="text" placeholder="e.g. Principal" /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <div class="form-group-light"><label>Phone</label><input type="tel" placeholder="+91 ..." required /></div>
+            <div class="form-group-light"><label>Email</label><input type="email" placeholder="school@email.com" required /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <div class="form-group-light"><label>No. of Students</label><input type="number" placeholder="e.g. 800" /></div>
+            <div class="form-group-light"><label>Preferred Program</label>
+              <select>
+                <option>Basic Screening Camp (Free)</option>
+                <option>Prevention Plus Program</option>
+                <option>Full Oral Health Curriculum</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:16px;" class="form-group-light"><label>School Address</label><input type="text" placeholder="Full address" /></div>
+          <div style="margin-bottom:24px;" class="form-group-light"><label>Preferred Camp Month</label><input type="month" /></div>
+          <button type="submit" style="width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);border:none;border-radius:var(--r-md);font-family:var(--font-fun);font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:var(--transition);" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''"  id="school-submit">
+            🏫 Submit Registration
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer__grid">
+    <div><div class="footer__brand-logo"><div class="footer__brand-icon">🦷</div><div><div class="footer__brand-name">Dr. Mittal's Kids Dental</div><div class="footer__brand-sub">Where Smiles Begin · Est. 2009</div></div></div><p class="footer__desc">Bringing dental health to 80+ schools and 45,000+ children across NCR.</p><div class="footer__socials"><a href="#" class="social-btn">📸</a><a href="#" class="social-btn">👥</a><a href="#" class="social-btn">💬</a></div></div>
+    <div><div class="footer__col-title">Services</div><ul class="footer__links"><li><a href="services.html">Preventive Care</a></li><li><a href="services.html">Orthodontics</a></li><li><a href="services.html">Emergency</a></li></ul></div>
+    <div><div class="footer__col-title">Quick Links</div><ul class="footer__links"><li><a href="about.html">About Us</a></li><li><a href="nri.html">NRI Care</a></li><li><a href="blog.html">Blog</a></li><li><a href="appointment.html">Appointment</a></li></ul></div>
+    <div><div class="footer__col-title">Contact</div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:0.875rem;color:rgba(255,255,255,0.45);">📍 123 Smile Avenue, Gurgaon</div><a href="tel:+919876543210" style="font-size:0.875rem;color:rgba(255,255,255,0.45);">📞 +91 98765 43210</a></div></div>
+  </div>
+  <div class="footer__bottom"><div>© 2025 Dr. Mittal's Kids &amp; Family Dental</div></div>
+</footer>
+<button id="back-to-top">↑</button>
+<a href="https://wa.me/919876543210" class="whatsapp-float" target="_blank" rel="noopener">💬</a>
+<script src="js/main.js"></script>
+<script>
+  document.getElementById('school-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('school-submit');
+    btn.innerHTML = '⏳ Submitting...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = '✅ Registration Submitted!';
+      btn.style.background = 'linear-gradient(135deg,#2C9DA8,#1E7A84)';
+      setTimeout(() => { btn.innerHTML = '🏫 Submit Registration'; btn.style.background = ''; btn.disabled = false; this.reset(); }, 4000);
+    }, 1800);
+  });
+</script>
+</body>
+</html>

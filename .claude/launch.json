@@ -7,6 +7,13 @@
       "runtimeArgs": ["serve", "."],
       "port": 3737,
       "autoPort": true
+    },
+    {
+      "name": "dr-mittal-dental",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "dr-mittal-dental"],
+      "port": 3738,
+      "autoPort": true
     }
   ]
 }

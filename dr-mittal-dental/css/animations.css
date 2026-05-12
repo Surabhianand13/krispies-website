@@ -1,0 +1,516 @@
+/* ============================================================
+   DR. MITTAL'S KIDS DENTAL — ANIMATIONS
+   ============================================================ */
+
+/* ── Keyframes ────────────────────────────────────────────── */
+
+@keyframes loadBar {
+  0%   { width: 0%; }
+  30%  { width: 40%; }
+  60%  { width: 75%; }
+  100% { width: 100%; }
+}
+
+@keyframes floatBounce {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-30px) scale(1.03); }
+}
+
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-8px) rotate(1deg); }
+  66%       { transform: translateY(-4px) rotate(-1deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes pingDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.3); opacity: 0.7; }
+}
+
+@keyframes pingRing {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes ringShake {
+  0%, 90%, 100%       { transform: rotate(0deg); }
+  93%, 97%            { transform: rotate(-15deg); }
+  95%, 99%            { transform: rotate(15deg); }
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes particleFloat {
+  0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideLeft {
+  from { opacity: 0; transform: translateX(50px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeSlideRight {
+  from { opacity: 0; transform: translateX(-50px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-10deg) scale(0.8); }
+  to   { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes drawLine {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes borderPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(44,157,168,0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(44,157,168,0); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes wavyUnderline {
+  0%   { background-position: 0 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes toothWiggle {
+  0%, 100%  { transform: rotate(0deg); }
+  20%        { transform: rotate(-8deg); }
+  40%        { transform: rotate(8deg); }
+  60%        { transform: rotate(-5deg); }
+  80%        { transform: rotate(5deg); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(44,157,168,0.5)); }
+  50%       { filter: drop-shadow(0 0 24px rgba(44,157,168,0.9)); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes pageTransitionIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 1; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+@keyframes morphBlob {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25%       { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50%       { border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%; }
+  75%       { border-radius: 60% 40% 60% 30% / 60% 70% 40% 50%; }
+}
+
+@keyframes countProgress {
+  from { stroke-dashoffset: 283; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* ── Entrance Animations ──────────────────────────────────── */
+.anim-fade-up        { animation: fadeSlideUp 0.7s ease both; }
+.anim-fade-down      { animation: fadeSlideDown 0.7s ease both; }
+.anim-fade-left      { animation: fadeSlideLeft 0.7s ease both; }
+.anim-fade-right     { animation: fadeSlideRight 0.7s ease both; }
+.anim-scale-in       { animation: scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+.anim-rotate-in      { animation: rotateIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+.delay-1  { animation-delay: 0.1s; }
+.delay-2  { animation-delay: 0.2s; }
+.delay-3  { animation-delay: 0.3s; }
+.delay-4  { animation-delay: 0.4s; }
+.delay-5  { animation-delay: 0.5s; }
+.delay-6  { animation-delay: 0.6s; }
+.delay-7  { animation-delay: 0.7s; }
+.delay-8  { animation-delay: 0.8s; }
+
+/* ── Hover Micro-interactions ─────────────────────────────── */
+.hover-lift {
+  transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),
+              box-shadow 0.35s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 60px rgba(44,157,168,0.18);
+}
+
+.hover-scale { transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.hover-scale:hover { transform: scale(1.06); }
+
+.hover-glow { transition: box-shadow 0.3s ease, border-color 0.3s ease; }
+.hover-glow:hover {
+  box-shadow: 0 0 0 3px rgba(44,157,168,0.3), 0 24px 60px rgba(44,157,168,0.18);
+  border-color: rgba(44,157,168,0.4) !important;
+}
+
+/* ── Gradient Text ────────────────────────────────────────── */
+.gradient-text-blue {
+  background: linear-gradient(135deg, var(--blue), var(--blue-light), var(--green-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-warm {
+  background: linear-gradient(135deg, var(--yellow-dark), var(--yellow), var(--green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Shimmer / Skeleton ───────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(90deg,
+    rgba(44,157,168,0.08) 25%,
+    rgba(44,157,168,0.18) 50%,
+    rgba(44,157,168,0.08) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Blob Background ──────────────────────────────────────── */
+.blob {
+  position: absolute;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: morphBlob 8s ease-in-out infinite;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.blob--blue   { background: var(--blue); }
+.blob--yellow { background: var(--yellow); }
+.blob--green  { background: var(--green); }
+
+/* ── Ripple Button Effect ─────────────────────────────────── */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple .ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+/* ── Loading Spinner ──────────────────────────────────────── */
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--blue-lighter);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Page Transition Overlay ──────────────────────────────── */
+#page-transition {
+  position: fixed;
+  inset: 0;
+  background: var(--dark);
+  z-index: 9990;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#page-transition.active { opacity: 1; pointer-events: all; }
+
+/* ── Floating Teeth Decoration ────────────────────────────── */
+.floating-tooth {
+  position: absolute;
+  pointer-events: none;
+  animation: floatBounce ease-in-out infinite;
+  opacity: 0.12;
+  font-size: 24px;
+  user-select: none;
+}
+
+/* ── Number Counter ───────────────────────────────────────── */
+.counter-wrap {
+  display: inline-block;
+  overflow: hidden;
+}
+
+/* ── Wavy Divider ─────────────────────────────────────────── */
+.wave-divider {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.wave-divider svg {
+  display: block;
+  width: 100%;
+  transform-origin: bottom;
+}
+
+/* ── Glass Card ───────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--r-lg);
+}
+
+/* ── Notification Toast ───────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--dark-2);
+  color: var(--white);
+  padding: 16px 28px;
+  border-radius: var(--r-full);
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-soft);
+  border-left: 4px solid var(--blue);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9000;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.toast--success { border-left-color: var(--green); }
+.toast.toast--warning { border-left-color: var(--yellow); }
+
+/* ── Scroll Indicator ─────────────────────────────────────── */
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: fadeSlideUp 1s ease 1.5s both;
+  cursor: pointer;
+}
+
+.scroll-indicator__label {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.scroll-indicator__mouse {
+  width: 26px; height: 42px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 13px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.scroll-indicator__wheel {
+  width: 4px; height: 8px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 2px;
+  animation: floatBounce 1.5s ease-in-out infinite;
+}
+
+/* ── Orbital Decoration ───────────────────────────────────── */
+.orbital {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed;
+  pointer-events: none;
+  animation: spin linear infinite;
+}
+
+.orbital--blue  { border-color: rgba(44,157,168,0.15); }
+.orbital--yellow{ border-color: rgba(229,190,75,0.1); }
+
+.orbital__dot {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  top: -5px; left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ── Magnetic Btn ─────────────────────────────────────────── */
+.magnetic {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+/* ── Text Split Reveal ────────────────────────────────────── */
+.text-reveal {
+  overflow: hidden;
+}
+
+.text-reveal__inner {
+  display: block;
+  transform: translateY(100%);
+  transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+.text-reveal.visible .text-reveal__inner {
+  transform: translateY(0);
+}
+
+/* ── Chip / Badge Bounce ──────────────────────────────────── */
+.badge-bounce {
+  animation: scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Underline Animate ────────────────────────────────────── */
+.underline-animate {
+  position: relative;
+  display: inline-block;
+}
+
+.underline-animate::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: var(--yellow);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.underline-animate:hover::after,
+.underline-animate.active::after { width: 100%; }
+
+/* ── Card Tilt ────────────────────────────────────────────── */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease;
+}
+
+/* ── Progress Ring ────────────────────────────────────────── */
+.progress-ring {
+  position: relative;
+  width: 80px; height: 80px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring__svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.progress-ring__track {
+  fill: none;
+  stroke: rgba(44,157,168,0.15);
+  stroke-width: 6;
+}
+
+.progress-ring__fill {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  transition: stroke-dashoffset 1.5s ease;
+}
+
+.progress-ring.animated .progress-ring__fill {
+  animation: countProgress 1.5s ease forwards;
+}
+
+.progress-ring__label {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--blue);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Typing Cursor ────────────────────────────────────────── */
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--yellow);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: pulse 0.8s step-end infinite;
+}
+
+/* ── Section Transition Colors ────────────────────────────── */
+.section-wave-blue {
+  background: linear-gradient(180deg, transparent, var(--blue-lighter));
+}

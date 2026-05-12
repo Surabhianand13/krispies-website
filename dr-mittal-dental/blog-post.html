@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>When Should My Child Have Their First Dental Visit? | Dr. Mittal's Kids Dental</title>
+  <meta name="description" content="Expert guide from Dr. Priya Mittal on the ideal age for a child's first dental visit, what to expect, and how to make it anxiety-free." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦷</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    .article-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 48px;
+      align-items: start;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .article-hero-img {
+      width: 100%;
+      aspect-ratio: 16/7;
+      background: linear-gradient(135deg, var(--blue-lighter), rgba(44,157,168,0.3));
+      border-radius: var(--r-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+      margin-bottom: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+    .article-hero-img span { animation: floatBounce 4s ease-in-out infinite; filter: drop-shadow(0 8px 32px rgba(44,157,168,0.4)); }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .article-meta__cat {
+      padding: 6px 16px;
+      border-radius: var(--r-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--blue);
+      color: var(--white);
+    }
+    .article-meta__item { font-size: 0.8rem; color: var(--gray); display: flex; align-items: center; gap: 6px; }
+    .article-meta__author { display: flex; align-items: center; gap: 10px; }
+    .article-meta__author-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--blue-lighter);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .article-meta__author-name { font-weight: 600; color: var(--dark); font-size: 0.875rem; }
+    .article-meta__author-role { font-size: 0.72rem; color: var(--gray); }
+
+    .article-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      color: var(--dark);
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .article-subtitle {
+      font-size: 1.1rem;
+      color: var(--gray);
+      line-height: 1.8;
+      margin-bottom: 32px;
+      padding-left: 20px;
+      border-left: 4px solid var(--blue);
+    }
+
+    .article-body h2 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin: 40px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .article-body h2::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .article-body h3 {
+      font-family: var(--font-fun);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin: 28px 0 12px;
+    }
+    .article-body p {
+      font-size: 1rem;
+      color: var(--gray);
+      line-height: 1.9;
+      margin-bottom: 20px;
+    }
+    .article-body ul, .article-body ol {
+      padding-left: 24px;
+      margin-bottom: 20px;
+    }
+    .article-body li {
+      font-size: 0.975rem;
+      color: var(--gray);
+      line-height: 1.8;
+      margin-bottom: 8px;
+    }
+    .article-body strong { color: var(--dark); font-weight: 700; }
+
+    .article-callout {
+      background: var(--blue-lighter);
+      border-left: 4px solid var(--blue);
+      border-radius: 0 var(--r-md) var(--r-md) 0;
+      padding: 24px 28px;
+      margin: 32px 0;
+    }
+    .article-callout--yellow {
+      background: var(--yellow-lighter);
+      border-left-color: var(--yellow-dark);
+    }
+    .article-callout--green {
+      background: var(--green-lighter);
+      border-left-color: var(--green);
+    }
+    .article-callout__title {
+      font-family: var(--font-fun);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .article-callout--yellow .article-callout__title { color: var(--yellow-dark); }
+    .article-callout--green .article-callout__title  { color: var(--green-dark); }
+    .article-callout p { font-size: 0.9rem; margin: 0; color: var(--dark); }
+
+    .article-image-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, var(--bg-soft), var(--blue-lighter));
+      border-radius: var(--r-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      margin: 32px 0;
+      border: 1px dashed var(--border);
+      gap: 8px;
+    }
+    .article-image-placeholder span { font-size: 0.8rem; color: var(--gray); }
+
+    .article-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 36px 0 28px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+    }
+    .article-tag {
+      padding: 6px 16px;
+      border-radius: var(--r-full);
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--gray);
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .article-tag:hover { background: var(--blue-lighter); color: var(--blue-dark); border-color: var(--blue); }
+
+    .article-share {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .share-label { font-size: 0.875rem; font-weight: 600; color: var(--dark); }
+    .share-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: var(--transition-bounce);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .share-btn:hover { transform: scale(1.15); }
+    .share-btn--whatsapp { background: #25D366; }
+    .share-btn--twitter  { background: #1DA1F2; }
+    .share-btn--linkedin { background: #0A66C2; }
+    .share-btn--copy     { background: var(--bg-soft); border: 1px solid var(--border); }
+
+    /* Sidebar */
+    .sidebar-card {
+      background: var(--white);
+      border-radius: var(--r-xl);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .sidebar-card__header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-fun);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sidebar-card__body { padding: 20px 24px; }
+
+    .toc-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--gray);
+      cursor: pointer;
+      transition: color 0.3s;
+      text-decoration: none;
+    }
+    .toc-item:last-child { border-bottom: none; }
+    .toc-item:hover { color: var(--blue); }
+    .toc-item__num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--blue-lighter);
+      color: var(--blue);
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .related-post {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .related-post:last-child { border-bottom: none; }
+    .related-post:hover { transform: translateX(4px); }
+    .related-post__thumb {
+      width: 60px; height: 60px;
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .related-post__title { font-family: var(--font-fun); font-size: 0.82rem; font-weight: 700; color: var(--dark); line-height: 1.3; margin-bottom: 4px; transition: color 0.3s; }
+    .related-post:hover .related-post__title { color: var(--blue); }
+    .related-post__meta { font-size: 0.72rem; color: var(--gray-light); }
+
+    .doctor-sidebar-card {
+      background: linear-gradient(135deg, var(--blue-lighter), rgba(44,157,168,0.15));
+      border-radius: var(--r-xl);
+      padding: 28px;
+      text-align: center;
+      margin-bottom: 24px;
+      border: 1px solid rgba(44,157,168,0.2);
+    }
+    .doctor-sidebar-card__avatar { font-size: 48px; margin-bottom: 12px; display: block; }
+    .doctor-sidebar-card__name { font-family: var(--font-fun); font-size: 1rem; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+    .doctor-sidebar-card__role { font-size: 0.78rem; color: var(--blue-dark); font-weight: 600; margin-bottom: 12px; }
+    .doctor-sidebar-card__bio { font-size: 0.8rem; color: var(--gray); line-height: 1.6; margin-bottom: 16px; }
+
+    @media (max-width: 900px) {
+      .article-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+
+<nav class="nav">
+  <div class="nav__container">
+    <a href="index.html" class="nav__logo"><div class="nav__logo-icon">🦷</div><div class="nav__logo-text"><span class="nav__logo-name">Dr. Mittal's Dental</span><span class="nav__logo-sub">Kids &amp; Family Care</span></div></a>
+    <ul class="nav__links">
+      <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
+      <li><a href="about.html">About Us</a></li><li><a href="nri.html">NRI Care</a></li>
+      <li><a href="school.html">School Program</a></li><li><a href="blog.html" class="active">Blog</a></li><li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav__cta"><div class="nav__phone"><div class="nav__phone-icon">📞</div>+91 98765 43210</div><a href="appointment.html" class="btn-nav btn-ripple">Book Appointment</a></div>
+    <button class="nav__hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav__mobile">
+  <a href="index.html">🏠 Home</a><a href="services.html">🦷 Services</a><a href="about.html">👨‍⚕️ About</a>
+  <a href="nri.html">✈️ NRI</a><a href="school.html">🏫 School</a><a href="blog.html">📝 Blog</a><a href="contact.html">📍 Contact</a>
+  <div class="nav__mobile-cta"><a href="appointment.html" class="btn-nav btn-ripple" style="display:block;text-align:center;padding:14px;">📅 Book</a></div>
+</div>
+
+<!-- BREADCRUMB HEADER -->
+<div style="padding:120px 5% 40px;background:var(--bg-soft);border-bottom:1px solid var(--border);">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="page-header__breadcrumb" style="display:flex;gap:8px;font-size:0.8rem;color:rgba(0,0,0,0.4);margin-bottom:0;">
+      <a href="index.html" style="color:var(--blue);">Home</a><span>/</span>
+      <a href="blog.html" style="color:var(--blue);">Blog</a><span>/</span>
+      <span style="color:var(--gray);">First Dental Visit</span>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE -->
+<section style="padding:48px 5% 80px;background:var(--bg-soft);">
+  <div class="article-layout">
+
+    <!-- MAIN ARTICLE -->
+    <article>
+      <div class="article-hero-img anim-fade-up">
+        <span>🦷</span>
+      </div>
+
+      <div class="article-meta anim-fade-up delay-1">
+        <span class="article-meta__cat">🛡️ Prevention</span>
+        <div class="article-meta__author">
+          <div class="article-meta__author-avatar">👩‍⚕️</div>
+          <div>
+            <div class="article-meta__author-name">Dr. Priya Mittal</div>
+            <div class="article-meta__author-role">MDS Pediatric Dentistry · AIIMS</div>
+          </div>
+        </div>
+        <span class="article-meta__item">📅 January 15, 2025</span>
+        <span class="article-meta__item">⏱ 5 min read</span>
+        <span class="article-meta__item">👁 4,280 views</span>
+      </div>
+
+      <h1 class="article-title anim-fade-up delay-2">When Should My Child Have Their First Dental Visit? Everything Parents Need to Know</h1>
+
+      <p class="article-subtitle anim-fade-up delay-3">Most parents wait until their child's teeth hurt before scheduling a dental appointment. By that point, we're treating problems that could have been prevented entirely. Here's the timeline that actually matters.</p>
+
+      <div class="article-body fade-up">
+
+        <h2>🦷 The Golden Rule: First Tooth or First Birthday</h2>
+        <p>The <strong>American Academy of Pediatric Dentistry (AAPD)</strong> and the <strong>Indian Society of Pedodontics &amp; Preventive Dentistry</strong> both recommend the same thing: <strong>your child's first dental visit should happen within 6 months of the first tooth erupting, or by 12 months of age — whichever comes first.</strong></p>
+        <p>In my 15 years of practice, I've seen the consequences of delayed first visits — cavities in 2-year-olds, baby teeth lost too early, severe dental anxiety in older children who were never introduced to dental care gently. Almost all of it was preventable.</p>
+
+        <div class="article-callout">
+          <div class="article-callout__title">💡 Dr. Mittal's Key Insight</div>
+          <p>The first visit isn't about treatment — it's about <strong>relationship building</strong>. We want your child to see our clinic as a friendly, safe place before anything ever needs fixing. This is the foundation of a lifetime of healthy dental habits.</p>
+        </div>
+
+        <h2>📅 Why So Early? Babies Don't Have Many Teeth Yet</h2>
+        <p>This is the most common question I hear. Here's why early visits matter:</p>
+        <ul>
+          <li><strong>Baby bottle tooth decay</strong> — one of the most common early childhood diseases — typically starts between 6–18 months. Catching it early makes a huge difference.</li>
+          <li>We assess <strong>jaw development, gum health, and eruption patterns</strong> that set the stage for permanent teeth.</li>
+          <li>We counsel parents on <strong>feeding habits, pacifier use, and thumb sucking</strong> before these become problems that require intervention.</li>
+          <li>We apply <strong>fluoride varnish</strong> to protect new teeth from the very start.</li>
+          <li>Most importantly — <strong>your child learns that dentists are friendly</strong>, which prevents dental anxiety from developing.</li>
+        </ul>
+
+        <div class="article-image-placeholder">
+          <span>👶🦷</span>
+          <span>Photo: Dr. Mittal with an infant patient during a first visit assessment</span>
+        </div>
+
+        <h2>🗓️ Age-by-Age Dental Milestone Guide</h2>
+
+        <h3>0–12 months: Before the First Tooth</h3>
+        <p>Even before teeth arrive, good habits start. <strong>Wipe your baby's gums</strong> with a damp cloth after feeds. When the first tooth appears (usually around 6 months), switch to a <strong>soft infant toothbrush</strong> with a grain-of-rice sized smear of fluoride toothpaste.</p>
+        <p><strong>First dental visit by 12 months.</strong> We do a knee-to-knee exam — gentle, quick, and designed for infants.</p>
+
+        <h3>1–3 years: The Toddler Years</h3>
+        <p>Visit every 6 months. We monitor eruption of baby teeth, assess bite development, and apply fluoride varnish. We also <strong>address habits like thumb sucking and sippy cup use</strong> that can affect tooth and jaw development.</p>
+
+        <div class="article-callout article-callout--yellow">
+          <div class="article-callout__title">⚠️ Watch Out For</div>
+          <p>White spots on teeth (early cavities), brown or black staining, teeth that don't erupt on schedule, or a child who complains of tooth pain — these all warrant an immediate visit regardless of age.</p>
+        </div>
+
+        <h3>4–6 years: The Pre-School Stage</h3>
+        <p>Baby molars are now all erupted. This is prime time for <strong>pit and fissure sealants</strong> — protective coatings applied to the deep grooves of molars where 80% of childhood cavities begin. Quick, painless, and incredibly effective.</p>
+        <p>We also do a first <strong>orthodontic screening</strong> at age 6 to identify any early warning signs that benefit from interceptive treatment.</p>
+
+        <h3>7–12 years: Mixed Dentition Period</h3>
+        <p>Baby teeth are falling out, permanent teeth are coming in. This is the <strong>most important period for orthodontic assessment</strong>. Crowding, bite issues, and spacing problems are far easier to correct when the jaw is still growing.</p>
+        <p><strong>Every child should have an orthodontic evaluation by age 7</strong> — this doesn't mean they need braces, but it means we catch things early when treatment is simpler and less expensive.</p>
+
+        <h3>13–18 years: Teenage Dentistry</h3>
+        <p>Wisdom teeth, braces completion, sports guards, and <strong>age-appropriate cosmetic treatments</strong> like teeth whitening become relevant. Teenagers need to own their oral health — we help them develop the self-motivation to maintain excellent habits independently.</p>
+
+        <h2>✅ What Happens at a First Visit?</h2>
+        <p>At Dr. Mittal's, your child's first visit is designed to be completely anxiety-free. Here's exactly what to expect:</p>
+        <ol>
+          <li><strong>Welcome tour</strong> — we show your child the equipment, letting them touch and explore. Nothing is hidden or scary.</li>
+          <li><strong>Parent consultation</strong> — we discuss feeding habits, dental history, and any concerns you have.</li>
+          <li><strong>Gentle examination</strong> — counting teeth, checking gums, assessing bite. We narrate everything as we go.</li>
+          <li><strong>Fluoride application</strong> — a quick, tasty varnish applied with a brush. Most children enjoy picking their flavour.</li>
+          <li><strong>Reward time</strong> — every child gets a certificate and a gift from our Smile Treasure Box.</li>
+          <li><strong>Parent briefing</strong> — we share our findings and a personalised home care plan.</li>
+        </ol>
+
+        <div class="article-callout article-callout--green">
+          <div class="article-callout__title">✅ Our Promise</div>
+          <p>At Dr. Mittal's, we use <strong>Tell-Show-Do technique</strong> for every child, every time. We never rush, we never force, and we never shame a child for being nervous. Anxiety-free dentistry isn't just a marketing phrase for us — it's our clinical protocol.</p>
+        </div>
+
+        <h2>💡 How to Prepare Your Child for Their First Visit</h2>
+        <ul>
+          <li><strong>Use positive language.</strong> Avoid words like "hurt," "pain," or "needle." Instead, say "the doctor will count your teeth and make them sparkly clean."</li>
+          <li><strong>Read books about dentist visits</strong> — "The Berenstain Bears Visit the Dentist" is a classic that works beautifully.</li>
+          <li><strong>Play dentist at home</strong> — let your child examine your teeth with a flashlight. Role-playing normalises the experience.</li>
+          <li><strong>Don't use dental visits as threats</strong> — this creates negative associations that can last decades.</li>
+          <li><strong>Bring a comfort item</strong> — a favourite toy or blanket is always welcome at our clinic.</li>
+        </ul>
+
+        <div class="article-image-placeholder">
+          <span>👨‍👩‍👦</span>
+          <span>Photo: A family in our child-friendly waiting area</span>
+        </div>
+
+        <h2>🌍 A Note for NRI Parents</h2>
+        <p>If you're visiting India with children who haven't had regular dental care, please <strong>don't wait for a problem to arise</strong>. A comprehensive first visit with us can assess your child's entire oral health status, catch anything that needs treatment, and send you back with a complete digital dental record and a clear plan for the next 1–2 years.</p>
+        <p>We recommend booking your child's appointment <strong>within the first week of arrival</strong> to allow time for any needed treatment before your return travel.</p>
+
+        <div class="article-callout">
+          <div class="article-callout__title">📞 Ready to Book?</div>
+          <p>Call us at <strong>+91 98765 43210</strong>, WhatsApp us any time, or <a href="appointment.html" style="color:var(--blue);font-weight:600;">book online here</a>. First visits for children under 12 months are always complimentary at Dr. Mittal's.</p>
+        </div>
+
+        <!-- TAGS -->
+        <div class="article-tags">
+          <a href="#" class="article-tag">👶 First Dental Visit</a>
+          <a href="#" class="article-tag">🛡️ Prevention</a>
+          <a href="#" class="article-tag">👨‍👩‍👦 Parent Guide</a>
+          <a href="#" class="article-tag">🦷 Baby Teeth</a>
+          <a href="#" class="article-tag">💉 Fluoride</a>
+          <a href="#" class="article-tag">😌 Dental Anxiety</a>
+        </div>
+
+        <!-- SHARE -->
+        <div class="article-share">
+          <span class="share-label">Share this article:</span>
+          <a href="https://wa.me/?text=Great+article+on+kids+dental+care!" class="share-btn share-btn--whatsapp" target="_blank" rel="noopener" title="WhatsApp">💬</a>
+          <a href="#" class="share-btn share-btn--twitter" title="Twitter">🐦</a>
+          <a href="#" class="share-btn share-btn--linkedin" title="LinkedIn">💼</a>
+          <button class="share-btn share-btn--copy" title="Copy link" onclick="navigator.clipboard.writeText(window.location.href); this.textContent='✅'; setTimeout(() => this.textContent='🔗', 2000);">🔗</button>
+        </div>
+      </div>
+
+      <!-- AUTHOR BOX -->
+      <div style="background:var(--blue-lighter);border-radius:var(--r-xl);padding:32px;display:flex;gap:24px;align-items:flex-start;border:1px solid rgba(44,157,168,0.2);" class="fade-up">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;">👩‍⚕️</div>
+        <div>
+          <div style="font-family:var(--font-fun);font-size:1.05rem;font-weight:800;color:var(--dark);margin-bottom:2px;">Dr. Priya Mittal</div>
+          <div style="font-size:0.8rem;color:var(--blue-dark);font-weight:600;margin-bottom:10px;">MDS Pediatric Dentistry · AIIMS New Delhi · FRCS Edinburgh</div>
+          <p style="font-size:0.875rem;color:var(--gray);line-height:1.7;margin:0;">Dr. Mittal is the founder of Dr. Mittal's Kids &amp; Family Dental, with 15+ years of specialized experience in pediatric dentistry. She has treated 12,000+ young patients and is passionate about making dental care a positive experience for every child.</p>
+        </div>
+      </div>
+
+      <!-- RELATED ARTICLES -->
+      <div style="margin-top:48px;" class="fade-up">
+        <h3 style="font-family:var(--font-fun);font-size:1.2rem;font-weight:800;color:var(--dark);margin-bottom:24px;">Related Articles</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+          <a href="blog-post.html" class="blog-card hover-lift" style="text-decoration:none;">
+            <div class="blog-card__image"><div class="blog-card__img-placeholder blog-card__img-placeholder--1">🍭</div><span class="blog-card__cat blog-card__cat--yellow">Tips</span></div>
+            <div class="blog-card__body"><h3 class="blog-card__title" style="font-size:0.9rem;">7 Foods Secretly Destroying Your Child's Teeth</h3><div class="blog-card__meta"><span class="blog-card__read">4 min read →</span></div></div>
+          </a>
+          <a href="blog-post.html" class="blog-card hover-lift" style="text-decoration:none;">
+            <div class="blog-card__image"><div class="blog-card__img-placeholder blog-card__img-placeholder--2">📐</div><span class="blog-card__cat blog-card__cat--blue">Orthodontics</span></div>
+            <div class="blog-card__body"><h3 class="blog-card__title" style="font-size:0.9rem;">Age 7 Orthodontic Evaluation: What to Expect</h3><div class="blog-card__meta"><span class="blog-card__read">5 min read →</span></div></div>
+          </a>
+          <a href="blog-post.html" class="blog-card hover-lift" style="text-decoration:none;">
+            <div class="blog-card__image"><div class="blog-card__img-placeholder blog-card__img-placeholder--3">✈️</div><span class="blog-card__cat blog-card__cat--green">NRI Guide</span></div>
+            <div class="blog-card__body"><h3 class="blog-card__title" style="font-size:0.9rem;">NRI Dental Tourism: Complete India Guide 2025</h3><div class="blog-card__meta"><span class="blog-card__read">12 min read →</span></div></div>
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside style="position:sticky;top:100px;">
+      <!-- Doctor -->
+      <div class="doctor-sidebar-card">
+        <span class="doctor-sidebar-card__avatar">👩‍⚕️</span>
+        <div class="doctor-sidebar-card__name">Dr. Priya Mittal</div>
+        <div class="doctor-sidebar-card__role">MDS · Pediatric Dentist</div>
+        <div class="doctor-sidebar-card__bio">15+ years experience. AIIMS trained. 12,000+ happy kids treated.</div>
+        <a href="appointment.html" class="btn-primary btn-ripple" style="display:flex;justify-content:center;font-size:0.875rem;padding:12px 20px;">📅 Book Appointment</a>
+      </div>
+
+      <!-- Table of Contents -->
+      <div class="sidebar-card fade-up">
+        <div class="sidebar-card__header">📋 In This Article</div>
+        <div class="sidebar-card__body" style="padding:12px 20px;">
+          <a href="#" class="toc-item"><div class="toc-item__num">1</div>The Golden Rule: First Tooth or First Birthday</a>
+          <a href="#" class="toc-item"><div class="toc-item__num">2</div>Why Early Visits Matter</a>
+          <a href="#" class="toc-item"><div class="toc-item__num">3</div>Age-by-Age Milestone Guide</a>
+          <a href="#" class="toc-item"><div class="toc-item__num">4</div>What Happens at First Visit</a>
+          <a href="#" class="toc-item"><div class="toc-item__num">5</div>How to Prepare Your Child</a>
+          <a href="#" class="toc-item"><div class="toc-item__num">6</div>Note for NRI Parents</a>
+        </div>
+      </div>
+
+      <!-- Quick Appointment -->
+      <div class="sidebar-card fade-up">
+        <div class="sidebar-card__header" style="background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:var(--white);">📅 Quick Appointment</div>
+        <div class="sidebar-card__body">
+          <form id="sidebar-appt" style="display:flex;flex-direction:column;gap:10px;">
+            <input type="text" placeholder="Child's name" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-md);font-size:0.85rem;outline:none;" />
+            <input type="tel" placeholder="Phone number" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-md);font-size:0.85rem;outline:none;" />
+            <select style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-md);font-size:0.85rem;outline:none;background:var(--white);">
+              <option>First Dental Visit</option><option>Checkup &amp; Cleaning</option><option>Orthodontic Consultation</option><option>Emergency</option>
+            </select>
+            <button type="submit" style="padding:12px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:var(--white);border:none;border-radius:var(--r-md);font-family:var(--font-fun);font-weight:700;cursor:pointer;font-size:0.875rem;">Book Now</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Related posts -->
+      <div class="sidebar-card fade-up">
+        <div class="sidebar-card__header">📚 More Articles</div>
+        <div class="sidebar-card__body" style="padding:12px 20px;">
+          <a href="blog-post.html" class="related-post"><div class="related-post__thumb" style="background:var(--yellow-lighter);">🍭</div><div><div class="related-post__title">7 Foods Destroying Your Child's Teeth</div><div class="related-post__meta">4 min · Parent Tips</div></div></a>
+          <a href="blog-post.html" class="related-post"><div class="related-post__thumb" style="background:var(--green-lighter);">📐</div><div><div class="related-post__title">Braces vs Clear Aligners: 2025 Guide</div><div class="related-post__meta">8 min · Orthodontics</div></div></a>
+          <a href="blog-post.html" class="related-post"><div class="related-post__thumb" style="background:var(--blue-lighter);">✈️</div><div><div class="related-post__title">NRI Dental Tourism India 2025</div><div class="related-post__meta">12 min · NRI Guide</div></div></a>
+          <a href="blog-post.html" class="related-post"><div class="related-post__thumb" style="background:rgba(239,68,68,0.1);">🚨</div><div><div class="related-post__title">Knocked-Out Tooth: Immediate Steps</div><div class="related-post__meta">3 min · Emergency</div></div></a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer__grid">
+    <div><div class="footer__brand-logo"><div class="footer__brand-icon">🦷</div><div><div class="footer__brand-name">Dr. Mittal's Kids Dental</div><div class="footer__brand-sub">Where Smiles Begin · Est. 2009</div></div></div><p class="footer__desc">Expert pediatric dental content and world-class care for children and families.</p><div class="footer__socials"><a href="#" class="social-btn">📸</a><a href="#" class="social-btn">👥</a><a href="#" class="social-btn">💬</a></div></div>
+    <div><div class="footer__col-title">Services</div><ul class="footer__links"><li><a href="services.html">Preventive Care</a></li><li><a href="services.html">Orthodontics</a></li><li><a href="services.html">Emergency</a></li></ul></div>
+    <div><div class="footer__col-title">Quick Links</div><ul class="footer__links"><li><a href="about.html">About Us</a></li><li><a href="nri.html">NRI Care</a></li><li><a href="blog.html">All Articles</a></li><li><a href="appointment.html">Appointment</a></li></ul></div>
+    <div><div class="footer__col-title">Contact</div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:0.875rem;color:rgba(255,255,255,0.45);">📍 123 Smile Avenue, Gurgaon</div><a href="tel:+919876543210" style="font-size:0.875rem;color:rgba(255,255,255,0.45);">📞 +91 98765 43210</a></div></div>
+  </div>
+  <div class="footer__bottom"><div>© 2025 Dr. Mittal's Kids &amp; Family Dental</div></div>
+</footer>
+<button id="back-to-top">↑</button>
+<a href="https://wa.me/919876543210" class="whatsapp-float" target="_blank" rel="noopener">💬</a>
+<script src="js/main.js"></script>
+<script>
+  document.getElementById('sidebar-appt')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('button');
+    btn.textContent = '✅ Booked!';
+    btn.style.background = 'linear-gradient(135deg,var(--green),var(--green-dark))';
+    setTimeout(() => { btn.textContent = 'Book Now'; btn.style.background = ''; this.reset(); }, 3000);
+  });
+</script>
+</body>
+</html>
