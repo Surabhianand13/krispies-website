@@ -1420,9 +1420,9 @@
         },
         theme: { color: '#C9A870' },
         handler: async (rzpResp) => {
-          /* 4. Verify signature on backend */
+          /* 4. Verify HMAC-SHA256 signature on backend — MUST succeed before showing success */
           try {
-            await fetch(`${BACKEND_URL}/api/checkout/verify`, {
+            const verifyRes = await fetch(`${BACKEND_URL}/api/checkout/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -1432,8 +1432,22 @@
                 razorpay_signature:  rzpResp.razorpay_signature,
               }),
             });
-          } catch(_) { /* verification failed silently — admin can reconcile */ }
-          _chkShowSuccess(data.internal_order_id, payload.amount, 'online');
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok || !verifyData.success) {
+              throw new Error(verifyData.error || 'Verification failed');
+            }
+            /* Only show success after server confirms the signature */
+            _chkShowSuccess(data.internal_order_id, payload.amount, 'online');
+          } catch(verifyErr) {
+            /* Payment was captured by Razorpay but our server couldn't verify —
+               show a specific message so the customer can contact us with their payment ID */
+            console.error('[Razorpay] Verify error:', verifyErr);
+            if (btn) { btn.textContent = 'Pay Online (Razorpay)'; btn.disabled = false; }
+            _chkToast(
+              `Payment received (ID: ${rzpResp.razorpay_payment_id}) but could not be confirmed automatically. ` +
+              `Please WhatsApp us this ID and we will confirm your order manually.`
+            );
+          }
         },
         modal: {
           ondismiss: () => {

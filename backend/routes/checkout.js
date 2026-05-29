@@ -8,13 +8,26 @@
  * POST /api/checkout/verify    — verify Razorpay payment signature and confirm order
  */
 
-const express  = require('express');
-const crypto   = require('crypto');
+const express   = require('express');
+const crypto    = require('crypto');
+const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
-const db       = require('../db/database');
+const db        = require('../db/database');
 const { newOrderEmail } = require('../utils/email');
 
 const router = express.Router();
+
+/* ── Stricter rate limiter for payment endpoints ──
+   Max 10 attempts per IP per 15 minutes.
+   Prevents brute-force / automated fraud attempts.   */
+const paymentLimiter = rateLimit({
+  windowMs:        15 * 60 * 1000,
+  max:             10,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message:         { error: 'Too many payment attempts. Please wait a few minutes and try again.' },
+  skip: (req) => process.env.NODE_ENV === 'test',
+});
 
 /* ── Razorpay — loaded lazily so the server starts even without the package ── */
 function getRazorpay() {
@@ -30,11 +43,16 @@ function uid() {
 }
 
 /* ── Shared validators ── */
+const MIN_AMOUNT = 1;          // ₹1 — absolute floor
+const MAX_AMOUNT = 500000;     // ₹5,00,000 — ceiling against inflated payloads
+
 const orderValidators = [
   body('customer_name').trim().notEmpty().withMessage('Name is required.'),
   body('customer_phone').trim().notEmpty().withMessage('Phone number is required.'),
   body('items').trim().notEmpty().withMessage('Items are required.'),
-  body('amount').isNumeric().withMessage('Amount must be a number.'),
+  body('amount')
+    .isFloat({ min: MIN_AMOUNT, max: MAX_AMOUNT })
+    .withMessage(`Amount must be between ₹${MIN_AMOUNT} and ₹${MAX_AMOUNT.toLocaleString('en-IN')}.`),
 ];
 
 /* ── Build DB row from request body ── */
@@ -75,7 +93,7 @@ const INSERT_SQL = `
 /* ════════════════════════════════════════════════
    POST /api/checkout   — Cash on Delivery order
    ════════════════════════════════════════════════ */
-router.post('/', orderValidators, async (req, res) => {
+router.post('/', paymentLimiter, orderValidators, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
@@ -95,7 +113,7 @@ router.post('/', orderValidators, async (req, res) => {
 /* ════════════════════════════════════════════════
    POST /api/checkout/initiate  — Razorpay order
    ════════════════════════════════════════════════ */
-router.post('/initiate', orderValidators, async (req, res) => {
+router.post('/initiate', paymentLimiter, orderValidators, async (req, res) => {
   const Razorpay = getRazorpay();
   const keyId     = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -155,10 +173,12 @@ router.post('/initiate', orderValidators, async (req, res) => {
 /* ════════════════════════════════════════════════
    POST /api/checkout/verify  — Signature check
    ════════════════════════════════════════════════ */
-router.post('/verify', (req, res) => {
+router.post('/verify', paymentLimiter, (req, res) => {
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
   if (!keySecret) {
-    return res.status(503).json({ error: 'Payment verification not configured.' });
+    // Log server-side but never expose config details to caller
+    console.error('[Razorpay] RAZORPAY_KEY_SECRET is not set.');
+    return res.status(503).json({ error: 'Payment service unavailable.' });
   }
 
   const {
@@ -169,7 +189,19 @@ router.post('/verify', (req, res) => {
   } = req.body;
 
   if (!internal_order_id || !razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-    return res.status(400).json({ error: 'Missing payment verification fields.' });
+    return res.status(400).json({ error: 'Invalid payment data.' });
+  }
+
+  // Validate internal_order exists in DB before doing anything else
+  const existingOrder = db.prepare('SELECT id, status FROM orders WHERE id = ?').get(internal_order_id);
+  if (!existingOrder) {
+    console.warn('[Razorpay] Verify called with unknown internal_order_id:', internal_order_id);
+    return res.status(400).json({ error: 'Order not found.' });
+  }
+
+  // Prevent replay: if already confirmed, return success without re-processing
+  if (existingOrder.status === 'confirmed') {
+    return res.json({ success: true, message: 'Order already confirmed.' });
   }
 
   // Razorpay signature = HMAC-SHA256( order_id + "|" + payment_id, key_secret )
@@ -178,8 +210,16 @@ router.post('/verify', (req, res) => {
     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
     .digest('hex');
 
-  if (expected !== razorpay_signature) {
-    return res.status(400).json({ error: 'Payment signature verification failed.' });
+  // Constant-time comparison prevents timing attacks
+  const sigBuffer      = Buffer.from(razorpay_signature, 'hex');
+  const expectedBuffer = Buffer.from(expected,            'hex');
+  const signaturesMatch =
+    sigBuffer.length === expectedBuffer.length &&
+    crypto.timingSafeEqual(sigBuffer, expectedBuffer);
+
+  if (!signaturesMatch) {
+    console.warn('[Razorpay] Signature mismatch for order:', internal_order_id);
+    return res.status(400).json({ error: 'Payment could not be verified.' });
   }
 
   // Mark the order as confirmed
