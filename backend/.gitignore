@@ -3,3 +3,5 @@ node_modules/
 db/krispies.db
 db/krispies.db-shm
 db/krispies.db-wal
+uploads/*
+!uploads/.gitkeep

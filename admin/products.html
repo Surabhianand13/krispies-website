@@ -220,7 +220,7 @@
       <div id="f_price_preview" style="font-size:0.82rem; color:var(--gold); margin:-8px 0 12px; padding:8px 12px; background:rgba(201,168,112,0.07); border-radius:4px; display:none"></div>
 
       <div class="form-group">
-        <label>Product Images <span style="color:var(--muted);font-weight:400">(paste direct image URLs)</span></label>
+        <label>Product Images <span style="color:var(--muted);font-weight:400">(upload or paste a URL)</span></label>
         <div id="f_images_list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
           ${imgs.length
             ? imgs.map((url, i) => imageFieldHTML(url, i)).join('')
@@ -229,8 +229,11 @@
         </div>
         <button type="button" class="btn btn-ghost btn-sm" onclick="addImageField()" style="width:auto">+ Add Another Image</button>
         <div style="font-size:0.72rem;color:var(--muted);margin-top:6px">
-          💡 Use Cloudinary, Google Drive (direct link), or any public image URL.
-          Supports multiple images — customers can swipe through them on the menu.
+          <strong style="color:var(--text-on-dark)">To add photos from your computer:</strong>
+          copy the image file into the <code style="background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">assets/images/</code> folder
+          in your project, push to GitHub, then type the path here as
+          <code style="background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">/assets/images/your-cake.jpg</code>.
+          Vercel serves it automatically. Multiple images supported — customers swipe through them on the menu.
         </div>
       </div>
 
@@ -249,8 +252,12 @@
   function imageFieldHTML(url, idx) {
     return `<div class="img-field-row" style="display:flex;gap:8px;align-items:center">
       <input type="url" class="form-control f_img_url" placeholder="https://..." value="${esc(url)}"
-        style="flex:1" oninput="previewThumb(this)">
-      ${url ? `<img src="${esc(url)}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--border)" onerror="this.style.display='none'">` : '<span style="width:36px"></span>'}
+        style="flex:1;min-width:0" oninput="previewThumb(this)">
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer;white-space:nowrap;flex-shrink:0;margin:0" title="Upload image from your device">
+        <span>Upload</span>
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" onchange="uploadImageFile(this)">
+      </label>
+      <img class="img-field-thumb" src="${esc(url)}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--border);flex-shrink:0;${url ? '' : 'display:none'}" onerror="this.style.display='none'">
       <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="this.closest('.img-field-row').remove()" title="Remove">✕</button>
     </div>`;
   }
@@ -263,8 +270,46 @@
   }
 
   function previewThumb(input) {
-    const img = input.nextElementSibling;
-    if (img && img.tagName === 'IMG') { img.src = input.value; img.style.display = input.value ? '' : 'none'; }
+    const thumb = input.closest('.img-field-row').querySelector('.img-field-thumb');
+    if (thumb) { thumb.src = input.value; thumb.style.display = input.value ? '' : 'none'; }
+  }
+
+  async function uploadImageFile(fileInput) {
+    const row      = fileInput.closest('.img-field-row');
+    const urlInput = row.querySelector('.f_img_url');
+    const label    = fileInput.closest('label');
+    const span     = label.querySelector('span');
+    if (!fileInput.files || !fileInput.files[0]) return;
+
+    span.textContent = 'Uploading…';
+    label.style.opacity = '0.6';
+    label.style.pointerEvents = 'none';
+
+    try {
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+      const res = await fetch(`${BACKEND_URL}/api/upload`, {
+        method: 'POST',
+        headers: authHeader(),
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || 'Upload failed.', 'error');
+        return;
+      }
+      const { url } = await res.json();
+      urlInput.value = url;
+      previewThumb(urlInput);
+      showToast('Image uploaded!');
+    } catch {
+      showToast('Upload failed — is the backend connected?', 'error');
+    } finally {
+      span.textContent = 'Upload';
+      label.style.opacity = '';
+      label.style.pointerEvents = '';
+      fileInput.value = '';
+    }
   }
 
   function updatePricePreview() {
