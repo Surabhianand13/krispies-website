@@ -1400,6 +1400,74 @@ h1, h2, h3, h4 {
 
 /* ---- MENU MAIN ---- */
 .menu-main { background: var(--black); }
+/* ---- SUB-CATEGORY CIRCLES ---- */
+.subcat-scroll {
+  display: flex; gap: 20px;
+  overflow-x: auto; scrollbar-width: none;
+  padding: 4px 0 24px;
+  margin-bottom: 8px;
+}
+.subcat-scroll::-webkit-scrollbar { display: none; }
+.subcat-item {
+  flex: 0 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-decoration: none; cursor: pointer;
+}
+.subcat-item__circle {
+  width: 80px; height: 80px; border-radius: 50%;
+  overflow: hidden; position: relative;
+  border: 2.5px solid var(--border-gold);
+  background: var(--black-3);
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.subcat-item.active .subcat-item__circle,
+.subcat-item:hover .subcat-item__circle {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(168,72,56,0.25);
+}
+.subcat-item__circle img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.subcat-item__fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold); opacity: 0.6;
+}
+.subcat-item__fallback svg { width: 28px; height: 28px; }
+.subcat-item span {
+  font-size: 0.75rem; font-weight: 500;
+  color: var(--text-muted); text-align: center;
+  transition: color 0.2s; white-space: nowrap;
+}
+.subcat-item.active span,
+.subcat-item:hover span { color: var(--gold); }
+
+/* ---- FILTER PILLS ---- */
+.filter-pills {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 32px;
+}
+.filter-pill {
+  padding: 7px 18px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border-gold);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.filter-pill:hover {
+  border-color: var(--gold); color: var(--gold);
+}
+.filter-pill.active {
+  background: var(--gold); border-color: var(--gold);
+  color: #FFFFFF; font-weight: 600;
+}
+
 .menu-cat-section {
   padding: 72px 0 80px;
   border-bottom: 1px solid var(--border-gold);
