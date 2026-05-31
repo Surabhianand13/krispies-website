@@ -130,7 +130,7 @@ h1, h2, h3, h4 {
   position: fixed; top: 0; left: 0; right: 0; z-index: 1001;
   height: var(--promo-h);
   background: var(--gold);
-  color: var(--text-on-light);
+  color: #FAF0E8;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-body);
   font-size: 0.82rem;
@@ -142,19 +142,20 @@ h1, h2, h3, h4 {
 .promo-bar__text { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .promo-bar__code {
   display: inline-block;
-  background: rgba(0,0,0,0.18);
-  border: 1.5px dashed rgba(0,0,0,0.35);
+  background: rgba(255,255,255,0.18);
+  border: 1.5px dashed rgba(255,255,255,0.60);
   border-radius: 4px;
   padding: 1px 8px;
   font-weight: 700;
   font-size: 0.88rem;
   letter-spacing: 0.08em;
+  color: #FFFFFF;
 }
 .promo-bar__short { display: none; }
 .promo-bar__close {
   position: absolute; right: 16px;
   background: none; border: none;
-  color: var(--text-on-light);
+  color: #FAF0E8;
   font-size: 1.3rem; line-height: 1;
   cursor: pointer; padding: 4px 8px;
   opacity: 0.65;
@@ -188,7 +189,8 @@ h1, h2, h3, h4 {
   font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #3A1A10;
+  font-weight: 500;
   transition: var(--ease);
   position: relative;
   padding-bottom: 2px;
@@ -196,7 +198,7 @@ h1, h2, h3, h4 {
 .nav__links a::after {
   content: ''; position: absolute;
   bottom: -2px; left: 0;
-  width: 0; height: 1px;
+  width: 0; height: 1.5px;
   background: var(--gold);
   transition: width var(--ease);
 }
@@ -1687,16 +1689,11 @@ textarea.chk-input { resize: vertical; min-height: 80px; }
 /* Videos gets the tint background (otherwise inherits white) */
 .videos { background: var(--black-2); }
 
-/* Stats Strip — Jet Black */
+/* Stats Strip — Warm Cream */
 .strip {
-  background: #0A0A0A;
-  border-top: 1px solid rgba(255,255,255,0.10);
-  border-bottom: 1px solid rgba(255,255,255,0.10);
-  --black: #0A0A0A;
-  --gold: #E8A090;
-  --border-gold: rgba(255,255,255,0.12);
-  --text-on-dark: #FFFFFF;
-  --text-muted: rgba(255,255,255,0.48);
+  background: var(--cream-2);
+  border-top: 1px solid var(--border-gold);
+  border-bottom: 1px solid var(--border-gold);
 }
 
 /* Order CTA — Jet Black */
@@ -2205,4 +2202,62 @@ textarea.chk-input { resize: vertical; min-height: 80px; }
   .cart-float { bottom: 20px; right: 16px; padding: 10px 16px; font-size: 0.78rem; }
   .cart-drawer { width: 100vw; }
   .addons-modal__grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px; }
+}
+
+/* ---- FLOATING CALL BUTTON ---- */
+.call-float {
+  position: fixed;
+  bottom: 88px;
+  right: 24px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 50px;
+  padding: 13px 20px 13px 16px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(168, 72, 56, 0.45);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  animation: callPulse 2.6s ease-in-out infinite;
+}
+.call-float:hover {
+  background: var(--gold-dark);
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 8px 28px rgba(168, 72, 56, 0.55);
+  animation: none;
+}
+.call-float__icon {
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+  animation: ringShake 2.6s ease-in-out infinite;
+}
+.call-float:hover .call-float__icon { animation: none; }
+.call-float__label { white-space: nowrap; }
+
+@keyframes callPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(168, 72, 56, 0.45); }
+  50%        { box-shadow: 0 4px 28px rgba(168, 72, 56, 0.75), 0 0 0 8px rgba(168, 72, 56, 0.12); }
+}
+@keyframes ringShake {
+  0%, 55%, 100% { transform: rotate(0deg); }
+  5%            { transform: rotate(18deg); }
+  10%           { transform: rotate(-16deg); }
+  15%           { transform: rotate(14deg); }
+  20%           { transform: rotate(-10deg); }
+  25%           { transform: rotate(6deg); }
+  30%           { transform: rotate(0deg); }
+}
+
+@media (max-width: 600px) {
+  .call-float { bottom: 80px; right: 16px; padding: 12px 14px; border-radius: 50%; }
+  .call-float__label { display: none; }
+  .call-float__icon { width: 24px; height: 24px; }
 }
