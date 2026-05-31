@@ -866,8 +866,8 @@ h1, h2, h3, h4 {
 .footer__brand {}
 /* White logo — uses logo-white.svg if present, falls back to filtered color logo */
 .footer__logo {
-  height: 52px; width: auto; margin-bottom: 10px; display: block;
-  filter: brightness(0) invert(1); /* makes any logo white */
+  height: 80px; width: auto; margin-bottom: 14px; display: block;
+  filter: brightness(0) invert(1);
 }
 .footer__tagline {
   font-family: var(--font-display);
