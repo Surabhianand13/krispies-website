@@ -779,8 +779,23 @@ h1, h2, h3, h4 {
   overflow: hidden;
 }
 .pre-footer__inner {
-  max-width: 1200px; margin: 0 auto; padding: 0 40px 72px;
+  max-width: 1200px; margin: 0 auto; padding: 0 40px 40px;
   display: flex; align-items: center; justify-content: space-between; gap: 48px;
+}
+/* Product image floating over the wave */
+.pre-footer__product-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex; justify-content: center;
+  margin-bottom: -80px; /* pulls it down to straddle the wave */
+  pointer-events: none;
+}
+.pre-footer__product-img {
+  height: 280px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 40px rgba(100,20,10,0.30));
+  animation: cakeFloat 4s ease-in-out infinite;
 }
 .pre-footer__text { max-width: 520px; }
 .pre-footer__label {
@@ -838,7 +853,7 @@ h1, h2, h3, h4 {
 /* ---- FOOTER ---- */
 .footer {
   background: #1C0A06;
-  padding: 64px 0 0;
+  padding: 96px 0 0; /* extra top padding gives floating image room */
 }
 .footer__grid {
   display: grid;
