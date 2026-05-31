@@ -691,7 +691,7 @@ h1, h2, h3, h4 {
 .tctl-dot.active { background: var(--gold); width: 22px; border-radius: 3px; }
 
 /* ---- 13. LOCATIONS ---- */
-.locations { padding: var(--pad-lg) 0; background: var(--black-2); }
+.locations { padding: var(--pad-sm) 0; background: var(--black-2); }
 .locations__grid {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 40px;
 }
