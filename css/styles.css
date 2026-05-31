@@ -531,6 +531,78 @@ h1, h2, h3, h4 {
 }
 
 /* ---- 9. MENU PREVIEW ---- */
+/* ---- CATEGORY SCROLL STRIP ---- */
+.cat-strip {
+  padding: var(--pad-md) 0 var(--pad-lg);
+  background: var(--black);
+  overflow: hidden;
+}
+.cat-strip__header {
+  max-width: 1200px; margin: 0 auto; padding: 0 40px 36px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+}
+.cat-strip__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  color: var(--text-on-dark); line-height: 1.2; margin: 8px 0 6px;
+}
+.cat-strip__title em { color: var(--gold); font-style: italic; }
+.cat-strip__sub { font-size: 0.9rem; color: var(--text-muted); }
+.cat-strip__viewall {
+  flex-shrink: 0;
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--gold); text-decoration: none;
+  border-bottom: 1px solid rgba(168,72,56,0.4);
+  padding-bottom: 2px; transition: border-color 0.2s;
+  white-space: nowrap;
+}
+.cat-strip__viewall:hover { border-color: var(--gold); }
+.cat-strip__scroll {
+  display: flex; gap: 20px;
+  overflow-x: auto; scrollbar-width: none;
+  padding: 8px 40px 16px;
+  max-width: 1280px; margin: 0 auto;
+}
+.cat-strip__scroll::-webkit-scrollbar { display: none; }
+.cat-item {
+  flex: 0 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  text-decoration: none; cursor: pointer;
+}
+.cat-item__img-wrap {
+  width: 160px; height: 160px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--black-3);
+  border: 1.5px solid var(--border-gold);
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s;
+}
+.cat-item:hover .cat-item__img-wrap {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(168,72,56,0.25);
+  border-color: var(--gold);
+}
+.cat-item__img-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.cat-item:hover .cat-item__img-wrap img { transform: scale(1.06); }
+.cat-item__placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold); opacity: 0.5;
+}
+.cat-item__placeholder svg { width: 44px; height: 44px; }
+.cat-item__name {
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--text-on-dark);
+  letter-spacing: 0.01em; text-align: center;
+  transition: color 0.2s;
+}
+.cat-item:hover .cat-item__name { color: var(--gold); }
+
 .menu-preview { padding: var(--pad-lg) 0; }
 .menu-grid {
   display: grid;

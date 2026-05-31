@@ -232,49 +232,66 @@
   </section>
 
   <!-- ========== MENU PREVIEW ========== -->
-  <section class="menu-preview" aria-labelledby="menu-heading">
-    <div class="container">
-      <div class="section-header">
+  <!-- ========== CATEGORY SCROLL STRIP ========== -->
+  <section class="cat-strip">
+    <div class="cat-strip__header">
+      <div>
         <span class="section-label">Our Specialities</span>
-        <span class="gold-line"></span>
-        <h2 class="section-title" id="menu-heading">Crafted for Every Craving</h2>
-        <p class="section-subtitle" style="margin-top:12px">From grand celebration cakes to everyday indulgences — every product is baked fresh with premium ingredients.</p>
+        <h2 class="cat-strip__title">Baked Fresh. <em>Every Day.</em></h2>
+        <p class="cat-strip__sub">Eggless. Made to order. Delivered across Hyderabad.</p>
       </div>
-      <div class="menu-grid">
-        <div class="menu-card fade-up">
-          <span class="menu-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></span>
-          <h3 class="menu-card__title">Customized Cakes</h3>
-          <p class="menu-card__desc">Bespoke cakes for every occasion — weddings, anniversaries, baby showers, corporate events &amp; more. Sculpted to your vision.</p>
-          <span class="menu-card__pill">Made to Order</span>
+      <a href="menu" class="cat-strip__viewall">View Full Menu →</a>
+    </div>
+    <div class="cat-strip__scroll" id="catScroll">
+      <a href="menu#birthday-cakes" class="cat-item">
+        <div class="cat-item__img-wrap">
+          <img src="assets/images/cat-birthday.jpg" alt="Birthday Cakes" onerror="this.style.display='none'">
+          <div class="cat-item__placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/></svg></div>
         </div>
-        <div class="menu-card fade-up">
-          <span class="menu-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg></span>
-          <h3 class="menu-card__title">Birthday Cakes</h3>
-          <p class="menu-card__desc">From classic sponge to elaborate theme cakes — we turn every birthday into a moment worth remembering.</p>
-          <span class="menu-card__pill">Bestseller</span>
+        <span class="cat-item__name">Birthday Cakes</span>
+      </a>
+      <a href="menu#wedding-cakes" class="cat-item">
+        <div class="cat-item__img-wrap">
+          <img src="assets/images/cat-wedding.jpg" alt="Wedding Cakes" onerror="this.style.display='none'">
+          <div class="cat-item__placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
         </div>
-        <div class="menu-card fade-up">
-          <span class="menu-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/></svg></span>
-          <h3 class="menu-card__title">Biscuits & Cookies</h3>
-          <p class="menu-card__desc">Traditional Iyengar-style biscuits alongside modern favourites — buttery, crisp, and impossible to eat just one.</p>
-          <span class="menu-card__pill">Heritage Recipe</span>
+        <span class="cat-item__name">Wedding Cakes</span>
+      </a>
+      <a href="menu#customized-cakes" class="cat-item">
+        <div class="cat-item__img-wrap">
+          <img src="assets/images/cat-custom.jpg" alt="Customized Cakes" onerror="this.style.display='none'">
+          <div class="cat-item__placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div>
         </div>
-        <div class="menu-card fade-up">
-          <span class="menu-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></span>
-          <h3 class="menu-card__title">Cheesecakes</h3>
-          <p class="menu-card__desc">New York-style baked cheesecakes with irresistible seasonal flavours — blueberry, mango, Oreo &amp; more.</p>
-          <span class="menu-card__pill">New Arrivals</span>
+        <span class="cat-item__name">Customized Cakes</span>
+      </a>
+      <a href="menu#engagement-cakes" class="cat-item">
+        <div class="cat-item__img-wrap">
+          <img src="assets/images/cat-engagement.jpg" alt="Engagement Cakes" onerror="this.style.display='none'">
+          <div class="cat-item__placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg></div>
         </div>
-        <div class="menu-card fade-up">
-          <span class="menu-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></span>
-          <h3 class="menu-card__title">Donuts</h3>
-          <p class="menu-card__desc">Pillowy-soft, freshly glazed donuts in classic and creative flavours. A little joy in every ring.</p>
-          <span class="menu-card__pill">Daily Fresh</span>
+        <span class="cat-item__name">Engagement Cakes</span>
+      </a>
+      <a href="menu#birthday-theme-cakes" class="cat-item">
+        <div class="cat-item__img-wrap">
+          <img src="assets/images/cat-theme.jpg" alt="Theme Cakes" onerror="this.style.display='none'">
+          <div class="cat-item__placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
         </div>
-      </div>
-      <div style="text-align:center">
-        <a href="menu" class="btn btn-gold">View Full Menu →</a>
-      </div>
+        <span class="cat-item__name">Theme Cakes</span>
+      </a>
+      <a href="menu#baby-shower-cakes" class="cat-item">
+        <div class="cat-item__img-wrap">
+          <img src="assets/images/cat-babyshower.jpg" alt="Baby Shower Cakes" onerror="this.style.display='none'">
+          <div class="cat-item__placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a5 5 0 0 1 5 5c0 5-5 11-5 11S7 12 7 7a5 5 0 0 1 5-5z"/></svg></div>
+        </div>
+        <span class="cat-item__name">Baby Shower Cakes</span>
+      </a>
+      <a href="menu#cheesecakes" class="cat-item">
+        <div class="cat-item__img-wrap">
+          <img src="assets/images/cat-cheesecake.jpg" alt="Cheesecakes" onerror="this.style.display='none'">
+          <div class="cat-item__placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div>
+        </div>
+        <span class="cat-item__name">Cheesecakes</span>
+      </a>
     </div>
   </section>
 
