@@ -865,7 +865,7 @@ h1, h2, h3, h4 {
 /* Brand column */
 .footer__brand {}
 .footer__logo-row {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 0px;
   margin-bottom: 14px;
 }
 .footer__brand-name {
