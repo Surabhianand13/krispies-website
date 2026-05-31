@@ -114,10 +114,6 @@ h1, h2, h3, h4 {
 .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(168,72,56,0.35); }
 .btn-outline { background: transparent; color: var(--gold); border: 1.5px solid var(--gold); }
 .btn-outline:hover { background: var(--gold-faint); transform: translateY(-2px); }
-.btn-zomato { background: #CB202D; color: #fff; }
-.btn-zomato:hover { background: #a5141f; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(203,32,45,0.35); }
-.btn-swiggy { background: #FC8019; color: #fff; }
-.btn-swiggy:hover { background: #e06b0a; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(252,128,25,0.35); }
 .btn-dark { background: var(--black); color: var(--gold); border: 1.5px solid var(--border-gold); }
 .btn-dark:hover { border-color: var(--gold); background: var(--gold-faint); }
 /* Outline button for use on light (cream) backgrounds */

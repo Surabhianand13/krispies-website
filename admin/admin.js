@@ -189,7 +189,7 @@ const OUTLET_LABELS = {
   'ramantapur': 'Ramantapur', 'tukkuguda': 'Tukkuguda', 'any': 'Any / Delivery',
 };
 const PLATFORM_LABELS = {
-  'zomato': 'Zomato', 'swiggy': 'Swiggy', 'phone': 'Phone',
+  'phone': 'Phone',
   'walk-in': 'Walk-in', 'bulk': 'Bulk / Corporate', 'website': 'Website',
 };
 

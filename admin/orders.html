@@ -62,8 +62,6 @@
         </select>
         <select class="filter-select" id="platformFilter">
           <option value="">All Platforms</option>
-          <option value="zomato">Zomato</option>
-          <option value="swiggy">Swiggy</option>
           <option value="phone">Phone</option>
           <option value="walk-in">Walk-in</option>
           <option value="bulk">Bulk / Corporate</option>
@@ -337,8 +335,6 @@
         <div class="form-group">
           <label>Platform</label>
           <select id="f_platform" class="form-control">
-            <option value="zomato"  ${o.platform==='zomato' ?'selected':''}>Zomato</option>
-            <option value="swiggy"  ${o.platform==='swiggy' ?'selected':''}>Swiggy</option>
             <option value="phone"   ${o.platform==='phone'  ?'selected':''}>Phone</option>
             <option value="walk-in" ${o.platform==='walk-in'?'selected':''}>Walk-in</option>
             <option value="bulk"    ${o.platform==='bulk'   ?'selected':''}>Bulk / Corporate</option>
