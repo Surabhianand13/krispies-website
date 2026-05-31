@@ -840,12 +840,15 @@ h1, h2, h3, h4 {
   display: flex; align-items: flex-end; justify-content: center;
 }
 .pre-footer__hero-img {
-  width: 420px; max-width: 42vw;
+  width: 560px; max-width: 48vw;
   height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(168,72,56,0.20));
-  animation: cakeFloat 4s ease-in-out infinite;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(168,72,56,0.22), 0 4px 16px rgba(0,0,0,0.10);
+  transform: rotate(2deg);
+  transition: transform 0.4s ease;
 }
+.pre-footer__hero-img:hover { transform: rotate(0deg) scale(1.02); }
 .pre-footer__cake {
   width: 90px; height: 90px; border-radius: 50%;
   background: rgba(168,72,56,0.10);
