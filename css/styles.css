@@ -65,22 +65,30 @@ h1, h2, h3, h4 {
 .container { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
 
 .section-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 400;
   color: var(--gold);
-  font-family: var(--font-body);
-  font-weight: 500;
-  display: block;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin-bottom: 4px;
 }
-.gold-line {
+.section-label::before,
+.section-label::after {
+  content: '';
   display: block;
-  width: 48px;
-  height: 1.5px;
+  width: 32px;
+  height: 1px;
   background: var(--gold);
-  margin: 14px auto;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
-.gold-line--left { margin-left: 0; }
+.gold-line { display: none; }
+.gold-line--left { display: none; }
 .section-title {
   font-size: clamp(2rem, 4vw, 3rem);
   color: var(--text-on-dark);
@@ -595,6 +603,8 @@ h1, h2, h3, h4 {
 }
 .story-snap__content { padding: 8px 0; }
 .story-snap__content .section-label { color: var(--gold-dark); }
+.story-snap__content .section-label::before { display: none; }
+.menu-cat-header .section-label::before { display: none; }
 .story-snap__content .gold-line { margin: 12px 0; }
 .story-snap__title {
   font-size: clamp(1.8rem, 3vw, 2.8rem);
