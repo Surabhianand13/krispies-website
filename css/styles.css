@@ -864,9 +864,19 @@ h1, h2, h3, h4 {
 
 /* Brand column */
 .footer__brand {}
+.footer__logo-row {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 14px;
+}
+.footer__brand-name {
+  font-family: var(--font-display);
+  font-size: 1.9rem; font-weight: 700;
+  color: #FFFFFF; line-height: 1;
+  letter-spacing: -0.01em;
+}
 /* White logo — uses logo-white.svg if present, falls back to filtered color logo */
 .footer__logo {
-  height: 80px; width: auto; margin-bottom: 14px; display: block;
+  height: 80px; width: auto; margin-bottom: 0; display: block;
   filter: brightness(0) invert(1);
 }
 .footer__tagline {
