@@ -836,8 +836,15 @@ h1, h2, h3, h4 {
 }
 .pre-footer__btn:hover { background: #7A3020; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(168,72,56,0.45); }
 .pre-footer__art {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   flex-shrink: 0;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.pre-footer__hero-img {
+  width: 420px; max-width: 42vw;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(168,72,56,0.20));
+  animation: cakeFloat 4s ease-in-out infinite;
 }
 .pre-footer__cake {
   width: 90px; height: 90px; border-radius: 50%;
