@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Manager — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/logo.svg" type="image/png">
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .img-manager { padding: 28px 32px; }
+    .img-manager__header { margin-bottom: 28px; }
+    .img-manager__header h1 { font-size: 1.5rem; font-weight: 700; color: var(--text-on-dark); margin-bottom: 4px; }
+    .img-manager__header p { color: var(--muted); font-size: 0.875rem; }
+
+    .img-filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+    .img-filter-btn {
+      padding: 6px 16px; border-radius: 50px; border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .img-filter-btn.active, .img-filter-btn:hover { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+    .img-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .img-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .img-card:hover { border-color: var(--gold); box-shadow: 0 4px 20px rgba(168,72,56,0.15); }
+    .img-card.has-image { border-color: rgba(46,160,67,0.4); }
+    .img-card.no-image { border-color: rgba(255,100,80,0.35); }
+
+    .img-card__thumb {
+      width: 100%; aspect-ratio: 1/1;
+      background: var(--bg-2);
+      position: relative; overflow: hidden;
+      cursor: pointer;
+    }
+    .img-card__thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform 0.3s;
+    }
+    .img-card:hover .img-card__thumb img { transform: scale(1.05); }
+    .img-card__thumb-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; color: var(--muted);
+    }
+    .img-card__thumb-placeholder svg { width: 40px; height: 40px; opacity: 0.4; }
+    .img-card__thumb-placeholder span { font-size: 0.72rem; }
+
+    .img-card__overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .img-card__thumb:hover .img-card__overlay { opacity: 1; }
+    .img-card__overlay-btn {
+      background: var(--gold); color: #fff; border: none; border-radius: 8px;
+      padding: 8px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    }
+
+    .img-card__body { padding: 12px 14px; }
+    .img-card__name { font-size: 0.82rem; font-weight: 600; color: var(--text-on-dark); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .img-card__meta { display: flex; align-items: center; justify-content: space-between; }
+    .img-card__cat { font-size: 0.68rem; color: var(--muted); }
+    .img-card__status { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 50px; }
+    .img-card__status.ok { background: rgba(46,160,67,0.15); color: #2ea043; }
+    .img-card__status.missing { background: rgba(255,80,60,0.12); color: #e05050; }
+
+    /* Edit modal */
+    .img-edit-modal {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.7); align-items: center; justify-content: center;
+    }
+    .img-edit-modal.open { display: flex; }
+    .img-edit-box {
+      background: var(--card-bg); border-radius: 16px; padding: 28px;
+      width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+    }
+    .img-edit-box h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-on-dark); margin-bottom: 4px; }
+    .img-edit-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+    .img-edit-preview {
+      width: 100%; aspect-ratio: 1/1; border-radius: 10px; overflow: hidden;
+      background: var(--bg-2); margin-bottom: 16px;
+    }
+    .img-edit-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .img-edit-url { width: 100%; margin-bottom: 10px; }
+    .img-edit-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: 10px; padding: 20px;
+      text-align: center; color: var(--muted); font-size: 0.82rem;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 12px;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--gold); background: rgba(168,72,56,0.06); color: var(--gold); }
+    .drop-zone input { display: none; }
+
+    .save-banner {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9000;
+      background: #2ea043; color: #fff; padding: 12px 20px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 600; display: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .save-banner.show { display: block; }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img src="../assets/logo.svg" alt="Krispie's" class="sidebar__logo">
+      <div class="sidebar__brand-text">
+        <span class="sidebar__brand-name">Krispie's</span>
+        <span class="sidebar__brand-sub">Admin Panel</span>
+      </div>
+    </div>
+    <nav class="sidebar__nav">
+      <span class="sidebar__nav-section">Main</span>
+      <a href="dashboard" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Dashboard</a>
+      <a href="products"  class="sidebar__link"><span class="sidebar__link-icon">🎂</span> Products</a>
+      <a href="images"    class="sidebar__link active"><span class="sidebar__link-icon">🖼</span> Image Manager</a>
+      <a href="enquiries" class="sidebar__link"><span class="sidebar__link-icon">📋</span> Enquiries</a>
+      <a href="orders"    class="sidebar__link"><span class="sidebar__link-icon">📦</span> Orders</a>
+      <div class="sidebar__divider"></div>
+      <a href="../index" target="_blank" class="sidebar__link"><span class="sidebar__link-icon">🌐</span> View Website ↗</a>
+      <a href="#" onclick="adminLogout()" class="sidebar__link sidebar__link--logout"><span class="sidebar__link-icon">🚪</span> Logout</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <div class="img-manager">
+
+      <div class="img-manager__header">
+        <h1>Image Manager</h1>
+        <p>Update product images by flavour/category. Click any card to change its image.</p>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="img-filter-bar" id="filterBar">
+        <button class="img-filter-btn active" data-cat="all">All Products</button>
+        <button class="img-filter-btn" data-cat="birthday-cakes">Birthday Cakes</button>
+        <button class="img-filter-btn" data-cat="wedding-cakes">Wedding Cakes</button>
+        <button class="img-filter-btn" data-cat="engagement-cakes">Engagement Cakes</button>
+        <button class="img-filter-btn" data-cat="birthday-theme-cakes">Theme Cakes</button>
+        <button class="img-filter-btn" data-cat="baby-shower-cakes">Baby Shower</button>
+        <button class="img-filter-btn" data-cat="missing">Missing Images</button>
+      </div>
+
+      <!-- Stats -->
+      <div style="margin-bottom:20px;font-size:0.82rem;color:var(--muted)">
+        <span id="statsText"></span>
+      </div>
+
+      <!-- Image grid -->
+      <div class="img-grid" id="imgGrid"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Edit Modal -->
+<div class="img-edit-modal" id="editModal">
+  <div class="img-edit-box">
+    <h3 id="modalTitle">Update Image</h3>
+    <p id="modalSub"></p>
+    <div class="img-edit-preview">
+      <img id="modalPreview" src="" alt="Preview" onerror="this.style.display='none'">
+    </div>
+
+    <!-- Drop zone / file upload -->
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:6px;display:block;margin:0 auto 6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Click to upload or drag & drop image
+      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" onchange="handleFileUpload(this)">
+    </div>
+
+    <div style="text-align:center;color:var(--muted);font-size:0.75rem;margin:8px 0">— or paste an image URL —</div>
+
+    <input type="url" class="form-control img-edit-url" id="modalUrlInput"
+      placeholder="https://... or assets/images/my-cake.jpg"
+      oninput="previewUrl(this.value)">
+
+    <div class="img-edit-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveImage()">Save Image</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save banner -->
+<div class="save-banner" id="saveBanner">Image saved successfully!</div>
+
+<script src="admin.js"></script>
+<script>
+  requireAuth();
+
+  const PROD_KEY = 'krispies_products';
+  let allProducts = [];
+  let currentProductId = null;
+  let activeCat = 'all';
+
+  const CATEGORY_LABELS = {
+    'birthday-cakes': 'Birthday Cakes',
+    'wedding-cakes': 'Wedding Cakes',
+    'engagement-cakes': 'Engagement Cakes',
+    'birthday-theme-cakes': 'Theme Cakes',
+    'baby-shower-cakes': 'Baby Shower Cakes',
+  };
+
+  function slugify(s) {
+    return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/, '');
+  }
+
+  function getDefaultImagePath(p) {
+    return `../assets/images/${slugify(p.name)}.jpg`;
+  }
+
+  function getFirstImage(p) {
+    const imgs = (p.images || []).filter(Boolean);
+    if (imgs.length) return imgs[0];
+    return getDefaultImagePath(p);
+  }
+
+  function loadProducts() {
+    try { allProducts = JSON.parse(localStorage.getItem(PROD_KEY)) || []; }
+    catch(e) { allProducts = []; }
+  }
+
+  function saveProducts() {
+    localStorage.setItem(PROD_KEY, JSON.stringify(allProducts));
+  }
+
+  function render(cat) {
+    activeCat = cat;
+    let products = allProducts;
+    if (cat === 'missing') {
+      products = allProducts.filter(p => !(p.images||[]).filter(Boolean).length);
+    } else if (cat !== 'all') {
+      products = allProducts.filter(p => p.category === cat);
+    }
+
+    const withImg = allProducts.filter(p => (p.images||[]).filter(Boolean).length > 0).length;
+    document.getElementById('statsText').textContent =
+      `${withImg} of ${allProducts.length} products have images — showing ${products.length}`;
+
+    document.getElementById('imgGrid').innerHTML = products.map(p => {
+      const img = getFirstImage(p);
+      const hasImg = (p.images||[]).filter(Boolean).length > 0;
+      return `
+        <div class="img-card ${hasImg ? 'has-image' : 'no-image'}" data-id="${p.id}">
+          <div class="img-card__thumb" onclick="openModal('${p.id}')">
+            <img src="${img}" alt="${p.name}" onerror="this.style.opacity='0'">
+            <div class="img-card__thumb-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>No image yet</span>
+            </div>
+            <div class="img-card__overlay">
+              <button class="img-card__overlay-btn">Change Image</button>
+            </div>
+          </div>
+          <div class="img-card__body">
+            <div class="img-card__name" title="${p.name}">${p.name}</div>
+            <div class="img-card__meta">
+              <span class="img-card__cat">${CATEGORY_LABELS[p.category] || p.category}</span>
+              <span class="img-card__status ${hasImg ? 'ok' : 'missing'}">${hasImg ? 'Has Image' : 'Missing'}</span>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function openModal(id) {
+    const p = allProducts.find(x => x.id === id);
+    if (!p) return;
+    currentProductId = id;
+    document.getElementById('modalTitle').textContent = p.name;
+    document.getElementById('modalSub').textContent = `${CATEGORY_LABELS[p.category] || p.category} · Update the product image below`;
+    const currentImg = getFirstImage(p);
+    const preview = document.getElementById('modalPreview');
+    preview.src = currentImg;
+    preview.style.display = 'block';
+    document.getElementById('modalUrlInput').value = (p.images||[])[0] || '';
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('editModal').classList.remove('open');
+    currentProductId = null;
+  }
+
+  function previewUrl(url) {
+    const preview = document.getElementById('modalPreview');
+    if (url) {
+      preview.src = url;
+      preview.style.display = 'block';
+    }
+  }
+
+  async function handleFileUpload(input) {
+    if (!input.files[0]) return;
+    const file = input.files[0];
+    // Convert to base64 data URL for local preview
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      document.getElementById('modalPreview').src = dataUrl;
+      document.getElementById('modalPreview').style.display = 'block';
+      document.getElementById('modalUrlInput').value = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveImage() {
+    const p = allProducts.find(x => x.id === currentProductId);
+    if (!p) return;
+    const url = document.getElementById('modalUrlInput').value.trim();
+    if (!url) { alert('Please enter an image URL or upload a file'); return; }
+    p.images = [url];
+    p.updatedAt = new Date().toISOString();
+    saveProducts();
+    closeModal();
+    render(activeCat);
+    const banner = document.getElementById('saveBanner');
+    banner.classList.add('show');
+    setTimeout(() => banner.classList.remove('show'), 2500);
+  }
+
+  // Filter buttons
+  document.getElementById('filterBar').addEventListener('click', e => {
+    const btn = e.target.closest('.img-filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.img-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render(btn.dataset.cat);
+  });
+
+  // Drag & drop
+  const dropZone = document.getElementById('dropZone');
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.getElementById('modalPreview').src = ev.target.result;
+        document.getElementById('modalPreview').style.display = 'block';
+        document.getElementById('modalUrlInput').value = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Close modal on backdrop click
+  document.getElementById('editModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('editModal')) closeModal();
+  });
+
+  // Init
+  loadProducts();
+  render('all');
+</script>
+</body>
+</html>
