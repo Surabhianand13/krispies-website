@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=10">
+  <link rel="stylesheet" href="css/styles.css?v=11">
   <style>
     /* ── Inline overrides — bypass CDN cache, define final card design ── */
     .pcard-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 24px !important; }
@@ -629,42 +629,37 @@
         ${discount > 0 ? `<span class="pcard__discount">${discount}% OFF</span>` : ''}
       </div>` : `<p class="pcard__price-note">Price on request</p>`;
 
-    const discountBadge = discount > 0
-      ? `<span style="background:#1a7a3c;color:#fff;padding:3px 8px;border-radius:5px;font-size:0.65rem;font-weight:700;letter-spacing:0.04em;">${discount}% OFF</span>` : '';
-    const mrpSpan = discount > 0
-      ? `<span style="font-size:0.82rem;color:#aaa;text-decoration:line-through;font-weight:400;">₹${mrp.toLocaleString('en-IN')}</span>` : '';
+    /* ── Tag badge colours ── */
+    const tagColours = { bestseller:'#A84838', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
+    const tagBadgeHtml = p.tag
+      ? `<span style="display:inline-block;background:${tagColours[p.tag]||'#A84838'};color:#fff;padding:3px 10px;border-radius:20px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">${TAG_LABELS[p.tag]||p.tag}</span>`
+      : '';
+
+    /* ── Veg badge ── */
+    const vegHtml = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;color:#1a8a3c;font-weight:600;margin-bottom:8px;"><span style="display:inline-block;width:14px;height:14px;border:2px solid #1a8a3c;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;"><span style="width:7px;height:7px;background:#1a8a3c;border-radius:50%;display:block;"></span></span> Pure Veg</span>`;
+
+    /* ── Pricing ── */
     const priceBlock = mrp ? `
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-        ${mrpSpan}
-        <span style="font-size:1.25rem;font-weight:800;color:#1a1a1a;">₹${final.toLocaleString('en-IN')}</span>
-        ${discountBadge}
-      </div>` : `<p style="font-size:0.82rem;color:#999;font-style:italic;margin-bottom:14px;">Price on request</p>`;
-
-    const tagBadge = p.tag ? (() => {
-      const colours = { bestseller:'#A84838', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
-      const bg = colours[p.tag] || '#A84838';
-      return `<div style="position:absolute;top:12px;left:12px;z-index:10;background:${bg};color:#fff;padding:4px 10px;border-radius:6px;font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;box-shadow:0 2px 6px rgba(0,0,0,.15);">${TAG_LABELS[p.tag] || p.tag}</div>`;
-    })() : '';
-
-    const vegBadgeHtml = `<div style="position:absolute;top:12px;right:12px;z-index:10;width:24px;height:24px;background:#fff;border:2px solid #1a8a3c;border-radius:4px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);" title="Pure Vegetarian"><span style="width:10px;height:10px;background:#1a8a3c;border-radius:50%;display:block;"></span></div>`;
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 14px;">
+        <span style="font-size:1.3rem;font-weight:800;color:#1a1a1a;">₹${final.toLocaleString('en-IN')}</span>
+        ${discount > 0 ? `<span style="font-size:0.82rem;color:#aaa;text-decoration:line-through;">₹${mrp.toLocaleString('en-IN')}</span>` : ''}
+        ${discount > 0 ? `<span style="background:#1a7a3c;color:#fff;padding:3px 8px;border-radius:4px;font-size:0.63rem;font-weight:700;">${discount}% OFF</span>` : ''}
+      </div>`
+      : `<p style="font-size:0.82rem;color:#999;font-style:italic;margin:10px 0 14px;">Price on request</p>`;
 
     return `
-      <div class="pcard" style="display:block;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06);transition:transform .25s,box-shadow .25s;cursor:pointer;">
-        <div class="pcard__gallery" style="display:block;width:100%;height:260px;overflow:hidden;position:relative;background:#f5f0ee;">
-          <div class="pcard__gal-track" style="display:flex;width:100%;height:100%;transition:transform .38s cubic-bezier(.4,0,.2,1);">${gallerySlides}</div>
-          ${controls}
-          ${tagBadge}
-          ${vegBadgeHtml}
+      <div style="background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.06);padding:20px;display:flex;flex-direction:column;gap:0;transition:transform .2s,box-shadow .2s;" onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 30px rgba(0,0,0,0.13)';" onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 16px rgba(0,0,0,0.08)';">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div>${tagBadgeHtml}</div>
+          <div>${vegHtml}</div>
         </div>
-        <div class="pcard__body" style="display:block;width:100%;padding:14px 16px 18px;">
-          <h3 class="pcard__name" style="font-size:0.97rem;font-weight:700;color:#1a1a1a;line-height:1.3;margin-bottom:6px;">${esc(p.name)}</h3>
-          <p class="pcard__desc" style="font-size:0.78rem;color:#777;line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(p.description)}</p>
-          ${priceBlock}
-          ${mrp > 0
-            ? `<button class="pcard__btn" onclick="addToCart('${p.id}')" style="display:block;width:100%;padding:12px 16px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;">🛒 Add to Cart</button>`
-            : `<a href="contact" class="pcard__btn" style="display:block;width:100%;padding:12px 16px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;text-decoration:none;">Get a Quote →</a>`
-          }
-        </div>
+        <h3 style="font-size:1rem;font-weight:700;color:#1a1a1a;line-height:1.3;margin-bottom:6px;">${esc(p.name)}</h3>
+        <p style="font-size:0.78rem;color:#777;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(p.description)}</p>
+        ${priceBlock}
+        ${mrp > 0
+          ? `<button onclick="addToCart('${p.id}')" style="width:100%;padding:12px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;">🛒 ADD TO CART</button>`
+          : `<a href="contact" style="display:block;width:100%;padding:12px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;text-decoration:none;box-sizing:border-box;">GET A QUOTE →</a>`
+        }
       </div>`;
   }
 
