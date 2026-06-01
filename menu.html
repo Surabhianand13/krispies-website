@@ -9,37 +9,40 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=8">
+  <link rel="stylesheet" href="css/styles.css?v=9">
   <style>
-    /* Critical overrides — inline to bypass CDN cache */
-    .pcard-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; }
-    /* Force vertical card: block layout stacks children naturally, nothing can make it horizontal */
-    .pcard { display: block !important; overflow: hidden !important; border-radius: 14px !important; }
-    .pcard__gallery { display: block !important; width: 100% !important; height: 220px !important; overflow: hidden !important; position: relative !important; }
+    /* ── Inline overrides — bypass CDN cache, define final card design ── */
+    .pcard-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 24px !important; }
+
+    /* Card: block layout — image stacks naturally on top of body */
+    .pcard { display: block !important; background: #ffffff !important; border-radius: 16px !important; overflow: hidden !important; box-shadow: 0 2px 12px rgba(0,0,0,0.07) !important; border: 1px solid rgba(0,0,0,0.06) !important; }
+    .pcard:hover { transform: translateY(-6px) !important; box-shadow: 0 12px 32px rgba(0,0,0,0.13) !important; }
+
+    /* Gallery — full-width image, 260px tall */
+    .pcard__gallery { display: block !important; width: 100% !important; height: 260px !important; overflow: hidden !important; position: relative !important; background: #f5f0ee !important; }
     .pcard__gal-track { display: flex !important; width: 100% !important; height: 100% !important; }
     .pcard__gal-slide { flex: 0 0 100% !important; width: 100% !important; height: 100% !important; }
     .pcard__gal-slide img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
-    .pcard__body { display: flex !important; flex-direction: column !important; width: 100% !important; padding: 16px !important; gap: 8px !important; }
-    /* Badges — always visible, never hover-dependent */
-    .pcard__tag-badge {
-      position: absolute !important; top: 12px !important; left: 12px !important; z-index: 10 !important;
-      opacity: 1 !important; visibility: visible !important; pointer-events: none !important;
-      padding: 4px 12px !important; border-radius: 50px !important;
-      font-size: 0.65rem !important; letter-spacing: 0.08em !important;
-      text-transform: uppercase !important; font-weight: 700 !important;
-    }
-    .pcard__tag-badge.bestseller { background: #C9A870 !important; color: #0A0A0A !important; }
-    .pcard__tag-badge.new        { background: #1e7e45 !important; color: #fff !important; }
-    .pcard__tag-badge.seasonal   { background: #2d6b8a !important; color: #fff !important; }
-    .pcard__tag-badge.custom     { background: #C9A870 !important; color: #fff !important; }
-    .pcard__veg-badge {
-      position: absolute !important; top: 12px !important; right: 12px !important; z-index: 10 !important;
-      opacity: 1 !important; visibility: visible !important; display: flex !important;
-      width: 24px !important; height: 24px !important;
-      background: #fff !important; border: 2px solid #1a8a3c !important; border-radius: 4px !important;
-      align-items: center !important; justify-content: center !important; pointer-events: none !important;
-    }
-    .pcard__veg-badge span { width: 11px !important; height: 11px !important; background: #1a8a3c !important; border-radius: 50% !important; display: block !important; }
+
+    /* Body — below image */
+    .pcard__body { display: block !important; width: 100% !important; padding: 14px 16px 18px !important; }
+    .pcard__name { font-size: 0.97rem !important; font-weight: 700 !important; color: #1a1a1a !important; margin-bottom: 4px !important; line-height: 1.3 !important; }
+    .pcard__desc { font-size: 0.78rem !important; color: #777 !important; margin-bottom: 10px !important; overflow: hidden !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; }
+    .pcard__pricing { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; margin-bottom: 12px !important; }
+    .pcard__price { font-size: 1.2rem !important; font-weight: 800 !important; color: #1a1a1a !important; }
+    .pcard__mrp { font-size: 0.82rem !important; color: #aaa !important; text-decoration: line-through !important; }
+    .pcard__discount { background: #1a7a3c !important; color: #fff !important; padding: 3px 8px !important; border-radius: 5px !important; font-size: 0.65rem !important; font-weight: 700 !important; }
+    .pcard__btn { display: block !important; width: 100% !important; text-align: center !important; padding: 11px 16px !important; border-radius: 10px !important; background: #A84838 !important; color: #fff !important; font-weight: 700 !important; font-size: 0.8rem !important; letter-spacing: 0.08em !important; border: none !important; cursor: pointer !important; }
+
+    /* Badges — always visible */
+    .pcard__tag-badge { position: absolute !important; top: 12px !important; left: 12px !important; z-index: 10 !important; opacity: 1 !important; visibility: visible !important; pointer-events: none !important; padding: 4px 10px !important; border-radius: 6px !important; font-size: 0.62rem !important; font-weight: 700 !important; text-transform: uppercase !important; box-shadow: 0 2px 6px rgba(0,0,0,0.12) !important; }
+    .pcard__tag-badge.bestseller { background: #A84838 !important; color: #fff !important; }
+    .pcard__tag-badge.new        { background: #1a7a3c !important; color: #fff !important; }
+    .pcard__tag-badge.seasonal   { background: #1e5f85 !important; color: #fff !important; }
+    .pcard__tag-badge.custom     { background: #7b3f9e !important; color: #fff !important; }
+    .pcard__veg-badge { position: absolute !important; top: 12px !important; right: 12px !important; z-index: 10 !important; width: 24px !important; height: 24px !important; background: #fff !important; border: 2px solid #1a8a3c !important; border-radius: 4px !important; display: flex !important; align-items: center !important; justify-content: center !important; opacity: 1 !important; visibility: visible !important; pointer-events: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.10) !important; }
+    .pcard__veg-badge span { width: 10px !important; height: 10px !important; background: #1a8a3c !important; border-radius: 50% !important; display: block !important; }
+
     @media (max-width: 1200px) { .pcard-grid { grid-template-columns: repeat(3, 1fr) !important; } }
     @media (max-width: 768px)  { .pcard-grid { grid-template-columns: repeat(2, 1fr) !important; } }
     @media (max-width: 480px)  { .pcard-grid { grid-template-columns: 1fr !important; } }
