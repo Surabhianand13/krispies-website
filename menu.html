@@ -501,7 +501,12 @@
   }
 
   /* Seed defaults if localStorage is empty (mirrors admin.js) */
+  const DATA_VERSION = 'v3'; // bump to force refresh when images/products change
   function ensureDefaults() {
+    if (localStorage.getItem('krispies_data_ver') !== DATA_VERSION) {
+      localStorage.removeItem(PROD_KEY);
+      localStorage.setItem('krispies_data_ver', DATA_VERSION);
+    }
     const stored = getProducts();
     const oldCats = ['customized-cakes','cheesecakes','donuts'];
     const hasOld = stored.some(p => oldCats.includes(p.category));
