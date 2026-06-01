@@ -10,6 +10,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css?v=5">
+  <style>
+    /* Critical overrides — inline to bypass CDN cache */
+    .pcard-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; }
+    .pcard { display: flex !important; flex-direction: column !important; overflow: hidden !important; border-radius: 14px !important; }
+    .pcard__gallery { width: 100% !important; height: 220px !important; flex-shrink: 0 !important; overflow: hidden !important; position: relative !important; }
+    .pcard__gal-track { display: flex !important; height: 100% !important; }
+    .pcard__gal-slide { flex: 0 0 100% !important; height: 100% !important; }
+    .pcard__gal-slide img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
+    .pcard__body { display: flex !important; flex-direction: column !important; padding: 16px !important; flex: 1 !important; }
+    .pcard__tag-badge { position: absolute !important; top: 12px !important; left: 12px !important; z-index: 10 !important; opacity: 1 !important; visibility: visible !important; }
+    .pcard__veg-badge { position: absolute !important; top: 12px !important; right: 12px !important; z-index: 10 !important; opacity: 1 !important; visibility: visible !important; display: flex !important; }
+    @media (max-width: 1200px) { .pcard-grid { grid-template-columns: repeat(3, 1fr) !important; } }
+    @media (max-width: 768px)  { .pcard-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+    @media (max-width: 480px)  { .pcard-grid { grid-template-columns: 1fr !important; } }
+  </style>
 </head>
 <body>
 
