@@ -9,16 +9,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=6">
+  <link rel="stylesheet" href="css/styles.css?v=7">
   <style>
     /* Critical overrides — inline to bypass CDN cache */
     .pcard-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; }
-    .pcard { display: flex !important; flex-direction: column !important; overflow: hidden !important; border-radius: 14px !important; background: #1A1A1A !important; border: 1px solid rgba(201,168,112,0.28) !important; }
-    .pcard__gallery { width: 100% !important; height: 220px !important; flex-shrink: 0 !important; overflow: hidden !important; position: relative !important; display: block !important; }
+    /* Force vertical card layout using grid — immune to any flex-direction override */
+    .pcard { display: grid !important; grid-template-columns: 100% !important; grid-template-rows: 220px auto !important; overflow: hidden !important; border-radius: 14px !important; }
+    .pcard__gallery { grid-column: 1 !important; grid-row: 1 !important; width: 100% !important; height: 220px !important; overflow: hidden !important; position: relative !important; }
     .pcard__gal-track { display: flex !important; height: 100% !important; }
     .pcard__gal-slide { flex: 0 0 100% !important; height: 100% !important; }
     .pcard__gal-slide img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
-    .pcard__body { display: flex !important; flex-direction: column !important; padding: 16px !important; flex: 1 !important; }
+    .pcard__body { grid-column: 1 !important; grid-row: 2 !important; display: flex !important; flex-direction: column !important; padding: 16px !important; }
     /* Badges — always visible, never hover-dependent */
     .pcard__tag-badge {
       position: absolute !important; top: 12px !important; left: 12px !important; z-index: 10 !important;
