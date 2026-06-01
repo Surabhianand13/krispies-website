@@ -597,9 +597,7 @@ h1, h2, h3, h4 {
 }
 .cat-item:hover .cat-item__img-wrap img { transform: scale(1.06); }
 .cat-item__placeholder {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--gold); opacity: 0.5;
+  display: none;
 }
 .cat-item__placeholder svg { width: 44px; height: 44px; }
 .cat-item__name {
@@ -1436,12 +1434,7 @@ h1, h2, h3, h4 {
 .subcat-item__circle img {
   width: 100%; height: 100%; object-fit: cover; display: block;
 }
-.subcat-item__fallback {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--gold); opacity: 0.6;
-}
-.subcat-item__fallback svg { width: 28px; height: 28px; }
+.subcat-item__fallback { display: none; }
 .subcat-item span {
   font-size: 0.75rem; font-weight: 500;
   color: var(--text-muted); text-align: center;
