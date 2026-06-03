@@ -333,31 +333,27 @@ h1, h2, h3, h4 {
   background-position: center;
   transition: transform 0.7s ease;
 }
+/* Slide backgrounds — matched to each hero image tone */
 .hero__slide--1 .hero__slide-bg {
-  background:
-    linear-gradient(135deg, #FDF8F0 0%, #F5E6CC 50%, #E8D5B0 100%);
+  background: linear-gradient(135deg, #FFF0F2 0%, #FFD6DC 55%, #F5B8C0 100%);
 }
 .hero__slide--2 .hero__slide-bg {
-  background:
-    linear-gradient(135deg, #FFF5F0 0%, #FFE4D6 50%, #F5C9A8 100%);
+  background: linear-gradient(135deg, #F8F4FF 0%, #EDE5F5 55%, #DDD0EF 100%);
 }
 .hero__slide--3 .hero__slide-bg {
-  background:
-    linear-gradient(135deg, #F0F5FF 0%, #D6E4FF 50%, #A8C4F5 100%);
+  background: linear-gradient(135deg, #FBF8F5 0%, #F0E8E0 55%, #E4D8CC 100%);
 }
 .hero__slide--4 .hero__slide-bg {
-  background:
-    linear-gradient(135deg, #F5FFF0 0%, #D6F5C0 50%, #A8E090 100%);
+  background: linear-gradient(135deg, #EBF5FF 0%, #C8DFF0 55%, #A5C8E8 100%);
 }
 .hero__slide--5 .hero__slide-bg {
-  background:
-    linear-gradient(135deg, #FFF0F5 0%, #FFD4E8 50%, #F5A8C4 100%);
+  background: linear-gradient(135deg, #FFF8F8 0%, #F5E8EC 55%, #EDD8DE 100%);
 }
 
 /* Overlay to keep text readable */
 .hero__slide-overlay {
   position: absolute; inset: 0;
-  background: rgba(255, 248, 240, 0.35);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Layout: content left, art right */
@@ -425,18 +421,15 @@ h1, h2, h3, h4 {
 /* Emoji art panel (right side) */
 .hero__art {
   flex: 0 0 auto;
-  width: clamp(200px, 30vw, 380px);
-  height: clamp(200px, 30vw, 380px);
+  width: clamp(200px, 30vw, 420px);
+  height: clamp(200px, 30vw, 420px);
   border-radius: 50%;
+  overflow: hidden;
   display: flex; align-items: center; justify-content: center;
-  font-size: clamp(6rem, 13vw, 11rem);
-  background: rgba(255,255,255,0.45);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(168,72,56,0.25);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.14), 0 0 0 6px rgba(255,255,255,0.55);
   line-height: 1;
   user-select: none;
-  /* Replace this div with an <img> tag for real photos */
+  background: #F5EDD8;
 }
 
 /* Navigation arrows */
