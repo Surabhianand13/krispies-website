@@ -210,141 +210,213 @@
   <!-- ========== QUICK CATEGORY NAV ========== -->
   <section class="qcat">
     <div class="qcat__inner">
-      <a href="menu#birthday-cakes" class="qcat__item">
+
+      <!-- 1. Birthday Cakes — Rose Pink -->
+      <a href="menu#birthday-cakes" class="qcat__item" style="--qi-bg:#FFF0F4;--qi-shadow:rgba(232,84,122,0.2);--qi-color:#C94070">
         <div class="qcat__icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="8" y="26" width="32" height="14" rx="4" fill="currentColor" opacity="0.15"/>
-            <rect x="8" y="26" width="32" height="14" rx="4" stroke="currentColor" stroke-width="2"/>
-            <rect x="13" y="18" width="22" height="10" rx="3" fill="currentColor" opacity="0.12"/>
-            <rect x="13" y="18" width="22" height="10" rx="3" stroke="currentColor" stroke-width="2"/>
-            <rect x="10" y="36" width="28" height="4" rx="2" fill="currentColor" opacity="0.2"/>
-            <!-- cream layer -->
-            <rect x="8" y="24" width="32" height="4" rx="2" fill="currentColor" opacity="0.3"/>
-            <rect x="13" y="16" width="22" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
+            <defs><linearGradient id="bc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F48FB1"/><stop offset="100%" stop-color="#E8547A"/></linearGradient>
+            <linearGradient id="bc2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFCDD2"/><stop offset="100%" stop-color="#EF9A9A"/></linearGradient></defs>
+            <!-- bottom layer -->
+            <rect x="7" y="28" width="34" height="13" rx="5" fill="url(#bc1)"/>
+            <rect x="7" y="28" width="34" height="5" rx="3" fill="#F48FB1"/>
+            <!-- top layer -->
+            <rect x="12" y="18" width="24" height="12" rx="4" fill="url(#bc2)"/>
+            <rect x="12" y="18" width="24" height="4" rx="2" fill="#FFCDD2"/>
+            <!-- cream swirls -->
+            <ellipse cx="17" cy="18" rx="3.5" ry="3" fill="white" opacity="0.9"/>
+            <ellipse cx="24" cy="18" rx="3.5" ry="3" fill="white" opacity="0.9"/>
+            <ellipse cx="31" cy="18" rx="3.5" ry="3" fill="white" opacity="0.9"/>
             <!-- candles -->
-            <line x1="19" y1="18" x2="19" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <line x1="24" y1="18" x2="24" y2="9"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <line x1="29" y1="18" x2="29" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <rect x="16" y="10" width="3" height="9" rx="1.5" fill="#CE93D8"/>
+            <rect x="22.5" y="7" width="3" height="12" rx="1.5" fill="#80DEEA"/>
+            <rect x="29" y="10" width="3" height="9" rx="1.5" fill="#FFD54F"/>
             <!-- flames -->
-            <ellipse cx="19" cy="10" rx="2" ry="2.5" fill="currentColor" opacity="0.7"/>
-            <ellipse cx="24" cy="8"  rx="2" ry="2.5" fill="currentColor" opacity="0.7"/>
-            <ellipse cx="29" cy="10" rx="2" ry="2.5" fill="currentColor" opacity="0.7"/>
+            <ellipse cx="17.5" cy="9" rx="2.2" ry="3" fill="#FF9800"/>
+            <ellipse cx="24" cy="6"  rx="2.2" ry="3" fill="#FF9800"/>
+            <ellipse cx="30.5" cy="9" rx="2.2" ry="3" fill="#FF9800"/>
+            <ellipse cx="17.5" cy="8.5" rx="1" ry="1.6" fill="#FFE082"/>
+            <ellipse cx="24"   cy="5.5" rx="1" ry="1.6" fill="#FFE082"/>
+            <ellipse cx="30.5" cy="8.5" rx="1" ry="1.6" fill="#FFE082"/>
+            <!-- sprinkles -->
+            <rect x="14" y="33" width="5" height="2" rx="1" fill="white" opacity="0.7" transform="rotate(-30 14 33)"/>
+            <rect x="23" y="35" width="5" height="2" rx="1" fill="white" opacity="0.7" transform="rotate(20 23 35)"/>
+            <rect x="32" y="32" width="4" height="2" rx="1" fill="white" opacity="0.7" transform="rotate(-15 32 32)"/>
           </svg>
         </div>
         <span>Birthday Cakes</span>
       </a>
-      <a href="menu#wedding-cakes" class="qcat__item">
+
+      <!-- 2. Wedding Cakes — Ivory & Gold -->
+      <a href="menu#wedding-cakes" class="qcat__item" style="--qi-bg:#FFF8E7;--qi-shadow:rgba(201,168,112,0.25);--qi-color:#9A7A48">
         <div class="qcat__icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- 3-tier wedding cake -->
-            <rect x="14" y="34" width="20" height="8" rx="3" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
-            <rect x="10" y="34" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-            <rect x="16" y="24" width="16" height="12" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="2"/>
-            <rect x="12" y="24" width="24" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-            <rect x="18" y="14" width="12" height="12" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="2"/>
-            <rect x="15" y="14" width="18" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-            <!-- topper -->
-            <path d="M24 14 C24 14 21 10 21 8 C21 6.3 22.3 5 24 5 C25.7 5 27 6.3 27 8 C27 10 24 14 24 14Z" fill="currentColor" opacity="0.6"/>
+            <defs><linearGradient id="wc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFF9E6"/><stop offset="100%" stop-color="#F5E6C0"/></linearGradient>
+            <linearGradient id="wc2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#FAF3DC"/></linearGradient></defs>
+            <!-- tier 3 base -->
+            <rect x="9" y="34" width="30" height="9" rx="4" fill="url(#wc1)" stroke="#C9A870" stroke-width="1.2"/>
+            <rect x="9" y="34" width="30" height="3.5" rx="2" fill="#C9A870" opacity="0.5"/>
+            <!-- tier 2 -->
+            <rect x="14" y="24" width="20" height="12" rx="3.5" fill="url(#wc2)" stroke="#C9A870" stroke-width="1.2"/>
+            <rect x="14" y="24" width="20" height="3.5" rx="2" fill="#C9A870" opacity="0.5"/>
+            <!-- tier 1 top -->
+            <rect x="19" y="14" width="10" height="12" rx="3" fill="url(#wc2)" stroke="#C9A870" stroke-width="1.2"/>
+            <rect x="19" y="14" width="10" height="3" rx="1.5" fill="#C9A870" opacity="0.5"/>
+            <!-- hearts on tiers -->
+            <path d="M22 30 C22 28.5 24 27 24 27 C24 27 26 28.5 26 30 C26 31.5 24 33 24 33 C24 33 22 31.5 22 30Z" fill="#E8547A" opacity="0.7"/>
+            <path d="M17 40 C17 39 18 38.3 18 38.3 C18 38.3 19 39 19 40 C19 41 18 41.7 18 41.7 C18 41.7 17 41 17 40Z" fill="#E8547A" opacity="0.5"/>
+            <!-- topper flame/flower -->
+            <circle cx="24" cy="11" r="3.5" fill="#E8547A" opacity="0.8"/>
+            <circle cx="24" cy="11" r="2" fill="#FFB3C1"/>
           </svg>
         </div>
         <span>Wedding Cakes</span>
       </a>
-      <a href="menu#engagement-cakes" class="qcat__item">
+
+      <!-- 3. Engagement Cakes — Purple/Violet -->
+      <a href="menu#engagement-cakes" class="qcat__item" style="--qi-bg:#F5F0FF;--qi-shadow:rgba(149,117,205,0.22);--qi-color:#7B5DB5">
         <div class="qcat__icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- engagement cake with ring topper -->
-            <rect x="8" y="28" width="32" height="12" rx="4" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
-            <rect x="8" y="28" width="32" height="4" rx="2" fill="currentColor" opacity="0.3"/>
-            <rect x="12" y="20" width="24" height="10" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="2"/>
-            <rect x="12" y="20" width="24" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
+            <defs><linearGradient id="ec1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#CE93D8"/><stop offset="100%" stop-color="#9C27B0"/></linearGradient>
+            <linearGradient id="ec2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E1BEE7"/><stop offset="100%" stop-color="#CE93D8"/></linearGradient></defs>
+            <!-- cake body -->
+            <rect x="8" y="28" width="32" height="13" rx="5" fill="url(#ec1)"/>
+            <rect x="8" y="28" width="32" height="5" rx="3" fill="#CE93D8"/>
+            <rect x="12" y="18" width="24" height="12" rx="4" fill="url(#ec2)"/>
+            <rect x="12" y="18" width="24" height="4" rx="2" fill="#E1BEE7"/>
+            <!-- cream top -->
+            <ellipse cx="17" cy="18" rx="3" ry="2.5" fill="white" opacity="0.85"/>
+            <ellipse cx="24" cy="18" rx="3" ry="2.5" fill="white" opacity="0.85"/>
+            <ellipse cx="31" cy="18" rx="3" ry="2.5" fill="white" opacity="0.85"/>
             <!-- ring topper -->
-            <circle cx="24" cy="15" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-            <circle cx="24" cy="11" r="2.5" fill="currentColor" opacity="0.5"/>
-            <line x1="21" y1="15" x2="27" y2="15" stroke="currentColor" stroke-width="2"/>
+            <circle cx="24" cy="11" r="6" stroke="#FFD700" stroke-width="2.5" fill="none"/>
+            <circle cx="24" cy="6.5" r="3" fill="#64B5F6"/>
+            <circle cx="24" cy="6.5" r="1.8" fill="#90CAF9"/>
+            <!-- sparkle -->
+            <path d="M34 10 L34.8 12.5 L37.5 12.5 L35.3 14 L36.1 16.5 L34 15 L31.9 16.5 L32.7 14 L30.5 12.5 L33.2 12.5 Z" fill="#FFD700" opacity="0.85"/>
           </svg>
         </div>
         <span>Engagement Cakes</span>
       </a>
-      <a href="menu#birthday-theme-cakes" class="qcat__item">
+
+      <!-- 4. Theme Cakes — Sky Blue -->
+      <a href="menu#birthday-theme-cakes" class="qcat__item" style="--qi-bg:#E8F6FF;--qi-shadow:rgba(41,182,246,0.2);--qi-color:#0288C7">
         <div class="qcat__icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- theme cake with star -->
-            <rect x="8" y="26" width="32" height="14" rx="4" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
-            <rect x="8" y="26" width="32" height="4" rx="2" fill="currentColor" opacity="0.3"/>
+            <defs><linearGradient id="tc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4FC3F7"/><stop offset="100%" stop-color="#0288D1"/></linearGradient></defs>
+            <!-- cake -->
+            <rect x="7" y="27" width="34" height="14" rx="5" fill="url(#tc1)"/>
+            <rect x="7" y="27" width="34" height="5" rx="3" fill="#4FC3F7"/>
+            <!-- white cream dots row -->
+            <circle cx="16" cy="34" r="2.5" fill="white" opacity="0.8"/>
+            <circle cx="24" cy="34" r="2.5" fill="white" opacity="0.8"/>
+            <circle cx="32" cy="34" r="2.5" fill="white" opacity="0.8"/>
             <!-- star topper -->
-            <path d="M24 8 L25.8 13.5 L31.5 13.5 L27 17 L28.8 22.5 L24 19 L19.2 22.5 L21 17 L16.5 13.5 L22.2 13.5 Z" fill="currentColor" opacity="0.65" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
-            <!-- dots on cake -->
-            <circle cx="16" cy="33" r="2" fill="currentColor" opacity="0.4"/>
-            <circle cx="24" cy="33" r="2" fill="currentColor" opacity="0.4"/>
-            <circle cx="32" cy="33" r="2" fill="currentColor" opacity="0.4"/>
+            <path d="M24 6 L26.2 13 L33.5 13 L27.6 17.4 L29.8 24.5 L24 20.1 L18.2 24.5 L20.4 17.4 L14.5 13 L21.8 13 Z" fill="#FFD700" stroke="#FFA000" stroke-width="0.8" stroke-linejoin="round"/>
+            <!-- inner star highlight -->
+            <path d="M24 9.5 L25.4 14 L30 14 L26.5 16.8 L27.9 21 L24 18.3 L20.1 21 L21.5 16.8 L18 14 L22.6 14 Z" fill="#FFEE58" opacity="0.7"/>
           </svg>
         </div>
         <span>Theme Cakes</span>
       </a>
-      <a href="menu#cheesecakes" class="qcat__item">
+
+      <!-- 5. Cheesecakes — Warm Amber/Orange -->
+      <a href="menu#cheesecakes" class="qcat__item" style="--qi-bg:#FFF4E6;--qi-shadow:rgba(251,140,0,0.2);--qi-color:#E65100">
         <div class="qcat__icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- cheesecake slice -->
-            <path d="M24 10 L38 38 L10 38 Z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M24 10 L38 38" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M24 10 L10 38" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <!-- cream top -->
-            <path d="M17 22 Q24 16 31 22" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            <!-- berry -->
-            <circle cx="24" cy="18" r="3" fill="currentColor" opacity="0.55"/>
-            <line x1="38" y1="38" x2="10" y2="38" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <defs><linearGradient id="cc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFCC80"/><stop offset="100%" stop-color="#FB8C00"/></linearGradient>
+            <linearGradient id="cc2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF9E6"/><stop offset="100%" stop-color="#FFE0B2"/></linearGradient></defs>
+            <!-- slice body -->
+            <path d="M24 9 L40 40 L8 40 Z" fill="url(#cc2)" stroke="#FB8C00" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- top crust -->
+            <path d="M24 9 L40 40" stroke="#FB8C00" stroke-width="2" stroke-linecap="round"/>
+            <path d="M24 9 L8 40"  stroke="#FB8C00" stroke-width="2" stroke-linecap="round"/>
+            <!-- base crust -->
+            <rect x="8" y="37" width="32" height="5" rx="2.5" fill="url(#cc1)"/>
+            <!-- cream layer wavy -->
+            <path d="M15 26 Q19 20 24 24 Q29 28 33 22" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- berry on top -->
+            <circle cx="24" cy="18" r="4" fill="#E53935"/>
+            <circle cx="24" cy="18" r="2.5" fill="#EF5350"/>
+            <circle cx="22.5" cy="16.5" r="1" fill="#FFCDD2" opacity="0.8"/>
           </svg>
         </div>
         <span>Cheesecakes</span>
       </a>
-      <a href="menu#donuts" class="qcat__item">
+
+      <!-- 6. Donuts — Hot Pink -->
+      <a href="menu#donuts" class="qcat__item" style="--qi-bg:#FFF0F6;--qi-shadow:rgba(240,98,146,0.22);--qi-color:#C2185B">
         <div class="qcat__icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="24" cy="24" r="16" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
-            <circle cx="24" cy="24" r="7" fill="white" stroke="currentColor" stroke-width="2"/>
+            <defs><linearGradient id="dc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F48FB1"/><stop offset="100%" stop-color="#E91E8C"/></linearGradient>
+            <linearGradient id="dc2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D4956A"/><stop offset="100%" stop-color="#A0622A"/></linearGradient></defs>
+            <!-- donut base (dough) -->
+            <circle cx="24" cy="24" r="17" fill="url(#dc2)"/>
+            <!-- pink glaze on top half -->
+            <path d="M7 24 A17 17 0 0 1 41 24 A17 17 0 0 1 7 24" fill="url(#dc1)" opacity="0.95"/>
+            <!-- hole -->
+            <circle cx="24" cy="24" r="7" fill="#FAF7F0"/>
             <!-- sprinkles -->
-            <line x1="14" y1="16" x2="17" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-            <line x1="31" y1="14" x2="34" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-            <line x1="14" y1="32" x2="17" y2="34" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-            <line x1="34" y1="32" x2="31" y2="34" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-            <line x1="24" y1="8"  x2="24" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+            <rect x="13" y="14" width="5" height="2.2" rx="1.1" fill="#FFEB3B" transform="rotate(-40 13 14)"/>
+            <rect x="29" y="12" width="5" height="2.2" rx="1.1" fill="#4FC3F7" transform="rotate(30 29 12)"/>
+            <rect x="34" y="22" width="5" height="2.2" rx="1.1" fill="#AED581" transform="rotate(-20 34 22)"/>
+            <rect x="12" y="28" width="4" height="2" rx="1" fill="#CE93D8" transform="rotate(25 12 28)"/>
+            <rect x="25" y="14" width="4" height="2" rx="1" fill="#FF7043" transform="rotate(-10 25 14)"/>
+            <rect x="18" y="16" width="4" height="2" rx="1" fill="#80DEEA" transform="rotate(15 18 16)"/>
           </svg>
         </div>
         <span>Donuts</span>
       </a>
-      <a href="menu#customized-cakes" class="qcat__item">
+
+      <!-- 7. Custom Cakes — Teal/Mint -->
+      <a href="menu#customized-cakes" class="qcat__item" style="--qi-bg:#E8FAF4;--qi-shadow:rgba(38,166,154,0.2);--qi-color:#00796B">
         <div class="qcat__icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- custom cake with brush/palette feel -->
-            <rect x="10" y="28" width="28" height="12" rx="4" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
-            <rect x="10" y="28" width="28" height="4" rx="2" fill="currentColor" opacity="0.3"/>
-            <rect x="14" y="18" width="20" height="12" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="2"/>
+            <defs><linearGradient id="cus1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#80CBC4"/><stop offset="100%" stop-color="#00897B"/></linearGradient>
+            <linearGradient id="cus2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#B2DFDB"/><stop offset="100%" stop-color="#80CBC4"/></linearGradient></defs>
+            <!-- cake layers -->
+            <rect x="8" y="28" width="32" height="13" rx="5" fill="url(#cus1)"/>
+            <rect x="8" y="28" width="32" height="5" rx="3" fill="#80CBC4"/>
+            <rect x="13" y="18" width="22" height="12" rx="4" fill="url(#cus2)"/>
+            <rect x="13" y="18" width="22" height="4" rx="2" fill="#B2DFDB"/>
+            <!-- cream top -->
+            <ellipse cx="18" cy="18" rx="3" ry="2.5" fill="white" opacity="0.85"/>
+            <ellipse cx="24" cy="18" rx="3" ry="2.5" fill="white" opacity="0.85"/>
+            <ellipse cx="30" cy="18" rx="3" ry="2.5" fill="white" opacity="0.85"/>
             <!-- paintbrush topper -->
-            <line x1="24" y1="18" x2="24" y2="8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-            <ellipse cx="24" cy="7" rx="3" ry="2" fill="currentColor" opacity="0.6"/>
-            <!-- sparkles -->
-            <path d="M32 12 L33 15 L36 16 L33 17 L32 20 L31 17 L28 16 L31 15 Z" fill="currentColor" opacity="0.5"/>
+            <rect x="22.5" y="7" width="3" height="12" rx="1.5" fill="#8D6E63"/>
+            <rect x="21.5" y="5" width="5" height="4" rx="1.5" fill="#FF7043"/>
+            <!-- star sparkles -->
+            <path d="M34 9 L35 12 L38 12 L35.8 14 L36.8 17 L34 15.3 L31.2 17 L32.2 14 L30 12 L33 12 Z" fill="#FFD700" opacity="0.9"/>
+            <path d="M10 14 L10.8 16.5 L13.5 16.5 L11.3 18 L12.1 20.5 L10 19 L7.9 20.5 L8.7 18 L6.5 16.5 L9.2 16.5 Z" fill="#FFD700" opacity="0.7"/>
           </svg>
         </div>
         <span>Custom Cakes</span>
       </a>
-      <a href="contact" class="qcat__item">
+
+      <!-- 8. Bulk Orders — Gold -->
+      <a href="contact" class="qcat__item" style="--qi-bg:#FFF8E1;--qi-shadow:rgba(201,168,112,0.28);--qi-color:#9A7A48">
         <div class="qcat__icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- bulk / corporate -->
-            <rect x="6"  y="28" width="14" height="12" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="2"/>
-            <rect x="17" y="22" width="14" height="18" rx="3" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
-            <rect x="28" y="26" width="14" height="14" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="2"/>
-            <rect x="6"  y="28" width="14" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-            <rect x="17" y="22" width="14" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-            <rect x="28" y="26" width="14" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-            <!-- candles on middle -->
-            <line x1="24" y1="22" x2="24" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <ellipse cx="24" cy="15" rx="2" ry="2.5" fill="currentColor" opacity="0.6"/>
+            <defs><linearGradient id="bo1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#C9A870"/></linearGradient>
+            <linearGradient id="bo2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#E5CFA0"/></linearGradient></defs>
+            <!-- 3 cake boxes -->
+            <rect x="5"  y="30" width="13" height="12" rx="3" fill="url(#bo2)" stroke="#C9A870" stroke-width="1.2"/>
+            <rect x="5"  y="30" width="13" height="4"  rx="2" fill="#FFD54F"/>
+            <rect x="17.5" y="24" width="13" height="18" rx="3" fill="url(#bo1)" stroke="#C9A870" stroke-width="1.2"/>
+            <rect x="17.5" y="24" width="13" height="4"  rx="2" fill="#FFE082"/>
+            <rect x="30" y="28" width="13" height="14" rx="3" fill="url(#bo2)" stroke="#C9A870" stroke-width="1.2"/>
+            <rect x="30" y="28" width="13" height="4"  rx="2" fill="#FFD54F"/>
+            <!-- crown on middle -->
+            <path d="M20 24 L21.5 18 L24 21 L26.5 18 L28 24 Z" fill="#C9A870" stroke="#9A7A48" stroke-width="0.8" stroke-linejoin="round"/>
+            <circle cx="21.5" cy="18" r="1.5" fill="#E8547A"/>
+            <circle cx="24"   cy="21" r="1.5" fill="#9C27B0"/>
+            <circle cx="26.5" cy="18" r="1.5" fill="#E8547A"/>
           </svg>
         </div>
         <span>Bulk Orders</span>
       </a>
+
     </div>
   </section>
 

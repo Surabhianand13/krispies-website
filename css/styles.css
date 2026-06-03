@@ -584,21 +584,22 @@ h1, h2, h3, h4 {
   background: var(--gold-faint);
 }
 .qcat__icon {
-  width: 48px; height: 48px;
+  width: 56px; height: 56px;
   border-radius: 50%;
-  background: rgba(201,168,112,0.1);
+  background: var(--qi-bg, rgba(201,168,112,0.12));
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.2s, transform 0.25s;
+  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
   flex-shrink: 0;
+  box-shadow: 0 2px 10px var(--qi-shadow, rgba(201,168,112,0.18));
 }
 .qcat__icon svg {
-  width: 28px; height: 28px;
-  color: var(--gold-dark);
+  width: 30px; height: 30px;
 }
 .qcat__item:hover .qcat__icon {
-  background: rgba(201,168,112,0.2);
-  transform: translateY(-3px);
+  transform: translateY(-5px) scale(1.08);
+  box-shadow: 0 8px 24px var(--qi-shadow, rgba(201,168,112,0.3));
 }
+.qcat__item:hover { color: var(--qi-color, var(--gold-dark)); }
 
 @media (max-width: 900px) {
   .qcat__inner { justify-content: flex-start; border-radius: 12px; }
