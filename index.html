@@ -209,7 +209,7 @@
 
   <!-- ========== QUICK CATEGORY NAV ========== -->
   <section class="qcat">
-    <div class="qcat__inner">
+    <div class="qcat__inner" id="qcatInner">
 
       <!-- 1. Birthday Cakes — Rose Pink -->
       <a href="menu#birthday-cakes" class="qcat__item" style="--qi-bg:#FFF0F4;--qi-shadow:rgba(232,84,122,0.2);--qi-color:#C94070">
@@ -871,6 +871,15 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+  /* ── Duplicate qcat items for seamless infinite scroll ── */
+  (function () {
+    const inner = document.getElementById('qcatInner');
+    if (!inner) return;
+    const clone = inner.innerHTML;
+    inner.innerHTML = clone + clone; // duplicate so scroll loops
+  })();
+  </script>
   <script>
   /* ── Strip Celebratory Particles ── */
   (function () {
