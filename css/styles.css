@@ -292,7 +292,7 @@ h1, h2, h3, h4 {
   position: relative;
   width: calc(100% - 32px);
   max-width: 1380px;
-  margin: 18px auto 14px;
+  margin: calc(var(--nav-h) + var(--promo-h) + 16px) auto 14px;
   height: clamp(360px, 42vw, 580px);
   overflow: hidden;
   background: #FDF8F0;
@@ -1498,7 +1498,7 @@ h1, h2, h3, h4 {
   .nav__brand-name { font-size: 1.1rem; margin-right: 12px; }
 
   /* Hero */
-  .hero { min-height: 0; height: auto; width: calc(100% - 24px); margin: 12px auto; border-radius: 16px; }
+  .hero { min-height: 0; height: auto; width: calc(100% - 24px); margin: calc(var(--nav-h) + var(--promo-h) + 12px) auto 12px; border-radius: 16px; }
   .hero__slide-inner { padding: 56px 20px; gap: 20px; }
 
   /* Menu tabs */
@@ -1536,7 +1536,7 @@ h1, h2, h3, h4 {
   .nav { gap: 0; padding: 0 16px; }
 
   /* Hero */
-  .hero { min-height: 0; height: auto; width: calc(100% - 20px); margin: 10px auto; border-radius: 14px; }
+  .hero { min-height: 0; height: auto; width: calc(100% - 20px); margin: calc(var(--nav-h) + 10px) auto 10px; border-radius: 14px; }
   .hero__slide { min-height: 50svh; }
   .hero__slide-inner { flex-direction: column; justify-content: center; padding: 60px 20px 52px; text-align: center; gap: 20px; }
   .hero__content { max-width: 100%; }
