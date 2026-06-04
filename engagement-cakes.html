@@ -279,7 +279,7 @@
   }
 
   /* Seed defaults if localStorage is empty (mirrors admin.js) */
-  const DATA_VERSION = 'v9'; // bump to force refresh when images/products change
+  const DATA_VERSION = 'v10'; // bump to force refresh when images/products change
   function ensureDefaults() {
     if (localStorage.getItem('krispies_data_ver') !== DATA_VERSION) {
       localStorage.removeItem(PROD_KEY);
@@ -295,7 +295,7 @@
     const mk = (name, cat, desc, tag, mrp, disc, feat) => ({
       id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
       name, category: cat, description: desc, tag, mrp, discount: disc||0,
-      images:[`assets/images/${slugify(name)}.jpg`],
+      images:[`assets/images/products/${cat}/${slugify(name)}.jpg`],
       featured:!!feat, active:true, createdAt:now
     });
     const products = [

@@ -27,3 +27,18 @@
 
 /js/*
   Cache-Control: public, max-age=3600
+
+/assets/images/hero/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/images/banners/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/images/products/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/images/categories/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/images/subcategories/*
+  Cache-Control: public, max-age=0, must-revalidate

@@ -114,55 +114,55 @@
         <div class="subcat-scroll">
           <a href="#" class="subcat-item active" data-filter="all">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-chocolate.jpg" alt="All Cakes">
+              <img src="assets/images/subcategories/sub-chocolate.jpg" alt="All Cakes">
             </div>
             <span>All Cakes</span>
           </a>
           <a href="#" class="subcat-item" data-filter="chocolate">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-chocolate.jpg" alt="Chocolate">
+              <img src="assets/images/subcategories/sub-chocolate.jpg" alt="Chocolate">
             </div>
             <span>Chocolate</span>
           </a>
           <a href="#" class="subcat-item" data-filter="dark-chocolate">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-darkchocolate.jpg" alt="Dark Chocolate">
+              <img src="assets/images/subcategories/sub-darkchocolate.jpg" alt="Dark Chocolate">
             </div>
             <span>Dark Chocolate</span>
           </a>
           <a href="#" class="subcat-item" data-filter="vanilla">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-vanilla.jpg" alt="Vanilla">
+              <img src="assets/images/subcategories/sub-vanilla.jpg" alt="Vanilla">
             </div>
             <span>Rasmalai</span>
           </a>
           <a href="#" class="subcat-item" data-filter="red-velvet">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-redvelvet.jpg" alt="Red Velvet">
+              <img src="assets/images/subcategories/sub-redvelvet.jpg" alt="Red Velvet">
             </div>
             <span>Red Velvet</span>
           </a>
           <a href="#" class="subcat-item" data-filter="pineapple">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-pineapple.jpg" alt="Pineapple">
+              <img src="assets/images/subcategories/sub-pineapple.jpg" alt="Pineapple">
             </div>
             <span>Pineapple</span>
           </a>
           <a href="#" class="subcat-item" data-filter="mango">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-mango.jpg" alt="Mango">
+              <img src="assets/images/subcategories/sub-mango.jpg" alt="Mango">
             </div>
             <span>Mango</span>
           </a>
           <a href="#" class="subcat-item" data-filter="blueberry">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-blueberry.jpg" alt="Blueberry">
+              <img src="assets/images/subcategories/sub-blueberry.jpg" alt="Blueberry">
             </div>
             <span>Blueberry</span>
           </a>
           <a href="#" class="subcat-item" data-filter="butterscotch">
             <div class="subcat-item__circle">
-              <img src="assets/images/sub-butterscotch.jpg" alt="Butterscotch">
+              <img src="assets/images/subcategories/sub-butterscotch.jpg" alt="Butterscotch">
             </div>
             <span>Butterscotch</span>
           </a>
@@ -348,7 +348,7 @@
   }
 
   /* Seed defaults if localStorage is empty (mirrors admin.js) */
-  const DATA_VERSION = 'v9'; // bump to force refresh when images/products change
+  const DATA_VERSION = 'v10'; // bump to force refresh when images/products change
   function ensureDefaults() {
     if (localStorage.getItem('krispies_data_ver') !== DATA_VERSION) {
       localStorage.removeItem(PROD_KEY);
@@ -364,7 +364,7 @@
     const mk = (name, cat, desc, tag, mrp, disc, feat) => ({
       id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
       name, category: cat, description: desc, tag, mrp, discount: disc||0,
-      images:[`assets/images/${slugify(name)}.jpg`],
+      images:[`assets/images/products/${cat}/${slugify(name)}.jpg`],
       featured:!!feat, active:true, createdAt:now
     });
     const products = [
