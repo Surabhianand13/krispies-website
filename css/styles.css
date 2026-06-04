@@ -1664,7 +1664,7 @@ h1, h2, h3, h4 {
 
 /* ---- 17. PAGE HERO (inner pages) ---- */
 .page-hero {
-  padding: calc(160px + var(--promo-h)) 0 80px; text-align: center;
+  padding: calc(120px + var(--promo-h)) 0 48px; text-align: center;
   background:
     radial-gradient(ellipse 70% 50% at 50% -5%, rgba(168,72,56,0.12) 0%, transparent 65%),
     var(--black);
@@ -2332,6 +2332,33 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   padding: 72px 0 80px;
   border-bottom: 1px solid var(--border-gold);
 }
+
+/* ── Compact mode for category landing pages ── */
+body.cat-landing .cat-page-hero {
+  padding: calc(90px + var(--promo-h)) 0 18px !important;
+}
+body.cat-landing .cat-page-hero .section-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+}
+body.cat-landing .cat-page-hero h1 {
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem) !important;
+  margin-top: 4px !important;
+}
+body.cat-landing .cat-page-hero p {
+  font-size: 0.9rem !important;
+  max-width: 560px !important;
+  margin-top: 6px !important;
+}
+body.cat-landing .menu-tabs { top: 0; }
+body.cat-landing .menu-cat-section {
+  padding: 22px 0 44px;
+  border-bottom: none;
+}
+/* Hide duplicate header — page hero already shows category name */
+body.cat-landing .menu-cat-header { display: none; }
+body.cat-landing .subcat-scroll { padding: 8px 0 18px; margin-bottom: 0; }
+body.cat-landing .filter-pills { margin-bottom: 18px; }
 .menu-cat-section:last-child { border-bottom: none; }
 .menu-cat-header { margin-bottom: 44px; }
 .menu-cat-header .section-label { margin-bottom: 10px; }
