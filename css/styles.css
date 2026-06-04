@@ -998,6 +998,179 @@ h1, h2, h3, h4 {
 .video-placeholder__sub { font-size: 0.75rem; color: var(--text-muted); }
 
 /* ---- 12. TESTIMONIALS ---- */
+/* ---- WALL OF LOVE — Reviews ---- */
+.walllove {
+  padding: var(--pad-lg) 0;
+  background: linear-gradient(180deg, #FFF8F2 0%, #FAF3E8 100%);
+  position: relative;
+  overflow: hidden;
+}
+.walllove__head {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 56px;
+  position: relative;
+  z-index: 2;
+}
+.walllove__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.6vw, 3rem);
+  color: var(--text-on-light);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 16px 0 28px;
+}
+.walllove__title em {
+  font-style: italic;
+  color: var(--gold-dark);
+}
+.walllove__rating {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: #FFFFFF;
+  padding: 20px 32px;
+  border-radius: 18px;
+  box-shadow: 0 6px 26px rgba(201,168,112,0.18);
+  border: 1px solid var(--border-gold);
+}
+.walllove__score-block {
+  display: flex; align-items: center; gap: 14px;
+}
+.walllove__score {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--text-on-light);
+  line-height: 1;
+}
+.walllove__score small {
+  font-size: 0.9rem; color: var(--text-muted-lt); font-weight: 400;
+}
+.walllove__stars {
+  display: flex; gap: 3px;
+}
+.walllove__stars svg {
+  width: 24px; height: 24px;
+  fill: #F5B544;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.05));
+}
+.walllove__count {
+  font-size: 0.85rem;
+  color: var(--text-muted-lt);
+  letter-spacing: 0.02em;
+}
+.walllove__count strong {
+  color: var(--text-on-light);
+  font-weight: 700;
+}
+
+/* Wall grid — 3 columns, masked top/bottom */
+.walllove__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: 640px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+.walllove__col {
+  position: relative;
+  overflow: hidden;
+}
+.walllove__track {
+  display: flex; flex-direction: column;
+  gap: 20px;
+  will-change: transform;
+}
+.walllove__track--up-slow { animation: ll-up   34s linear infinite; }
+.walllove__track--up      { animation: ll-up   26s linear infinite; }
+.walllove__track--down    { animation: ll-down 30s linear infinite; }
+
+.walllove__col:hover .walllove__track {
+  animation-play-state: paused;
+}
+
+@keyframes ll-up {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100% - 20px)); }
+}
+@keyframes ll-down {
+  from { transform: translateY(calc(-100% - 20px)); }
+  to   { transform: translateY(0); }
+}
+
+/* Review card */
+.rcard {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 22px 22px 18px;
+  box-shadow: 0 4px 18px rgba(61,28,2,0.07);
+  border: 1px solid rgba(201,168,112,0.18);
+  flex-shrink: 0;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.rcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(61,28,2,0.12);
+  border-color: var(--gold);
+}
+.rcard__stars {
+  color: #F5B544;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.rcard__text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-on-light);
+  margin-bottom: 16px;
+}
+.rcard__foot {
+  display: flex; align-items: center; gap: 12px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(201,168,112,0.3);
+}
+.rcard__avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.rcard__name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-on-light);
+}
+.rcard__loc {
+  font-size: 0.72rem;
+  color: var(--text-muted-lt);
+  letter-spacing: 0.02em;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .walllove__grid { grid-template-columns: repeat(2, 1fr); height: 560px; }
+  .walllove__col--hide-md { display: none; }
+}
+@media (max-width: 640px) {
+  .walllove__grid { grid-template-columns: 1fr; height: 540px; gap: 16px; }
+  .walllove__col:nth-child(2) { display: none; }
+  .walllove__head { margin-bottom: 36px; }
+  .walllove__rating { padding: 16px 24px; }
+  .walllove__score { font-size: 2.1rem; }
+  .walllove__stars svg { width: 20px; height: 20px; }
+}
+
+/* Legacy testimonials — kept for any other pages */
 .testimonials {
   padding: var(--pad-lg) 0;
   background: var(--black-2);
