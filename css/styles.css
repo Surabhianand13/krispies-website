@@ -1672,6 +1672,217 @@ h1, h2, h3, h4 {
 .page-hero__title { font-size: clamp(2.5rem, 5.5vw, 4.5rem); color: var(--text-on-dark); }
 .page-hero__sub { color: var(--text-muted); font-size: 1.1rem; margin-top: 14px; }
 
+/* ---- CUSTOM CTA (Menu hub bottom — WhatsApp + Call) ---- */
+.custom-cta {
+  margin: 64px auto 0;
+  max-width: 920px;
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,211,102,0.10) 0%, transparent 70%),
+    linear-gradient(160deg, #FFFFFF 0%, #FFFCF5 100%);
+  border: 1.5px solid rgba(201,168,112,0.30);
+  border-radius: 24px;
+  box-shadow: 0 14px 40px rgba(61,28,2,0.08);
+  overflow: hidden;
+  position: relative;
+}
+.custom-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--gold-dark), #25D366, var(--gold-dark));
+  opacity: 0.7;
+}
+.custom-cta__inner {
+  padding: 40px 36px 32px;
+}
+.custom-cta__head {
+  text-align: center;
+  max-width: 580px;
+  margin: 0 auto 32px;
+}
+.custom-cta__eyebrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  background: var(--gold-faint);
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 1px solid rgba(201,168,112,0.3);
+  margin-bottom: 14px;
+}
+.custom-cta__head h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.8vw, 2rem);
+  font-weight: 700;
+  color: var(--text-on-light);
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+.custom-cta__head p {
+  font-size: 0.96rem;
+  color: var(--text-muted-lt);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.custom-cta__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 700px;
+  margin: 0 auto 28px;
+}
+.custom-cta__btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  border-radius: 16px;
+  text-decoration: none;
+  transition: transform 0.25s, box-shadow 0.3s, background 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.custom-cta__btn:hover {
+  transform: translateY(-3px);
+}
+.custom-cta__btn-icon {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+.custom-cta__btn-icon svg { width: 22px; height: 22px; }
+.custom-cta__btn-body {
+  display: flex; flex-direction: column;
+  text-align: left;
+  line-height: 1.2;
+}
+.custom-cta__btn-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.custom-cta__btn-sub {
+  font-size: 0.78rem;
+  margin-top: 4px;
+  opacity: 0.78;
+  font-weight: 500;
+}
+
+/* WhatsApp variant */
+.custom-cta__btn--wa {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #FFFFFF;
+  box-shadow: 0 10px 28px rgba(37,211,102,0.32);
+}
+.custom-cta__btn--wa:hover {
+  box-shadow: 0 14px 36px rgba(37,211,102,0.45);
+  background: linear-gradient(135deg, #1FBA59 0%, #0E7C6F 100%);
+}
+.custom-cta__btn--wa .custom-cta__btn-icon {
+  background: rgba(255,255,255,0.22);
+  color: #FFFFFF;
+}
+
+/* Call variant */
+.custom-cta__btn--call {
+  background: #FFFFFF;
+  color: var(--text-on-light);
+  border: 1.5px solid var(--border-gold);
+  box-shadow: 0 6px 22px rgba(201,168,112,0.20);
+}
+.custom-cta__btn--call:hover {
+  border-color: var(--gold);
+  box-shadow: 0 12px 30px rgba(201,168,112,0.32);
+  background: #FFFDF8;
+}
+.custom-cta__btn--call .custom-cta__btn-icon {
+  background: var(--gold);
+  color: #FFFFFF;
+  animation: call-shake 2.6s ease-in-out infinite;
+  transform-origin: center 70%;
+}
+.custom-cta__btn--call .custom-cta__btn-title { color: var(--gold-dark); }
+.custom-cta__btn--call .custom-cta__btn-sub { color: var(--text-muted-lt); }
+
+/* Phone ringing animation */
+@keyframes call-shake {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  3%  { transform: rotate(-15deg); }
+  6%  { transform: rotate(12deg); }
+  9%  { transform: rotate(-10deg); }
+  12% { transform: rotate(8deg); }
+  15% { transform: rotate(-5deg); }
+  18% { transform: rotate(3deg); }
+  21% { transform: rotate(0deg); }
+}
+
+/* Ring waves pulsing around phone icon */
+.ring-wave {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  opacity: 0;
+  animation: ring-pulse 2.6s ease-out infinite;
+  pointer-events: none;
+}
+.ring-wave--2 { animation-delay: 0.6s; }
+@keyframes ring-pulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  70%  { transform: scale(1.8); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Trust strip */
+.custom-cta__trust {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  padding: 22px 24px 4px;
+  border-top: 1px dashed var(--border-gold);
+  flex-wrap: wrap;
+}
+.custom-cta__trust-item {
+  text-align: center;
+}
+.custom-cta__trust-item strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gold-dark);
+  line-height: 1;
+}
+.custom-cta__trust-item small {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted-lt);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.custom-cta__trust-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border-gold);
+}
+
+@media (max-width: 768px) {
+  .custom-cta__inner { padding: 32px 22px 26px; }
+  .custom-cta__actions { grid-template-columns: 1fr; gap: 12px; }
+  .custom-cta__trust { gap: 16px; }
+  .custom-cta__trust-divider { display: none; }
+  .custom-cta__btn { padding: 14px 18px; }
+  .custom-cta__btn-title { font-size: 0.98rem; }
+}
+
 /* ---- WHATSAPP CTA (replaces cant-find-cta) ---- */
 .whatsapp-cta {
   margin: 56px 0 0;
