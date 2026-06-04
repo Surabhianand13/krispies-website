@@ -291,7 +291,7 @@ h1, h2, h3, h4 {
 .hero {
   position: relative;
   width: 100%;
-  height: clamp(440px, calc(100vh - var(--nav-h) - 110px), 630px);
+  height: clamp(480px, calc(100vw / 2), 760px);
   overflow: hidden;
   background: #FDF8F0;
 }
