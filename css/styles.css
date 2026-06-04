@@ -333,12 +333,10 @@ h1, h2, h3, h4 {
   background-position: center;
   transition: transform 0.7s ease;
 }
-/* Full-image banner slide — always show entire image, never crop */
+/* Full-image banner slide */
 .hero__slide-bg--full {
-  background-size: contain !important;
-  background-repeat: no-repeat !important;
+  background-size: cover !important;
   background-position: center center !important;
-  background-color: #C2DCEF !important;
 }
 /* Slide backgrounds — matched to each hero image tone */
 .hero__slide--1 .hero__slide-bg {
