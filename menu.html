@@ -621,7 +621,7 @@
   }
 
   /* Seed defaults if localStorage is empty (mirrors admin.js) */
-  const DATA_VERSION = 'v3'; // bump to force refresh when images/products change
+  const DATA_VERSION = 'v4'; // bump to force refresh when images/products change
   function ensureDefaults() {
     if (localStorage.getItem('krispies_data_ver') !== DATA_VERSION) {
       localStorage.removeItem(PROD_KEY);
@@ -641,13 +641,13 @@
       featured:!!feat, active:true, createdAt:now
     });
     const products = [
-      mk('Classic Vanilla Dream','birthday-cakes','Moist vanilla sponge layered with silky buttercream — a timeless favourite.','bestseller',899,10,true),
-      mk('Chocolate Overload','birthday-cakes','Dark chocolate sponge, ganache drip, and chocolate shards.','bestseller',999,15,true),
-      mk('Red Velvet Royale','birthday-cakes','Striking red velvet layers with luscious cream cheese frosting.','bestseller',1099,10,true),
-      mk('Black Forest Bliss','birthday-cakes','Classic Black Forest with cherries, whipped cream and dark chocolate.','bestseller',999,0,false),
-      mk('Fruit Fiesta','birthday-cakes','Fresh seasonal fruits, light chantilly cream, and vanilla sponge.','new',849,0,false),
-      mk('Butterscotch Dream','birthday-cakes','Crunchy butterscotch praline layered in creamy buttercream.',null,849,10,false),
-      mk('Rainbow Funfetti','birthday-cakes','Colourful sprinkles baked right in — a party in every slice!','new',949,0,false),
+      mk('Creamy Rasmalai Cake','birthday-cakes','Saffron-cardamom sponge soaked in rabri cream, topped with crushed pistachios.','bestseller',899,10,true),
+      mk('Belgium Chocolate Cake','birthday-cakes','Rich Belgian chocolate sponge with smooth ganache drip and dark chocolate shards.','bestseller',999,15,true),
+      mk('Redvelvet Cake','birthday-cakes','Striking red velvet layers with luscious cream cheese frosting.','bestseller',1099,10,true),
+      mk('Chocolate Truffle Cake','birthday-cakes','Decadent chocolate sponge layered with silky truffle ganache and chocolate curls.','bestseller',999,0,false),
+      mk('Fresh Pineapple Cake','birthday-cakes','Vanilla sponge with fresh pineapple chunks and light chantilly cream.','new',849,0,false),
+      mk('Butterscotch Cake','birthday-cakes','Crunchy butterscotch praline layered in fluffy fresh cream and vanilla sponge.',null,849,10,false),
+      mk('Mango Bliss Cake','birthday-cakes','Alphonso mango sponge layered with mango compote and fresh cream.','new',949,0,false),
       mk('Classic 2-Tier White','wedding-cakes','Elegant two-tier vanilla sponge with smooth white fondant.','bestseller',7500,10,true),
       mk('Floral 3-Tier Fondant','wedding-cakes','Three tiers with hand-sculpted sugar flowers.','custom',14000,0,true),
       mk('Rustic Naked Cake','wedding-cakes','Semi-naked cake with fresh florals and berries.','new',8500,10,false),
