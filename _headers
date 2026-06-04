@@ -11,6 +11,9 @@
 /assets/images/qcat-*.jpg
   Cache-Control: public, max-age=0, must-revalidate
 
+/assets/videos/*
+  Cache-Control: public, max-age=0, must-revalidate
+
 # Always revalidate HTML files so layout changes show up immediately
 /*.html
   Cache-Control: public, max-age=0, must-revalidate

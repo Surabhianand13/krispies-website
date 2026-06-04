@@ -331,30 +331,55 @@
         <h2 class="section-title" id="videos-heading">The Magic Behind Every Bite</h2>
         <p class="section-subtitle" style="margin-top:12px">Step inside our kitchens and stores — where every day begins with flour, passion, and fresh possibilities.</p>
       </div>
-      <div class="videos__grid">
-        <!-- Replace YOUR_VIDEO_ID_1, 2, 3 with actual YouTube video IDs -->
-        <div class="video-card fade-up">
-          <!-- <iframe src="https://www.youtube.com/embed/yuzviX75sGY" title="Krispie's Kitchen" allowfullscreen loading="lazy"></iframe> -->
-          <div class="video-placeholder">
-            <div class="video-placeholder__play">▶</div>
-            <div class="video-placeholder__title">Our Baking Kitchen</div>
-            <div class="video-placeholder__sub">Behind the scenes · Add your YouTube embed</div>
+      <div class="videos__grid videos__grid--reels">
+        <div class="reel-card fade-up">
+          <video class="reel-card__video" src="assets/videos/reel-baking.mp4"
+                 poster="assets/images/cat-birthday.jpg"
+                 autoplay muted loop playsinline preload="metadata"
+                 onerror="this.parentElement.classList.add('reel-card--err')"></video>
+          <div class="reel-card__overlay">
+            <button class="reel-card__sound" aria-label="Toggle sound" type="button">
+              <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              <svg class="reel-unmute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            </button>
+          </div>
+          <div class="reel-card__meta">
+            <div class="reel-card__title">Our Baking Kitchen</div>
+            <div class="reel-card__sub">Behind the scenes</div>
           </div>
         </div>
-        <div class="video-card fade-up">
-          <!-- <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID_2" title="Krispie's Store" allowfullscreen loading="lazy"></iframe> -->
-          <div class="video-placeholder">
-            <div class="video-placeholder__play">▶</div>
-            <div class="video-placeholder__title">Store Experience</div>
-            <div class="video-placeholder__sub">Walk through our cafe · Add your YouTube embed</div>
+
+        <div class="reel-card fade-up">
+          <video class="reel-card__video" src="assets/videos/reel-store.mp4"
+                 poster="assets/images/cat-wedding.jpg"
+                 autoplay muted loop playsinline preload="metadata"
+                 onerror="this.parentElement.classList.add('reel-card--err')"></video>
+          <div class="reel-card__overlay">
+            <button class="reel-card__sound" aria-label="Toggle sound" type="button">
+              <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              <svg class="reel-unmute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            </button>
+          </div>
+          <div class="reel-card__meta">
+            <div class="reel-card__title">Store Experience</div>
+            <div class="reel-card__sub">Walk through our cafe</div>
           </div>
         </div>
-        <div class="video-card fade-up">
-          <!-- <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID_3" title="Krispie's Cakes" allowfullscreen loading="lazy"></iframe> -->
-          <div class="video-placeholder">
-            <div class="video-placeholder__play">▶</div>
-            <div class="video-placeholder__title">Cake Creations</div>
-            <div class="video-placeholder__sub">Custom cake showcase · Add your YouTube embed</div>
+
+        <div class="reel-card fade-up">
+          <video class="reel-card__video" src="assets/videos/reel-cakes.mp4"
+                 poster="assets/images/cat-custom.jpg"
+                 autoplay muted loop playsinline preload="metadata"
+                 onerror="this.parentElement.classList.add('reel-card--err')"></video>
+          <div class="reel-card__overlay">
+            <button class="reel-card__sound" aria-label="Toggle sound" type="button">
+              <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              <svg class="reel-unmute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            </button>
+          </div>
+          <div class="reel-card__meta">
+            <div class="reel-card__title">Cake Creations</div>
+            <div class="reel-card__sub">Custom cake showcase</div>
           </div>
         </div>
       </div>
@@ -661,6 +686,52 @@
     if (!inner) return;
     const clone = inner.innerHTML;
     inner.innerHTML = clone + clone; // duplicate so scroll loops
+  })();
+
+  /* ── Reel videos: sound toggle + play when in view ── */
+  (function () {
+    const cards = document.querySelectorAll('.reel-card');
+    if (!cards.length) return;
+
+    cards.forEach(card => {
+      const video = card.querySelector('.reel-card__video');
+      const btn   = card.querySelector('.reel-card__sound');
+      const ic1   = card.querySelector('.reel-mute');
+      const ic2   = card.querySelector('.reel-unmute');
+      if (!video) return;
+
+      // Toggle sound (mute all OTHERS when one is unmuted)
+      btn?.addEventListener('click', e => {
+        e.stopPropagation();
+        if (video.muted) {
+          // mute all others
+          cards.forEach(c => {
+            const v = c.querySelector('.reel-card__video');
+            if (v && v !== video) {
+              v.muted = true;
+              c.querySelector('.reel-mute').style.display   = '';
+              c.querySelector('.reel-unmute').style.display = 'none';
+            }
+          });
+          video.muted = false;
+          ic1.style.display = 'none';
+          ic2.style.display = '';
+        } else {
+          video.muted = true;
+          ic1.style.display = '';
+          ic2.style.display = 'none';
+        }
+      });
+
+      // Pause when out of view (saves bandwidth)
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { video.play().catch(()=>{}); }
+          else                  { video.pause(); }
+        });
+      }, { threshold: 0.25 });
+      io.observe(card);
+    });
   })();
   </script>
   <script>
