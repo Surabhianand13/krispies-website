@@ -1,0 +1,26 @@
+# Cloudflare Pages headers configuration
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+# Always revalidate banner & hero images so new uploads reflect instantly
+/assets/images/hero-*.jpg
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/images/banner-*.jpg
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/images/qcat-*.jpg
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Always revalidate HTML files so layout changes show up immediately
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Long-cache other static assets (they have content hashes / rarely change)
+/assets/images/*
+  Cache-Control: public, max-age=3600
+
+/css/*
+  Cache-Control: public, max-age=3600
+
+/js/*
+  Cache-Control: public, max-age=3600
