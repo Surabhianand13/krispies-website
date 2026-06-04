@@ -123,293 +123,116 @@
   </nav>
 
 
-  <!-- HEADER BANNER -->
-  <!-- Banner removed — paste new banner URL here once uploaded -->
-  <!-- Recommended banner size: 1400 × 560 px (landscape, 2.5:1 ratio) -->
-  <!--
-  <div style="width:100%;height:560px;overflow:hidden;line-height:0;">
-    <img src="YOUR_CLOUDINARY_URL_HERE" alt="Krispie's Menu Banner" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
-  </div>
-  -->
-
-  <!-- STICKY CATEGORY TABS -->
-  <div class="menu-tabs" id="menuTabs">
-    <div class="menu-tabs__scroll">
-      <button class="menu-tab active" data-cat="birthday-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> Birthday Cakes</button>
-      <button class="menu-tab" data-cat="wedding-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Wedding Cakes</button>
-      <button class="menu-tab" data-cat="engagement-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg> Engagement Cakes</button>
-      <button class="menu-tab" data-cat="birthday-theme-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Birthday Theme Cakes</button>
-      <button class="menu-tab" data-cat="baby-shower-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Baby Shower &amp; Naming Cakes</button>
+  <!-- PAGE HERO -->
+  <header class="menu-hub-hero">
+    <div class="container">
+      <span class="section-label">Our Menu</span>
+      <span class="gold-line"></span>
+      <h1 class="menu-hub-hero__title">Explore Krispie's Collection</h1>
+      <p class="menu-hub-hero__sub">Five categories crafted for every celebration — choose what you're looking for.</p>
     </div>
-  </div>
+  </header>
 
-  <!-- MENU CONTENT -->
-  <main class="menu-main">
+  <!-- CATEGORY HUB -->
+  <main class="menu-hub">
+    <div class="container">
+      <div class="menu-hub__grid">
 
-    <!-- BIRTHDAY CAKES -->
-    <section class="menu-cat-section" id="cat-birthday-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Every Birthday Deserves Magic</span>
-          <h2>Birthday Cakes</h2>
-          <p>From classic favourites to spectacular themed creations — cakes that taste as magical as they look.</p>
-        </div>
-
-        <!-- Sub-category circular thumbnails -->
-        <div class="subcat-scroll">
-          <a href="#" class="subcat-item active" data-filter="all">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-chocolate.jpg" alt="All Cakes">
-            </div>
-            <span>All Cakes</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="chocolate">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-chocolate.jpg" alt="Chocolate">
-            </div>
-            <span>Chocolate</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="dark-chocolate">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-darkchocolate.jpg" alt="Dark Chocolate">
-            </div>
-            <span>Dark Chocolate</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="vanilla">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-vanilla.jpg" alt="Vanilla">
-            </div>
-            <span>Rasmalai</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="red-velvet">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-redvelvet.jpg" alt="Red Velvet">
-            </div>
-            <span>Red Velvet</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="pineapple">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-pineapple.jpg" alt="Pineapple">
-            </div>
-            <span>Pineapple</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="mango">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-mango.jpg" alt="Mango">
-            </div>
-            <span>Mango</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="blueberry">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-blueberry.jpg" alt="Blueberry">
-            </div>
-            <span>Blueberry</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="butterscotch">
-            <div class="subcat-item__circle">
-              <img src="assets/images/subcategories/sub-butterscotch.jpg" alt="Butterscotch">
-            </div>
-            <span>Butterscotch</span>
-          </a>
-        </div>
-
-        <!-- Filter pills -->
-        <div class="filter-pills">
-          <button class="filter-pill active" data-pill="all">All</button>
-          <button class="filter-pill" data-pill="bestseller">Bestseller</button>
-          <button class="filter-pill" data-pill="new">New Arrivals</button>
-          <button class="filter-pill" data-price="under-500">Under ₹500</button>
-          <button class="filter-pill" data-price="under-1000">Under ₹1000</button>
-          <button class="filter-pill" data-price="under-1500">Under ₹1500</button>
-        </div>
-
-        <div class="pcard-grid" id="grid-birthday-cakes"></div>
-        <div class="cant-find-cta" id="cta-birthday-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Not finding what you're looking for?</h3>
-              <p>Don't worry! Fill this form with your reference cake design and we'll get back to you in minutes to confirm your order.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Response within minutes</li>
-                <li>✓ Custom design matching your vision</li>
-                <li>✓ Available at all 5 outlets</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Birthday Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Describe your dream cake — flavour, design, theme, size… or paste a reference image link"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/></svg> We got your request! Expect a call back within minutes.
-                </div>
-              </form>
-            </div>
+        <a href="birthday-cakes" class="menu-hub__card" style="--card-accent:#C94070;--card-bg:#FFF0F4">
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 50V32c0-3 2-5 5-5h30c3 0 5 2 5 5v18"/>
+              <path d="M8 40c2-2 5-2 7 0s5 2 7 0 5-2 7 0 5 2 7 0 5-2 7 0 5 2 7 0"/>
+              <path d="M6 52h52"/>
+              <path d="M22 22v5M32 18v9M42 22v5"/>
+              <circle cx="22" cy="14" r="1.5" fill="currentColor"/>
+              <circle cx="32" cy="10" r="1.5" fill="currentColor"/>
+              <circle cx="42" cy="14" r="1.5" fill="currentColor"/>
+            </svg>
           </div>
+          <h2 class="menu-hub__card-title">Classic Birthday Cakes</h2>
+          <p class="menu-hub__card-desc">Black Forest, Chocolate Truffle, Butterscotch, Red Velvet, Rasmalai &amp; more — handcrafted favourites for every age.</p>
+          <span class="menu-hub__card-meta">7 designs &middot; from ₹849</span>
+          <span class="menu-hub__card-cta">Explore Birthday Cakes →</span>
+        </a>
+
+        <a href="wedding-cakes" class="menu-hub__card" style="--card-accent:#9A7A48;--card-bg:#FFF8E7">
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="20" y="36" width="24" height="18" rx="2"/>
+              <rect x="14" y="36" width="36" height="3"/>
+              <rect x="24" y="22" width="16" height="14" rx="2"/>
+              <rect x="18" y="22" width="28" height="3"/>
+              <rect x="28" y="10" width="8" height="12" rx="1"/>
+              <rect x="24" y="10" width="16" height="3"/>
+              <circle cx="32" cy="6" r="2.5" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Wedding Cakes</h2>
+          <p class="menu-hub__card-desc">Multi-tier fondant, hand-sculpted sugar flowers, edible gold leaf — wedding cakes as beautiful as your love story.</p>
+          <span class="menu-hub__card-meta">7 designs &middot; from ₹2,499</span>
+          <span class="menu-hub__card-cta">Explore Wedding Cakes →</span>
+        </a>
+
+        <a href="engagement-cakes" class="menu-hub__card" style="--card-accent:#7B5DB5;--card-bg:#F5F0FF">
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="14" y="34" width="36" height="20" rx="3"/>
+              <circle cx="32" cy="18" r="9"/>
+              <path d="M32 9l-4 5h8z" fill="currentColor"/>
+              <circle cx="32" cy="44" r="2" fill="currentColor"/>
+              <circle cx="22" cy="44" r="2" fill="currentColor"/>
+              <circle cx="42" cy="44" r="2" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Engagement Cakes</h2>
+          <p class="menu-hub__card-desc">Ring box designs, heart &amp; roses tiers, gold drip, couple silhouettes — make your engagement unforgettable.</p>
+          <span class="menu-hub__card-meta">4 designs &middot; from ₹2,799</span>
+          <span class="menu-hub__card-cta">Explore Engagement Cakes →</span>
+        </a>
+
+        <a href="birthday-theme-cakes" class="menu-hub__card" style="--card-accent:#0288C7;--card-bg:#E8F6FF">
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="32 6 38 22 56 22 42 32 48 50 32 40 16 50 22 32 8 22 26 22"/>
+              <circle cx="32" cy="32" r="3" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Birthday Theme Cakes</h2>
+          <p class="menu-hub__card-desc">Unicorn, Superhero, Princess Castle, Dinosaur, Galaxy, Safari — your child\'s dream character in edible fondant.</p>
+          <span class="menu-hub__card-meta">6 designs &middot; from ₹1,599</span>
+          <span class="menu-hub__card-cta">Explore Theme Cakes →</span>
+        </a>
+
+        <a href="baby-shower-cakes" class="menu-hub__card" style="--card-accent:#2E7D32;--card-bg:#EEFAE5">
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="32" cy="22" r="10"/>
+              <path d="M14 54c0-9 8-16 18-16s18 7 18 16"/>
+              <circle cx="28" cy="20" r="1.5" fill="currentColor"/>
+              <circle cx="36" cy="20" r="1.5" fill="currentColor"/>
+              <path d="M28 26q4 3 8 0"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Baby Shower &amp; Naming Cakes</h2>
+          <p class="menu-hub__card-desc">Seemantham ceremonies, gender reveal, half-year birthdays, naming ceremonies — sweet beginnings.</p>
+          <span class="menu-hub__card-meta">7 designs &middot; from ₹1,999</span>
+          <span class="menu-hub__card-cta">Explore Baby Shower Cakes →</span>
+        </a>
+
+      </div>
+
+      <!-- Helper note -->
+      <div class="menu-hub__help">
+        <h3>Can't find what you're looking for?</h3>
+        <p>We make custom cakes for any occasion — share your reference image and we'll bring it to life. Custom orders need 24–48 hours' notice.</p>
+        <div class="menu-hub__help-cta">
+          <a href="contact" class="btn btn-gold">Request Custom Cake</a>
+          <a href="tel:+917975218850" class="btn btn-outline-gold">Call +91 79752 18850</a>
         </div>
       </div>
-    </section>
 
-    <!-- WEDDING CAKES -->
-    <section class="menu-cat-section" id="cat-wedding-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">For Your Most Special Day</span>
-          <h2>Wedding Cakes</h2>
-          <p>Masterfully crafted tiered cakes that match the grandeur of your celebration. Every detail designed for your big day.</p>
-        </div>
-        <div class="pcard-grid" id="grid-wedding-cakes"></div>
-        <div class="cant-find-cta" id="cta-wedding-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Planning your dream wedding cake?</h3>
-              <p>Share your inspiration — photos, colours, themes — and we'll craft a bespoke wedding cake that takes everyone's breath away.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Free consultation available</li>
-                <li>✓ Multiple tiers, any flavour</li>
-                <li>✓ Delivered and set up at your venue</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Wedding Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Wedding date, guest count, design inspiration, reference links…"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Book a Consultation →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Wonderful! We'll be in touch to plan your perfect wedding cake.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ENGAGEMENT CAKES -->
-    <section class="menu-cat-section" id="cat-engagement-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Celebrate the Beginning</span>
-          <h2>Engagement Cakes</h2>
-          <p>Mark this beautiful milestone with a cake as unique as your love story. Personalized, elegant, and unforgettable.</p>
-        </div>
-        <div class="pcard-grid" id="grid-engagement-cakes"></div>
-        <div class="cant-find-cta" id="cta-engagement-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Planning a surprise proposal cake?</h3>
-              <p>Tell us your story — the name, the date, the design — and we'll create something truly magical for the most important yes of your life.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Surprise delivery arrangements</li>
-                <li>✓ Personalised toppers &amp; messages</li>
-                <li>✓ Same-day orders on availability</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Engagement Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Names, date of engagement, design inspiration or reference image link…"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg> How exciting! We'll reach out right away to make it perfect.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- BIRTHDAY THEME CAKES -->
-    <section class="menu-cat-section" id="cat-birthday-theme-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Your Theme, Our Craft</span>
-          <h2>Birthday Theme Cakes</h2>
-          <p>From unicorns to superheroes, dinosaurs to galaxies — we bring your child's dream cake to life with edible art.</p>
-        </div>
-        <div class="pcard-grid" id="grid-birthday-theme-cakes"></div>
-        <div class="cant-find-cta" id="cta-birthday-theme-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Have a specific theme in mind?</h3>
-              <p>Share the theme, character or reference image — we'll bring it to life exactly as you envision it.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Any character, any theme</li>
-                <li>✓ 3D fondant &amp; sculpted designs</li>
-                <li>✓ Available at all 5 outlets</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Birthday Theme Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Describe your theme — character, colours, size, reference image link…"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Theme request received! We'll call you back shortly.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- BABY SHOWER & NAMING CAKES -->
-    <section class="menu-cat-section" id="cat-baby-shower-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Welcome the Little One</span>
-          <h2>Baby Shower &amp; Naming Cakes</h2>
-          <p>Soft pastels, delicate florals, and heartwarming designs to celebrate the newest member of your family.</p>
-        </div>
-        <div class="pcard-grid" id="grid-baby-shower-cakes"></div>
-        <div class="cant-find-cta" id="cta-baby-shower-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Planning a baby shower or naming ceremony?</h3>
-              <p>Tell us the gender (or keep it a surprise!), theme, and any personalisation you'd love — we'll create something truly special.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Gender reveal options available</li>
-                <li>✓ Personalised name toppers</li>
-                <li>✓ Same-day orders on availability</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Baby Shower Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Baby's name, gender theme, date of event, design inspiration…"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> How lovely! We'll be in touch to plan your special cake.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
+    </div>
   </main>
 
   <!-- ORDER CTA -->
