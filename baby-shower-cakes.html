@@ -279,7 +279,7 @@
   }
 
   /* Seed defaults if localStorage is empty (mirrors admin.js) */
-  const DATA_VERSION = 'v6'; // bump to force refresh when images/products change
+  const DATA_VERSION = 'v7'; // bump to force refresh when images/products change
   function ensureDefaults() {
     if (localStorage.getItem('krispies_data_ver') !== DATA_VERSION) {
       localStorage.removeItem(PROD_KEY);
@@ -320,6 +320,8 @@
       mk('Winged Baby Unicorn Hearts Cake','birthday-theme-cakes','Sky-blue tier with a baby pegasus topper, pastel hearts, gold stars on sticks and dreamy cloud detailing.','new',2999,0,false),
       mk('Half Birthday Teddy Cake','birthday-theme-cakes','Mint blue cake with two adorable brown teddies, halfway to one star sign and a ladder — the perfect 6 month milestone.','bestseller',1999,0,true),
       mk('Barbie Doll Pink Floral Cake','birthday-theme-cakes','Classic Barbie doll cake in a flowing pink fondant gown with white floral detailing — a princess birthday showstopper.','bestseller',2999,0,false),
+      mk('Pastel Rainbow Bear Cake for Kids','birthday-theme-cakes','Pastel pink, yellow, mint and blue rainbow ombre with two adorable teddy bears, fluffy clouds and rainbow topper — pure cuteness.','bestseller',2499,0,true),
+      mk('Personalised Name 1st Birthday Princess Cake','birthday-theme-cakes','Premium two-tier with a princess doll in pink ruffles, white bunny, custom-piped name, gold 1 number and rose-gold metallic spheres.','bestseller',4999,0,true),
       mk('Blue & Gold Baby Shower','baby-shower-cakes','Elegant two-tier in blue and gold — perfect for a baby boy celebration.','bestseller',2499,10,true),
       mk('Pink Floral Baby Shower','baby-shower-cakes','Soft pink with handmade fondant blossoms for a baby girl celebration.','bestseller',2499,0,true),
       mk('Neutral Pastel Tier','baby-shower-cakes','Gender-neutral pastels with delicate ruffles — ideal before gender reveal.','new',1999,10,false),
