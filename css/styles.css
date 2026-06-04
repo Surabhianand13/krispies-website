@@ -1093,21 +1093,21 @@ h1, h2, h3, h4 {
   gap: 20px;
   will-change: transform;
 }
-.walllove__track--up-slow { animation: ll-up   34s linear infinite; }
-.walllove__track--up      { animation: ll-up   26s linear infinite; }
-.walllove__track--down    { animation: ll-down 30s linear infinite; }
+.walllove__track--up-slow { animation: ll-up   55s linear infinite; }
+.walllove__track--up      { animation: ll-up   45s linear infinite; }
+.walllove__track--down    { animation: ll-down 50s linear infinite; }
 
 .walllove__col:hover .walllove__track {
   animation-play-state: paused;
 }
 
 @keyframes ll-up {
-  from { transform: translateY(0); }
-  to   { transform: translateY(calc(-100% - 20px)); }
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
 }
 @keyframes ll-down {
-  from { transform: translateY(calc(-100% - 20px)); }
-  to   { transform: translateY(0); }
+  0%   { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
 }
 
 /* Review card */
