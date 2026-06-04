@@ -574,7 +574,7 @@ h1, h2, h3, h4 {
   background: #FFFFFF;
   border-top: 1.5px solid var(--border-gold);
   border-bottom: 1.5px solid var(--border-gold);
-  animation: qcat-scroll 18s linear infinite;
+  animation: qcat-scroll 40s linear infinite;
 }
 .qcat__inner:hover { animation-play-state: paused; }
 @keyframes qcat-scroll {
