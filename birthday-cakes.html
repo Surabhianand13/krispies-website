@@ -19,6 +19,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1557925923-33b27f4a0254?w=1400&h=700&fit=crop&q=80">
   <link rel="icon" href="assets/logo.svg" type="image/png">
+  <link rel="dns-prefetch" href="https://checkout.razorpay.com">
+  <link rel="preconnect" href="https://checkout.razorpay.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -934,6 +936,10 @@
     _chkCart     = { qty: 1, deliveryDate: '', deliveryTime: '', notes: '' };
     _chkCust     = { name: '', phone: '', email: '', address: '' };
     _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
+    // ⚡ Wake Render backend now — eliminates cold-start stall when Pay Online is clicked
+    fetch(BACKEND_URL + '/api/health').catch(() => {});
+    // ⚡ Preload Razorpay SDK in background while customer fills Steps 1–3
+    _chkLoadScript('https://checkout.razorpay.com/v1/checkout.js').catch(() => {});
     document.getElementById('checkoutOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
     _chkRenderStep(1);
