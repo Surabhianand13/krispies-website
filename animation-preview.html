@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krispie's — Celebration Animation Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#FAF7F0;overflow-x:hidden}
+
+/* ── NAV ── */
+.pnav{position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 40px;background:rgba(255,248,242,0.92);
+  backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,168,112,0.2)}
+.pnav__logo{font-family:'Playfair Display',serif;font-size:1.3rem;
+  font-weight:700;color:#3D1C02}
+.pnav__tag{font-size:0.65rem;font-weight:700;letter-spacing:0.2em;
+  text-transform:uppercase;color:#C9A870;background:rgba(201,168,112,0.12);
+  border:1px solid rgba(201,168,112,0.3);padding:5px 14px;border-radius:50px}
+
+/* ══════════════════════════════════════
+   SECTION 1 — HERO: Celebrations Parade
+══════════════════════════════════════ */
+.s1{
+  min-height:100vh;padding:90px 24px 60px;
+  background:linear-gradient(170deg,#FAF7F0 0%,#F5EDD8 50%,#EDD9B0 100%);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+}
+
+/* Refined confetti pieces */
+.confetti-wrap{position:absolute;inset:0;pointer-events:none;z-index:0}
+.cf{
+  position:absolute;
+  animation:cf-fall linear infinite;
+}
+/* three shape variants set by JS */
+.cf.dot   { border-radius:50%; }
+.cf.line  { border-radius:50px; }
+.cf.diamond { transform-origin:center; }
+@keyframes cf-fall{
+  0%  {transform:translateY(-40px) rotate(0deg);opacity:0}
+  8%  {opacity:var(--co,0.55)}
+  88% {opacity:var(--co,0.55)}
+  100%{transform:translateY(105vh) rotate(540deg);opacity:0}
+}
+
+/* Big main cake (SVG illustration) */
+.hero-cake-wrap{
+  position:relative;z-index:5;
+  animation:cake-float 3.6s ease-in-out infinite;
+  margin-bottom:32px;
+  filter: drop-shadow(0 24px 40px rgba(160,98,42,0.18));
+}
+@keyframes cake-float{
+  0%,100%{transform:translateY(0px)}
+  50%    {transform:translateY(-14px)}
+}
+
+/* Candle flicker */
+.flame{animation:flicker 0.9s ease-in-out infinite alternate}
+.flame2{animation:flicker 1.1s 0.3s ease-in-out infinite alternate}
+.flame3{animation:flicker 0.8s 0.6s ease-in-out infinite alternate}
+@keyframes flicker{
+  0%  {transform:scale(1) translateY(0);opacity:1}
+  50% {transform:scale(0.85,1.2) translateY(-2px);opacity:0.85}
+  100%{transform:scale(1.1,0.9) translateY(1px);opacity:0.95}
+}
+
+/* Occasion tag cycler */
+.occasion-tag{
+  display:inline-flex;align-items:center;gap:0;
+  position:relative;z-index:5;
+  margin-bottom:28px;
+  animation:tag-fade 0.6s ease both;
+  overflow:hidden;
+}
+.occasion-tag__line{
+  display:block;width:28px;height:1px;background:#C9A870;
+  margin-right:14px;flex-shrink:0;
+}
+.occasion-tag__line.right{margin-right:0;margin-left:14px;}
+.occasion-tag__text{
+  font-family:'Playfair Display',serif;
+  font-size:1.05rem;font-style:italic;
+  font-weight:400;color:#6B3B1A;
+  letter-spacing:0.02em;
+}
+@keyframes tag-fade{
+  from{opacity:0;transform:translateY(8px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+
+.s1-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.4rem,5.5vw,4.2rem);
+  font-weight:700;color:#3D1C02;
+  line-height:1.08;margin-bottom:16px;
+  letter-spacing:-0.01em;
+  position:relative;z-index:5;
+}
+.s1-title em{font-style:italic;color:#A0622A;font-weight:400}
+.s1-gold-line{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin:0 auto 20px;position:relative;z-index:5;
+}
+.s1-gold-line span{display:block;height:1px;width:48px;background:linear-gradient(to right,transparent,#C9A870);}
+.s1-gold-line span:last-child{background:linear-gradient(to left,transparent,#C9A870);}
+.s1-gold-line i{color:#C9A870;font-style:normal;font-size:0.7rem;letter-spacing:0.3em}
+.s1-sub{
+  font-size:0.95rem;color:#6B3B1A;max-width:380px;
+  line-height:1.8;margin:0 auto 0;
+  letter-spacing:0.01em;
+  position:relative;z-index:5;
+  font-weight:400;
+}
+
+/* Floating occasion bubbles around the cake */
+.bubble{
+  position:absolute;
+  background:#FFFFFF;
+  border-radius:20px;
+  padding:10px 16px;
+  font-size:0.78rem;font-weight:700;color:#3D1C02;
+  box-shadow:0 6px 24px rgba(0,0,0,0.08);
+  display:flex;align-items:center;gap:8px;
+  white-space:nowrap;
+  animation:bubble-float var(--bd,4s) var(--bdd,0s) ease-in-out infinite;
+  z-index:4;
+}
+.bubble .bi{font-size:1.3rem}
+@keyframes bubble-float{
+  0%,100%{transform:translateY(0) rotate(var(--br,0deg))}
+  50%    {transform:translateY(-12px) rotate(calc(var(--br,0deg) * -1))}
+}
+
+/* Section label */
+.sec-label{
+  font-size:0.62rem;font-weight:700;letter-spacing:0.25em;
+  text-transform:uppercase;color:#C9A870;
+  background:rgba(201,168,112,0.12);border:1px solid rgba(201,168,112,0.3);
+  padding:5px 16px;border-radius:50px;display:inline-block;margin-bottom:16px;
+  position:relative;z-index:5;
+}
+
+/* ══════════════════════════════════════
+   SECTION 2 — OCCASION TICKER / MARQUEE
+══════════════════════════════════════ */
+.s2{
+  background:#3D1C02;
+  padding:0;overflow:hidden;
+  border-top:3px solid #C9A870;border-bottom:3px solid #C9A870;
+}
+.ticker-track{
+  display:flex;align-items:center;
+  gap:0;white-space:nowrap;
+  animation:ticker-scroll 28s linear infinite;
+  padding:18px 0;
+}
+.ticker-track:hover{animation-play-state:paused}
+@keyframes ticker-scroll{
+  from{transform:translateX(0)}
+  to  {transform:translateX(-50%)}
+}
+.tick-item{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:0 32px;
+  font-size:0.82rem;font-weight:700;letter-spacing:0.12em;
+  text-transform:uppercase;color:#FAF7F0;
+}
+.tick-item .tick-emoji{font-size:1.4rem;animation:tick-bounce 1.5s ease-in-out infinite}
+@keyframes tick-bounce{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%    {transform:translateY(-5px) scale(1.15)}
+}
+.tick-item:nth-child(2n) .tick-emoji{animation-delay:0.3s}
+.tick-item:nth-child(3n) .tick-emoji{animation-delay:0.6s}
+.tick-dot{color:#C9A870;font-size:1.2rem;padding:0 8px}
+
+/* ══════════════════════════════════════
+   SECTION 3 — CAKE CARDS FOR EACH OCCASION
+══════════════════════════════════════ */
+.s3{
+  padding:80px 24px 100px;
+  background:linear-gradient(180deg,#FFF8F2,#FFF0E8);
+  text-align:center;
+}
+.s3-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,4vw,3rem);
+  font-weight:700;color:#3D1C02;margin-bottom:8px;
+}
+.s3-sub{font-size:0.95rem;color:#6B3B1A;margin-bottom:52px}
+
+.occasion-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:24px;max-width:1100px;margin:0 auto;
+}
+.ocard{
+  background:#FFFFFF;
+  border-radius:24px;
+  padding:32px 20px 28px;
+  box-shadow:0 4px 24px rgba(61,28,2,0.08);
+  border:2px solid transparent;
+  cursor:default;
+  transition:transform 0.3s,box-shadow 0.3s,border-color 0.3s;
+  animation:card-enter 0.7s var(--cd,0s) both cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes card-enter{
+  from{opacity:0;transform:translateY(40px) scale(0.85)}
+  to  {opacity:1;transform:translateY(0) scale(1)}
+}
+.ocard:hover{
+  transform:translateY(-10px) scale(1.03);
+  box-shadow:0 16px 40px rgba(61,28,2,0.14);
+  border-color:var(--cc,#FFB7C5);
+}
+.ocard__cake{
+  font-size:3.5rem;
+  display:block;margin-bottom:16px;
+  animation:cake-idle var(--ci,3s) var(--cid,0s) ease-in-out infinite;
+}
+@keyframes cake-idle{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%    {transform:translateY(-8px) scale(1.05)}
+}
+.ocard__occasion{
+  font-size:0.62rem;font-weight:700;letter-spacing:0.2em;
+  text-transform:uppercase;padding:4px 12px;border-radius:50px;
+  margin-bottom:12px;display:inline-block;
+}
+.ocard__name{
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem;font-weight:700;color:#3D1C02;margin-bottom:6px;
+}
+.ocard__who{font-size:0.82rem;color:#6B3B1A;line-height:1.5}
+
+/* ══════════════════════════════════════
+   SECTION 4 — SCROLLING CELEBRATION STORIES
+══════════════════════════════════════ */
+.s4{
+  background:#3D1C02;
+  padding:80px 0;overflow:hidden;
+  position:relative;
+}
+.s4::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A870' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.s4-head{text-align:center;margin-bottom:48px;position:relative;z-index:2}
+.s4-head h2{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,4vw,3rem);color:#FAF7F0;margin-bottom:8px;
+}
+.s4-head h2 em{font-style:italic;color:#C9A870}
+.s4-head p{font-size:0.9rem;color:rgba(250,247,240,0.55)}
+
+/* Horizontal story scroll — auto-scrolling */
+.story-track-wrap{overflow:hidden;position:relative;z-index:2}
+.story-track{
+  display:flex;gap:20px;padding:4px 40px;
+  animation:story-scroll 40s linear infinite;
+}
+.story-track:hover{animation-play-state:paused}
+@keyframes story-scroll{
+  from{transform:translateX(0)}
+  to  {transform:translateX(-50%)}
+}
+.story-card{
+  flex:0 0 240px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(201,168,112,0.25);
+  border-radius:20px;
+  padding:24px 20px;
+  text-align:center;
+  transition:transform 0.3s,background 0.3s;
+}
+.story-card:hover{
+  transform:translateY(-6px) scale(1.04);
+  background:rgba(201,168,112,0.12);
+}
+.story-cake{font-size:3rem;display:block;margin-bottom:12px;
+  animation:story-bounce var(--sb,3.5s) var(--sd,0s) ease-in-out infinite}
+@keyframes story-bounce{
+  0%,100%{transform:translateY(0)}
+  50%    {transform:translateY(-10px)}
+}
+.story-for{
+  font-size:0.6rem;font-weight:700;letter-spacing:0.22em;
+  text-transform:uppercase;color:#C9A870;margin-bottom:8px;
+}
+.story-name{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:700;color:#FAF7F0;margin-bottom:6px;
+}
+.story-desc{font-size:0.78rem;color:rgba(250,247,240,0.5);line-height:1.5}
+
+/* ══════════════════════════════════════
+   SECTION 5 — FALLING CAKES ANIMATION
+══════════════════════════════════════ */
+.s5{
+  padding:80px 24px 100px;
+  background:#FFF8F2;
+  text-align:center;position:relative;overflow:hidden;
+}
+.s5-head{position:relative;z-index:5;margin-bottom:52px}
+.s5-head h2{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,4vw,3rem);color:#3D1C02;margin-bottom:8px;
+}
+.s5-head h2 em{font-style:italic;color:#C9A870}
+.s5-head p{font-size:0.9rem;color:#6B3B1A}
+
+/* Falling cake emojis */
+.fall-cake{
+  position:absolute;
+  font-size:var(--fs,2rem);
+  animation:cake-fall var(--fd,8s) var(--fdel,0s) linear infinite;
+  pointer-events:none;z-index:1;
+  left:var(--fl,50%);
+}
+@keyframes cake-fall{
+  0%  {transform:translateY(-80px) rotate(0deg);opacity:0}
+  10% {opacity:1}
+  90% {opacity:0.8}
+  100%{transform:translateY(110vh) rotate(360deg);opacity:0}
+}
+
+.s5-content{position:relative;z-index:5}
+.s5-msg{
+  display:inline-block;
+  background:#3D1C02;color:#FAF7F0;
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.5rem,4vw,2.5rem);
+  font-style:italic;
+  padding:20px 48px;border-radius:16px;
+  animation:msg-glow 3s ease-in-out infinite;
+  box-shadow:0 8px 40px rgba(61,28,2,0.25);
+}
+@keyframes msg-glow{
+  0%,100%{box-shadow:0 8px 40px rgba(61,28,2,0.25)}
+  50%    {box-shadow:0 12px 60px rgba(201,168,112,0.4)}
+}
+.s5-msg span{color:#C9A870}
+
+/* ── DIVIDERS ── */
+.div{text-align:center;padding:22px 0;background:#FFF8F2;
+  font-size:0.6rem;font-weight:700;letter-spacing:0.3em;
+  text-transform:uppercase;color:rgba(61,28,2,0.25)}
+.div b{color:#C9A870}
+
+@media(max-width:600px){
+  .pnav{padding:12px 18px}
+  .bubble{display:none}
+  .occasion-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .story-track{padding:4px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="pnav">
+  <div class="pnav__logo">Krispie's</div>
+  <div class="pnav__tag">Animation Preview</div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     SECTION 1 — CELEBRATIONS HERO
+══════════════════════════════════════ -->
+<section class="s1">
+
+  <!-- Confetti rain -->
+  <div class="confetti-wrap" id="confetti-wrap"></div>
+
+
+  <!-- Occasion cycler tag -->
+  <div class="sec-label">Concept 01 · Celebration Hero</div>
+  <div class="occasion-tag" id="occasion-tag">
+    <span class="occasion-tag__line"></span>
+    <span class="occasion-tag__text" id="occ-text">For Her Birthday</span>
+    <span class="occasion-tag__line right"></span>
+  </div>
+
+  <!-- Main bouncing cake (SVG) -->
+  <div class="hero-cake-wrap">
+    <svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Candles -->
+      <rect x="72" y="44" width="8" height="30" rx="4" fill="#C9A870"/>
+      <rect x="106" y="36" width="8" height="38" rx="4" fill="#E5CFA0"/>
+      <rect x="140" y="44" width="8" height="30" rx="4" fill="#A0622A"/>
+      <!-- Flames -->
+      <ellipse class="flame" cx="76" cy="40" rx="5" ry="8" fill="#C0622A"/>
+      <ellipse class="flame" cx="76" cy="38" rx="3" ry="5" fill="#E5CFA0"/>
+      <ellipse class="flame2" cx="110" cy="32" rx="5" ry="8" fill="#C0622A"/>
+      <ellipse class="flame2" cx="110" cy="30" rx="3" ry="5" fill="#E5CFA0"/>
+      <ellipse class="flame3" cx="144" cy="40" rx="5" ry="8" fill="#C0622A"/>
+      <ellipse class="flame3" cx="144" cy="38" rx="3" ry="5" fill="#E5CFA0"/>
+      <!-- Top cream layer -->
+      <rect x="40" y="74" width="140" height="30" rx="12" fill="#FAF7F0"/>
+      <rect x="40" y="74" width="140" height="14" rx="12" fill="#FFFFFF"/>
+      <!-- Cream swirls on top -->
+      <ellipse cx="76" cy="75" rx="10" ry="7" fill="#FFFFFF"/>
+      <ellipse cx="110" cy="75" rx="10" ry="7" fill="#FFFFFF"/>
+      <ellipse cx="144" cy="75" rx="10" ry="7" fill="#FFFFFF"/>
+      <!-- Cake layer 1 (chocolate) -->
+      <rect x="34" y="103" width="152" height="38" rx="8" fill="#6B3B1A"/>
+      <rect x="34" y="103" width="152" height="10" rx="8" fill="#8B4E22"/>
+      <!-- Cream middle -->
+      <rect x="34" y="138" width="152" height="14" rx="4" fill="#FAF7F0"/>
+      <!-- Cake layer 2 (lighter) -->
+      <rect x="28" y="150" width="164" height="38" rx="8" fill="#A0622A"/>
+      <rect x="28" y="150" width="164" height="10" rx="8" fill="#B87333"/>
+      <!-- Base plate -->
+      <ellipse cx="110" cy="192" rx="92" ry="12" fill="#E8D5B0"/>
+      <ellipse cx="110" cy="192" rx="86" ry="8" fill="#F5EDD8"/>
+      <!-- Sprinkles on cake -->
+      <circle cx="65" cy="120" r="3" fill="#E5CFA0"/>
+      <circle cx="85" cy="115" r="2.5" fill="#FAF7F0"/>
+      <circle cx="105" cy="122" r="3" fill="#C9A870"/>
+      <circle cx="125" cy="116" r="2.5" fill="#E5CFA0"/>
+      <circle cx="148" cy="121" r="3" fill="#FAF7F0"/>
+      <circle cx="70" cy="165" r="3" fill="#C9A870"/>
+      <circle cx="95" cy="162" r="2.5" fill="#E5CFA0"/>
+      <circle cx="120" cy="167" r="3" fill="#FAF7F0"/>
+      <circle cx="145" cy="163" r="2.5" fill="#C9A870"/>
+      <!-- Decorative border -->
+      <rect x="28" y="150" width="164" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+      <rect x="34" y="103" width="152" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+    </svg>
+  </div>
+
+  <h1 class="s1-title">Cakes for Every<br><em>Celebration</em></h1>
+  <div class="s1-gold-line">
+    <span></span><i>✦</i><span></span>
+  </div>
+  <p class="s1-sub">Handcrafted with love since 1996 —<br>Hyderabad's most beloved bakery.</p>
+
+</section>
+
+<div class="div"><b>✦ Scroll Down ✦</b></div>
+
+<!-- ══════════════════════════════════════
+     SECTION 2 — OCCASION TICKER
+══════════════════════════════════════ -->
+<section class="s2">
+  <div class="ticker-track" id="ticker">
+    <!-- populated by JS -->
+  </div>
+</section>
+
+<div class="div"><b>✦</b> Concept 02 · Occasion Cards <b>✦</b></div>
+
+<!-- ══════════════════════════════════════
+     SECTION 3 — OCCASION CARDS
+══════════════════════════════════════ -->
+<section class="s3">
+  <div class="sec-label">For Every Special Person</div>
+  <h2 class="s3-title">Which Celebration Is It?</h2>
+  <p class="s3-sub">Tap to explore cakes made for each moment</p>
+
+  <div class="occasion-grid">
+    <div class="ocard" style="--cd:0.0s;--cc:#FFB7C5">
+      <span class="ocard__cake" style="--ci:3s;--cid:0s">🎂</span>
+      <span class="ocard__occasion" style="background:#FFF0F4;color:#E05C82">🥳 Birthday</span>
+      <div class="ocard__name">Birthday Cakes</div>
+      <div class="ocard__who">For Mum · For Dad · For Wife · For Best Friend</div>
+    </div>
+    <div class="ocard" style="--cd:0.1s;--cc:#FFE566">
+      <span class="ocard__cake" style="--ci:3.5s;--cid:0.4s">🧁</span>
+      <span class="ocard__occasion" style="background:#FFFBE0;color:#B8860B">⭐ Kids</span>
+      <div class="ocard__name">Kids' Cakes</div>
+      <div class="ocard__who">Unicorn · Superhero · Princess · Dinosaur</div>
+    </div>
+    <div class="ocard" style="--cd:0.2s;--cc:#A8E6CF">
+      <span class="ocard__cake" style="--ci:4s;--cid:0.8s">💍</span>
+      <span class="ocard__occasion" style="background:#E8FFF6;color:#2E7D6B">💕 Wedding</span>
+      <div class="ocard__name">Wedding Cakes</div>
+      <div class="ocard__who">3-Tier · 5-Tier · Fondant · Floral</div>
+    </div>
+    <div class="ocard" style="--cd:0.3s;--cc:#FFB7C5">
+      <span class="ocard__cake" style="--ci:3.2s;--cid:0.2s">💐</span>
+      <span class="ocard__occasion" style="background:#FFF0F4;color:#E05C82">💍 Engagement</span>
+      <div class="ocard__name">Engagement Cakes</div>
+      <div class="ocard__who">Heart · Ring Design · Two-tier · Custom</div>
+    </div>
+    <div class="ocard" style="--cd:0.4s;--cc:#FFD4A8">
+      <span class="ocard__cake" style="--ci:3.8s;--cid:0.6s">🍰</span>
+      <span class="ocard__occasion" style="background:#FFF5EC;color:#C97D2A">🎉 Anniversary</span>
+      <div class="ocard__name">Anniversary Cakes</div>
+      <div class="ocard__who">1st · 5th · 10th · Silver · Golden</div>
+    </div>
+    <div class="ocard" style="--cd:0.5s;--cc:#C8B8FF">
+      <span class="ocard__cake" style="--ci:4.2s;--cid:1s">👶</span>
+      <span class="ocard__occasion" style="background:#F5F0FF;color:#7C5CBF">🍼 Baby Shower</span>
+      <div class="ocard__name">Baby Shower</div>
+      <div class="ocard__who">Blue · Pink · Neutral · Reveal Cake</div>
+    </div>
+  </div>
+</section>
+
+<div class="div"><b>✦</b> Concept 03 · Story Scroll <b>✦</b></div>
+
+<!-- ══════════════════════════════════════
+     SECTION 4 — SCROLLING STORY CARDS
+══════════════════════════════════════ -->
+<section class="s4">
+  <div class="s4-head">
+    <div class="sec-label" style="color:#C9A870">Every Slice Has a Story</div>
+    <h2>Made <em>For Someone</em> Special</h2>
+    <p>Hover to pause · Real stories, real smiles</p>
+  </div>
+  <div class="story-track-wrap">
+    <div class="story-track" id="story-track">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</section>
+
+<div class="div"><b>✦</b> Concept 04 · Falling Cakes <b>✦</b></div>
+
+<!-- ══════════════════════════════════════
+     SECTION 5 — RAINING CAKES
+══════════════════════════════════════ -->
+<section class="s5">
+  <div id="falling-wrap"></div>
+  <div class="s5-head">
+    <div class="sec-label">Concept 04 · Raining Sweets</div>
+    <h2>It's Always a <em>Good Day</em><br>for Cake</h2>
+    <p>Every day is a celebration at Krispie's</p>
+  </div>
+  <div class="s5-content">
+    <div class="s5-msg">
+      Delivering <span>Joy</span> Since 1996 🎂
+    </div>
+  </div>
+</section>
+
+<script>
+/* ── 1. REFINED CONFETTI ────────────────────── */
+(function(){
+  const wrap = document.getElementById('confetti-wrap');
+  const COLORS = ['#C9A870','#E5CFA0','#D4A85A','#A0622A','#FAF7F0','#8B4E22'];
+
+  const shapes = [
+    // tiny dot
+    (c,op) => `width:4px;height:4px;border-radius:50%;background:${c};--co:${op}`,
+    // thin horizontal line
+    (c,op) => `width:${Math.random()*16+10}px;height:1.5px;border-radius:2px;background:${c};--co:${op}`,
+    // small diamond (rotated square)
+    (c,op) => `width:6px;height:6px;background:${c};transform:rotate(45deg);--co:${op}`,
+    // very thin tall line
+    (c,op) => `width:1.5px;height:${Math.random()*12+8}px;border-radius:2px;background:${c};--co:${op}`,
+    // small circle outline
+    (c,op) => `width:7px;height:7px;border-radius:50%;border:1.5px solid ${c};background:transparent;--co:${op}`,
+  ];
+
+  for(let i = 0; i < 55; i++){
+    const el = document.createElement('div');
+    el.className = 'cf';
+    const c   = COLORS[Math.floor(Math.random()*COLORS.length)];
+    const op  = (Math.random()*0.35+0.2).toFixed(2);
+    const fn  = shapes[Math.floor(Math.random()*shapes.length)];
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      ${fn(c,op)};
+      animation-duration:${Math.random()*7+7}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    wrap.appendChild(el);
+  }
+})();
+
+/* ── 2. OCCASION TAG CYCLER ─────────────────── */
+(function(){
+  const occasions=[
+    'For Her Birthday',
+    'For Your Little Star',
+    'For Your Wedding Day',
+    'For the Whole Family',
+    'For Their Graduation',
+    'For Your Anniversary',
+    'For a Baby Shower',
+    'Just Because — You Deserve It',
+    "For Dad's Special Day",
+    'For Your Best Friend',
+  ];
+  let idx=0;
+  const tag=document.getElementById('occasion-tag');
+  const textEl=document.getElementById('occ-text');
+  setInterval(()=>{
+    idx=(idx+1)%occasions.length;
+    tag.style.animation='none';
+    tag.offsetHeight;
+    tag.style.animation='tag-fade 0.6s ease both';
+    textEl.textContent=occasions[idx];
+  },2200);
+})();
+
+/* ── 3. TICKER ──────────────────────────────── */
+(function(){
+  const items=[
+    {emoji:'🎂',text:'Birthday Cakes'},
+    {emoji:'🧁',text:'Kids Cakes'},
+    {emoji:'💍',text:'Wedding Cakes'},
+    {emoji:'🍰',text:'Cheesecakes'},
+    {emoji:'🍩',text:'Donuts'},
+    {emoji:'💐',text:'Engagement Cakes'},
+    {emoji:'👶',text:'Baby Shower'},
+    {emoji:'🎓',text:'Graduation Cakes'},
+    {emoji:'💕',text:'Anniversary Cakes'},
+    {emoji:'🎉',text:'Custom Cakes'},
+  ];
+  const track=document.getElementById('ticker');
+  // duplicate for infinite scroll
+  [items,items].forEach(set=>{
+    set.forEach(item=>{
+      const el=document.createElement('span');
+      el.className='tick-item';
+      el.innerHTML=`<span class="tick-emoji">${item.emoji}</span>${item.text}<span class="tick-dot">✦</span>`;
+      track.appendChild(el);
+    });
+  });
+})();
+
+/* ── 4. STORY CARDS ─────────────────────────── */
+(function(){
+  const stories=[
+    {cake:'🎂',for:'For Wife',name:'Chocolate Dream',desc:'Her favourite every year — rich ganache & roses'},
+    {cake:'🧁',for:'For Kids',name:'Unicorn Magic',desc:'Rainbow layers & edible glitter for little dreamers'},
+    {cake:'💍',for:'For Wedding',name:'Ivory Elegance',desc:'5-tier fondant with sugar flowers that last forever'},
+    {cake:'🍰',for:'For Anniversary',name:'Red Velvet Love',desc:'25 years of sweetness, layer after layer'},
+    {cake:'👶',for:'Baby Shower',name:'Pink Cloud Cake',desc:'Soft vanilla, pastel buttercream & a surprise inside'},
+    {cake:'🎓',for:'Graduation',name:'Gold & Black Tier',desc:'Customised with their college name & year'},
+    {cake:'🎂',for:'For Dad',name:'Dark Chocolate',desc:'No nonsense, pure chocolate — just how he likes it'},
+    {cake:'🧁',for:'Office Party',name:'Assorted Cupcakes',desc:'12 flavours for 12 different personalities'},
+    {cake:'💐',for:'Engagement',name:'Blush Fondant',desc:'Two hearts, one cake — ring design on top'},
+    {cake:'🎉',for:'Just Because',name:'Surprise Cake',desc:'No occasion needed — life is the celebration'},
+  ];
+  const track=document.getElementById('story-track');
+  [stories,stories].forEach((set,si)=>{
+    set.forEach((s,i)=>{
+      const el=document.createElement('div');
+      el.className='story-card';
+      el.style.cssText=`--sb:${3+i*0.2}s;--sd:${i*0.15}s`;
+      el.innerHTML=`
+        <span class="story-cake">${s.cake}</span>
+        <div class="story-for">${s.for}</div>
+        <div class="story-name">${s.name}</div>
+        <div class="story-desc">${s.desc}</div>`;
+      track.appendChild(el);
+    });
+  });
+})();
+
+/* ── 5. FALLING CAKES ───────────────────────── */
+(function(){
+  const wrap=document.getElementById('falling-wrap');
+  const cakes=['🎂','🧁','🍰','🍩','🎂','🎉','🧁','🍰','🎂','✨','🎈','⭐'];
+  for(let i=0;i<24;i++){
+    const el=document.createElement('div');
+    el.className='fall-cake';
+    const size=Math.random()*1.5+1.2;
+    el.style.cssText=`
+      --fl:${Math.random()*90+5}%;
+      --fd:${Math.random()*6+7}s;
+      --fdel:${Math.random()*10}s;
+      --fs:${size}rem;
+    `;
+    el.textContent=cakes[Math.floor(Math.random()*cakes.length)];
+    wrap.appendChild(el);
+  }
+})();
+</script>
+</body>
+</html>
