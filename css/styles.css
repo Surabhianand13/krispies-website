@@ -608,7 +608,7 @@ h1, h2, h3, h4 {
 
 /* Dots */
 .hero__dots {
-  position: absolute; bottom: 28px; left: 50%;
+  position: absolute; bottom: 10px; left: 50%;
   transform: translateX(-50%);
   display: flex; gap: 8px; z-index: 10;
 }
