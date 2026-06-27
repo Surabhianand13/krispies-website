@@ -1844,44 +1844,47 @@ h1, h2, h3, h4 {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 32px;
-  padding: 22px 24px 4px;
-  border-top: 1px dashed var(--border-gold);
+  gap: 0;
+  padding: 28px 24px 8px;
+  border-top: 1px solid rgba(154,122,72,0.25);
   flex-wrap: wrap;
 }
 .custom-cta__trust-item {
   text-align: center;
+  padding: 0 28px;
 }
 .custom-cta__trust-item strong {
   display: block;
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 700;
-  font-style: italic;
-  color: var(--gold-dark);
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-style: normal;
+  color: #1A1208;
   line-height: 1;
   letter-spacing: -0.02em;
 }
 .custom-cta__trust-item small {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  color: var(--text-muted-lt);
-  margin-top: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #7A6240;
+  margin-top: 7px;
   text-transform: uppercase;
 }
 .custom-cta__trust-divider {
   width: 1px;
-  height: 32px;
-  background: var(--border-gold);
+  height: 36px;
+  background: rgba(154,122,72,0.3);
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
   .custom-cta__inner { padding: 32px 22px 26px; }
   .custom-cta__actions { grid-template-columns: 1fr; gap: 12px; }
-  .custom-cta__trust { gap: 16px; }
+  .custom-cta__trust { gap: 8px; }
+  .custom-cta__trust-item { padding: 0 16px; }
   .custom-cta__trust-divider { display: none; }
   .custom-cta__btn { padding: 14px 18px; }
   .custom-cta__btn-title { font-size: 0.98rem; }
@@ -2035,103 +2038,142 @@ h1, h2, h3, h4 {
   line-height: 1.7;
 }
 
+/* Category accent palette */
+:root {
+  --cat-birthday:   #E8556D;
+  --cat-wedding:    #C9A870;
+  --cat-engagement: #C0636E;
+  --cat-theme:      #7B68B8;
+  --cat-baby:       #4BA89A;
+}
+
 .menu-hub {
   padding: 48px 0 96px;
-  background: #FBF6F2;
+  background: #F7F1EC;
 }
 .menu-hub__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0;
+  gap: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  border: 1px solid rgba(154,122,72,0.22);
-  border-radius: 3px;
-  overflow: hidden;
 }
 
-/* Hide the circular icon containers — typography-led design */
-.menu-hub__icon { display: none; }
+.menu-hub__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.menu-hub__icon svg {
+  width: 28px;
+  height: 28px;
+  stroke: #fff;
+}
 
 .menu-hub__card {
   display: flex;
   flex-direction: column;
-  gap: 0;
   background: #FFFFFF;
-  border: none;
-  border-radius: 0;
-  padding: 40px 36px 36px;
+  border-radius: 16px;
+  padding: 32px 30px 28px;
   text-decoration: none;
   color: #1A1208;
-  transition: background 0.22s;
   position: relative;
   overflow: hidden;
+  border: 1.5px solid transparent;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.28s cubic-bezier(0.34,1.2,0.64,1),
+              box-shadow 0.28s ease,
+              border-color 0.22s;
+}
+/* Colored top stripe per card */
+.menu-hub__card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: 16px 16px 0 0;
+  transition: height 0.25s ease;
 }
 .menu-hub__card::after {
   content: '';
   position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #C9A870, #9A7A48);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  inset: 0;
+  border-radius: 16px;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  pointer-events: none;
 }
 .menu-hub__card:hover {
-  background: #FBF6F2;
-  transform: none;
-  box-shadow: none;
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.13);
 }
-.menu-hub__card:hover::after { transform: scaleX(1); }
+.menu-hub__card:hover::before { height: 5px; }
+.menu-hub__card:hover .menu-hub__icon {
+  transform: scale(1.12) rotate(-4deg);
+}
+
+/* Per-category accents */
+.menu-hub__card:nth-child(1) { --cat: var(--cat-birthday); }
+.menu-hub__card:nth-child(2) { --cat: var(--cat-wedding); }
+.menu-hub__card:nth-child(3) { --cat: var(--cat-engagement); }
+.menu-hub__card:nth-child(4) { --cat: var(--cat-theme); }
+.menu-hub__card:nth-child(5) { --cat: var(--cat-baby); }
+
+.menu-hub__card::before { background: var(--cat, #C9A870); }
+.menu-hub__card:hover { border-color: color-mix(in srgb, var(--cat, #C9A870) 40%, transparent); }
+.menu-hub__icon { background: var(--cat, #C9A870); }
 
 /* Ordinal labels */
 .menu-hub__card-num {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #9A7A48;
-  margin-bottom: 22px;
-  opacity: 0.8;
+  color: var(--cat, #9A7A48);
+  margin-bottom: 14px;
 }
 .menu-hub__card-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #1A1208;
-  margin: 0 0 14px;
-  line-height: 1.2;
+  margin: 0 0 12px;
+  line-height: 1.25;
+  transition: color 0.2s;
 }
+.menu-hub__card:hover .menu-hub__card-title { color: var(--cat, #C9A870); }
+
 .menu-hub__card-desc {
-  font-size: 0.88rem;
+  font-size: 0.87rem;
   line-height: 1.75;
   color: #6B5B3E;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   flex: 1;
 }
 .menu-hub__card-meta {
-  display: block;
+  display: inline-block;
   font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #9A7A48;
-  margin-bottom: 16px;
-  padding: 0;
-  background: none;
-  border: none;
-  border-radius: 0;
+  color: #fff;
+  background: var(--cat, #9A7A48);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 18px;
   width: fit-content;
 }
-.menu-hub__card-divider {
-  width: 24px;
-  height: 1px;
-  background: rgba(154,122,72,0.35);
-  margin-bottom: 18px;
-}
+.menu-hub__card-divider { display: none; }
 .menu-hub__card-cta {
   display: inline-flex;
   align-items: center;
@@ -2139,27 +2181,19 @@ h1, h2, h3, h4 {
   font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 700;
-  color: #9A7A48;
+  color: var(--cat, #9A7A48);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-top: auto;
-  transition: gap 0.2s, color 0.2s;
+  transition: gap 0.2s;
 }
 .menu-hub__card-cta::after {
   content: '→';
   font-weight: 400;
   transition: transform 0.2s;
 }
-.menu-hub__card:hover .menu-hub__card-cta { gap: 12px; color: #C9A870; }
-.menu-hub__card:hover .menu-hub__card-cta::after { transform: translateX(2px); }
-
-/* Hairline borders between grid cells */
-.menu-hub__grid .menu-hub__card:not(:nth-child(3n)) {
-  border-right: 1px solid rgba(154,122,72,0.14);
-}
-.menu-hub__grid .menu-hub__card:nth-child(n+4) {
-  border-top: 1px solid rgba(154,122,72,0.14);
-}
+.menu-hub__card:hover .menu-hub__card-cta { gap: 12px; }
+.menu-hub__card:hover .menu-hub__card-cta::after { transform: translateX(3px); }
 
 .menu-hub__help {
   margin-top: 60px;
@@ -2194,17 +2228,11 @@ h1, h2, h3, h4 {
 
 @media (max-width: 900px) {
   .menu-hub__grid { grid-template-columns: repeat(2, 1fr); }
-  .menu-hub__grid .menu-hub__card:not(:nth-child(3n)) { border-right: none; }
-  .menu-hub__grid .menu-hub__card:nth-child(n+4) { border-top: none; }
-  .menu-hub__grid .menu-hub__card:not(:nth-child(2n)) { border-right: 1px solid rgba(154,122,72,0.14); }
-  .menu-hub__grid .menu-hub__card:nth-child(n+3) { border-top: 1px solid rgba(154,122,72,0.14); }
 }
 @media (max-width: 600px) {
   .menu-hub__grid { grid-template-columns: 1fr; }
-  .menu-hub__grid .menu-hub__card { border-right: none !important; }
-  .menu-hub__grid .menu-hub__card:nth-child(n+2) { border-top: 1px solid rgba(154,122,72,0.14) !important; }
-  .menu-hub__card { padding: 30px 24px 28px; }
-  .menu-hub__card-title { font-size: 1.3rem; }
+  .menu-hub__card { padding: 28px 22px 24px; }
+  .menu-hub__card-title { font-size: 1.25rem; }
   .menu-hub__help { padding: 28px 20px; }
   .menu-hub__help-cta { flex-direction: column; align-items: stretch; }
 }
