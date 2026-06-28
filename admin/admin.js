@@ -177,6 +177,28 @@ function showToast(msg, type = 'success') {
   setTimeout(() => { t.classList.remove('toast--show'); setTimeout(() => t.remove(), 350); }, 3500);
 }
 
+// ── API FETCH ─────────────────────────────────────
+async function apiFetch(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(BACKEND_URL + path, opts);
+  if (res.status === 401) { logout(); return; }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
+  return data;
+}
+
+// ── ESCAPE HTML ────────────────────────────────────
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // ── SIDEBAR ACTIVE ────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const page = window.location.pathname.split('/').pop();
