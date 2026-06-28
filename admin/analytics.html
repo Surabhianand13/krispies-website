@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar__brand"><div class="sidebar__brand-name">🎂 Krispie's</div><div class="sidebar__brand-sub">Admin Panel</div></div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="analytics.html" class="sidebar__link active"><span class="sidebar__icon">📈</span> Analytics</a>
+      <div class="sidebar__section-label">Manage</div>
+      <a href="orders.html"    class="sidebar__link"><span class="sidebar__icon">📦</span> Orders <span class="sidebar__badge" id="sb-orders">0</span></a>
+      <a href="enquiries.html" class="sidebar__link"><span class="sidebar__icon">💬</span> Enquiries <span class="sidebar__badge" id="sb-enquiries">0</span></a>
+      <a href="products.html"  class="sidebar__link"><span class="sidebar__icon">🛍️</span> Products</a>
+    </nav>
+    <div class="sidebar__footer"><button class="sidebar__logout" onclick="logout()">↩ Logout</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="topbar">
+      <div><div class="topbar__title">Analytics</div><div class="topbar__sub">Website traffic and engagement</div></div>
+      <div class="topbar__actions">
+        <div class="topbar__live"><div class="topbar__live-dot"></div> Live</div>
+        <select id="global-range" onchange="loadAnalytics()" class="btn btn-outline btn-sm" style="padding:6px 12px;">
+          <option value="7">Last 7 days</option>
+          <option value="14">Last 14 days</option>
+          <option value="30" selected>Last 30 days</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Traffic tiles -->
+      <div class="analytics-grid">
+        <div class="analytics-tile highlight">
+          <div class="analytics-tile__label">Today</div>
+          <div class="analytics-tile__value" id="at-today">—</div>
+          <div class="analytics-tile__sub" id="at-today-uv">— visitors</div>
+        </div>
+        <div class="analytics-tile">
+          <div class="analytics-tile__label">Yesterday</div>
+          <div class="analytics-tile__value" id="at-yest">—</div>
+          <div class="analytics-tile__sub" id="at-yest-uv">— visitors</div>
+        </div>
+        <div class="analytics-tile">
+          <div class="analytics-tile__label">Last 3 Days</div>
+          <div class="analytics-tile__value" id="at-3d">—</div>
+          <div class="analytics-tile__sub" id="at-3d-uv">— visitors</div>
+        </div>
+        <div class="analytics-tile">
+          <div class="analytics-tile__label">Last 7 Days</div>
+          <div class="analytics-tile__value" id="at-7d">—</div>
+          <div class="analytics-tile__sub" id="at-7d-uv">— visitors</div>
+        </div>
+        <div class="analytics-tile">
+          <div class="analytics-tile__label">Last 30 Days</div>
+          <div class="analytics-tile__value" id="at-30d">—</div>
+          <div class="analytics-tile__sub" id="at-30d-uv">— visitors</div>
+        </div>
+      </div>
+
+      <!-- Trend chart + Device split -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card__hd"><h3>Daily Traffic Trend</h3></div>
+          <div class="chart-wrap" style="padding-top:16px;"><canvas id="trendChart" height="200"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card__hd"><h3>Device Split</h3></div>
+          <div class="card__body"><canvas id="deviceChart" height="200"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Top pages + Events + Peak hours -->
+      <div class="three-col">
+        <div class="card">
+          <div class="card__hd"><h3>Top Pages</h3></div>
+          <div class="card__body" style="padding:10px 20px;">
+            <ul class="top-pages-list" id="top-pages"></ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__hd"><h3>User Actions</h3></div>
+          <div class="card__body">
+            <div id="event-counts"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__hd"><h3>Peak Hours (7 days)</h3></div>
+          <div class="chart-wrap" style="padding-top:16px;"><canvas id="hourChart" height="200"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Cloudflare note -->
+      <div class="card full-col">
+        <div class="card__body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <span style="font-size:1.4rem;">☁️</span>
+          <div style="flex:1;">
+            <div style="font-weight:700;margin-bottom:4px;">Additional metrics on Cloudflare</div>
+            <div style="font-size:0.78rem;color:var(--text-3);">Geo data, bandwidth, cache hit rates and more are available in your Cloudflare Pages dashboard under the <strong>Metrics</strong> tab.</div>
+          </div>
+          <a href="https://dash.cloudflare.com" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open Cloudflare →</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="admin.js"></script>
+<script>
+'use strict';
+if (!checkAuth()) throw new Error('Not authenticated');
+
+let trendChart, deviceChart, hourChart;
+
+async function loadAnalytics() {
+  try {
+    const data = await apiFetch('/api/analytics/summary');
+
+    // Traffic tiles
+    const t = data.traffic || {};
+    const set = (id, val, sub) => {
+      document.getElementById(id).textContent     = (val || 0).toLocaleString();
+      document.getElementById(id + '-uv').textContent = (sub || 0).toLocaleString() + ' visitors';
+    };
+    set('at-today', t.today?.views,     t.today?.visitors);
+    set('at-yest',  t.yesterday?.views, t.yesterday?.visitors);
+    set('at-3d',    t.days3?.views,     t.days3?.visitors);
+    set('at-7d',    t.days7?.views,     t.days7?.visitors);
+    set('at-30d',   t.days30?.views,    t.days30?.visitors);
+
+    // Sidebar badges
+    document.getElementById('sb-orders').textContent    = (data.orders?.summary || []).find(s=>s.status==='pending')?.c || 0;
+    document.getElementById('sb-enquiries').textContent = data.enquiries?.unread || 0;
+
+    renderTrend(data.dailyTrend || []);
+    renderDevice(data.deviceSplit || []);
+    renderHour(data.hourly || []);
+    renderTopPages(data.topPages || []);
+    renderEvents(data.eventCounts || []);
+  } catch (e) { console.error(e); }
+}
+
+function renderTrend(daily) {
+  const days = parseInt(document.getElementById('global-range').value) || 30;
+  const slice = daily.slice(-days);
+  const labels = slice.map(d => new Date(d.date).toLocaleDateString('en-IN', { day:'numeric', month:'short' }));
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'Page Views', data: slice.map(d=>d.views), borderColor:'#C9A870', backgroundColor:'rgba(201,168,112,0.1)', tension:0.4, fill:true, pointRadius:3 },
+      { label:'Visitors',   data: slice.map(d=>d.visitors), borderColor:'#9A4A3A', backgroundColor:'rgba(154,74,58,0.05)', tension:0.4, fill:false, pointRadius:3 }
+    ]},
+    options: { responsive:true, plugins:{ legend:{ labels:{ font:{ size:11 } } } }, scales:{ y:{ beginAtZero:true } } }
+  });
+}
+
+function renderDevice(split) {
+  const map = {};
+  split.forEach(d => { map[d.device_type || 'unknown'] = d.c; });
+  if (deviceChart) deviceChart.destroy();
+  deviceChart = new Chart(document.getElementById('deviceChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Mobile', 'Desktop', 'Other'],
+      datasets: [{ data: [map.mobile||0, map.desktop||0, map.other||0], backgroundColor:['#C9A870','#9A4A3A','#d1d5db'], borderWidth:2, borderColor:'#fff' }]
+    },
+    options: { responsive:true, plugins:{ legend:{ position:'right', labels:{ font:{ size:11 } } } } }
+  });
+}
+
+function renderHour(hourly) {
+  const data = Array(24).fill(0);
+  hourly.forEach(h => { data[parseInt(h.hour)] = h.views; });
+  if (hourChart) hourChart.destroy();
+  hourChart = new Chart(document.getElementById('hourChart'), {
+    type: 'bar',
+    data: {
+      labels: Array.from({length:24}, (_,i) => i + ':00'),
+      datasets: [{ data, backgroundColor: data.map(v => v === Math.max(...data) ? '#9A4A3A' : 'rgba(201,168,112,0.6)'), borderRadius:3 }]
+    },
+    options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true } } }
+  });
+}
+
+function renderTopPages(pages) {
+  const max = pages[0]?.views || 1;
+  const labels = { '/':'Home', '/menu':'Menu', '/story':'Our Story', '/contact':'Contact', '/birthday-cakes':'Birthday Cakes', '/wedding-cakes':'Wedding Cakes', '/engagement-cakes':'Engagement Cakes', '/birthday-theme-cakes':'Theme Cakes', '/baby-shower-cakes':'Baby Shower' };
+  document.getElementById('top-pages').innerHTML = pages.slice(0,8).map(p => {
+    const pct = Math.round((p.views / max) * 100);
+    const name = labels[p.path] || p.path || '/';
+    return `<li>
+      <span class="pg-path" title="${esc(p.path)}">${esc(name)}</span>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <span class="count">${p.views}</span>
+    </li>`;
+  }).join('') || '<li style="color:var(--text-3);padding:8px 0;">No data yet — tracker was just added</li>';
+}
+
+function renderEvents(events) {
+  const icons = { whatsapp_click:'💬', call_click:'📞', order_click:'🛒', menu_click:'📋', page_view:'👁️' };
+  const labels = { whatsapp_click:'WhatsApp clicks', call_click:'Call clicks', order_click:'Order clicks', menu_click:'Menu opens', page_view:'Page views' };
+  document.getElementById('event-counts').innerHTML = events.slice(0,6).map(e => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:0.8rem;">${icons[e.type]||'•'} ${labels[e.type]||e.type}</span>
+      <strong style="font-size:0.88rem;">${e.c}</strong>
+    </div>`).join('') || '<div style="color:var(--text-3);font-size:0.8rem;padding:8px 0;">No events tracked yet</div>';
+}
+
+loadAnalytics();
+</script>
+</body>
+</html>
