@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/logo.svg" type="image/png">
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    /* ── ANALYTICS-SPECIFIC OVERRIDES ───────── */
+    .analytics-stat-cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .a-card {
+      background: var(--black-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 18px 16px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--ease);
+    }
+    .a-card:hover { border-color: var(--border-mid); }
+    .a-card__accent {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .a-card__icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .a-card__label {
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .a-card__value {
+      font-family: var(--font-h);
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--cream);
+      margin-bottom: 6px;
+    }
+    .a-card__sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .a-card__change {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .change--up   { color: #52B788; background: rgba(82,183,136,0.12); }
+    .change--down { color: #E05252; background: rgba(224,82,82,0.12); }
+    .change--flat { color: var(--muted); }
+
+    /* color themes */
+    .theme-gold   .a-card__accent { background: var(--gold); }
+    .theme-gold   .a-card__icon   { background: rgba(201,168,112,0.12); }
+    .theme-green  .a-card__accent { background: #52B788; }
+    .theme-green  .a-card__icon   { background: rgba(82,183,136,0.12); }
+    .theme-blue   .a-card__accent { background: #5B8FE0; }
+    .theme-blue   .a-card__icon   { background: rgba(91,143,224,0.12); }
+    .theme-orange .a-card__accent { background: #E09052; }
+    .theme-orange .a-card__icon   { background: rgba(224,144,82,0.12); }
+    .theme-purple .a-card__accent { background: #B482F0; }
+    .theme-purple .a-card__icon   { background: rgba(180,130,240,0.12); }
+
+    /* ── CHART PANELS ─────────────────────────── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .chart-canvas-wrap {
+      position: relative;
+    }
+    canvas { display: block; }
+
+    /* ── RANGE TABS ───────────────────────────── */
+    .range-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--black-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3px;
+    }
+    .range-tab {
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: var(--ease);
+    }
+    .range-tab:hover { color: var(--cream); }
+    .range-tab.active {
+      background: var(--black-2);
+      color: var(--gold);
+      border: 1px solid var(--border);
+    }
+
+    /* ── LIVE DOT ────────────────────────────── */
+    .live-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #52B788;
+      margin-right: 5px;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    /* ── DONUT ───────────────────────────────── */
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 20px;
+    }
+    .donut-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .legend-dot {
+      width: 9px; height: 9px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .legend-label { font-size: 0.8rem; color: var(--cream); flex: 1; }
+    .legend-val   { font-size: 0.8rem; color: var(--gold); font-weight: 600; }
+    .legend-pct   { font-size: 0.7rem; color: var(--muted); width: 32px; text-align: right; }
+
+    /* ── TABLES ──────────────────────────────── */
+    .bar-track {
+      height: 5px;
+      background: rgba(201,168,112,0.1);
+      border-radius: 3px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+      border-radius: 3px;
+    }
+    .source-icon { margin-right: 6px; }
+
+    /* ── BOTTOM GRID ─────────────────────────── */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* ── EMPTY ───────────────────────────────── */
+    .empty-analytics {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+    }
+    .empty-analytics__icon { font-size: 2.5rem; opacity: 0.35; margin-bottom: 12px; }
+    .empty-analytics__title { font-size: 0.9rem; color: var(--cream); margin-bottom: 6px; }
+    .empty-analytics__sub { font-size: 0.78rem; line-height: 1.6; }
+
+    @media (max-width: 1200px) {
+      .analytics-stat-cards { grid-template-columns: repeat(3, 1fr); }
+      .charts-grid { grid-template-columns: 1fr; }
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      .analytics-stat-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img src="../assets/logo.svg" alt="Krispie's" class="sidebar__logo">
+      <div class="sidebar__brand-text">
+        <span class="sidebar__brand-name">Krispie's</span>
+        <span class="sidebar__brand-sub">Admin Panel</span>
+      </div>
+    </div>
+    <nav class="sidebar__nav">
+      <span class="sidebar__nav-section">Main</span>
+      <a href="dashboard" class="sidebar__link">
+        <span class="sidebar__link-icon">📊</span> Dashboard
+      </a>
+      <a href="analytics" class="sidebar__link active">
+        <span class="sidebar__link-icon">📈</span> Analytics
+      </a>
+      <span class="sidebar__nav-section">Manage</span>
+      <a href="orders" class="sidebar__link">
+        <span class="sidebar__link-icon">📦</span> Orders
+        <span class="sidebar__badge" id="ordersBadge" style="display:none"></span>
+      </a>
+      <a href="enquiries" class="sidebar__link">
+        <span class="sidebar__link-icon">📋</span> Enquiries
+        <span class="sidebar__badge" id="unreadBadge" style="display:none"></span>
+      </a>
+      <a href="products" class="sidebar__link">
+        <span class="sidebar__link-icon">🎂</span> Products
+      </a>
+      <div class="sidebar__divider"></div>
+      <span class="sidebar__nav-section">Website</span>
+      <a href="../index" target="_blank" class="sidebar__link">
+        <span class="sidebar__link-icon">🌐</span> View Website ↗
+      </a>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__footer">
+        <button onclick="logout()" class="sidebar__link btn" style="color:var(--red); width:100%">
+          <span class="sidebar__link-icon">⎋</span> Logout
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <div>
+        <h1 class="admin-header__title">Analytics</h1>
+        <div style="font-size:0.72rem; color:var(--muted); margin-top:2px">
+          <span class="live-dot"></span>Live · Website traffic &amp; engagement
+        </div>
+      </div>
+      <div class="admin-header__actions">
+        <div class="range-tabs" id="rangeTabs">
+          <button class="range-tab active" data-days="1">Today</button>
+          <button class="range-tab" data-days="7">7 days</button>
+          <button class="range-tab" data-days="30">30 days</button>
+          <button class="range-tab" data-days="0">All time</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearAnalytics()">Clear Data</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <!-- STAT CARDS -->
+      <div class="analytics-stat-cards" id="statCards">
+        <!-- JS rendered -->
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="charts-grid">
+
+        <!-- TREND CHART -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">Daily Traffic Trend</span>
+            <span id="trendSubLabel" style="font-size:0.72rem; color:var(--muted)"></span>
+          </div>
+          <div style="padding: 16px 20px 12px;">
+            <div class="chart-canvas-wrap" style="height:200px;">
+              <canvas id="trendChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEVICE SPLIT -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">Device Split</span>
+          </div>
+          <div class="donut-wrap" id="donutArea">
+            <!-- JS rendered -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM GRID -->
+      <div class="bottom-grid">
+
+        <!-- TOP PAGES -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">Top Pages</span>
+            <span style="font-size:0.7rem; color:var(--muted)">by page views</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:30px">#</th>
+                  <th>Page</th>
+                  <th style="text-align:right; width:60px">Views</th>
+                  <th style="text-align:right; width:50px">Share</th>
+                </tr>
+              </thead>
+              <tbody id="pagesTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TRAFFIC SOURCES -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">Traffic Sources</span>
+            <span style="font-size:0.7rem; color:var(--muted)">where visitors come from</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:30px">#</th>
+                  <th>Source</th>
+                  <th style="text-align:right; width:60px">Views</th>
+                  <th style="text-align:right; width:50px">Share</th>
+                </tr>
+              </thead>
+              <tbody id="sourcesTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+'use strict';
+
+checkAuth();
+initDefaults();
+
+// sidebar badges
+(function() {
+  const enq = getData(KEYS.enquiries);
+  const ord = getData(KEYS.orders);
+  const unread  = enq.filter(e => e.status === 'unread').length;
+  const pending = ord.filter(o => o.status === 'pending').length;
+  if (unread  > 0) { const b = document.getElementById('unreadBadge');  b.textContent = unread;  b.style.display = 'inline-flex'; }
+  if (pending > 0) { const b = document.getElementById('ordersBadge');  b.textContent = pending; b.style.display = 'inline-flex'; }
+})();
+
+// ── constants ─────────────────────────────────────────
+const STORE_KEY = 'krispies_analytics';
+const GOLD    = '#C9A870';
+const GOLD_D  = '#9A7A48';
+const MUTED   = 'rgba(232,217,192,0.3)';
+const CREAM   = '#E8D9C0';
+const GREEN   = '#52B788';
+const BLUE    = '#5B8FE0';
+const PURPLE  = '#B482F0';
+const ORANGE  = '#E09052';
+const RED     = '#E05252';
+
+const PAGE_META = {
+  'index':                   { label: 'Home',                  icon: '🏠' },
+  'menu':                    { label: 'Menu',                  icon: '🎂' },
+  'story':                   { label: 'Our Story',             icon: '📖' },
+  'contact':                 { label: 'Contact',               icon: '📬' },
+  'articles':                { label: 'Articles',              icon: '📰' },
+  'perfect-birthday-cake':   { label: 'Birthday Cake Guide',   icon: '📝' },
+  'customized-cakes-guide':  { label: 'Customized Cakes',      icon: '📝' },
+  'iyengar-baking-heritage': { label: 'Iyengar Heritage',      icon: '📝' },
+};
+const SOURCE_META = {
+  'direct':   { label: 'Direct',    icon: '🔗' },
+  'google':   { label: 'Google',    icon: '🔍' },
+  'facebook': { label: 'Facebook',  icon: '📘' },
+  'instagram':{ label: 'Instagram', icon: '📸' },
+  'zomato':   { label: 'Zomato',    icon: '🍽️' },
+  'swiggy':   { label: 'Swiggy',    icon: '🛵' },
+  'internal': { label: 'Internal',  icon: '↩️' },
+};
+
+// ── data helpers ──────────────────────────────────────
+function loadEvents() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch (e) { return []; }
+}
+function filterDays(events, days) {
+  if (!days) return events;
+  const cutoff = Date.now() - days * 86400000;
+  return events.filter(e => e.ts >= cutoff);
+}
+function prevPeriod(all, days) {
+  if (!days) return [];
+  const now = Date.now();
+  return all.filter(e => e.ts >= now - days * 2 * 86400000 && e.ts < now - days * 86400000);
+}
+function estimateSessions(events) {
+  if (!events.length) return 0;
+  const sorted = [...events].sort((a,b) => a.ts - b.ts);
+  let s = 1;
+  for (let i = 1; i < sorted.length; i++)
+    if (sorted[i].ts - sorted[i-1].ts > 30 * 60000) s++;
+  return s;
+}
+function topDevice(counts) {
+  return Object.entries(counts).sort((a,b) => b[1]-a[1])[0]?.[0] || 'desktop';
+}
+function changeMeta(cur, prev) {
+  if (!prev) return { text: cur > 0 ? '▲ new' : '—', cls: cur > 0 ? 'change--up' : 'change--flat' };
+  const d = Math.round(((cur - prev) / prev) * 100);
+  return {
+    text: (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d) + '% vs prev',
+    cls: d >= 0 ? 'change--up' : 'change--down',
+  };
+}
+
+// ── range tab ─────────────────────────────────────────
+let activeDays = 1;
+document.getElementById('rangeTabs').addEventListener('click', function(e) {
+  const btn = e.target.closest('.range-tab');
+  if (!btn) return;
+  document.querySelectorAll('.range-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeDays = parseInt(btn.dataset.days, 10);
+  render();
+});
+
+// ── canvas trend chart ────────────────────────────────
+function drawTrend(events, days) {
+  const canvas = document.getElementById('trendChart');
+  const wrap   = canvas.parentElement;
+  const dpr    = window.devicePixelRatio || 1;
+  const W = wrap.clientWidth, H = 200;
+  canvas.width  = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const numDays = days || 30;
+  const buckets = [];
+  for (let i = numDays - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - i);
+    buckets.push({ label: dayLabel(d, numDays), ts: d.getTime(), v: 0 });
+  }
+  events.forEach(ev => {
+    const d = new Date(ev.ts); d.setHours(0,0,0,0);
+    const b = buckets.find(b => b.ts === d.getTime());
+    if (b) b.v++;
+  });
+
+  const max  = Math.max(...buckets.map(b => b.v), 1);
+  const pad  = { t: 16, r: 12, b: 32, l: 36 };
+  const cw   = W - pad.l - pad.r;
+  const ch   = H - pad.t - pad.b;
+  const step = cw / Math.max(buckets.length - 1, 1);
+
+  // grid
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + ch - (i / 4) * ch;
+    ctx.strokeStyle = MUTED;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
+    ctx.fillStyle = MUTED;
+    ctx.font = '10px Inter,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round((i / 4) * max), pad.l - 6, y + 3.5);
+  }
+
+  // points
+  const pts = buckets.map((b, i) => ({
+    x: pad.l + i * step,
+    y: pad.t + ch - (b.v / max) * ch,
+    v: b.v,
+  }));
+
+  if (numDays === 1 || buckets.length === 1) {
+    // single bar
+    const barW = Math.min(60, cw * 0.4);
+    const x = pad.l + cw / 2 - barW / 2;
+    const bh = Math.max((pts[0].v / max) * ch, 4);
+    ctx.fillStyle = GOLD;
+    roundRect(ctx, x, pad.t + ch - bh, barW, bh, 4);
+    ctx.fill();
+  } else if (numDays <= 14) {
+    // bars
+    const barW = Math.max(4, step * 0.55);
+    buckets.forEach((b, i) => {
+      const x  = pad.l + i * step - barW / 2;
+      const bh = Math.max(b.v > 0 ? (b.v / max) * ch : 0, b.v > 0 ? 3 : 0);
+      const y  = pad.t + ch - bh;
+      ctx.fillStyle = b.v === 0 ? 'rgba(201,168,112,0.08)' : GOLD;
+      roundRect(ctx, x, y, barW, Math.max(bh, b.v > 0 ? 3 : 1), 3);
+      ctx.fill();
+    });
+  } else {
+    // area + line
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pad.t + ch);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[pts.length-1].x, pad.t + ch);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(0, pad.t, 0, pad.t + ch);
+    g.addColorStop(0, 'rgba(201,168,112,0.25)');
+    g.addColorStop(1, 'rgba(201,168,112,0.02)');
+    ctx.fillStyle = g; ctx.fill();
+
+    ctx.beginPath();
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.strokeStyle = GOLD; ctx.lineWidth = 1.8; ctx.lineJoin = 'round'; ctx.stroke();
+
+    pts.forEach(p => {
+      if (p.v === 0) return;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = GOLD; ctx.fill();
+      ctx.strokeStyle = '#181818'; ctx.lineWidth = 1.5; ctx.stroke();
+    });
+  }
+
+  // x labels
+  const every = numDays <= 7 ? 1 : numDays <= 14 ? 2 : numDays <= 30 ? 5 : 7;
+  ctx.fillStyle = MUTED; ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
+  buckets.forEach((b, i) => {
+    if (i % every !== 0 && i !== buckets.length - 1) return;
+    ctx.fillText(b.label, pad.l + i * step, H - 8);
+  });
+}
+
+function dayLabel(date, total) {
+  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+function roundRect(ctx, x, y, w, h, r) {
+  if (typeof ctx.roundRect === 'function') { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+  else {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h); ctx.lineTo(x, y + h); ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+}
+
+// ── donut chart ───────────────────────────────────────
+function drawDonut(slices, total) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 130; canvas.height = 130;
+  canvas.style.width = '130px'; canvas.style.height = '130px';
+  const ctx   = canvas.getContext('2d');
+  const cx = 65, cy = 65, r = 58, inner = 38;
+  const colors = [GOLD, BLUE, GREEN, PURPLE, ORANGE];
+
+  let start = -Math.PI / 2;
+  slices.forEach((sl, i) => {
+    const sweep = (sl.value / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + sweep);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    start += sweep;
+  });
+
+  // inner cutout
+  ctx.beginPath();
+  ctx.arc(cx, cy, inner, 0, Math.PI * 2);
+  ctx.fillStyle = '#111111';
+  ctx.fill();
+
+  // center text
+  ctx.fillStyle = CREAM;
+  ctx.font = 'bold 16px Inter,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(total, cx, cy - 5);
+  ctx.font = '9px Inter,sans-serif';
+  ctx.fillStyle = MUTED;
+  ctx.fillText('views', cx, cy + 9);
+
+  return canvas;
+}
+
+// ── main render ───────────────────────────────────────
+function render() {
+  const all     = loadEvents();
+  const events  = filterDays(all, activeDays);
+  const prev    = prevPeriod(all, activeDays);
+  const total   = events.length;
+  const prevTotal = prev.length;
+
+  // aggregations
+  const devCounts = { desktop: 0, mobile: 0, tablet: 0 };
+  events.forEach(e => { const k = e.device in devCounts ? e.device : 'desktop'; devCounts[k]++; });
+
+  const pageCounts = {}, srcCounts = {};
+  events.forEach(e => {
+    pageCounts[e.page] = (pageCounts[e.page] || 0) + 1;
+    srcCounts[e.ref]   = (srcCounts[e.ref]   || 0) + 1;
+  });
+
+  const sessions = estimateSessions(events);
+  const prevSess = estimateSessions(prev);
+  const pps      = sessions ? (total / sessions).toFixed(1) : '—';
+  const topDev   = topDevice(devCounts);
+  const topDevPct = total ? Math.round(devCounts[topDev] / total * 100) : 0;
+
+  // F&B extras from admin data
+  const enquiries = getData(KEYS.enquiries);
+  const orders    = getData(KEYS.orders);
+  const todayStr  = new Date().toISOString().slice(0, 10);
+  const todayEnq  = enquiries.filter(e => (e.submittedAt || e.createdAt || '').slice(0,10) === todayStr).length;
+  const todayOrd  = orders.filter(o => (o.createdAt || '').slice(0,10) === todayStr).length;
+  const revenue   = orders.reduce((s, o) => s + (Number(o.amount) || 0), 0);
+
+  // ── stat cards ───────────────────────────────────────
+  const pgChg  = changeMeta(total, prevTotal);
+  const sessChg = changeMeta(sessions, prevSess);
+
+  document.getElementById('statCards').innerHTML = `
+    <div class="a-card theme-gold">
+      <div class="a-card__accent"></div>
+      <div class="a-card__icon">👁️</div>
+      <div class="a-card__label">Page Views</div>
+      <div class="a-card__value">${total}</div>
+      <div class="a-card__sub">
+        <span class="a-card__change ${pgChg.cls}">${pgChg.text}</span>
+      </div>
+    </div>
+    <div class="a-card theme-blue">
+      <div class="a-card__accent"></div>
+      <div class="a-card__icon">🚶</div>
+      <div class="a-card__label">Sessions (est.)</div>
+      <div class="a-card__value">${sessions}</div>
+      <div class="a-card__sub">
+        <span class="a-card__change ${sessChg.cls}">${sessChg.text}</span>
+      </div>
+    </div>
+    <div class="a-card theme-green">
+      <div class="a-card__accent"></div>
+      <div class="a-card__icon">📋</div>
+      <div class="a-card__label">Enquiries Today</div>
+      <div class="a-card__value">${todayEnq}</div>
+      <div class="a-card__sub" style="color:var(--muted)">${enquiries.length} total enquiries</div>
+    </div>
+    <div class="a-card theme-orange">
+      <div class="a-card__accent"></div>
+      <div class="a-card__icon">📦</div>
+      <div class="a-card__label">Orders Today</div>
+      <div class="a-card__value">${todayOrd}</div>
+      <div class="a-card__sub" style="color:var(--muted)">${orders.length} total orders</div>
+    </div>
+    <div class="a-card theme-purple">
+      <div class="a-card__accent"></div>
+      <div class="a-card__icon">📱</div>
+      <div class="a-card__label">Top Device</div>
+      <div class="a-card__value" style="font-size:1.3rem; text-transform:capitalize; padding-top:4px">${topDev}</div>
+      <div class="a-card__sub" style="color:var(--muted)">${topDevPct}% of traffic · ${pps} pages/session</div>
+    </div>
+  `;
+
+  // ── trend chart ─────────────────────────────────────
+  const labels = { 1:'Today', 7:'Last 7 days', 30:'Last 30 days', 0:'All time (30d)' };
+  document.getElementById('trendSubLabel').textContent = labels[activeDays] || '';
+  drawTrend(events, activeDays || 30);
+
+  // ── donut ────────────────────────────────────────────
+  const dSlices = [
+    { label: 'Desktop', value: devCounts.desktop, color: GOLD },
+    { label: 'Mobile',  value: devCounts.mobile,  color: BLUE },
+    { label: 'Tablet',  value: devCounts.tablet,  color: GREEN },
+  ].filter(s => s.value > 0);
+
+  const donutArea = document.getElementById('donutArea');
+  if (total === 0) {
+    donutArea.innerHTML = `
+      <div class="empty-analytics" style="flex:1">
+        <div class="empty-analytics__icon">📊</div>
+        <div class="empty-analytics__title">No data yet</div>
+        <div class="empty-analytics__sub">Visit the website to start collecting analytics data.</div>
+      </div>`;
+  } else {
+    const canvas = drawDonut(dSlices, total);
+    donutArea.innerHTML = '';
+    donutArea.appendChild(canvas);
+    const legend = document.createElement('div');
+    legend.className = 'donut-legend';
+    legend.innerHTML = dSlices.map(s => `
+      <div class="legend-row">
+        <span class="legend-dot" style="background:${s.color}"></span>
+        <span class="legend-label">${s.label}</span>
+        <span class="legend-val">${s.value}</span>
+        <span class="legend-pct">${Math.round(s.value/total*100)}%</span>
+      </div>
+    `).join('');
+    donutArea.appendChild(legend);
+  }
+
+  // ── top pages ─────────────────────────────────────────
+  const topPages = Object.entries(pageCounts).sort((a,b) => b[1]-a[1]);
+  const maxPg    = topPages[0]?.[1] || 1;
+  document.getElementById('pagesTable').innerHTML = topPages.length === 0
+    ? emptyRow(4)
+    : topPages.map(([slug, count], i) => {
+        const m = PAGE_META[slug] || { label: slug, icon: '📄' };
+        return `<tr>
+          <td style="color:var(--muted); font-size:0.75rem; text-align:center">${i+1}</td>
+          <td style="padding:10px 14px">
+            <div style="font-size:0.83rem; color:var(--cream)">${m.icon} ${m.label}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(count/maxPg*100)}%"></div></div>
+          </td>
+          <td style="text-align:right; font-size:0.83rem; color:var(--cream)">${count}</td>
+          <td style="text-align:right; font-size:0.72rem; color:var(--muted)">${Math.round(count/total*100)}%</td>
+        </tr>`;
+      }).join('');
+
+  // ── sources ───────────────────────────────────────────
+  const topSrcs = Object.entries(srcCounts).sort((a,b) => b[1]-a[1]);
+  document.getElementById('sourcesTable').innerHTML = topSrcs.length === 0
+    ? emptyRow(4)
+    : topSrcs.map(([src, count], i) => {
+        const m = SOURCE_META[src] || { label: src, icon: '🌐' };
+        return `<tr>
+          <td style="color:var(--muted); font-size:0.75rem; text-align:center">${i+1}</td>
+          <td style="font-size:0.83rem; color:var(--cream); padding:12px 14px">${m.icon} ${m.label}</td>
+          <td style="text-align:right; font-size:0.83rem; color:var(--cream)">${count}</td>
+          <td style="text-align:right; font-size:0.72rem; color:var(--muted)">${Math.round(count/total*100)}%</td>
+        </tr>`;
+      }).join('');
+}
+
+function emptyRow(cols) {
+  return `<tr><td colspan="${cols}">
+    <div class="empty-analytics">
+      <div class="empty-analytics__icon">📉</div>
+      <div class="empty-analytics__title">No data for this period</div>
+      <div class="empty-analytics__sub">Switch to a wider date range or visit the website.</div>
+    </div>
+  </td></tr>`;
+}
+
+function clearAnalytics() {
+  if (!confirm('Clear all analytics data? This cannot be undone.')) return;
+  localStorage.removeItem(STORE_KEY);
+  render();
+  showToast('Analytics data cleared', 'info');
+}
+
+render();
+window.addEventListener('resize', render);
+setInterval(render, 60000);
+</script>
+</body>
+</html>
