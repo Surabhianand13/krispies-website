@@ -5,54 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orders — Krispie's Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" href="../assets/logo.svg" type="image/png">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 <div class="admin-layout">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar__brand">
-      <img src="../assets/logo.svg" alt="Krispie's" class="sidebar__logo">
-      <div class="sidebar__brand-text">
-        <span class="sidebar__brand-name">Krispie's</span>
-        <span class="sidebar__brand-sub">Admin Panel</span>
-      </div>
-    </div>
+    <div class="sidebar__brand"><div class="sidebar__brand-name">🎂 Krispie's</div><div class="sidebar__brand-sub">Admin Panel</div></div>
     <nav class="sidebar__nav">
-      <span class="sidebar__nav-section">Main</span>
-      <a href="dashboard" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Dashboard</a>
-      <a href="products"  class="sidebar__link"><span class="sidebar__link-icon">🎂</span> Products</a>
-      <a href="enquiries" class="sidebar__link"><span class="sidebar__link-icon">📋</span> Enquiries</a>
-      <a href="orders"    class="sidebar__link active"><span class="sidebar__link-icon">📦</span> Orders</a>
-      <div class="sidebar__divider"></div>
-      <a href="../index" target="_blank" class="sidebar__link"><span class="sidebar__link-icon">🌐</span> View Website ↗</a>
-      <div class="sidebar__divider"></div>
-      <div class="sidebar__footer">
-        <button onclick="logout()" class="sidebar__link btn" style="color:var(--red);width:100%"><span class="sidebar__link-icon">⎋</span> Logout</button>
-      </div>
+      <div class="sidebar__section-label">Main</div>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="analytics.html" class="sidebar__link"><span class="sidebar__icon">📈</span> Analytics</a>
+      <div class="sidebar__section-label">Manage</div>
+      <a href="orders.html"    class="sidebar__link active"><span class="sidebar__icon">📦</span> Orders <span class="sidebar__badge" id="sb-orders">0</span></a>
+      <a href="enquiries.html" class="sidebar__link"><span class="sidebar__icon">💬</span> Enquiries <span class="sidebar__badge" id="sb-enquiries">0</span></a>
+      <a href="products.html"  class="sidebar__link"><span class="sidebar__icon">🛍️</span> Products</a>
     </nav>
+    <div class="sidebar__footer"><button class="sidebar__logout" onclick="logout()">↩ Logout</button></div>
   </aside>
 
-  <!-- MAIN -->
-  <div class="admin-main">
-    <header class="admin-header">
-      <h1 class="admin-header__title">Orders</h1>
-      <div class="admin-header__actions">
-        <button class="btn btn-primary" onclick="openAddModal()">+ Log Order</button>
+  <main class="admin-main">
+    <div class="topbar">
+      <div><div class="topbar__title">Orders</div><div class="topbar__sub" id="order-sub">Loading…</div></div>
+      <div class="topbar__actions">
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn btn-primary" onclick="openLogOrder()">+ Log Order</button>
       </div>
-    </header>
+    </div>
 
-    <main class="admin-content">
+    <div class="page-body">
 
-      <!-- STAT ROW -->
-      <div class="stat-cards" id="orderStats" style="grid-template-columns:repeat(5,1fr); margin-bottom:20px;"></div>
+      <!-- KPI strip -->
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);">
+        <div class="kpi-card kpi-card--orange"><div class="kpi-card__label">Pending</div><div class="kpi-card__value" id="cnt-pending">—</div><div class="kpi-card__icon">⏳</div></div>
+        <div class="kpi-card kpi-card--blue"><div class="kpi-card__label">Confirmed</div><div class="kpi-card__value" id="cnt-confirmed">—</div><div class="kpi-card__icon">✅</div></div>
+        <div class="kpi-card kpi-card--brand"><div class="kpi-card__label">Ready</div><div class="kpi-card__value" id="cnt-ready">—</div><div class="kpi-card__icon">🎂</div></div>
+        <div class="kpi-card kpi-card--green"><div class="kpi-card__label">Delivered</div><div class="kpi-card__value" id="cnt-delivered">—</div><div class="kpi-card__icon">🚀</div></div>
+        <div class="kpi-card kpi-card--purple"><div class="kpi-card__label">Revenue (month)</div><div class="kpi-card__value" id="cnt-revenue">—</div><div class="kpi-card__icon">💰</div></div>
+      </div>
 
-      <!-- FILTER BAR -->
-      <div class="filter-bar">
-        <input type="search" class="filter-bar__search" id="searchInput" placeholder="Search by customer name…">
-        <select class="filter-select" id="statusFilter">
+      <!-- Filters -->
+      <div class="action-row">
+        <input type="search" id="search" placeholder="Search name or items…" oninput="filterOrders()">
+        <select id="f-status" onchange="filterOrders()">
           <option value="">All Statuses</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
@@ -60,16 +54,7 @@
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <select class="filter-select" id="platformFilter">
-          <option value="">All Platforms</option>
-          <option value="zomato">Zomato</option>
-          <option value="swiggy">Swiggy</option>
-          <option value="phone">Phone</option>
-          <option value="walk-in">Walk-in</option>
-          <option value="bulk">Bulk / Corporate</option>
-          <option value="website">Website</option>
-        </select>
-        <select class="filter-select" id="outletFilter">
+        <select id="f-outlet" onchange="filterOrders()">
           <option value="">All Outlets</option>
           <option value="lalbazar">Lalbazar</option>
           <option value="suchitra">Suchitra</option>
@@ -77,396 +62,286 @@
           <option value="ramantapur">Ramantapur</option>
           <option value="tukkuguda">Tukkuguda</option>
         </select>
+        <select id="f-date" onchange="filterOrders()">
+          <option value="">Any Date</option>
+          <option value="today">Today</option>
+          <option value="tomorrow">Tomorrow (deliveries)</option>
+          <option value="week">This Week</option>
+        </select>
+        <div class="spacer"></div>
+        <span id="filtered-count" style="font-size:0.78rem;color:var(--text-3);"></span>
       </div>
 
-      <!-- TABLE -->
-      <div class="panel">
-        <div class="table-wrap">
+      <!-- Orders table -->
+      <div class="card full-col">
+        <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
-                <th></th>
                 <th>Customer</th>
                 <th>Items</th>
                 <th>Amount</th>
-                <th>Platform</th>
                 <th>Outlet</th>
-                <th>Order Date</th>
                 <th>Delivery Date</th>
+                <th>Payment</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="ordersTable"></tbody>
+            <tbody id="orders-tbody"></tbody>
           </table>
         </div>
       </div>
-      <div id="tableCount" style="font-size:0.75rem; color:var(--muted); margin-top:8px;"></div>
 
-    </main>
-  </div>
+    </div>
+  </main>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal__header">
-      <h3 class="modal__title" id="modalTitle">Log Order</h3>
-      <button class="modal__close" onclick="closeModal()">✕</button>
-    </div>
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal modal--lg">
+    <div class="modal__hd"><h3 id="modalTitle">Log Order</h3><button class="modal__close" onclick="closeModal()">✕</button></div>
     <div class="modal__body" id="modalBody"></div>
-    <div class="modal__footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    <div class="modal__ft">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" id="modalSaveBtn">Save Order</button>
     </div>
   </div>
 </div>
 
-<div class="toast-container"></div>
-
 <script src="admin.js"></script>
 <script>
-  checkAuth();
+'use strict';
+if (!checkAuth()) throw new Error('Not authenticated');
 
-  function esc(s) {
-    const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
-  }
+let allOrders = [];
 
-  /* Normalize orders that come from the website checkout (snake_case keys)
-     vs manually logged orders (camelCase keys). */
-  function normalizeOrder(o) {
-    return {
-      ...o,
-      customerName:    o.customerName    || o.customer_name    || '',
-      phone:           o.phone           || o.customer_phone   || '',
-      email:           o.email           || o.customer_email   || '',
-      deliveryAddress: o.deliveryAddress || o.delivery_address || '',
-      deliveryMode:    o.deliveryMode    || o.delivery_mode    || '',
-      deliveryTime:    o.deliveryTime    || o.delivery_time    || '',
-      paymentMethod:   o.paymentMethod   || o.payment_method   || '',
-      deliveryDate:    o.deliveryDate    || o.delivery_date    || '',
-      orderDate:       o.orderDate       || o.order_date       || '',
-    };
-  }
+async function loadOrders() {
+  try {
+    const res = await apiFetch('/api/orders?limit=200');
+    allOrders = Array.isArray(res) ? res : (res.orders || []);
+    renderKPIs();
+    renderOrders(allOrders);
+    document.getElementById('order-sub').textContent = `${allOrders.length} total orders`;
 
-  function renderStats() {
-    const orders = getData(KEYS.orders);
-    const counts = { pending:0, confirmed:0, ready:0, delivered:0, cancelled:0 };
-    let revenue = 0;
-    orders.forEach(o => {
-      if (counts[o.status] !== undefined) counts[o.status]++;
-      if (o.status === 'delivered') revenue += Number(o.amount) || 0;
-    });
-    document.getElementById('orderStats').innerHTML = `
-      <div class="stat-card ${counts.pending?'stat-card--alert':''}">
-        <div class="stat-card__label">Pending</div>
-        <div class="stat-card__value" style="${counts.pending?'color:var(--orange)':''}">${counts.pending}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__label">Confirmed</div>
-        <div class="stat-card__value" style="color:var(--blue)">${counts.confirmed}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__label">Ready</div>
-        <div class="stat-card__value">${counts.ready}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__label">Delivered</div>
-        <div class="stat-card__value" style="color:var(--green)">${counts.delivered}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__label">Revenue (Delivered)</div>
-        <div class="stat-card__value" style="font-size:1.5rem">₹${revenue.toLocaleString('en-IN')}</div>
-      </div>`;
-  }
+    // Sidebar badges from live endpoint
+    const live = await apiFetch('/api/analytics/live');
+    document.getElementById('sb-orders').textContent    = live.pendingOrders || 0;
+    document.getElementById('sb-enquiries').textContent = live.unreadEnquiries || 0;
+  } catch (e) { showToast('Failed to load orders', 'error'); }
+}
 
-  function render() {
-    renderStats();
-    const search   = document.getElementById('searchInput').value.toLowerCase();
-    const status   = document.getElementById('statusFilter').value;
-    const platform = document.getElementById('platformFilter').value;
-    const outlet   = document.getElementById('outletFilter').value;
-
-    let orders = getData(KEYS.orders).map(normalizeOrder);
-    if (search)   orders = orders.filter(o => (o.customerName||'').toLowerCase().includes(search) || (o.items||'').toLowerCase().includes(search) || (o.phone||'').includes(search));
-    if (status)   orders = orders.filter(o => o.status === status);
-    if (platform) orders = orders.filter(o => o.platform === platform);
-    if (outlet)   orders = orders.filter(o => o.outlet === outlet);
-
-    document.getElementById('tableCount').textContent = `${orders.length} order${orders.length !== 1 ? 's' : ''}`;
-
-    const tbody = document.getElementById('ordersTable');
-    if (!orders.length) {
-      tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">
-        <div class="empty-state__icon">📦</div>
-        <div class="empty-state__text">No orders yet. Click "+ Log Order" to add one manually.</div>
-      </div></td></tr>`;
-      return;
+function renderKPIs() {
+  const counts = {};
+  let monthRev = 0;
+  const monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30);
+  allOrders.forEach(o => {
+    counts[o.status] = (counts[o.status] || 0) + 1;
+    if (o.status === 'delivered' && new Date(o.created_at || o.createdAt) >= monthAgo) {
+      monthRev += parseFloat(o.amount || 0);
     }
+  });
+  ['pending','confirmed','ready','delivered'].forEach(s => {
+    document.getElementById(`cnt-${s}`).textContent = counts[s] || 0;
+  });
+  document.getElementById('cnt-revenue').textContent = fmtPrice(monthRev);
+}
 
-    tbody.innerHTML = orders.map(o => `
-      <tr>
-        <td style="padding:12px 8px 12px 14px">
-          <button class="btn btn-ghost btn-sm btn-icon" onclick="toggleExpand('${o.id}')" title="View details">▾</button>
-        </td>
-        <td>
-          <div class="td-name">${esc(o.customerName)}</div>
-          <div class="muted" style="font-size:0.73rem">${esc(o.phone || '')}</div>
-        </td>
-        <td><div class="detail-cell">${esc(o.items)}</div></td>
-        <td style="color:var(--gold); font-weight:500">${o.amount ? '₹' + Number(o.amount).toLocaleString('en-IN') : '—'}</td>
-        <td class="muted">${PLATFORM_LABELS[o.platform] || o.platform || '—'}</td>
-        <td class="muted">${OUTLET_LABELS[o.outlet] || o.outlet || '—'}</td>
-        <td class="muted">${fmtDate(o.orderDate)}</td>
-        <td class="muted">${fmtDate(o.deliveryDate)}</td>
-        <td>${statusBadge(o.status)}</td>
-        <td>
-          <div class="td-actions">
-            <select class="filter-select" style="padding:5px 28px 5px 8px;font-size:0.73rem" onchange="updateStatus('${o.id}',this.value)">
-              <option value="pending"   ${o.status==='pending'  ?'selected':''}>Pending</option>
-              <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
-              <option value="ready"     ${o.status==='ready'    ?'selected':''}>Ready</option>
-              <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
-              <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
-            </select>
-            <button class="btn btn-outline btn-sm btn-icon" onclick="openEditModal('${o.id}')" title="Edit">✎</button>
-            <button class="btn btn-danger btn-sm btn-icon" onclick="deleteOrder('${o.id}')" title="Delete">✕</button>
-          </div>
-        </td>
-      </tr>
-      <tr class="expand-row" id="expand_${o.id}">
-        <td colspan="10">
-          <div class="expand-content">
-            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px 24px">
+function filterOrders() {
+  const q      = document.getElementById('search').value.toLowerCase();
+  const status = document.getElementById('f-status').value;
+  const outlet = document.getElementById('f-outlet').value;
+  const date   = document.getElementById('f-date').value;
+  const today  = new Date().toISOString().slice(0,10);
+  const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
+  const weekEnd  = new Date(Date.now()+7*86400000).toISOString().slice(0,10);
 
-              <div>
-                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Customer</div>
-                <div style="font-weight:600;margin-bottom:2px">${esc(o.customerName || '—')}</div>
-                ${o.phone ? `<div style="margin-bottom:2px">📞 <a href="tel:${esc(o.phone)}" style="color:var(--gold)">${esc(o.phone)}</a></div>` : ''}
-                ${o.email ? `<div>✉ <a href="mailto:${esc(o.email)}" style="color:var(--gold)">${esc(o.email)}</a></div>` : ''}
-              </div>
+  const list = allOrders.filter(o => {
+    if (q && !((o.customer_name||o.customerName||'').toLowerCase().includes(q)) && !(o.items||'').toLowerCase().includes(q)) return false;
+    if (status && o.status !== status) return false;
+    if (outlet && o.outlet !== outlet) return false;
+    if (date === 'today'    && (o.order_date||o.orderDate||'').slice(0,10) !== today) return false;
+    if (date === 'tomorrow' && (o.delivery_date||o.deliveryDate||'').slice(0,10) !== tomorrow) return false;
+    if (date === 'week') {
+      const dd = (o.delivery_date||o.deliveryDate||'').slice(0,10);
+      if (dd < today || dd > weekEnd) return false;
+    }
+    return true;
+  });
+  document.getElementById('filtered-count').textContent = `${list.length} shown`;
+  renderOrders(list);
+}
 
-              <div>
-                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Delivery</div>
-                ${o.deliveryMode ? `<div style="margin-bottom:4px"><span style="background:var(--gold-faint);color:var(--gold);padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600">${o.deliveryMode === 'home-delivery' ? '🏠 Home Delivery' : '🏪 Store Pickup'}</span></div>` : ''}
-                ${o.deliveryAddress ? `<div style="margin-top:4px;font-size:0.82rem;color:var(--text)">${esc(o.deliveryAddress)}</div>` : ''}
-                ${!o.deliveryMode && !o.deliveryAddress ? '<div>—</div>' : ''}
-              </div>
-
-              <div>
-                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Schedule</div>
-                ${o.deliveryDate ? `<div style="margin-bottom:2px">📅 ${fmtDate(o.deliveryDate)}</div>` : ''}
-                ${o.deliveryTime ? `<div>🕐 ${esc(o.deliveryTime)}</div>` : ''}
-                ${!o.deliveryDate && !o.deliveryTime ? '<div>—</div>' : ''}
-              </div>
-
-              <div>
-                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Order Info</div>
-                <div style="margin-bottom:2px">${esc(o.items || '—')}</div>
-                ${o.quantity ? `<div style="font-size:0.8rem;color:var(--muted)">Qty: ${esc(o.quantity)}</div>` : ''}
-                ${o.paymentMethod ? `<div style="margin-top:4px;font-size:0.8rem">💳 ${o.paymentMethod === 'cod' ? 'Cash on Delivery' : o.paymentMethod === 'razorpay' ? 'Paid Online' : esc(o.paymentMethod)}</div>` : ''}
-              </div>
-
-            </div>
-            ${o.notes ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)"><span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Special Instructions</span><div style="margin-top:4px;font-size:0.85rem">${esc(o.notes)}</div></div>` : ''}
-          </div>
-        </td>
-      </tr>`).join('');
-  }
-
-  function toggleExpand(id) {
-    document.getElementById(`expand_${id}`).classList.toggle('open');
-  }
-
-  function orderFormHTML(o = {}) {
-    const today = new Date().toISOString().split('T')[0];
-    return `
-      <div class="form-row">
-        <div class="form-group">
-          <label>Customer Name *</label>
-          <input type="text" id="f_name" class="form-control" value="${esc(o.customerName||'')}" placeholder="e.g. Priya Reddy">
+function renderOrders(list) {
+  const tb = document.getElementById('orders-tbody');
+  if (!list.length) { tb.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">📦</div>No orders found</div></td></tr>`; return; }
+  tb.innerHTML = list.map(o => {
+    const name     = esc(o.customer_name || o.customerName || '—');
+    const phone    = o.customer_phone || o.customerPhone || '';
+    const delivery = (o.delivery_date || o.deliveryDate || '').slice(0,10);
+    const isToday  = delivery === new Date().toISOString().slice(0,10);
+    const isTomr   = delivery === new Date(Date.now()+86400000).toISOString().slice(0,10);
+    const delBadge = isToday ? '🔴 Today' : isTomr ? '🟡 Tomorrow' : fmtDate(delivery);
+    return `<tr>
+      <td>
+        <div class="td-name">${name}</div>
+        ${phone ? `<div class="td-muted" style="font-size:0.7rem;">${esc(phone)}</div>` : ''}
+      </td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" class="td-muted">${esc(o.items || '—')}</td>
+      <td><strong>${fmtPrice(o.amount)}</strong></td>
+      <td class="td-muted">${OUTLET_LABELS[o.outlet] || o.outlet || '—'}</td>
+      <td style="white-space:nowrap;">${delBadge}</td>
+      <td class="td-muted" style="font-size:0.72rem;">${esc(o.payment_method || o.paymentMethod || '—')}</td>
+      <td>
+        <select class="status-select" onchange="updateStatus('${o.id}', this.value, this)">
+          ${['pending','confirmed','ready','delivered','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <div style="display:flex;gap:5px;flex-wrap:nowrap;">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="openEditOrder('${o.id}')" title="Edit">✏️</button>
+          ${phone ? `<a class="btn btn-wa btn-sm btn-icon" href="https://wa.me/91${phone.replace(/\D/g,'')}?text=${encodeURIComponent('Hi '+decodeURIComponent(name)+', your Krispie\'s order is ready! Please let us know if you need any help.')}" target="_blank" rel="noopener" title="WhatsApp customer">💬</a>` : ''}
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteOrder('${o.id}')" title="Delete">🗑️</button>
         </div>
-        <div class="form-group">
-          <label>Phone</label>
-          <input type="tel" id="f_phone" class="form-control" value="${esc(o.phone||'')}" placeholder="+91 98765 43210">
-        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function updateStatus(id, newStatus, select) {
+  try {
+    await apiFetch(`/api/orders/${id}`, 'PUT', { status: newStatus });
+    const o = allOrders.find(x => x.id === id);
+    if (o) o.status = newStatus;
+    renderKPIs();
+    showToast(`Order marked as ${newStatus}`);
+  } catch (e) { showToast('Failed to update status', 'error'); }
+}
+
+function orderForm(o = {}) {
+  const today = new Date().toISOString().slice(0,10);
+  return `
+    <div class="form-grid-2">
+      <div class="form-row"><label>Customer Name *</label><input id="f-name" value="${esc(o.customer_name||o.customerName||'')}" placeholder="Full name"></div>
+      <div class="form-row"><label>Phone</label><input id="f-phone" value="${esc(o.customer_phone||o.customerPhone||'')}" placeholder="+91 98765 43210"></div>
+      <div class="form-row" style="grid-column:1/-1;"><label>Items *</label><textarea id="f-items" rows="2" placeholder="Chocolate Truffle 1kg, Birthday Cake">${esc(o.items||'')}</textarea></div>
+      <div class="form-row"><label>Amount (₹)</label><input id="f-amount" type="number" min="0" value="${o.amount||''}"></div>
+      <div class="form-row"><label>Outlet</label>
+        <select id="f-outlet">${[['','—'],['lalbazar','Lalbazar'],['suchitra','Suchitra'],['boduppal','Boduppal'],['ramantapur','Ramantapur'],['tukkuguda','Tukkuguda']].map(([v,l])=>`<option value="${v}" ${(o.outlet||'')==v?'selected':''}>${l}</option>`).join('')}</select>
       </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="f_email" class="form-control" value="${esc(o.email||'')}" placeholder="customer@email.com">
+      <div class="form-row"><label>Order Date</label><input id="f-odate" type="date" value="${(o.order_date||o.orderDate||today).slice(0,10)}"></div>
+      <div class="form-row"><label>Delivery Date</label><input id="f-ddate" type="date" value="${(o.delivery_date||o.deliveryDate||'').slice(0,10)}"></div>
+      <div class="form-row"><label>Payment Method</label>
+        <select id="f-pay">${[['','—'],['cod','Cash on Delivery'],['online','Online (Razorpay)'],['upi','UPI'],['cash','Cash at Store']].map(([v,l])=>`<option value="${v}" ${(o.payment_method||o.paymentMethod||'')==v?'selected':''}>${l}</option>`).join('')}</select>
       </div>
-      <div class="form-group">
-        <label>Items / Description *</label>
-        <input type="text" id="f_items" class="form-control" value="${esc(o.items||'')}" placeholder="e.g. Birthday Cake 2kg (Chocolate)">
+      <div class="form-row"><label>Platform</label>
+        <select id="f-platform">${[['website','Website'],['phone','Phone'],['walk-in','Walk-in'],['bulk','Bulk / Corporate']].map(([v,l])=>`<option value="${v}" ${(o.platform||'website')==v?'selected':''}>${l}</option>`).join('')}</select>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Quantity</label>
-          <input type="text" id="f_qty" class="form-control" value="${esc(o.quantity||'')}" placeholder="e.g. 1 cake, 50 pieces">
-        </div>
-        <div class="form-group">
-          <label>Amount (₹)</label>
-          <input type="number" id="f_amount" class="form-control" value="${o.amount||''}" placeholder="0">
-        </div>
+      <div class="form-row"><label>Status</label>
+        <select id="f-status">${['pending','confirmed','ready','delivered','cancelled'].map(s=>`<option value="${s}" ${(o.status||'pending')==s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Delivery Mode</label>
-          <select id="f_deliveryMode" class="form-control">
-            <option value="">— Select —</option>
-            <option value="home-delivery" ${o.deliveryMode==='home-delivery'?'selected':''}>🏠 Home Delivery</option>
-            <option value="store-pickup"  ${o.deliveryMode==='store-pickup' ?'selected':''}>🏪 Store Pickup</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Payment Method</label>
-          <select id="f_paymentMethod" class="form-control">
-            <option value="">— Select —</option>
-            <option value="cod"      ${o.paymentMethod==='cod'     ?'selected':''}>Cash on Delivery</option>
-            <option value="razorpay" ${o.paymentMethod==='razorpay'?'selected':''}>Paid Online (Razorpay)</option>
-            <option value="upi"      ${o.paymentMethod==='upi'     ?'selected':''}>UPI</option>
-            <option value="cash"     ${o.paymentMethod==='cash'    ?'selected':''}>Cash</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Delivery Address</label>
-        <textarea id="f_deliveryAddress" class="form-control" rows="2" placeholder="Full delivery address">${esc(o.deliveryAddress||'')}</textarea>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Platform</label>
-          <select id="f_platform" class="form-control">
-            <option value="zomato"  ${o.platform==='zomato' ?'selected':''}>Zomato</option>
-            <option value="swiggy"  ${o.platform==='swiggy' ?'selected':''}>Swiggy</option>
-            <option value="phone"   ${o.platform==='phone'  ?'selected':''}>Phone</option>
-            <option value="walk-in" ${o.platform==='walk-in'?'selected':''}>Walk-in</option>
-            <option value="bulk"    ${o.platform==='bulk'   ?'selected':''}>Bulk / Corporate</option>
-            <option value="website" ${o.platform==='website'?'selected':''}>Website</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Outlet</label>
-          <select id="f_outlet" class="form-control">
-            <option value="">Select outlet</option>
-            <option value="lalbazar"   ${o.outlet==='lalbazar'  ?'selected':''}>Lalbazar</option>
-            <option value="suchitra"   ${o.outlet==='suchitra'  ?'selected':''}>Suchitra</option>
-            <option value="boduppal"   ${o.outlet==='boduppal'  ?'selected':''}>Boduppal</option>
-            <option value="ramantapur" ${o.outlet==='ramantapur'?'selected':''}>Ramantapur</option>
-            <option value="tukkuguda"  ${o.outlet==='tukkuguda' ?'selected':''}>Tukkuguda</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Order Date</label>
-          <input type="date" id="f_orderDate" class="form-control" value="${o.orderDate||today}">
-        </div>
-        <div class="form-group">
-          <label>Delivery / Pickup Date</label>
-          <input type="date" id="f_deliveryDate" class="form-control" value="${o.deliveryDate||''}">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Delivery Time</label>
-          <input type="time" id="f_deliveryTime" class="form-control" value="${o.deliveryTime||''}">
-        </div>
-        <div class="form-group">
-          <label>Status</label>
-          <select id="f_status" class="form-control">
-            <option value="pending"   ${(o.status||'pending')==='pending'  ?'selected':''}>Pending</option>
-            <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
-            <option value="ready"     ${o.status==='ready'    ?'selected':''}>Ready</option>
-            <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
-            <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Special Instructions</label>
-        <textarea id="f_notes" class="form-control" placeholder="Flavour, message on cake, allergy info, etc.">${esc(o.notes||'')}</textarea>
-      </div>`;
-  }
+      <div class="form-row" style="grid-column:1/-1;"><label>Notes / Address</label><textarea id="f-notes" rows="2" placeholder="Delivery address, special instructions…">${esc(o.notes||'')}</textarea></div>
+    </div>`;
+}
 
-  function collectOrderForm(existingId) {
-    const name  = document.getElementById('f_name').value.trim();
-    const items = document.getElementById('f_items').value.trim();
-    if (!name || !items) { showToast('Customer name and items are required.', 'error'); return null; }
-    return {
-      id:              existingId || uid(),
-      customerName:    name,
-      phone:           document.getElementById('f_phone').value.trim(),
-      email:           document.getElementById('f_email').value.trim(),
-      items,
-      quantity:        document.getElementById('f_qty').value.trim(),
-      amount:          document.getElementById('f_amount').value,
-      deliveryMode:    document.getElementById('f_deliveryMode').value,
-      paymentMethod:   document.getElementById('f_paymentMethod').value,
-      deliveryAddress: document.getElementById('f_deliveryAddress').value.trim(),
-      platform:        document.getElementById('f_platform').value,
-      outlet:          document.getElementById('f_outlet').value,
-      orderDate:       document.getElementById('f_orderDate').value,
-      deliveryDate:    document.getElementById('f_deliveryDate').value,
-      deliveryTime:    document.getElementById('f_deliveryTime').value,
-      status:          document.getElementById('f_status').value,
-      notes:           document.getElementById('f_notes').value.trim(),
-      createdAt:       existingId ? undefined : new Date().toISOString(),
-    };
-  }
+function openLogOrder() {
+  document.getElementById('modalTitle').textContent = 'Log New Order';
+  document.getElementById('modalBody').innerHTML = orderForm();
+  document.getElementById('modalSaveBtn').onclick = () => saveOrder();
+  document.getElementById('modalOverlay').classList.add('open');
+}
 
-  function openAddModal() {
-    openModal('Log New Order', orderFormHTML(), () => {
-      const data = collectOrderForm(null);
-      if (!data) return;
-      data.createdAt = new Date().toISOString();
-      const orders = getData(KEYS.orders);
-      orders.unshift(data);
-      setData(KEYS.orders, orders);
-      closeModal();
-      showToast('Order logged!');
-      render();
-    }, 'Log Order');
-  }
+function openEditOrder(id) {
+  const o = allOrders.find(x => x.id === id);
+  if (!o) return;
+  document.getElementById('modalTitle').textContent = 'Edit Order';
+  document.getElementById('modalBody').innerHTML = orderForm(o);
+  document.getElementById('modalSaveBtn').onclick = () => saveOrder(id);
+  document.getElementById('modalOverlay').classList.add('open');
+}
 
-  function openEditModal(id) {
-    const orders = getData(KEYS.orders);
-    const o = orders.find(x => x.id === id);
-    if (!o) return;
-    openModal('Edit Order', orderFormHTML(o), () => {
-      const data = collectOrderForm(id);
-      if (!data) return;
-      const idx = orders.findIndex(x => x.id === id);
-      orders[idx] = { ...orders[idx], ...data };
-      setData(KEYS.orders, orders);
-      closeModal();
-      showToast('Order updated!');
-      render();
-    }, 'Save Changes');
-  }
+async function saveOrder(editId) {
+  const name  = document.getElementById('f-name').value.trim();
+  const items = document.getElementById('f-items').value.trim();
+  if (!name || !items) { showToast('Customer name and items are required', 'error'); return; }
 
-  function updateStatus(id, status) {
-    const orders = getData(KEYS.orders);
-    const idx = orders.findIndex(o => o.id === id);
-    if (idx === -1) return;
-    orders[idx].status = status;
-    setData(KEYS.orders, orders);
-    showToast(`Status updated to ${status}.`);
-    render();
-  }
+  const body = {
+    customer_name:  name,
+    customer_phone: document.getElementById('f-phone').value.trim(),
+    items,
+    amount:         parseFloat(document.getElementById('f-amount').value) || 0,
+    outlet:         document.getElementById('f-outlet').value,
+    order_date:     document.getElementById('f-odate').value,
+    delivery_date:  document.getElementById('f-ddate').value,
+    payment_method: document.getElementById('f-pay').value,
+    platform:       document.getElementById('f-platform').value,
+    status:         document.getElementById('f-status').value,
+    notes:          document.getElementById('f-notes').value.trim(),
+  };
 
-  function deleteOrder(id) {
-    if (!confirm('Delete this order? This cannot be undone.')) return;
-    setData(KEYS.orders, getData(KEYS.orders).filter(o => o.id !== id));
-    showToast('Order deleted.', 'info');
-    render();
-  }
+  const btn = document.getElementById('modalSaveBtn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    let saved;
+    if (editId) {
+      saved = await apiFetch(`/api/orders/${editId}`, 'PUT', body);
+      const idx = allOrders.findIndex(o => o.id === editId);
+      if (idx !== -1) allOrders[idx] = saved;
+      showToast('Order updated ✓');
+    } else {
+      saved = await apiFetch('/api/orders', 'POST', body);
+      allOrders.unshift(saved);
+      showToast('Order logged ✓');
+    }
+    closeModal();
+    renderKPIs();
+    filterOrders();
+    document.getElementById('order-sub').textContent = `${allOrders.length} total orders`;
+  } catch (e) { showToast(e.message || 'Failed to save', 'error'); }
+  finally { btn.textContent = 'Save Order'; btn.disabled = false; }
+}
 
-  ['searchInput','statusFilter','platformFilter','outletFilter'].forEach(id =>
-    document.getElementById(id).addEventListener('input', render)
-  );
+async function deleteOrder(id) {
+  if (!confirm('Delete this order? This cannot be undone.')) return;
+  try {
+    await apiFetch(`/api/orders/${id}`, 'DELETE');
+    allOrders = allOrders.filter(o => o.id !== id);
+    renderKPIs(); filterOrders();
+    showToast('Order deleted');
+  } catch (e) { showToast('Failed to delete', 'error'); }
+}
 
-  render();
+function exportCSV() {
+  const q      = document.getElementById('search').value.toLowerCase();
+  const status = document.getElementById('f-status').value;
+  const outlet = document.getElementById('f-outlet').value;
+  let list = allOrders.filter(o => {
+    if (q && !((o.customer_name||'').toLowerCase().includes(q)) && !(o.items||'').toLowerCase().includes(q)) return false;
+    if (status && o.status !== status) return false;
+    if (outlet && o.outlet !== outlet) return false;
+    return true;
+  });
+  const headers = ['ID','Customer','Phone','Items','Amount','Outlet','Order Date','Delivery Date','Payment','Status','Notes'];
+  const rows = list.map(o => [
+    o.id, o.customer_name||o.customerName, o.customer_phone||o.customerPhone||'',
+    o.items, o.amount||'', OUTLET_LABELS[o.outlet]||o.outlet||'',
+    (o.order_date||o.orderDate||'').slice(0,10),
+    (o.delivery_date||o.deliveryDate||'').slice(0,10),
+    o.payment_method||o.paymentMethod||'',
+    o.status, o.notes||''
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`));
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `krispies-orders-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// Pre-select filter from URL
+const urlStatus = new URLSearchParams(location.search).get('status');
+if (urlStatus) document.getElementById('f-status').value = urlStatus;
+
+loadOrders().then(filterOrders);
 </script>
 </body>
 </html>

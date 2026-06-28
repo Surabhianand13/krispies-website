@@ -5,224 +5,251 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Enquiries — Krispie's Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" href="../assets/logo.svg" type="image/png">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 <div class="admin-layout">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar__brand">
-      <img src="../assets/logo.svg" alt="Krispie's" class="sidebar__logo">
-      <div class="sidebar__brand-text">
-        <span class="sidebar__brand-name">Krispie's</span>
-        <span class="sidebar__brand-sub">Admin Panel</span>
-      </div>
-    </div>
+    <div class="sidebar__brand"><div class="sidebar__brand-name">🎂 Krispie's</div><div class="sidebar__brand-sub">Admin Panel</div></div>
     <nav class="sidebar__nav">
-      <span class="sidebar__nav-section">Main</span>
-      <a href="dashboard" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Dashboard</a>
-      <a href="products"  class="sidebar__link"><span class="sidebar__link-icon">🎂</span> Products</a>
-      <a href="enquiries" class="sidebar__link active"><span class="sidebar__link-icon">📋</span> Enquiries</a>
-      <a href="orders"    class="sidebar__link"><span class="sidebar__link-icon">📦</span> Orders</a>
-      <div class="sidebar__divider"></div>
-      <a href="../index" target="_blank" class="sidebar__link"><span class="sidebar__link-icon">🌐</span> View Website ↗</a>
-      <div class="sidebar__divider"></div>
-      <div class="sidebar__footer">
-        <button onclick="logout()" class="sidebar__link btn" style="color:var(--red);width:100%"><span class="sidebar__link-icon">⎋</span> Logout</button>
-      </div>
+      <div class="sidebar__section-label">Main</div>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="analytics.html" class="sidebar__link"><span class="sidebar__icon">📈</span> Analytics</a>
+      <div class="sidebar__section-label">Manage</div>
+      <a href="orders.html"    class="sidebar__link"><span class="sidebar__icon">📦</span> Orders <span class="sidebar__badge" id="sb-orders">0</span></a>
+      <a href="enquiries.html" class="sidebar__link active"><span class="sidebar__icon">💬</span> Enquiries <span class="sidebar__badge" id="sb-enquiries">0</span></a>
+      <a href="products.html"  class="sidebar__link"><span class="sidebar__icon">🛍️</span> Products</a>
     </nav>
+    <div class="sidebar__footer"><button class="sidebar__logout" onclick="logout()">↩ Logout</button></div>
   </aside>
 
-  <!-- MAIN -->
-  <div class="admin-main">
-    <header class="admin-header">
-      <h1 class="admin-header__title">Enquiries</h1>
-      <div class="admin-header__actions">
-        <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Mark All Read</button>
-        <button class="btn btn-danger btn-sm" onclick="clearAll()">Clear All</button>
+  <main class="admin-main">
+    <div class="topbar">
+      <div><div class="topbar__title">Enquiries</div><div class="topbar__sub" id="enq-sub">Loading…</div></div>
+      <div class="topbar__actions">
+        <button class="btn btn-outline btn-sm" onclick="markAllRead()">✓ Mark All Read</button>
       </div>
-    </header>
+    </div>
 
-    <main class="admin-content">
+    <div class="page-body">
 
-      <!-- FILTER BAR -->
-      <div class="filter-bar">
-        <input type="search" class="filter-bar__search" id="searchInput" placeholder="Search by name, email, phone…">
-        <select class="filter-select" id="statusFilter">
-          <option value="">All Status</option>
+      <!-- Filters -->
+      <div class="action-row">
+        <input type="search" id="search" placeholder="Search name, phone, message…" oninput="filterEnquiries()">
+        <select id="f-status" onchange="filterEnquiries()">
+          <option value="">All</option>
           <option value="unread">Unread</option>
           <option value="read">Read</option>
           <option value="responded">Responded</option>
         </select>
-        <select class="filter-select" id="eventFilter">
-          <option value="">All Event Types</option>
+        <select id="f-event" onchange="filterEnquiries()">
+          <option value="">All Events</option>
           <option value="birthday">Birthday</option>
           <option value="wedding">Wedding</option>
           <option value="anniversary">Anniversary</option>
           <option value="baby-shower">Baby Shower</option>
-          <option value="corporate">Corporate Event</option>
+          <option value="corporate">Corporate</option>
           <option value="graduation">Graduation</option>
-          <option value="festival">Festival</option>
           <option value="other">Other</option>
         </select>
+        <div class="spacer"></div>
+        <span id="filtered-count" style="font-size:0.78rem;color:var(--text-3);"></span>
       </div>
 
-      <!-- TABLE -->
-      <div class="panel">
-        <div class="table-wrap">
+      <!-- Table -->
+      <div class="card full-col">
+        <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
-                <th></th>
-                <th>Name</th>
-                <th>Contact</th>
+                <th>Customer</th>
                 <th>Event</th>
+                <th>Products</th>
                 <th>Event Date</th>
                 <th>Outlet</th>
-                <th>Received</th>
+                <th>SLA</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="enquiriesTable"></tbody>
+            <tbody id="enq-tbody"></tbody>
           </table>
         </div>
       </div>
-      <div id="tableCount" style="font-size:0.75rem; color:var(--muted); margin-top:8px;"></div>
 
-    </main>
+    </div>
+  </main>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal modal--lg">
+    <div class="modal__hd"><h3 id="modalTitle">Enquiry Detail</h3><button class="modal__close" onclick="closeModal()">✕</button></div>
+    <div class="modal__body" id="modalBody"></div>
+    <div class="modal__ft" id="modalFt">
+      <button class="btn btn-outline" onclick="closeModal()">Close</button>
+    </div>
   </div>
 </div>
 
-<div class="toast-container"></div>
-
 <script src="admin.js"></script>
 <script>
-  checkAuth();
+'use strict';
+if (!checkAuth()) throw new Error('Not authenticated');
 
-  function esc(s) {
-    const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
-  }
+let allEnquiries = [];
 
-  function render() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const status = document.getElementById('statusFilter').value;
-    const event  = document.getElementById('eventFilter').value;
+async function loadEnquiries() {
+  try {
+    const res = await apiFetch('/api/messages?limit=200');
+    allEnquiries = Array.isArray(res) ? res : (res.messages || []);
+    const unread = allEnquiries.filter(m => m.status === 'unread').length;
+    document.getElementById('enq-sub').textContent = `${allEnquiries.length} total · ${unread} unread`;
+    document.getElementById('sb-enquiries').textContent = unread;
 
-    let enqs = getData(KEYS.enquiries);
-    if (search) enqs = enqs.filter(e =>
-      (e.name||'').toLowerCase().includes(search) ||
-      (e.email||'').toLowerCase().includes(search) ||
-      (e.phone||'').toLowerCase().includes(search)
-    );
-    if (status) enqs = enqs.filter(e => e.status === status);
-    if (event)  enqs = enqs.filter(e => e.eventType === event);
+    const live = await apiFetch('/api/analytics/live');
+    document.getElementById('sb-orders').textContent = live.pendingOrders || 0;
 
-    document.getElementById('tableCount').textContent = `${enqs.length} enquir${enqs.length !== 1 ? 'ies' : 'y'}`;
+    filterEnquiries();
+  } catch (e) { showToast('Failed to load enquiries', 'error'); }
+}
 
-    const tbody = document.getElementById('enquiriesTable');
-    if (!enqs.length) {
-      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
-        <div class="empty-state__icon">📋</div>
-        <div class="empty-state__text">No enquiries yet. They will appear here once someone submits the contact form.</div>
-      </div></td></tr>`;
-      return;
-    }
+function slaLabel(createdAt) {
+  if (!createdAt) return '';
+  const mins = Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000);
+  if (mins < 60)   return `<span class="sla-ok">${mins}m ago</span>`;
+  if (mins < 120)  return `<span class="sla-warn">${Math.floor(mins/60)}h ago</span>`;
+  if (mins < 1440) return `<span class="sla-late">${Math.floor(mins/60)}h ago ⚠️</span>`;
+  return `<span class="sla-late">${Math.floor(mins/1440)}d ago</span>`;
+}
 
-    tbody.innerHTML = enqs.map(e => `
-      <tr id="row_${e.id}" style="${e.status==='unread' ? 'background:rgba(201,168,112,0.04)' : ''}">
-        <td style="padding:12px 8px 12px 14px">
-          <button class="btn btn-ghost btn-sm btn-icon" onclick="toggleExpand('${e.id}')" title="View details">▾</button>
-        </td>
-        <td>
-          <div class="td-name" style="${e.status==='unread'?'color:var(--gold)':''}">${esc(e.name)}</div>
-        </td>
-        <td>
-          <div style="font-size:0.8rem">${esc(e.phone || '—')}</div>
-          <div class="muted" style="font-size:0.73rem">${esc(e.email || '')}</div>
-        </td>
-        <td class="muted">${EVENT_LABELS[e.eventType] || e.eventType || '—'}</td>
-        <td class="muted">${fmtDate(e.eventDate)}</td>
-        <td class="muted">${OUTLET_LABELS[e.outlet] || e.outlet || '—'}</td>
-        <td class="muted">${fmtDT(e.submittedAt)}</td>
-        <td>${statusBadge(e.status)}</td>
-        <td>
-          <div class="td-actions">
-            <select class="filter-select" style="padding:5px 28px 5px 8px; font-size:0.73rem" onchange="updateStatus('${e.id}', this.value)">
-              <option value="unread"    ${e.status==='unread'   ?'selected':''}>Unread</option>
-              <option value="read"      ${e.status==='read'     ?'selected':''}>Read</option>
-              <option value="responded" ${e.status==='responded'?'selected':''}>Responded</option>
-            </select>
-            <button class="btn btn-danger btn-sm btn-icon" onclick="deleteEnquiry('${e.id}')" title="Delete">✕</button>
-          </div>
-        </td>
-      </tr>
-      <tr class="expand-row" id="expand_${e.id}">
-        <td colspan="9">
-          <div class="expand-content">
-            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:12px">
-              <div><strong>Quantity / Guests:</strong><br>${esc(e.quantity || '—')}</div>
-              <div><strong>Products Requested:</strong><br>${esc(e.products || '—')}</div>
-              <div><strong>Outlet Preference:</strong><br>${OUTLET_LABELS[e.outlet] || e.outlet || '—'}</div>
-            </div>
-            <div><strong>Message:</strong><br>${esc(e.message || '—')}</div>
-            ${e.email ? `<div style="margin-top:12px"><a href="mailto:${esc(e.email)}" class="btn btn-outline btn-sm">Reply via Email ↗</a></div>` : ''}
-          </div>
-        </td>
-      </tr>`).join('');
-  }
+function filterEnquiries() {
+  const q      = document.getElementById('search').value.toLowerCase();
+  const status = document.getElementById('f-status').value;
+  const event  = document.getElementById('f-event').value;
+  const list   = allEnquiries.filter(m => {
+    if (status && m.status !== status) return false;
+    if (event  && m.event_type !== event) return false;
+    if (q && ![m.name, m.phone, m.email, m.message, m.products].filter(Boolean).join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('filtered-count').textContent = `${list.length} shown`;
+  renderEnquiries(list);
+}
 
-  function toggleExpand(id) {
-    const row = document.getElementById(`expand_${id}`);
-    row.classList.toggle('open');
-    // Mark as read when expanded
-    const enqs = getData(KEYS.enquiries);
-    const idx = enqs.findIndex(e => e.id === id);
-    if (idx !== -1 && enqs[idx].status === 'unread') {
-      enqs[idx].status = 'read';
-      setData(KEYS.enquiries, enqs);
-      render();
-    }
-  }
+function renderEnquiries(list) {
+  const tb = document.getElementById('enq-tbody');
+  if (!list.length) { tb.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">💬</div>No enquiries found</div></td></tr>`; return; }
+  tb.innerHTML = list.map(m => {
+    const phone = m.phone || '';
+    const waMsg = encodeURIComponent(`Hi ${m.name}, thank you for reaching out to Krispie's! We'd love to help you with your ${m.event_type || 'celebration'} cake. Could you share more details?`);
+    return `<tr style="${m.status==='unread'?'background:#fdfbf7;font-weight:500;':''}">
+      <td>
+        <div class="td-name">${esc(m.name)}</div>
+        ${phone ? `<div style="font-size:0.7rem;margin-top:2px;"><a href="tel:${esc(phone)}" style="color:var(--brand);">${esc(phone)}</a></div>` : ''}
+        ${m.email ? `<div class="td-muted" style="font-size:0.68rem;">${esc(m.email)}</div>` : ''}
+      </td>
+      <td>${EVENT_LABELS[m.event_type] || m.event_type || '—'}</td>
+      <td class="td-muted" style="font-size:0.72rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.products || m.message || '—')}</td>
+      <td class="td-muted" style="white-space:nowrap;">${fmtDate(m.event_date)}</td>
+      <td class="td-muted">${OUTLET_LABELS[m.outlet] || m.outlet || '—'}</td>
+      <td>${m.status === 'unread' ? slaLabel(m.created_at || m.createdAt) : '<span class="td-muted">—</span>'}</td>
+      <td>
+        <select class="status-select" onchange="updateStatus('${m.id}', this.value)">
+          <option value="unread"    ${m.status==='unread'   ?'selected':''}>Unread</option>
+          <option value="read"      ${m.status==='read'     ?'selected':''}>Read</option>
+          <option value="responded" ${m.status==='responded'?'selected':''}>Responded</option>
+        </select>
+      </td>
+      <td>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="openDetail('${m.id}')" title="View detail">👁️</button>
+          ${phone ? `<a class="btn btn-wa btn-sm btn-icon" href="https://wa.me/91${phone.replace(/\D/g,'')}?text=${waMsg}" target="_blank" rel="noopener" title="Reply on WhatsApp">💬</a>` : ''}
+          <button class="btn btn-success btn-sm btn-icon" onclick="convertToOrder('${m.id}')" title="Convert to order">📦</button>
+          <button class="btn btn-danger  btn-sm btn-icon" onclick="deleteEnquiry('${m.id}')" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
 
-  function updateStatus(id, status) {
-    const enqs = getData(KEYS.enquiries);
-    const idx = enqs.findIndex(e => e.id === id);
-    if (idx === -1) return;
-    enqs[idx].status = status;
-    setData(KEYS.enquiries, enqs);
-    showToast(`Marked as ${status}.`);
-    render();
-  }
+async function updateStatus(id, status) {
+  try {
+    await apiFetch(`/api/messages/${id}/status`, 'PATCH', { status });
+    const m = allEnquiries.find(x => x.id === id);
+    if (m) m.status = status;
+    const unread = allEnquiries.filter(x => x.status === 'unread').length;
+    document.getElementById('sb-enquiries').textContent = unread;
+    document.getElementById('enq-sub').textContent = `${allEnquiries.length} total · ${unread} unread`;
+    showToast(`Marked as ${status}`);
+  } catch (e) { showToast('Failed to update', 'error'); }
+}
 
-  function deleteEnquiry(id) {
-    if (!confirm('Delete this enquiry? This cannot be undone.')) return;
-    setData(KEYS.enquiries, getData(KEYS.enquiries).filter(e => e.id !== id));
-    showToast('Enquiry deleted.', 'info');
-    render();
-  }
+async function markAllRead() {
+  const unread = allEnquiries.filter(m => m.status === 'unread');
+  if (!unread.length) { showToast('No unread enquiries', 'info'); return; }
+  try {
+    await Promise.all(unread.map(m => apiFetch(`/api/messages/${m.id}/status`, 'PATCH', { status:'read' })));
+    unread.forEach(m => { m.status = 'read'; });
+    document.getElementById('sb-enquiries').textContent = 0;
+    document.getElementById('enq-sub').textContent = `${allEnquiries.length} total · 0 unread`;
+    filterEnquiries();
+    showToast(`${unread.length} enquiries marked as read`);
+  } catch (e) { showToast('Failed', 'error'); }
+}
 
-  function markAllRead() {
-    const enqs = getData(KEYS.enquiries).map(e => ({ ...e, status: e.status === 'unread' ? 'read' : e.status }));
-    setData(KEYS.enquiries, enqs);
-    showToast('All enquiries marked as read.');
-    render();
-  }
+function openDetail(id) {
+  const m = allEnquiries.find(x => x.id === id);
+  if (!m) return;
+  const waMsg = encodeURIComponent(`Hi ${m.name}, thank you for reaching out to Krispie's! We'd love to help with your ${m.event_type||'celebration'} cake. Could you share more details?`);
+  document.getElementById('modalTitle').textContent = `Enquiry — ${m.name}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">NAME</div><strong>${esc(m.name)}</strong></div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">PHONE</div>${m.phone ? `<a href="tel:${esc(m.phone)}" style="color:var(--brand);font-weight:600;">${esc(m.phone)}</a>` : '—'}</div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">EMAIL</div>${esc(m.email||'—')}</div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">EVENT TYPE</div>${EVENT_LABELS[m.event_type]||m.event_type||'—'}</div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">EVENT DATE</div>${fmtDate(m.event_date)}</div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">OUTLET PREF</div>${OUTLET_LABELS[m.outlet]||m.outlet||'—'}</div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">QUANTITY</div>${esc(m.quantity||'—')}</div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">RECEIVED</div>${fmtDT(m.created_at||m.createdAt)}</div>
+      ${m.products ? `<div style="grid-column:1/-1;"><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">PRODUCTS INTERESTED IN</div>${esc(m.products)}</div>` : ''}
+      ${m.message  ? `<div style="grid-column:1/-1;"><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">MESSAGE</div><div style="background:#faf8f5;padding:12px;border-radius:8px;font-size:0.82rem;line-height:1.6;">${esc(m.message)}</div></div>` : ''}
+    </div>`;
+  document.getElementById('modalFt').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal()">Close</button>
+    ${m.phone ? `<a class="btn btn-wa" href="https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${waMsg}" target="_blank" rel="noopener">💬 Reply on WhatsApp</a>` : ''}
+    <button class="btn btn-success" onclick="closeModal();convertToOrder('${m.id}')">📦 Convert to Order</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
 
-  function clearAll() {
-    if (!confirm('Delete ALL enquiries? This cannot be undone.')) return;
-    setData(KEYS.enquiries, []);
-    showToast('All enquiries cleared.', 'info');
-    render();
-  }
+  // Auto-mark as read
+  if (m.status === 'unread') updateStatus(id, 'read');
+}
 
-  ['searchInput','statusFilter','eventFilter'].forEach(id =>
-    document.getElementById(id).addEventListener('input', render)
-  );
+function convertToOrder(id) {
+  const m = allEnquiries.find(x => x.id === id);
+  if (!m) return;
+  const params = new URLSearchParams({
+    name:  m.name  || '',
+    phone: m.phone || '',
+    event: m.event_type || '',
+    date:  m.event_date || '',
+  });
+  window.location.href = `orders.html?prefill=${encodeURIComponent(params.toString())}`;
+}
 
-  render();
+async function deleteEnquiry(id) {
+  if (!confirm('Delete this enquiry?')) return;
+  try {
+    await apiFetch(`/api/messages/${id}`, 'DELETE');
+    allEnquiries = allEnquiries.filter(m => m.id !== id);
+    filterEnquiries();
+    showToast('Enquiry deleted');
+  } catch (e) { showToast('Failed to delete', 'error'); }
+}
+
+// Auto-refresh every 60s to catch new enquiries
+loadEnquiries().then(() => setInterval(loadEnquiries, 60000));
 </script>
 </body>
 </html>

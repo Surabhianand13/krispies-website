@@ -5,360 +5,356 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Products — Krispie's Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" href="../assets/logo.svg" type="image/png">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 <div class="admin-layout">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar__brand">
-      <img src="../assets/logo.svg" alt="Krispie's" class="sidebar__logo">
-      <div class="sidebar__brand-text">
-        <span class="sidebar__brand-name">Krispie's</span>
-        <span class="sidebar__brand-sub">Admin Panel</span>
-      </div>
-    </div>
+    <div class="sidebar__brand"><div class="sidebar__brand-name">🎂 Krispie's</div><div class="sidebar__brand-sub">Admin Panel</div></div>
     <nav class="sidebar__nav">
-      <span class="sidebar__nav-section">Main</span>
-      <a href="dashboard" class="sidebar__link"><span class="sidebar__link-icon">📊</span> Dashboard</a>
-      <a href="products"  class="sidebar__link active"><span class="sidebar__link-icon">🎂</span> Products</a>
-      <a href="enquiries" class="sidebar__link"><span class="sidebar__link-icon">📋</span> Enquiries</a>
-      <a href="orders"    class="sidebar__link"><span class="sidebar__link-icon">📦</span> Orders</a>
-      <div class="sidebar__divider"></div>
-      <a href="../index" target="_blank" class="sidebar__link"><span class="sidebar__link-icon">🌐</span> View Website ↗</a>
-      <div class="sidebar__divider"></div>
-      <div class="sidebar__footer">
-        <button onclick="logout()" class="sidebar__link btn" style="color:var(--red);width:100%"><span class="sidebar__link-icon">⎋</span> Logout</button>
-      </div>
+      <div class="sidebar__section-label">Main</div>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="analytics.html" class="sidebar__link"><span class="sidebar__icon">📈</span> Analytics</a>
+      <div class="sidebar__section-label">Manage</div>
+      <a href="orders.html"    class="sidebar__link"><span class="sidebar__icon">📦</span> Orders</a>
+      <a href="enquiries.html" class="sidebar__link"><span class="sidebar__icon">💬</span> Enquiries</a>
+      <a href="products.html"  class="sidebar__link active"><span class="sidebar__icon">🛍️</span> Products</a>
     </nav>
+    <div class="sidebar__footer"><button class="sidebar__logout" onclick="logout()">↩ Logout</button></div>
   </aside>
 
-  <!-- MAIN -->
-  <div class="admin-main">
-    <header class="admin-header">
-      <h1 class="admin-header__title">Products</h1>
-      <div class="admin-header__actions">
-        <button class="btn btn-primary" onclick="openAddModal()">+ Add Product</button>
+  <main class="admin-main">
+    <div class="topbar">
+      <div><div class="topbar__title">Products</div><div class="topbar__sub" id="prod-count">Loading…</div></div>
+      <div class="topbar__actions">
+        <button class="btn btn-primary" onclick="openAddProduct()">+ Add Product</button>
       </div>
-    </header>
+    </div>
 
-    <main class="admin-content">
-
-      <!-- FILTER BAR -->
-      <div class="filter-bar">
-        <input type="search" class="filter-bar__search" id="searchInput" placeholder="Search products…">
-        <select class="filter-select" id="catFilter">
+    <div class="page-body">
+      <div class="action-row">
+        <input type="search" id="search" placeholder="Search products…" oninput="filterProducts()">
+        <select id="filter-cat" onchange="filterProducts()">
           <option value="">All Categories</option>
           <option value="birthday-cakes">Birthday Cakes</option>
           <option value="customized-cakes">Customized Cakes</option>
           <option value="wedding-cakes">Wedding Cakes</option>
           <option value="engagement-cakes">Engagement Cakes</option>
+          <option value="baby-shower-cakes">Baby Shower Cakes</option>
           <option value="cheesecakes">Cheesecakes</option>
           <option value="donuts">Donuts</option>
+          <option value="biscuits">Biscuits</option>
         </select>
-        <select class="filter-select" id="tagFilter">
-          <option value="">All Tags</option>
-          <option value="bestseller">Bestseller</option>
-          <option value="new">New</option>
-          <option value="seasonal">Seasonal</option>
-          <option value="custom">Made to Order</option>
-        </select>
-        <select class="filter-select" id="activeFilter">
+        <select id="filter-status" onchange="filterProducts()">
           <option value="">All Status</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
+          <option value="featured">Featured</option>
         </select>
+        <div class="spacer"></div>
+        <span id="filtered-count" style="font-size:0.78rem;color:var(--text-3);"></span>
       </div>
 
-      <!-- TABLE -->
-      <div class="panel">
-        <div class="table-wrap">
+      <div class="card full-col">
+        <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
-                <th>Product Name</th>
+                <th>Product</th>
                 <th>Category</th>
-                <th>Tag</th>
                 <th>MRP</th>
-                <th>Discount</th>
-                <th>Final Price</th>
-                <th>Images</th>
+                <th>Price</th>
+                <th>Tag</th>
+                <th>Active</th>
                 <th>Featured</th>
-                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="productsTable"></tbody>
+            <tbody id="products-tbody"></tbody>
           </table>
         </div>
       </div>
-      <div id="tableCount" style="font-size:0.75rem; color:var(--muted); margin-top:8px;"></div>
-
-    </main>
-  </div>
+    </div>
+  </main>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal__header">
-      <h3 class="modal__title" id="modalTitle">Add Product</h3>
+<!-- Product Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal modal--lg">
+    <div class="modal__hd">
+      <h3 id="modalTitle">Add Product</h3>
       <button class="modal__close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal__body" id="modalBody"></div>
-    <div class="modal__footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    <div class="modal__ft">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" id="modalSaveBtn">Save Product</button>
     </div>
   </div>
 </div>
 
-<div class="toast-container"></div>
-
 <script src="admin.js"></script>
 <script>
-  checkAuth();
-  initDefaults();
+'use strict';
+if (!checkAuth()) throw new Error('Not authenticated');
 
-  function esc(s) {
-    const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+let allProducts = [];
+
+async function loadProducts() {
+  try {
+    allProducts = await apiFetch('/api/products?all=1');
+    document.getElementById('prod-count').textContent = `${allProducts.length} products total`;
+    renderProducts(allProducts);
+  } catch (e) {
+    showToast('Failed to load products', 'error');
   }
+}
 
-  // ── RENDER TABLE ─────────────────────────
-  function render() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const cat    = document.getElementById('catFilter').value;
-    const tag    = document.getElementById('tagFilter').value;
-    const act    = document.getElementById('activeFilter').value;
+function filterProducts() {
+  const q      = document.getElementById('search').value.toLowerCase();
+  const cat    = document.getElementById('filter-cat').value;
+  const status = document.getElementById('filter-status').value;
+  let list = allProducts.filter(p => {
+    if (q && !p.name.toLowerCase().includes(q) && !p.description.toLowerCase().includes(q)) return false;
+    if (cat && p.category !== cat) return false;
+    if (status === 'active'   && !p.active)   return false;
+    if (status === 'inactive' && p.active)    return false;
+    if (status === 'featured' && !p.featured) return false;
+    return true;
+  });
+  document.getElementById('filtered-count').textContent = `${list.length} shown`;
+  renderProducts(list);
+}
 
-    let products = getData(KEYS.products);
-    if (search) products = products.filter(p => p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search));
-    if (cat)    products = products.filter(p => p.category === cat);
-    if (tag)    products = products.filter(p => p.tag === tag);
-    if (act === 'active')   products = products.filter(p => p.active);
-    if (act === 'inactive') products = products.filter(p => !p.active);
-
-    document.getElementById('tableCount').textContent = `Showing ${products.length} product${products.length !== 1 ? 's' : ''}`;
-
-    const tbody = document.getElementById('productsTable');
-    if (!products.length) {
-      tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-state__icon">🔍</div><div class="empty-state__text">No products match your filters</div></div></td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = products.map(p => {
-      const finalPrice = p.mrp ? Math.round(p.mrp * (1 - (p.discount||0) / 100)) : null;
-      return `
-      <tr>
-        <td class="td-name">${esc(p.name)}</td>
-        <td class="muted" style="font-size:0.8rem">${CATEGORY_LABELS[p.category] || p.category}</td>
-        <td>${tagBadge(p.tag)}</td>
-        <td class="muted">${p.mrp ? fmtPrice(p.mrp) : '—'}</td>
-        <td class="muted">${p.discount ? `<span style="color:var(--gold)">${p.discount}%</span>` : '—'}</td>
-        <td style="color:var(--gold);font-weight:600">${finalPrice ? fmtPrice(finalPrice) : '—'}</td>
-        <td class="muted" style="text-align:center">${(p.images||[]).filter(Boolean).length || '—'}</td>
-        <td style="text-align:center">${p.featured ? '⭐' : '<span style="color:var(--muted)">—</span>'}</td>
-        <td>${p.active
-          ? '<span class="badge badge-active">Active</span>'
-          : '<span class="badge badge-inactive">Inactive</span>'}</td>
-        <td>
-          <div class="td-actions">
-            <button class="btn btn-outline btn-sm" onclick="openEditModal('${p.id}')">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
+function renderProducts(list) {
+  const tb = document.getElementById('products-tbody');
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">🛍️</div>No products found</div></td></tr>`;
+    return;
   }
+  tb.innerHTML = list.map(p => `
+    <tr id="row-${p.id}">
+      <td>
+        <div class="td-name">${esc(p.name)}</div>
+        <div class="td-muted" style="font-size:0.7rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</div>
+        ${p.images?.length ? `<img src="${esc(p.images[0])}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;margin-top:4px;" onerror="this.style.display='none'">` : ''}
+      </td>
+      <td><span class="badge badge-none" style="font-size:0.63rem;">${CATEGORY_LABELS[p.category] || p.category}</span></td>
+      <td>${p.mrp ? fmtPrice(p.mrp) : '—'}</td>
+      <td><strong>${p.price ? fmtPrice(p.price) : '—'}</strong>${p.discount ? `<br><span class="td-muted" style="font-size:0.68rem;">${p.discount}% off</span>` : ''}</td>
+      <td>${tagBadge(p.tag)}</td>
+      <td>
+        <label class="toggle" title="${p.active ? 'Click to deactivate' : 'Click to activate'}">
+          <input type="checkbox" ${p.active ? 'checked' : ''} onchange="toggleActive('${p.id}', this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <label class="toggle" title="${p.featured ? 'Click to unfeature' : 'Click to feature on homepage'}">
+          <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="openEditProduct('${p.id}')" title="Edit">✏️</button>
+          <button class="btn btn-danger  btn-sm btn-icon" onclick="deleteProduct('${p.id}', '${esc(p.name)}')" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
 
-  // ── PRODUCT FORM HTML ─────────────────────
-  function productFormHTML(p = {}) {
-    const cats = ['birthday-cakes','customized-cakes','wedding-cakes','engagement-cakes','cheesecakes','donuts'];
-    const imgs = (p.images || []).filter(Boolean);
-    return `
-      <div class="form-group">
+async function toggleActive(id, cb) {
+  try {
+    const updated = await apiFetch(`/api/products/${id}/toggle-active`, 'PATCH');
+    const idx = allProducts.findIndex(p => p.id === id);
+    if (idx !== -1) allProducts[idx] = updated;
+    cb.checked = updated.active;
+    showToast(updated.active ? 'Product activated — now visible on website' : 'Product deactivated — hidden from website');
+  } catch (e) { showToast('Failed to update', 'error'); cb.checked = !cb.checked; }
+}
+
+async function toggleFeatured(id, cb) {
+  try {
+    const updated = await apiFetch(`/api/products/${id}/toggle-featured`, 'PATCH');
+    const idx = allProducts.findIndex(p => p.id === id);
+    if (idx !== -1) allProducts[idx] = updated;
+    cb.checked = updated.featured;
+    showToast(updated.featured ? 'Now featured on homepage' : 'Removed from homepage');
+  } catch (e) { showToast('Failed to update', 'error'); cb.checked = !cb.checked; }
+}
+
+function productForm(p = {}) {
+  const images = p.images || [];
+  return `
+    <div class="form-grid-2">
+      <div class="form-row" style="grid-column:1/-1;">
         <label>Product Name *</label>
-        <input type="text" id="f_name" class="form-control" value="${esc(p.name || '')}" placeholder="e.g. Chocolate Overload" required>
+        <input id="f-name" value="${esc(p.name || '')}" placeholder="e.g. Chocolate Truffle Cake">
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Category *</label>
-          <select id="f_category" class="form-control">
-            ${cats.map(c => `<option value="${c}" ${p.category===c?'selected':''}>${CATEGORY_LABELS[c]||c}</option>`).join('')}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Tag</label>
-          <select id="f_tag" class="form-control">
-            <option value="" ${!p.tag?'selected':''}>None</option>
-            <option value="bestseller" ${p.tag==='bestseller'?'selected':''}>Bestseller</option>
-            <option value="new"        ${p.tag==='new'?'selected':''}>New</option>
-            <option value="seasonal"   ${p.tag==='seasonal'?'selected':''}>Seasonal</option>
-            <option value="custom"     ${p.tag==='custom'?'selected':''}>Made to Order</option>
-          </select>
-        </div>
+        <label>Category *</label>
+        <select id="f-cat">
+          ${[['birthday-cakes','Birthday Cakes'],['customized-cakes','Customized Cakes'],['wedding-cakes','Wedding Cakes'],['engagement-cakes','Engagement Cakes'],['baby-shower-cakes','Baby Shower Cakes'],['cheesecakes','Cheesecakes'],['donuts','Donuts'],['biscuits','Biscuits']].map(([v,l]) => `<option value="${v}" ${p.category===v?'selected':''}>${l}</option>`).join('')}
+        </select>
       </div>
-      <div class="form-group">
+      <div class="form-row">
+        <label>Tag</label>
+        <select id="f-tag">
+          <option value="">None</option>
+          <option value="bestseller" ${p.tag==='bestseller'?'selected':''}>⭐ Bestseller</option>
+          <option value="new"        ${p.tag==='new'?'selected':''}>🆕 New</option>
+          <option value="seasonal"   ${p.tag==='seasonal'?'selected':''}>🌸 Seasonal</option>
+          <option value="custom"     ${p.tag==='custom'?'selected':''}>✨ Made to Order</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>MRP (₹) *</label>
+        <input id="f-mrp" type="number" min="0" value="${p.mrp || ''}" placeholder="999">
+      </div>
+      <div class="form-row">
+        <label>Discount %</label>
+        <input id="f-disc" type="number" min="0" max="100" value="${p.discount || 0}" placeholder="0">
+        <div class="hint" id="price-preview"></div>
+      </div>
+      <div class="form-row" style="grid-column:1/-1;">
         <label>Description *</label>
-        <textarea id="f_desc" class="form-control" placeholder="Short description for the menu…">${esc(p.description || '')}</textarea>
+        <textarea id="f-desc" rows="3" placeholder="Short description shown on product card">${esc(p.description || '')}</textarea>
       </div>
-
+      <div class="form-row" style="grid-column:1/-1;">
+        <label>Product Images (paste URLs)</label>
+        <div class="img-list" id="img-list">${images.map((url,i) => `
+          <div class="img-pill" id="imgp-${i}">
+            <span class="img-pill__url" title="${esc(url)}">${esc(url)}</span>
+            <button class="img-pill__rm" onclick="removeImg(${i})" type="button">✕</button>
+          </div>`).join('')}</div>
+        <div class="img-add-row">
+          <input id="img-url-input" placeholder="https://example.com/image.jpg" type="url">
+          <button class="btn btn-outline btn-sm" onclick="addImg()" type="button">+ Add</button>
+        </div>
+        <div class="img-preview" id="img-preview">
+          ${images.map(url => `<img src="${esc(url)}" onerror="this.style.display='none'">`).join('')}
+        </div>
+      </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>MRP (₹) *</label>
-          <input type="number" id="f_mrp" class="form-control" min="0" step="1"
-            value="${p.mrp || ''}" placeholder="e.g. 1299" oninput="updatePricePreview()">
-        </div>
-        <div class="form-group">
-          <label>Discount %</label>
-          <input type="number" id="f_discount" class="form-control" min="0" max="100" step="1"
-            value="${p.discount || 0}" placeholder="0" oninput="updatePricePreview()">
-        </div>
+        <label class="form-check"><input type="checkbox" id="f-active" ${p.active!==false?'checked':''}> Active (visible on website)</label>
       </div>
-      <div id="f_price_preview" style="font-size:0.82rem; color:var(--gold); margin:-8px 0 12px; padding:8px 12px; background:rgba(201,168,112,0.07); border-radius:4px; display:none"></div>
-
-      <div class="form-group">
-        <label>Product Images <span style="color:var(--muted);font-weight:400">(paste direct image URLs)</span></label>
-        <div id="f_images_list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
-          ${imgs.length
-            ? imgs.map((url, i) => imageFieldHTML(url, i)).join('')
-            : imageFieldHTML('', 0)
-          }
-        </div>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="addImageField()" style="width:auto">+ Add Another Image</button>
-        <div style="font-size:0.72rem;color:var(--muted);margin-top:6px">
-          💡 Use Cloudinary, Google Drive (direct link), or any public image URL.
-          Supports multiple images — customers can swipe through them on the menu.
-        </div>
+      <div class="form-row">
+        <label class="form-check"><input type="checkbox" id="f-featured" ${p.featured?'checked':''}> Featured on homepage</label>
       </div>
-
-      <div style="display:flex;gap:24px;margin-top:4px">
-        <div class="form-check">
-          <input type="checkbox" id="f_featured" ${p.featured?'checked':''}>
-          <label for="f_featured">⭐ Featured on Homepage</label>
-        </div>
-        <div class="form-check">
-          <input type="checkbox" id="f_active" ${p.active!==false?'checked':''}>
-          <label for="f_active">✓ Active (visible on website)</label>
-        </div>
-      </div>`;
-  }
-
-  function imageFieldHTML(url, idx) {
-    return `<div class="img-field-row" style="display:flex;gap:8px;align-items:center">
-      <input type="url" class="form-control f_img_url" placeholder="https://..." value="${esc(url)}"
-        style="flex:1" oninput="previewThumb(this)">
-      ${url ? `<img src="${esc(url)}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--border)" onerror="this.style.display='none'">` : '<span style="width:36px"></span>'}
-      <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="this.closest('.img-field-row').remove()" title="Remove">✕</button>
     </div>`;
-  }
+}
 
-  function addImageField() {
-    const list = document.getElementById('f_images_list');
-    const div = document.createElement('div');
-    div.innerHTML = imageFieldHTML('', list.children.length);
-    list.appendChild(div.firstElementChild);
-  }
+// Manage image URLs in the form
+let _editImages = [];
 
-  function previewThumb(input) {
-    const img = input.nextElementSibling;
-    if (img && img.tagName === 'IMG') { img.src = input.value; img.style.display = input.value ? '' : 'none'; }
-  }
+function addImg() {
+  const input = document.getElementById('img-url-input');
+  const url = input.value.trim();
+  if (!url) return;
+  _editImages.push(url);
+  refreshImgUI();
+  input.value = '';
+}
+function removeImg(i) {
+  _editImages.splice(i, 1);
+  refreshImgUI();
+}
+function refreshImgUI() {
+  document.getElementById('img-list').innerHTML = _editImages.map((url, i) => `
+    <div class="img-pill">
+      <span class="img-pill__url" title="${esc(url)}">${esc(url)}</span>
+      <button class="img-pill__rm" onclick="removeImg(${i})" type="button">✕</button>
+    </div>`).join('');
+  document.getElementById('img-preview').innerHTML = _editImages.map(url => `<img src="${esc(url)}" onerror="this.style.display='none'">`).join('');
+}
 
-  function updatePricePreview() {
-    const mrp      = parseFloat(document.getElementById('f_mrp')?.value) || 0;
-    const discount = parseFloat(document.getElementById('f_discount')?.value) || 0;
-    const preview  = document.getElementById('f_price_preview');
-    if (!preview) return;
-    if (mrp > 0) {
-      const final = Math.round(mrp * (1 - discount / 100));
-      preview.style.display = 'block';
-      if (discount > 0) {
-        preview.innerHTML = `MRP <s>₹${mrp.toLocaleString('en-IN')}</s> → Final Price <strong>₹${final.toLocaleString('en-IN')}</strong> &nbsp;<span style="color:#2D8B4E">(${discount}% OFF — saving ₹${(mrp - final).toLocaleString('en-IN')})</span>`;
-      } else {
-        preview.innerHTML = `Price: <strong>₹${mrp.toLocaleString('en-IN')}</strong> (no discount)`;
-      }
+function openAddProduct() {
+  _editImages = [];
+  document.getElementById('modalTitle').textContent = 'Add Product';
+  document.getElementById('modalBody').innerHTML = productForm();
+  setupPricePreview();
+  document.getElementById('modalSaveBtn').onclick = saveProduct;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditProduct(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  _editImages = [...(p.images || [])];
+  document.getElementById('modalTitle').textContent = 'Edit Product';
+  document.getElementById('modalBody').innerHTML = productForm(p);
+  setupPricePreview();
+  document.getElementById('modalSaveBtn').onclick = () => saveProduct(id);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function setupPricePreview() {
+  const update = () => {
+    const mrp  = parseFloat(document.getElementById('f-mrp')?.value) || 0;
+    const disc = parseFloat(document.getElementById('f-disc')?.value) || 0;
+    const price = disc > 0 ? Math.round(mrp * (1 - disc/100)) : mrp;
+    const el = document.getElementById('price-preview');
+    if (el && mrp > 0) el.textContent = disc > 0 ? `Final price: ₹${price.toLocaleString('en-IN')}` : '';
+  };
+  setTimeout(() => {
+    document.getElementById('f-mrp')?.addEventListener('input', update);
+    document.getElementById('f-disc')?.addEventListener('input', update);
+  }, 50);
+}
+
+async function saveProduct(editId) {
+  const name = document.getElementById('f-name').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  const cat  = document.getElementById('f-cat').value;
+  if (!name || !desc || !cat) { showToast('Name, category and description are required', 'error'); return; }
+
+  const body = {
+    name, description: desc, category: cat,
+    tag:      document.getElementById('f-tag').value || null,
+    mrp:      parseFloat(document.getElementById('f-mrp').value) || 0,
+    discount: parseFloat(document.getElementById('f-disc').value) || 0,
+    images:   JSON.stringify(_editImages),
+    active:   document.getElementById('f-active').checked,
+    featured: document.getElementById('f-featured').checked,
+  };
+
+  const btn = document.getElementById('modalSaveBtn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    let saved;
+    if (editId) {
+      saved = await apiFetch(`/api/products/${editId}`, 'PUT', body);
+      const idx = allProducts.findIndex(p => p.id === editId);
+      if (idx !== -1) allProducts[idx] = saved;
+      showToast('Product updated — changes are live on the website ✓');
     } else {
-      preview.style.display = 'none';
+      saved = await apiFetch('/api/products', 'POST', body);
+      allProducts.unshift(saved);
+      showToast('Product added — now visible on the website ✓');
     }
+    closeModal();
+    document.getElementById('prod-count').textContent = `${allProducts.length} products total`;
+    filterProducts();
+  } catch (e) {
+    showToast(e.message || 'Failed to save', 'error');
+  } finally {
+    btn.textContent = 'Save Product'; btn.disabled = false;
   }
+}
 
-  // ── COLLECT FORM VALUES ───────────────────
-  function collectForm(existingId) {
-    const name = document.getElementById('f_name').value.trim();
-    const desc = document.getElementById('f_desc').value.trim();
-    if (!name || !desc) { showToast('Name and description are required.', 'error'); return null; }
-    const mrp = parseFloat(document.getElementById('f_mrp').value) || 0;
-    if (!mrp) { showToast('MRP (price) is required.', 'error'); return null; }
-    const images = [...document.querySelectorAll('.f_img_url')]
-      .map(i => i.value.trim()).filter(Boolean);
-    return {
-      id:          existingId || uid(),
-      name,
-      category:    document.getElementById('f_category').value,
-      tag:         document.getElementById('f_tag').value || null,
-      description: desc,
-      mrp,
-      discount:    parseFloat(document.getElementById('f_discount').value) || 0,
-      images,
-      featured:    document.getElementById('f_featured').checked,
-      active:      document.getElementById('f_active').checked,
-      createdAt:   existingId ? undefined : new Date().toISOString(),
-      updatedAt:   new Date().toISOString(),
-    };
-  }
+async function deleteProduct(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    await apiFetch(`/api/products/${id}`, 'DELETE');
+    allProducts = allProducts.filter(p => p.id !== id);
+    document.getElementById('prod-count').textContent = `${allProducts.length} products total`;
+    filterProducts();
+    showToast('Product deleted');
+  } catch (e) { showToast('Failed to delete', 'error'); }
+}
 
-  // ── ADD ───────────────────────────────────
-  function openAddModal() {
-    openModal('Add Product', productFormHTML(), () => {
-      const data = collectForm(null);
-      if (!data) return;
-      const products = getData(KEYS.products);
-      data.createdAt = new Date().toISOString();
-      products.unshift(data);
-      setData(KEYS.products, products);
-      closeModal();
-      showToast('Product added!');
-      render();
-    }, 'Add Product');
-  }
-
-  // ── EDIT ──────────────────────────────────
-  function openEditModal(id) {
-    const products = getData(KEYS.products);
-    const p = products.find(x => x.id === id);
-    if (!p) return;
-    openModal('Edit Product', productFormHTML(p), () => {
-      const data = collectForm(id);
-      if (!data) return;
-      const idx = products.findIndex(x => x.id === id);
-      products[idx] = { ...products[idx], ...data };
-      setData(KEYS.products, products);
-      closeModal();
-      showToast('Product updated!');
-      render();
-    }, 'Save Changes');
-  }
-
-  // ── DELETE ────────────────────────────────
-  function deleteProduct(id) {
-    const products = getData(KEYS.products);
-    const p = products.find(x => x.id === id);
-    if (!p) return;
-    if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
-    setData(KEYS.products, products.filter(x => x.id !== id));
-    showToast('Product deleted.', 'info');
-    render();
-  }
-
-  // ── FILTERS ───────────────────────────────
-  ['searchInput','catFilter','tagFilter','activeFilter'].forEach(id =>
-    document.getElementById(id).addEventListener('input', render)
-  );
-
-  render();
+loadProducts();
 </script>
 </body>
 </html>
