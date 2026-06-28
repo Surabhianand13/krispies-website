@@ -4204,3 +4204,121 @@ textarea.chk-input { resize: vertical; min-height: 80px; }
   .cart-drawer { width: 100vw; }
   .addons-modal__grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px; }
 }
+
+/* ── SEO Footer Section ───────────────────────────────────────── */
+.seo-footer {
+  background: var(--black-2);
+  border-top: 1px solid var(--border-gold);
+  padding: 40px 0 32px;
+}
+
+.seo-links {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 36px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border-gold);
+}
+
+.seo-links__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+
+.seo-links__heading {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-on-dark);
+  white-space: nowrap;
+  margin-right: 4px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.seo-links__items {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+
+.seo-links__items a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.seo-links__items a:hover {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── SEO Rich Text ──────────────────────────────────────────── */
+.seo-text {
+  font-size: 0.82rem;
+  line-height: 1.85;
+  color: var(--text-muted);
+}
+
+.seo-text__title {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-on-dark);
+  margin-bottom: 12px;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+.seo-text__sub {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-on-dark);
+  margin: 16px 0 6px;
+  line-height: 1.4;
+}
+
+.seo-text__visible p,
+.seo-text__hidden p {
+  margin-bottom: 10px;
+}
+
+.seo-text__hidden {
+  display: none;
+  margin-top: 4px;
+}
+
+.seo-text__hidden.open {
+  display: block;
+}
+
+.seo-text__toggle {
+  background: none;
+  border: 1px solid var(--border-gold);
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 7px 18px;
+  border-radius: 4px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.seo-text__toggle:hover {
+  background: var(--gold-faint);
+}
+
+@media (max-width: 768px) {
+  .seo-links__group { flex-direction: column; gap: 2px; }
+  .seo-footer { padding: 28px 0 24px; }
+}
