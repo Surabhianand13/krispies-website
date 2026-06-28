@@ -2617,123 +2617,120 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   background: var(--black-3);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-lg);
-  padding: 40px 40px 36px;
+  padding: 36px 36px 28px;
 }
 
 .contact-wa-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 28px;
-  padding-bottom: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 22px;
   border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 .contact-wa-header__icon {
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: #25D366;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 18px rgba(37,211,102,0.35);
 }
 .contact-wa-header__title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-on-dark);
   margin-bottom: 3px;
 }
 .contact-wa-header__sub {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
-/* ── WhatsApp order cards ── */
+/* ── WhatsApp order cards — Option B ── */
 .wa-order-cards {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  overflow: hidden;
 }
 .wa-order-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 14px 16px;
+  background: rgba(255,255,255,0.03);
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-left: 4px solid var(--accent, var(--gold));
+  padding: 15px 16px;
   text-decoration: none;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition: background 0.18s, padding-left 0.18s;
   cursor: pointer;
+  position: relative;
 }
+.wa-order-card:last-child { border-bottom: none; }
 .wa-order-card:hover {
-  background: rgba(37,211,102,0.08);
-  border-color: rgba(37,211,102,0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(37,211,102,0.12);
+  background: var(--accent-bg, rgba(201,168,112,0.08));
+  padding-left: 20px;
 }
 .wa-order-card__icon {
   flex-shrink: 0;
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(201,168,112,0.12);
-  border: 1px solid rgba(201,168,112,0.2);
-  border-radius: 12px;
-  color: var(--gold);
-  transition: background 0.2s, border-color 0.2s;
+  background: var(--accent-bg, rgba(201,168,112,0.1));
+  border-radius: 10px;
+  color: var(--accent, var(--gold));
+  transition: background 0.18s;
 }
 .wa-order-card:hover .wa-order-card__icon {
-  background: rgba(37,211,102,0.12);
-  border-color: rgba(37,211,102,0.25);
-  color: #25D366;
+  background: var(--accent-bg, rgba(201,168,112,0.18));
 }
 .wa-order-card__body { flex: 1; min-width: 0; }
 .wa-order-card__title {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-on-dark);
   margin-bottom: 2px;
 }
 .wa-order-card__sub {
-  font-size: 0.73rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
 }
 .wa-order-card__cta {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   background: #25D366;
   color: #fff;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 8px 14px;
+  letter-spacing: 0.03em;
+  padding: 7px 13px;
   border-radius: 50px;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background 0.2s, transform 0.15s;
+  transition: background 0.18s;
 }
-.wa-order-card:hover .wa-order-card__cta {
-  background: #1ebe5a;
-  transform: scale(1.04);
-}
+.wa-order-card:hover .wa-order-card__cta { background: #1ebe5a; }
 
 .wa-reply-note {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 18px;
-  font-size: 0.73rem;
+  margin-top: 16px;
+  font-size: 0.72rem;
   color: var(--text-muted);
-  padding: 11px 14px;
+  padding: 10px 14px;
   background: rgba(37,211,102,0.05);
-  border: 1px solid rgba(37,211,102,0.12);
+  border: 1px solid rgba(37,211,102,0.1);
   border-radius: 10px;
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
