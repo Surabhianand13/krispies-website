@@ -715,77 +715,6 @@ h1, h2, h3, h4 {
   color: var(--text-muted);
 }
 
-/* ---- SHOP BY OCCASION ---- */
-.occ-nav {
-  background: var(--cream);
-  padding: 28px 0 22px;
-}
-.occ-nav__bar {
-  display: flex;
-  align-items: stretch;
-  background: #FFFFFF;
-  border: 1.5px solid var(--border-gold);
-  border-radius: 16px;
-  box-shadow: var(--shadow-gold);
-  overflow: hidden;
-}
-.occ-nav__item {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 22px 12px;
-  text-decoration: none;
-  color: var(--text-on-light);
-  border-right: 1px solid var(--border-gold);
-  transition: background 0.2s, color 0.2s, transform 0.2s;
-}
-.occ-nav__item:last-child { border-right: none; }
-.occ-nav__item svg {
-  width: 28px;
-  height: 28px;
-  color: var(--gold-dark);
-  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), color 0.2s;
-}
-.occ-nav__item span {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 0.82rem;
-  letter-spacing: 0.01em;
-  text-align: center;
-  white-space: nowrap;
-}
-.occ-nav__item:hover {
-  background: var(--gold-faint);
-  color: var(--gold-dark);
-}
-.occ-nav__item:hover svg {
-  transform: translateY(-3px) scale(1.1);
-  color: var(--gold);
-}
-
-@media (max-width: 900px) {
-  .occ-nav__item span { font-size: 0.74rem; }
-  .occ-nav__item { padding: 18px 8px; }
-}
-@media (max-width: 640px) {
-  .occ-nav__bar {
-    flex-wrap: wrap;
-    border-radius: 14px;
-  }
-  .occ-nav__item {
-    flex: 1 1 33.333%;
-    padding: 16px 6px;
-    border-bottom: 1px solid var(--border-gold);
-  }
-  .occ-nav__item:nth-child(3) { border-right: none; }
-  .occ-nav__item:nth-last-child(-n+3) { border-bottom: none; }
-  .occ-nav__item svg { width: 24px; height: 24px; }
-  .occ-nav__item span { font-size: 0.68rem; }
-}
-
 /* ---- QUICK CATEGORY NAV ---- */
 .qcat {
   background: var(--cream);
@@ -2213,8 +2142,11 @@ h1, h2, h3, h4 {
 }
 
 .menu-hub {
-  padding: calc(100px + var(--promo-h)) 0 96px;
+  padding: calc(var(--nav-h) + var(--promo-h) + 40px) 0 96px;
   background: #F7F1EC;
+}
+@media (max-width: 640px) {
+  .menu-hub { padding-top: calc(var(--nav-h) + var(--promo-h) + 28px); }
 }
 
 /* Circular collection thumbnails */
