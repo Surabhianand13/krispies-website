@@ -211,8 +211,8 @@ if (form) {
   if (nextBtn) nextBtn.addEventListener('click', () => { next(); resetTimer(); });
   if (prevBtn) prevBtn.addEventListener('click', () => { prev(); resetTimer(); });
 
-  // Auto-advance every 5 seconds
-  function startTimer() { timer = setInterval(next, 5000); }
+  // Auto-advance every 10 seconds
+  function startTimer() { timer = setInterval(next, 10000); }
   function resetTimer() { clearInterval(timer); startTimer(); }
 
   // Pause on hover

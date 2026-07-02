@@ -26,6 +26,9 @@ db.exec(`
     category    TEXT    NOT NULL,
     tag         TEXT,
     description TEXT    NOT NULL,
+    mrp         REAL    NOT NULL DEFAULT 0,
+    discount    REAL    NOT NULL DEFAULT 0,
+    images      TEXT    NOT NULL DEFAULT '[]',
     featured    INTEGER NOT NULL DEFAULT 0,
     active      INTEGER NOT NULL DEFAULT 1,
     created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
@@ -36,6 +39,7 @@ db.exec(`
     id              TEXT    PRIMARY KEY,
     customer_name   TEXT    NOT NULL,
     customer_phone  TEXT,
+    customer_email  TEXT,
     items           TEXT    NOT NULL,
     quantity        TEXT,
     amount          REAL,
@@ -44,6 +48,7 @@ db.exec(`
     order_date      TEXT,
     delivery_date   TEXT,
     status          TEXT    NOT NULL DEFAULT 'pending',
+    payment_method  TEXT,
     notes           TEXT,
     created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at      TEXT    NOT NULL DEFAULT (datetime('now'))
@@ -63,7 +68,37 @@ db.exec(`
     status      TEXT    NOT NULL DEFAULT 'unread',
     created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS page_views (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id  TEXT,
+    path        TEXT    NOT NULL,
+    referrer    TEXT,
+    device_type TEXT,
+    country     TEXT,
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS events (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id  TEXT,
+    type        TEXT    NOT NULL,
+    label       TEXT,
+    path        TEXT,
+    meta        TEXT,
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);
+
+// ── Safe migrations for existing DBs ──────────────────────────────────────────
+const safeAddColumn = (table, col, def) => {
+  try { db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`); } catch (_) {}
+};
+safeAddColumn('products', 'mrp',         'REAL NOT NULL DEFAULT 0');
+safeAddColumn('products', 'discount',    'REAL NOT NULL DEFAULT 0');
+safeAddColumn('products', 'images',      "TEXT NOT NULL DEFAULT '[]'");
+safeAddColumn('orders',   'customer_email', 'TEXT');
+safeAddColumn('orders',   'payment_method', 'TEXT');
 
 // ── Seed admin user ────────────────────────────────────────────────────────────
 const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');

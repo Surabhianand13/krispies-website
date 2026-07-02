@@ -45,12 +45,13 @@ app.use(rateLimit({
 }));
 
 // ── Routes ─────────────────────────────────────────────────────────────────────
-app.use('/api/auth',     require('./routes/auth'));
-app.use('/api/products', require('./routes/products'));
-app.use('/api/orders',   require('./routes/orders'));
-app.use('/api/messages', require('./routes/messages'));
-app.use('/api/checkout', require('./routes/checkout')); // public — no auth
-app.use('/api/upload',   require('./routes/upload'));   // image uploads — auth required
+app.use('/api/auth',      require('./routes/auth'));
+app.use('/api/products',  require('./routes/products'));
+app.use('/api/orders',    require('./routes/orders'));
+app.use('/api/messages',  require('./routes/messages'));
+app.use('/api/checkout',  require('./routes/checkout'));
+app.use('/api/upload',    require('./routes/upload'));
+app.use('/api/analytics', require('./routes/analytics'));
 
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="canonical" href="https://www.krispies.in/menu">
   <title>Our Menu — Krispie's | Birthday, Wedding & Engagement Cakes — Hyderabad</title>
   <meta name="description" content="Explore Krispie's full menu — birthday cakes, wedding cakes, engagement cakes, birthday theme cakes, baby shower cakes. With prices and images. Order in Hyderabad.">
   <link rel="icon" href="assets/logo.svg" type="image/png">
@@ -10,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <!-- build:15 -->
-  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="css/styles.css?v=21">
   <style>
     /* ── Inline overrides — bypass CDN cache, define final card design ── */
     .pcard-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 24px !important; }
@@ -48,6 +49,13 @@
     @media (max-width: 768px)  { .pcard-grid { grid-template-columns: repeat(2, 1fr) !important; } }
     @media (max-width: 480px)  { .pcard-grid { grid-template-columns: 1fr !important; } }
   </style>
+  <meta property="og:title" content="Our Menu — Krispie's | Birthday, Wedding & Engagement Cakes — Hyderabad">
+  <meta property="og:description" content="Explore Krispie">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&h=700&fit=crop&q=80">
+  <meta property="og:url" content="https://www.krispies.in/menu">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&h=700&fit=crop&q=80">
 </head>
 <body>
 
@@ -62,13 +70,38 @@
   </div>
 
   <!-- NAVIGATION -->
-  <nav class="nav" role="navigation">
+    <nav class="nav" role="navigation">
     <div class="container">
       <div class="nav__inner">
-        <a href="index" class="nav__logo"><img src="assets/logo.svg" alt="Krispie's"></a>
+        <a href="index" class="nav__logo"><img src="assets/logo.svg" alt="Krispie's"><span class="nav__brand-name">Krispie's</span></a>
         <ul class="nav__links">
           <li><a href="index">Home</a></li>
-          <li><a href="menu" class="active">Menu</a></li>
+          <li class="nav__dropdown">
+            <a href="menu" class="nav__dropdown-toggle">Menu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav__dropdown-caret"><polyline points="6 9 12 15 18 9"/></svg></a>
+            <div class="nav__dropdown-menu">
+              <a href="birthday-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg></span>
+                <span><strong>Classic Birthday Cakes</strong><small>Black Forest, Truffle, Butterscotch</small></span>
+              </a>
+              <a href="wedding-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                <span><strong>Wedding Cakes</strong><small>Multi-tier fondant &amp; sugar flowers</small></span>
+              </a>
+              <a href="engagement-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M9 4l3 4 3-4"/></svg></span>
+                <span><strong>Engagement Cakes</strong><small>Ring box, heart &amp; roses, gold drip</small></span>
+              </a>
+              <a href="birthday-theme-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg></span>
+                <span><strong>Birthday Theme Cakes</strong><small>Unicorn, Superhero, Princess</small></span>
+              </a>
+              <a href="baby-shower-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a3 3 0 1 0 6 0c0-1-.5-2-2-3l-1-1-1 1c-1.5 1-2 2-2 3z"/><path d="M5 18c0-3 3-5 7-5s7 2 7 5"/></svg></span>
+                <span><strong>Baby Shower &amp; Naming</strong><small>Seemantham, gender reveal, naming</small></span>
+              </a>
+              <div class="nav__dropdown-foot"><a href="menu">View Full Menu →</a></div>
+            </div>
+          </li>
           <li><a href="story">Our Story</a></li>
           <li><a href="articles/">Articles</a></li>
           <li><a href="contact">Contact</a></li>
@@ -84,361 +117,293 @@
     <div class="nav__mobile">
       <a href="index">Home</a>
       <a href="menu">Menu</a>
+      <div class="nav__mobile-sub">
+        <a href="birthday-cakes">→ Classic Birthday Cakes</a>
+        <a href="wedding-cakes">→ Wedding Cakes</a>
+        <a href="engagement-cakes">→ Engagement Cakes</a>
+        <a href="birthday-theme-cakes">→ Birthday Theme Cakes</a>
+        <a href="baby-shower-cakes">→ Baby Shower &amp; Naming</a>
+      </div>
       <a href="story">Our Story</a>
       <a href="articles/">Articles</a>
       <a href="contact">Contact</a>
-      <div class="nav__mobile-order">
-      </div>
     </div>
   </nav>
 
 
-  <!-- HEADER BANNER -->
-  <div style="width:100%;height:560px;overflow:hidden;line-height:0;">
-    <img src="https://res.cloudinary.com/dromdvrxy/image/upload/v1780331497/WhatsApp_Image_2026-06-01_at_7.58.21_PM_2_iyzamj.jpg" alt="Krispie's Menu Banner" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;">
-  </div>
-
-  <!-- STICKY CATEGORY TABS -->
-  <div class="menu-tabs" id="menuTabs">
-    <div class="menu-tabs__scroll">
-      <button class="menu-tab active" data-cat="birthday-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> Birthday Cakes</button>
-      <button class="menu-tab" data-cat="wedding-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Wedding Cakes</button>
-      <button class="menu-tab" data-cat="engagement-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg> Engagement Cakes</button>
-      <button class="menu-tab" data-cat="birthday-theme-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Birthday Theme Cakes</button>
-      <button class="menu-tab" data-cat="baby-shower-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Baby Shower &amp; Naming Cakes</button>
-    </div>
-  </div>
-
-  <!-- MENU CONTENT -->
-  <main class="menu-main">
-
-    <!-- BIRTHDAY CAKES -->
-    <section class="menu-cat-section" id="cat-birthday-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Every Birthday Deserves Magic</span>
-          <h2>Birthday Cakes</h2>
-          <p>From classic favourites to spectacular themed creations — cakes that taste as magical as they look.</p>
-        </div>
-
-        <!-- Sub-category circular thumbnails -->
-        <div class="subcat-scroll">
-          <a href="#" class="subcat-item active" data-filter="all">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-chocolate.jpg" alt="All Cakes">
-            </div>
-            <span>All Cakes</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="chocolate">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-chocolate.jpg" alt="Chocolate">
-            </div>
-            <span>Chocolate</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="dark-chocolate">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-darkchocolate.jpg" alt="Dark Chocolate">
-            </div>
-            <span>Dark Chocolate</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="vanilla">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-vanilla.jpg" alt="Vanilla">
-            </div>
-            <span>Rasmalai</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="red-velvet">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-redvelvet.jpg" alt="Red Velvet">
-            </div>
-            <span>Red Velvet</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="pineapple">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-pineapple.jpg" alt="Pineapple">
-            </div>
-            <span>Pineapple</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="mango">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-mango.jpg" alt="Mango">
-            </div>
-            <span>Mango</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="blueberry">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-blueberry.jpg" alt="Blueberry">
-            </div>
-            <span>Blueberry</span>
-          </a>
-          <a href="#" class="subcat-item" data-filter="butterscotch">
-            <div class="subcat-item__circle">
-              <img src="assets/images/sub-butterscotch.jpg" alt="Butterscotch">
-            </div>
-            <span>Butterscotch</span>
-          </a>
-        </div>
-
-        <!-- Filter pills -->
-        <div class="filter-pills">
-          <button class="filter-pill active" data-pill="all">All</button>
-          <button class="filter-pill" data-pill="bestseller">Bestseller</button>
-          <button class="filter-pill" data-pill="new">New Arrivals</button>
-          <button class="filter-pill" data-price="under-500">Under ₹500</button>
-          <button class="filter-pill" data-price="under-1000">Under ₹1000</button>
-          <button class="filter-pill" data-price="under-1500">Under ₹1500</button>
-        </div>
-
-        <div class="pcard-grid" id="grid-birthday-cakes"></div>
-        <div class="cant-find-cta" id="cta-birthday-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Not finding what you're looking for?</h3>
-              <p>Don't worry! Fill this form with your reference cake design and we'll get back to you in minutes to confirm your order.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Response within minutes</li>
-                <li>✓ Custom design matching your vision</li>
-                <li>✓ Available at all 5 outlets</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Birthday Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Describe your dream cake — flavour, design, theme, size… or paste a reference image link"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/></svg> We got your request! Expect a call back within minutes.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- WEDDING CAKES -->
-    <section class="menu-cat-section" id="cat-wedding-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">For Your Most Special Day</span>
-          <h2>Wedding Cakes</h2>
-          <p>Masterfully crafted tiered cakes that match the grandeur of your celebration. Every detail designed for your big day.</p>
-        </div>
-        <div class="pcard-grid" id="grid-wedding-cakes"></div>
-        <div class="cant-find-cta" id="cta-wedding-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Planning your dream wedding cake?</h3>
-              <p>Share your inspiration — photos, colours, themes — and we'll craft a bespoke wedding cake that takes everyone's breath away.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Free consultation available</li>
-                <li>✓ Multiple tiers, any flavour</li>
-                <li>✓ Delivered and set up at your venue</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Wedding Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Wedding date, guest count, design inspiration, reference links…"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Book a Consultation →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Wonderful! We'll be in touch to plan your perfect wedding cake.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ENGAGEMENT CAKES -->
-    <section class="menu-cat-section" id="cat-engagement-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Celebrate the Beginning</span>
-          <h2>Engagement Cakes</h2>
-          <p>Mark this beautiful milestone with a cake as unique as your love story. Personalized, elegant, and unforgettable.</p>
-        </div>
-        <div class="pcard-grid" id="grid-engagement-cakes"></div>
-        <div class="cant-find-cta" id="cta-engagement-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Planning a surprise proposal cake?</h3>
-              <p>Tell us your story — the name, the date, the design — and we'll create something truly magical for the most important yes of your life.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Surprise delivery arrangements</li>
-                <li>✓ Personalised toppers &amp; messages</li>
-                <li>✓ Same-day orders on availability</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Engagement Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Names, date of engagement, design inspiration or reference image link…"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg> How exciting! We'll reach out right away to make it perfect.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- BIRTHDAY THEME CAKES -->
-    <section class="menu-cat-section" id="cat-birthday-theme-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Your Theme, Our Craft</span>
-          <h2>Birthday Theme Cakes</h2>
-          <p>From unicorns to superheroes, dinosaurs to galaxies — we bring your child's dream cake to life with edible art.</p>
-        </div>
-        <div class="pcard-grid" id="grid-birthday-theme-cakes"></div>
-        <div class="cant-find-cta" id="cta-birthday-theme-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Have a specific theme in mind?</h3>
-              <p>Share the theme, character or reference image — we'll bring it to life exactly as you envision it.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Any character, any theme</li>
-                <li>✓ 3D fondant &amp; sculpted designs</li>
-                <li>✓ Available at all 5 outlets</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Birthday Theme Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Describe your theme — character, colours, size, reference image link…"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Theme request received! We'll call you back shortly.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- BABY SHOWER & NAMING CAKES -->
-    <section class="menu-cat-section" id="cat-baby-shower-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Welcome the Little One</span>
-          <h2>Baby Shower &amp; Naming Cakes</h2>
-          <p>Soft pastels, delicate florals, and heartwarming designs to celebrate the newest member of your family.</p>
-        </div>
-        <div class="pcard-grid" id="grid-baby-shower-cakes"></div>
-        <div class="cant-find-cta" id="cta-baby-shower-cakes">
-          <div class="cant-find-cta__inner">
-            <div class="cant-find-cta__text">
-              <h3>Planning a baby shower or naming ceremony?</h3>
-              <p>Tell us the gender (or keep it a surprise!), theme, and any personalisation you'd love — we'll create something truly special.</p>
-              <ul class="cant-find-cta__perks">
-                <li>✓ Gender reveal options available</li>
-                <li>✓ Personalised name toppers</li>
-                <li>✓ Same-day orders on availability</li>
-              </ul>
-            </div>
-            <div class="cant-find-form-wrap">
-              <form class="cant-find-form" data-category="Baby Shower Cake">
-                <div class="cant-find-form__row">
-                  <input type="text" class="form-ctrl" data-field="name" placeholder="Your Name *" required>
-                  <input type="tel" class="form-ctrl" data-field="phone" placeholder="Phone Number *" required>
-                </div>
-                <textarea class="form-ctrl" data-field="message" rows="3"
-                  placeholder="Baby's name, gender theme, date of event, design inspiration…"></textarea>
-                <button type="submit" class="btn btn-gold" style="width:100%">Get a Quote in Minutes →</button>
-                <div class="cant-find-success" style="display:none">
-                  <svg style="width:20px;height:20px;vertical-align:middle;color:var(--gold)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> How lovely! We'll be in touch to plan your special cake.
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ORDER CTA -->
-  <section class="order-cta">
+  <!-- PAGE HERO -->
+  <header class="menu-hub-hero">
     <div class="container">
-      <span class="section-label order-cta__tag">Ready to Order?</span>
+      <span class="section-label">Our Menu</span>
       <span class="gold-line"></span>
-      <h2 class="order-cta__title">Get Krispie's Delivered</h2>
-      <p class="order-cta__sub">Order directly or contact us for bulk &amp; corporate orders.</p>
-      <div class="order-cta__btns">
-        <a href="contact" class="btn btn-outline order-cta__btn">Bulk &amp; Corporate →</a>
-      </div>
+      <h1 class="menu-hub-hero__title">Explore Krispie's Collection</h1>
+      <p class="menu-hub-hero__sub">Five categories crafted for every celebration — choose what you're looking for.</p>
     </div>
-  </section>
+  </header>
+
+  <!-- CATEGORY HUB -->
+  <main class="menu-hub">
+    <div class="container">
+      <div class="menu-hub__grid">
+
+        <a href="birthday-cakes" class="menu-hub__card">
+          <span class="menu-hub__card-num">01 — Birthday</span>
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 50V32c0-3 2-5 5-5h30c3 0 5 2 5 5v18"/>
+              <path d="M8 40c2-2 5-2 7 0s5 2 7 0 5-2 7 0 5 2 7 0 5-2 7 0 5 2 7 0"/>
+              <path d="M6 52h52"/>
+              <path d="M22 22v5M32 18v9M42 22v5"/>
+              <circle cx="22" cy="14" r="1.5" fill="currentColor"/>
+              <circle cx="32" cy="10" r="1.5" fill="currentColor"/>
+              <circle cx="42" cy="14" r="1.5" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Classic Birthday Cakes</h2>
+          <p class="menu-hub__card-desc">Black Forest, Chocolate Truffle, Butterscotch, Red Velvet, Rasmalai &amp; more — handcrafted favourites for every age.</p>
+          <span class="menu-hub__card-meta">7 designs &middot; from ₹849</span>
+          <span class="menu-hub__card-divider"></span>
+          <span class="menu-hub__card-cta">Explore Birthday Cakes</span>
+        </a>
+
+        <a href="wedding-cakes" class="menu-hub__card">
+          <span class="menu-hub__card-num">02 — Wedding</span>
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="20" y="36" width="24" height="18" rx="2"/>
+              <rect x="14" y="36" width="36" height="3"/>
+              <rect x="24" y="22" width="16" height="14" rx="2"/>
+              <rect x="18" y="22" width="28" height="3"/>
+              <rect x="28" y="10" width="8" height="12" rx="1"/>
+              <rect x="24" y="10" width="16" height="3"/>
+              <circle cx="32" cy="6" r="2.5" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Wedding Cakes</h2>
+          <p class="menu-hub__card-desc">Multi-tier fondant, hand-sculpted sugar flowers, edible gold leaf — wedding cakes as beautiful as your love story.</p>
+          <span class="menu-hub__card-meta">7 designs &middot; from ₹2,499</span>
+          <span class="menu-hub__card-divider"></span>
+          <span class="menu-hub__card-cta">Explore Wedding Cakes</span>
+        </a>
+
+        <a href="engagement-cakes" class="menu-hub__card">
+          <span class="menu-hub__card-num">03 — Engagement</span>
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="14" y="34" width="36" height="20" rx="3"/>
+              <circle cx="32" cy="18" r="9"/>
+              <path d="M32 9l-4 5h8z" fill="currentColor"/>
+              <circle cx="32" cy="44" r="2" fill="currentColor"/>
+              <circle cx="22" cy="44" r="2" fill="currentColor"/>
+              <circle cx="42" cy="44" r="2" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Engagement Cakes</h2>
+          <p class="menu-hub__card-desc">Ring box designs, heart &amp; roses tiers, gold drip, couple silhouettes — make your engagement unforgettable.</p>
+          <span class="menu-hub__card-meta">4 designs &middot; from ₹2,799</span>
+          <span class="menu-hub__card-divider"></span>
+          <span class="menu-hub__card-cta">Explore Engagement Cakes</span>
+        </a>
+
+        <a href="birthday-theme-cakes" class="menu-hub__card">
+          <span class="menu-hub__card-num">04 — Theme</span>
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="32 6 38 22 56 22 42 32 48 50 32 40 16 50 22 32 8 22 26 22"/>
+              <circle cx="32" cy="32" r="3" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Birthday Theme Cakes</h2>
+          <p class="menu-hub__card-desc">Unicorn, Superhero, Princess Castle, Dinosaur, Galaxy, Safari — your child\'s dream character in edible fondant.</p>
+          <span class="menu-hub__card-meta">6 designs &middot; from ₹1,599</span>
+          <span class="menu-hub__card-divider"></span>
+          <span class="menu-hub__card-cta">Explore Theme Cakes</span>
+        </a>
+
+        <a href="baby-shower-cakes" class="menu-hub__card">
+          <span class="menu-hub__card-num">05 — Baby Shower</span>
+          <div class="menu-hub__icon">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="32" cy="22" r="10"/>
+              <path d="M14 54c0-9 8-16 18-16s18 7 18 16"/>
+              <circle cx="28" cy="20" r="1.5" fill="currentColor"/>
+              <circle cx="36" cy="20" r="1.5" fill="currentColor"/>
+              <path d="M28 26q4 3 8 0"/>
+            </svg>
+          </div>
+          <h2 class="menu-hub__card-title">Baby Shower &amp; Naming Cakes</h2>
+          <p class="menu-hub__card-desc">Seemantham ceremonies, gender reveal, half-year birthdays, naming ceremonies — sweet beginnings.</p>
+          <span class="menu-hub__card-meta">7 designs &middot; from ₹1,999</span>
+          <span class="menu-hub__card-divider"></span>
+          <span class="menu-hub__card-cta">Explore Baby Shower Cakes</span>
+        </a>
+
+      </div>
+
+      <!-- Custom order — WhatsApp + Call CTA -->
+      <div class="custom-cta">
+        <div class="custom-cta__inner">
+
+          <div class="custom-cta__head">
+            <span class="custom-cta__eyebrow">Custom Cakes</span>
+            <h3>Have a different cake in mind?</h3>
+            <p>Send us a reference image and the team will reply in a few minutes — no forms, no waiting. We craft custom cakes for every celebration, available across all 5 Hyderabad outlets.</p>
+          </div>
+
+          <div class="custom-cta__actions">
+
+            <a href="https://wa.me/917975218850?text=Hi%20Krispie's%20team!%20I'd%20like%20to%20order%20a%20custom%20cake.%20Here's%20my%20reference%20image:" target="_blank" rel="noopener" class="custom-cta__btn custom-cta__btn--wa">
+              <span class="custom-cta__btn-icon">
+                <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
+              </span>
+              <span class="custom-cta__btn-body">
+                <span class="custom-cta__btn-title">Chat on WhatsApp</span>
+                <span class="custom-cta__btn-sub">Avg reply: under 10 mins</span>
+              </span>
+            </a>
+
+            <a href="tel:+917975218850" class="custom-cta__btn custom-cta__btn--call">
+              <span class="custom-cta__btn-icon custom-cta__btn-icon--ring">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
+                <span class="ring-wave"></span>
+                <span class="ring-wave ring-wave--2"></span>
+              </span>
+              <span class="custom-cta__btn-body">
+                <span class="custom-cta__btn-title">+91 79752 18850</span>
+                <span class="custom-cta__btn-sub">8 AM – 10 PM, 7 days a week</span>
+              </span>
+            </a>
+
+          </div>
+
+          <div class="custom-cta__trust">
+            <div class="custom-cta__trust-item">
+              <strong>3000+</strong>
+              <small>Happy customers</small>
+            </div>
+            <span class="custom-cta__trust-divider"></span>
+            <div class="custom-cta__trust-item">
+              <strong>4.8★</strong>
+              <small>Average rating</small>
+            </div>
+            <span class="custom-cta__trust-divider"></span>
+            <div class="custom-cta__trust-item">
+              <strong>5</strong>
+              <small>Hyderabad outlets</small>
+            </div>
+            <span class="custom-cta__trust-divider"></span>
+            <div class="custom-cta__trust-item">
+              <strong>30 yrs</strong>
+              <small>Since 1996</small>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
 
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
+
       <div class="footer__grid">
-        <div>
-          <img src="assets/logo.svg" alt="Krispie's" class="footer__logo">
-          <p class="footer__desc">Hyderabad's most loved celebrations bakery — crafting handmade joy since 1996.</p>
+
+        <!-- Col 1: Brand -->
+        <div class="footer__brand">
+          <div class="footer__logo-row">
+            <img src="assets/logo-white.svg" alt="Krispie's" class="footer__logo"
+              onerror="this.src='assets/logo.svg'">
+            <span class="footer__brand-name">Krispie's</span>
+          </div>
+          <p class="footer__tagline">Your Celebrations Partner</p>
+          <p class="footer__desc">Crafting handmade joy since 1996 with the warmth of Iyengar tradition. Hyderabad's most loved bakery for birthdays, weddings &amp; every milestone.</p>
+          <div class="footer__social-links">
+            <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+          </div>
         </div>
+
+        <!-- Col 2: Navigate -->
         <div class="footer__col">
-          <h4 class="footer__col-title">Quick Links</h4>
-          <ul>
-            <li><a href="index">Home</a></li>
-            <li><a href="menu">Our Menu</a></li>
-            <li><a href="story">Our Story</a></li>
-            <li><a href="articles/">Articles</a></li>
-            <li><a href="contact">Contact Us</a></li>
-          </ul>
+          <h4 class="footer__col-title">Navigate</h4>
+          <a href="index"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+          <a href="menu"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>Our Menu</a>
+          <a href="story"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Our Story</a>
+          <a href="articles/"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>Articles</a>
+          <a href="contact"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>Contact Us</a>
         </div>
+
+        <!-- Col 3: Our Outlets -->
         <div class="footer__col">
           <h4 class="footer__col-title">Our Outlets</h4>
-          <ul>
-            <li>Lalbazar</li><li>Suchitra</li><li>Boduppal</li>
-            <li>Ramantapur</li><li>Tukkuguda</li>
-          </ul>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Lalbazar</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Lalbazar+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Suchitra</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Suchitra+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Boduppal</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Boduppal+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Ramantapur</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Ramantapur+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Tukkuguda</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Tukkuguda+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
         </div>
+
+        <!-- Col 4: Contact & Orders -->
         <div class="footer__col">
-          <h4 class="footer__col-title">Connect</h4>
-          <div class="footer__contact-row">
-            <span class="footer__contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></span>
+          <h4 class="footer__col-title">Get in Touch</h4>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>Phone</span>
+            <a href="tel:+917975218850">+91 79752 18850</a>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram</span>
             <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener">@krispies.in</a>
           </div>
-          <div class="footer__contact-row">
-            <span class="footer__contact-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></span>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook</span>
             <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener">krispies.in</a>
           </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Bulk Orders</span>
+            <a href="contact">Enquire Now</a>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Custom Cakes</span>
+            <a href="contact">Get a Quote</a>
+          </div>
         </div>
+
       </div>
+
+      <!-- Divider -->
+      <div class="footer__rule"></div>
+
+      <!-- Bottom bar -->
       <div class="footer__bottom">
-        <p class="footer__copy">© 2024 Krispie's — Your Celebrations Partner.</p>
-        <div class="footer__social-links">
-          <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-          </a>
-          <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener" aria-label="Facebook">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          </a>
+        <p class="footer__copy">© 2024 Krispie's Celebrations Bakery · Gaura Foodtech Pvt Ltd · Hyderabad, Telangana</p>
+        <div class="footer__bottom-links">
+          <a href="privacy-policy">Privacy Policy</a>
+          <span class="footer__bottom-dot">·</span>
+          <a href="terms">Terms &amp; Conditions</a>
         </div>
       </div>
+
     </div>
   </footer>
 
@@ -515,6 +480,7 @@
   </div>
 
   <script src="js/main.js"></script>
+  <script src="js/tracker.js"></script>
   <script>
   /* ── DATA ── */
   const PROD_KEY = 'krispies_products';
@@ -535,7 +501,7 @@
   }
 
   /* Seed defaults if localStorage is empty (mirrors admin.js) */
-  const DATA_VERSION = 'v3'; // bump to force refresh when images/products change
+  const DATA_VERSION = 'v10'; // bump to force refresh when images/products change
   function ensureDefaults() {
     if (localStorage.getItem('krispies_data_ver') !== DATA_VERSION) {
       localStorage.removeItem(PROD_KEY);
@@ -551,38 +517,41 @@
     const mk = (name, cat, desc, tag, mrp, disc, feat) => ({
       id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
       name, category: cat, description: desc, tag, mrp, discount: disc||0,
-      images:[`assets/images/${slugify(name)}.jpg`],
+      images:[`assets/images/products/${cat}/${slugify(name)}.jpg`],
       featured:!!feat, active:true, createdAt:now
     });
     const products = [
-      mk('Classic Vanilla Dream','birthday-cakes','Moist vanilla sponge layered with silky buttercream — a timeless favourite.','bestseller',899,10,true),
-      mk('Chocolate Overload','birthday-cakes','Dark chocolate sponge, ganache drip, and chocolate shards.','bestseller',999,15,true),
-      mk('Red Velvet Royale','birthday-cakes','Striking red velvet layers with luscious cream cheese frosting.','bestseller',1099,10,true),
-      mk('Black Forest Bliss','birthday-cakes','Classic Black Forest with cherries, whipped cream and dark chocolate.','bestseller',999,0,false),
-      mk('Fruit Fiesta','birthday-cakes','Fresh seasonal fruits, light chantilly cream, and vanilla sponge.','new',849,0,false),
-      mk('Butterscotch Dream','birthday-cakes','Crunchy butterscotch praline layered in creamy buttercream.',null,849,10,false),
-      mk('Rainbow Funfetti','birthday-cakes','Colourful sprinkles baked right in — a party in every slice!','new',949,0,false),
-      mk('Classic 2-Tier White','wedding-cakes','Elegant two-tier vanilla sponge with smooth white fondant.','bestseller',7500,10,true),
-      mk('Floral 3-Tier Fondant','wedding-cakes','Three tiers with hand-sculpted sugar flowers.','custom',14000,0,true),
-      mk('Rustic Naked Cake','wedding-cakes','Semi-naked cake with fresh florals and berries.','new',8500,10,false),
-      mk('Gold Leaf Luxury Tier','wedding-cakes','Metallic gold fondant with real edible gold leaf.','custom',18000,0,false),
-      mk('Minimalist Modern Tier','wedding-cakes','Clean geometric lines, matte fondant, single accent bloom.','new',9500,0,false),
-      mk('Ring Box Cake','engagement-cakes','A showstopping ring-box sculpture cake.','bestseller',2999,10,true),
-      mk('Heart & Roses Cake','engagement-cakes','Two-tier heart-shaped cake with handmade fondant roses.','bestseller',3500,0,true),
-      mk('Gold Drip Engagement','engagement-cakes','Smooth ganache with luxurious gold drip and personalised topper.','new',2499,15,false),
-      mk('Photo Collage Tier','engagement-cakes','Edible photo prints of your favourite couple moments.','custom',3999,0,false),
-      mk('Floral Wreath Cake','engagement-cakes','Buttercream painted floral wreath on a semi-naked cake.',null,2799,10,false),
+      mk('Creamy Rasmalai Cake','birthday-cakes','Saffron-cardamom sponge soaked in rabri cream, topped with crushed pistachios.','bestseller',899,10,true),
+      mk('Belgium Chocolate Cake','birthday-cakes','Rich Belgian chocolate sponge with smooth ganache drip and dark chocolate shards.','bestseller',999,15,true),
+      mk('Redvelvet Cake','birthday-cakes','Striking red velvet layers with luscious cream cheese frosting.','bestseller',1099,10,true),
+      mk('Chocolate Truffle Cake','birthday-cakes','Decadent chocolate sponge layered with silky truffle ganache and chocolate curls.','bestseller',999,0,false),
+      mk('Fresh Pineapple Cake','birthday-cakes','Vanilla sponge with fresh pineapple chunks and light chantilly cream.','new',849,0,false),
+      mk('Butterscotch Cake','birthday-cakes','Crunchy butterscotch praline layered in fluffy fresh cream and vanilla sponge.',null,849,10,false),
+      mk('Mango Bliss Cake','birthday-cakes','Alphonso mango sponge layered with mango compote and fresh cream.','new',949,0,false),
+      mk('Double Heart Two-Tier Anniversary Cake','wedding-cakes','Two-tier heart-shaped cake with red polka dots, red rose bouquets, customisable gold anniversary topper and floating heart accents.','bestseller',4499,0,true),
+      mk('Traditional Bride & Groom Wedding Cake','wedding-cakes','Classic three-tier white fondant with hand-sculpted burgundy roses, pearl drapery and traditional bride-and-groom topper.','bestseller',4999,0,true),
+      mk('Romantic Pink Rose One Tier Cake','wedding-cakes','Single tier white with handmade pink roses, gold pearl cascade and soft pink ombre band — intimate and elegant.','bestseller',2999,0,true),
+      mk('Pastel Wedding Cake with Pearls','wedding-cakes','Two-tier ivory and peach with pink-white-peach fresh roses, carnations and delicate pearl detailing.','new',3999,0,false),
+      mk('White & Red Ribbon Wedding Cake','wedding-cakes','Two-tier white with red daisy fondant flowers, red satin ribbon, oversized red bow and classic bride-groom topper.','bestseller',4499,0,true),
+      mk('Red Velvet Hearts Romantic Cake','wedding-cakes','Single tier with red velvet ganache drip, oversized red heart topper, heart sprinkles and red velvet crumb at the base.','new',2499,0,false),
+      mk('Pink Princess Engagement Couple Cake','wedding-cakes','Two-tier ivory with hand-painted princess and groom illustration, cascading pink fondant dress, pink carnations and gold engaged topper.','bestseller',4999,0,true),
+      mk('Royal Pink Ring Box Cake - Two Tier','engagement-cakes','Stunning two-tier engagement cake — pink hexagonal ring box with two gold rings on top, gold ornamental medallion on the white base and hand-crafted blush fondant roses.','bestseller',4499,0,true),
+      mk('Forever Couple Silhouette Cake','engagement-cakes','Two-tier blush fondant with hand-cut bride and groom silhouette, gold heart-with-ring topper, fresh roses and pearl detailing.','bestseller',4999,0,true),
+      mk('Pearl & Hearts Engagement Cake','engagement-cakes','Tall single tier finished with delicate hand-piped pearls, red heart accents, double-ring topper and fresh white roses.','new',2999,0,false),
+      mk('Red Velvet Roses Engagement Cake','engagement-cakes','Romantic two-tier with red velvet crown on top, fresh red roses cascading down and twin diamond-ring toppers.','bestseller',2799,10,false),
       mk('Unicorn Magic','birthday-theme-cakes','Pastel rainbow swirls, edible glitter horn, and fairy dust sprinkles.','bestseller',1599,10,true),
       mk('Dinosaur Roar','birthday-theme-cakes','T-Rex and friends in sculpted fondant — perfect for little explorers.','bestseller',1699,0,true),
       mk('Princess Castle','birthday-theme-cakes','Dream castle with sugar turrets, fondant flowers and a princess topper.','custom',2199,0,false),
       mk('Superhero Action Cake','birthday-theme-cakes','Your child\'s favourite hero in 3D fondant on a bright sponge.','bestseller',1799,10,false),
       mk('Galaxy Space Cake','birthday-theme-cakes','Deep space swirls in airbrushed purple and blue with sugar stars.','new',1899,0,false),
       mk('Safari Animals Cake','birthday-theme-cakes','Jungle animals peeking from a fondant-wrapped cake.','custom',1599,0,false),
-      mk('Blue & Gold Baby Shower','baby-shower-cakes','Elegant two-tier in blue and gold — perfect for a baby boy celebration.','bestseller',2499,10,true),
-      mk('Pink Floral Baby Shower','baby-shower-cakes','Soft pink with handmade fondant blossoms for a baby girl celebration.','bestseller',2499,0,true),
-      mk('Neutral Pastel Tier','baby-shower-cakes','Gender-neutral pastels with delicate ruffles — ideal before gender reveal.','new',1999,10,false),
-      mk('Baby Feet Naming Cake','baby-shower-cakes','Baby feet fondant topper with the new arrival\'s name piped in gold.','custom',2199,0,false),
-      mk('Oh Baby Drip Cake','baby-shower-cakes','Pastel drip cake with \'Oh Baby!\' balloon topper.','new',1799,0,false),
+      mk('Jungle Theme with Animals Two-Tier Cake','baby-shower-cakes','Lush green two-tier with lion, zebra, elephant and leopard fondant figurines under monstera leaves — perfect wild one celebration.','bestseller',5999,0,true),
+      mk('Rainbow Unicorn Birthday Cake for Girl','baby-shower-cakes','Pastel pink and blue ombre with a magical rainbow unicorn topper, gold stars, clouds and edible flower confetti.','bestseller',2999,0,true),
+      mk('Winged Baby Unicorn Hearts Cake','baby-shower-cakes','Sky-blue tier with a baby pegasus topper, pastel hearts, gold stars on sticks and dreamy cloud detailing.','new',2999,0,false),
+      mk('Half Birthday Teddy Cake','baby-shower-cakes','Mint blue cake with two adorable brown teddies, halfway to one star sign and a ladder — the perfect 6 month milestone.','bestseller',1999,0,true),
+      mk('Barbie Doll Pink Floral Cake','baby-shower-cakes','Classic Barbie doll cake in a flowing pink fondant gown with white floral detailing — a princess birthday showstopper.','bestseller',2999,0,false),
+      mk('Pastel Rainbow Bear Cake for Kids','baby-shower-cakes','Pastel pink, yellow, mint and blue rainbow ombre with two adorable teddy bears, fluffy clouds and rainbow topper — pure cuteness.','bestseller',2499,0,true),
+      mk('Personalised Name 1st Birthday Princess Cake','baby-shower-cakes','Premium two-tier with a princess doll in pink ruffles, white bunny, custom-piped name, gold 1 number and rose-gold metallic spheres.','bestseller',4999,0,true),
     ];
     localStorage.setItem(PROD_KEY, JSON.stringify(products));
   }
@@ -1713,5 +1682,6 @@
     if (e.key === 'Escape') { closeCheckout(); closeCartDrawer(); closeAddons(); }
   });
   </script>
+<script src="js/track.js" defer></script>
 </body>
 </html>
