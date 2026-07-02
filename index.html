@@ -504,10 +504,11 @@
       </div>
       <div class="videos__grid videos__grid--reels">
         <div class="reel-card fade-up">
-          <video class="reel-card__video" src="assets/videos/reel-baking.mp4"
-                 poster="assets/images/cat-birthday.jpg"
-                 autoplay muted loop playsinline preload="metadata"
-                 onerror="this.parentElement.classList.add('reel-card--err')"></video>
+          <iframe class="reel-card__video" data-video-id="yMeLAAS2SVM"
+            src="https://www.youtube-nocookie.com/embed/yMeLAAS2SVM?autoplay=1&mute=1&loop=1&playlist=yMeLAAS2SVM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+            title="In-store celebrations at Krispie's" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen loading="lazy"></iframe>
           <div class="reel-card__overlay">
             <button class="reel-card__sound" aria-label="Toggle sound" type="button">
               <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -515,16 +516,17 @@
             </button>
           </div>
           <div class="reel-card__meta">
-            <div class="reel-card__title">Our Baking Kitchen</div>
-            <div class="reel-card__sub">Behind the scenes</div>
+            <div class="reel-card__title">In-Store Celebrations</div>
+            <div class="reel-card__sub">Spider-Man drops by for a birthday bash</div>
           </div>
         </div>
 
         <div class="reel-card fade-up">
-          <video class="reel-card__video" src="assets/videos/reel-store.mp4"
-                 poster="assets/images/cat-wedding.jpg"
-                 autoplay muted loop playsinline preload="metadata"
-                 onerror="this.parentElement.classList.add('reel-card--err')"></video>
+          <iframe class="reel-card__video" data-video-id="hWeAyXSu9UM"
+            src="https://www.youtube-nocookie.com/embed/hWeAyXSu9UM?autoplay=1&mute=1&loop=1&playlist=hWeAyXSu9UM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+            title="Suchitra outlet ambience at Krispie's" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen loading="lazy"></iframe>
           <div class="reel-card__overlay">
             <button class="reel-card__sound" aria-label="Toggle sound" type="button">
               <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -533,15 +535,16 @@
           </div>
           <div class="reel-card__meta">
             <div class="reel-card__title">Store Experience</div>
-            <div class="reel-card__sub">Walk through our cafe</div>
+            <div class="reel-card__sub">Fresh cakes, always on display</div>
           </div>
         </div>
 
         <div class="reel-card fade-up">
-          <video class="reel-card__video" src="assets/videos/reel-cakes.mp4"
-                 poster="assets/images/cat-custom.jpg"
-                 autoplay muted loop playsinline preload="metadata"
-                 onerror="this.parentElement.classList.add('reel-card--err')"></video>
+          <iframe class="reel-card__video" data-video-id="CTyd6tifAQM"
+            src="https://www.youtube-nocookie.com/embed/CTyd6tifAQM?autoplay=1&mute=1&loop=1&playlist=CTyd6tifAQM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+            title="Rasmalai cake showcase at Krispie's" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen loading="lazy"></iframe>
           <div class="reel-card__overlay">
             <button class="reel-card__sound" aria-label="Toggle sound" type="button">
               <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -550,7 +553,7 @@
           </div>
           <div class="reel-card__meta">
             <div class="reel-card__title">Cake Creations</div>
-            <div class="reel-card__sub">Custom cake showcase</div>
+            <div class="reel-card__sub">Our signature Rasmalai Cake</div>
           </div>
         </div>
       </div>
@@ -1093,36 +1096,44 @@
     });
   })();
 
-  /* ── Reel videos: sound toggle + play when in view ── */
+  /* ── Reel videos (YouTube embeds): sound toggle + play when in view ── */
   (function () {
     const cards = document.querySelectorAll('.reel-card');
     if (!cards.length) return;
 
+    function ytCommand(iframe, func) {
+      iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*');
+    }
+
     cards.forEach(card => {
-      const video = card.querySelector('.reel-card__video');
+      const video = card.querySelector('.reel-card__video'); // iframe
       const btn   = card.querySelector('.reel-card__sound');
       const ic1   = card.querySelector('.reel-mute');
       const ic2   = card.querySelector('.reel-unmute');
       if (!video) return;
 
+      let muted = true;
+
       // Toggle sound (mute all OTHERS when one is unmuted)
       btn?.addEventListener('click', e => {
         e.stopPropagation();
-        if (video.muted) {
+        if (muted) {
           // mute all others
           cards.forEach(c => {
             const v = c.querySelector('.reel-card__video');
             if (v && v !== video) {
-              v.muted = true;
+              ytCommand(v, 'mute');
               c.querySelector('.reel-mute').style.display   = '';
               c.querySelector('.reel-unmute').style.display = 'none';
             }
           });
-          video.muted = false;
+          ytCommand(video, 'unMute');
+          muted = false;
           ic1.style.display = 'none';
           ic2.style.display = '';
         } else {
-          video.muted = true;
+          ytCommand(video, 'mute');
+          muted = true;
           ic1.style.display = '';
           ic2.style.display = 'none';
         }
@@ -1131,8 +1142,7 @@
       // Pause when out of view (saves bandwidth)
       const io = new IntersectionObserver(entries => {
         entries.forEach(e => {
-          if (e.isIntersecting) { video.play().catch(()=>{}); }
-          else                  { video.pause(); }
+          ytCommand(video, e.isIntersecting ? 'playVideo' : 'pauseVideo');
         });
       }, { threshold: 0.25 });
       io.observe(card);
