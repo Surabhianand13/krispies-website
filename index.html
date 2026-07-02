@@ -294,9 +294,7 @@
 
   <!-- ========== STATS STRIP ========== -->
   <section class="strip" aria-label="Krispie's at a glance">
-    <!-- Celebratory floating particles -->
-    <div class="strip__celebrate" id="stripCelebrate" aria-hidden="true"></div>
-    <div class="container" style="position:relative;z-index:2">
+    <div class="container">
       <div class="strip__grid">
         <div class="strip__item fade-up">
           <div class="strip__num">1996</div>
@@ -382,17 +380,91 @@
     </div>
   </section>
 
+  <!-- ========== BESTSELLERS ========== -->
+  <section class="best-strip" aria-labelledby="bestsellers-heading">
+    <div class="best-strip__header">
+      <div>
+        <span class="section-label">Fan Favourites</span>
+        <h2 class="best-strip__title" id="bestsellers-heading">Our <em>Bestsellers</em></h2>
+        <p class="best-strip__sub">The cakes Hyderabad keeps coming back for.</p>
+      </div>
+      <a href="menu" class="cat-strip__viewall">View Full Menu →</a>
+    </div>
+    <div class="best-strip__grid">
+      <a href="menu#birthday-cakes" class="best-card">
+        <span class="best-card__badge">Bestseller</span>
+        <div class="best-card__img-wrap">
+          <img src="assets/images/products/birthday-cakes/creamy-rasmalai-cake.jpg" alt="Creamy Rasmalai Cake" loading="lazy">
+        </div>
+        <div class="best-card__name">Creamy Rasmalai Cake</div>
+        <div class="best-card__price"><span class="best-card__mrp">₹899</span>₹809</div>
+      </a>
+      <a href="menu#birthday-cakes" class="best-card">
+        <span class="best-card__badge">Bestseller</span>
+        <div class="best-card__img-wrap">
+          <img src="assets/images/products/birthday-cakes/belgium-chocolate-cake.jpg" alt="Belgium Chocolate Cake" loading="lazy">
+        </div>
+        <div class="best-card__name">Belgium Chocolate Cake</div>
+        <div class="best-card__price"><span class="best-card__mrp">₹999</span>₹849</div>
+      </a>
+      <a href="menu#birthday-cakes" class="best-card">
+        <span class="best-card__badge">Bestseller</span>
+        <div class="best-card__img-wrap">
+          <img src="assets/images/products/birthday-cakes/redvelvet-cake.jpg" alt="Redvelvet Cake" loading="lazy">
+        </div>
+        <div class="best-card__name">Redvelvet Cake</div>
+        <div class="best-card__price"><span class="best-card__mrp">₹1,099</span>₹989</div>
+      </a>
+      <a href="menu#wedding-cakes" class="best-card">
+        <span class="best-card__badge">Bestseller</span>
+        <div class="best-card__img-wrap">
+          <img src="assets/images/products/wedding-cakes/double-heart-two-tier-anniversary-cake.jpg" alt="Double Heart Two-Tier Anniversary Cake" loading="lazy">
+        </div>
+        <div class="best-card__name">Double Heart Anniversary Cake</div>
+        <div class="best-card__price">₹4,499</div>
+      </a>
+      <a href="menu#engagement-cakes" class="best-card">
+        <span class="best-card__badge">Bestseller</span>
+        <div class="best-card__img-wrap">
+          <img src="assets/images/products/engagement-cakes/royal-pink-ring-box-cake-two-tier.jpg" alt="Royal Pink Ring Box Cake" loading="lazy">
+        </div>
+        <div class="best-card__name">Royal Pink Ring Box Cake</div>
+        <div class="best-card__price">₹4,499</div>
+      </a>
+      <a href="menu#birthday-theme-cakes" class="best-card">
+        <span class="best-card__badge">Bestseller</span>
+        <div class="best-card__img-wrap">
+          <img src="assets/images/products/birthday-theme-cakes/unicorn-magic.jpg" alt="Unicorn Magic" loading="lazy">
+        </div>
+        <div class="best-card__name">Unicorn Magic</div>
+        <div class="best-card__price"><span class="best-card__mrp">₹1,599</span>₹1,439</div>
+      </a>
+      <a href="menu#baby-shower-cakes" class="best-card">
+        <span class="best-card__badge">Bestseller</span>
+        <div class="best-card__img-wrap">
+          <img src="assets/images/products/baby-shower-cakes/jungle-theme-with-animals-two-tier-cake.jpg" alt="Jungle Theme Two-Tier Cake" loading="lazy">
+        </div>
+        <div class="best-card__name">Jungle Theme Two-Tier Cake</div>
+        <div class="best-card__price">₹5,999</div>
+      </a>
+      <a href="menu#baby-shower-cakes" class="best-card">
+        <span class="best-card__badge">Bestseller</span>
+        <div class="best-card__img-wrap">
+          <img src="assets/images/products/baby-shower-cakes/rainbow-unicorn-birthday-cake-for-girl.jpg" alt="Rainbow Unicorn Birthday Cake" loading="lazy">
+        </div>
+        <div class="best-card__name">Rainbow Unicorn Cake</div>
+        <div class="best-card__price">₹2,999</div>
+      </a>
+    </div>
+  </section>
+
   <!-- ========== OUR STORY ========== -->
   <section class="story-snap" aria-labelledby="story-heading">
     <div class="container">
       <div class="story-snap__inner">
         <div class="story-snap__visual fade-up">
           <div class="story-snap__frame">
-            <div class="story-snap__frame-bg"></div>
-            <div class="story-snap__frame-content">
-              <div class="story-snap__frame-year">1996</div>
-              <img src="assets/logo.svg" alt="Krispie's Logo" class="story-snap__frame-logo">
-            </div>
+            <img src="assets/images/hero/hero-1.jpg" alt="Krispie's signature cake" class="story-snap__frame-photo">
           </div>
           <div class="story-snap__badge">
             <span class="story-snap__badge-big">30+</span>
@@ -552,6 +624,14 @@
           <div class="loc-card__city">Hyderabad</div>
           <a href="https://share.google/dsMEdJLRGK459qlZT" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
         </div>
+      </div>
+      <div class="locations__map">
+        <iframe
+          src="https://www.openstreetmap.org/export/embed.html?bbox=78.4250%2C17.2520%2C78.6020%2C17.5370&amp;layer=mapnik"
+          title="Krispie's outlets across Hyderabad"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
       </div>
       <div style="text-align:center; margin-top:16px">
         <a href="contact" class="btn btn-dark">Plan a Bulk Order →</a>
@@ -988,66 +1068,6 @@
         });
       }, { threshold: 0.25 });
       io.observe(card);
-    });
-  })();
-  </script>
-  <script>
-  /* ── Strip Celebratory Particles ── */
-  (function () {
-    const wrap = document.getElementById('stripCelebrate');
-    if (!wrap) return;
-
-    const COLORS = ['#C9A870','#E5CFA0','#D4A85A','#A0622A','rgba(201,168,112,0.7)','#FAF7F0'];
-    const SHAPES = ['star','dot','ribbon','diamond','ring'];
-
-    const items = [
-      // spread across the strip width and height randomly
-      {x:4,  y:20, shape:'star',    size:10, color:0, dur:4.8, del:0,    sy:-28, so:0.5},
-      {x:10, y:65, shape:'ribbon',  size:16, color:1, dur:6.2, del:1.2,  sy:-18, so:0.45},
-      {x:18, y:30, shape:'dot',     size:5,  color:2, dur:5.0, del:0.6,  sy:-24, so:0.6},
-      {x:24, y:70, shape:'diamond', size:7,  color:0, dur:7.0, del:2.0,  sy:-20, so:0.4},
-      {x:30, y:15, shape:'ring',    size:9,  color:1, dur:5.5, del:0.3,  sy:-30, so:0.5},
-      {x:36, y:80, shape:'star',    size:8,  color:3, dur:4.5, del:1.8,  sy:-22, so:0.45},
-      {x:42, y:40, shape:'dot',     size:4,  color:4, dur:6.8, del:0.9,  sy:-26, so:0.55},
-      {x:48, y:20, shape:'ribbon',  size:12, color:0, dur:5.2, del:2.5,  sy:-16, so:0.4},
-      {x:55, y:75, shape:'diamond', size:6,  color:1, dur:6.0, del:1.5,  sy:-20, so:0.5},
-      {x:60, y:35, shape:'star',    size:12, color:2, dur:4.2, del:0.4,  sy:-32, so:0.45},
-      {x:66, y:60, shape:'ring',    size:8,  color:0, dur:7.5, del:3.0,  sy:-18, so:0.4},
-      {x:72, y:25, shape:'dot',     size:5,  color:3, dur:5.8, del:1.1,  sy:-28, so:0.6},
-      {x:78, y:80, shape:'ribbon',  size:18, color:1, dur:6.4, del:2.2,  sy:-14, so:0.4},
-      {x:83, y:45, shape:'star',    size:9,  color:4, dur:4.9, del:0.7,  sy:-24, so:0.5},
-      {x:89, y:20, shape:'diamond', size:7,  color:0, dur:5.6, del:1.9,  sy:-22, so:0.45},
-      {x:94, y:70, shape:'dot',     size:4,  color:2, dur:6.1, del:0.5,  sy:-26, so:0.55},
-      // a few extras
-      {x:14, y:50, shape:'star',    size:7,  color:5, dur:8.0, del:4.0,  sy:-20, so:0.35},
-      {x:50, y:55, shape:'ring',    size:10, color:0, dur:7.2, del:3.5,  sy:-24, so:0.38},
-      {x:76, y:15, shape:'ribbon',  size:14, color:1, dur:5.3, del:2.8,  sy:-18, so:0.42},
-      {x:88, y:50, shape:'dot',     size:6,  color:3, dur:6.6, del:1.4,  sy:-22, so:0.5},
-    ];
-
-    items.forEach(cfg => {
-      const el = document.createElement('div');
-      el.className = `sc-p ${cfg.shape}`;
-      const c = COLORS[cfg.color];
-      let extras = '';
-      if (cfg.shape === 'star')    extras = `--ss:${cfg.size}px;`;
-      if (cfg.shape === 'dot')     extras = `--ds:${cfg.size}px;`;
-      if (cfg.shape === 'ring')    extras = `--ds:${cfg.size}px;`;
-      if (cfg.shape === 'diamond') extras = `--ds:${cfg.size}px;`;
-      if (cfg.shape === 'ribbon')  extras = `--rw:${cfg.size}px;`;
-
-      el.style.cssText = `
-        left:${cfg.x}%;
-        top:${cfg.y}%;
-        --sc:${c};
-        --sd:${cfg.dur}s;
-        --sdl:${cfg.del}s;
-        --sy:${cfg.sy}px;
-        --sy2:${Math.abs(cfg.sy) * 0.3}px;
-        --so:${cfg.so};
-        ${extras}
-      `;
-      wrap.appendChild(el);
     });
   })();
   </script>

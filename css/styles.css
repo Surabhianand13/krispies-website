@@ -648,14 +648,6 @@ h1, h2, h3, h4 {
   padding: 40px 0;
   position: relative;
 }
-.strip::before, .strip::after {
-  content: '';
-  position: absolute; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold) 70%, transparent 100%);
-  opacity: 0.35;
-}
-.strip::before { top: 0; }
-.strip::after  { bottom: 0; }
 .strip__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -767,62 +759,6 @@ h1, h2, h3, h4 {
   .qcat__icon svg { width: 22px; height: 22px; }
 }
 
-/* ---- STRIP CELEBRATE PARTICLES ---- */
-.strip__celebrate {
-  position: absolute; inset: 0;
-  pointer-events: none; overflow: hidden;
-  z-index: 1;
-}
-/* base particle */
-.sc-p {
-  position: absolute;
-  opacity: 0;
-  animation: sc-float var(--sd, 5s) var(--sdl, 0s) ease-in-out infinite;
-}
-/* 4-point star shape */
-.sc-p.star::before,
-.sc-p.star::after {
-  content: '';
-  position: absolute;
-  background: var(--sc, #B8004A);
-  border-radius: 2px;
-}
-.sc-p.star::before { width: var(--ss, 10px); height: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-.sc-p.star::after  { height: var(--ss, 10px); width: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-/* dot */
-.sc-p.dot {
-  border-radius: 50%;
-  background: var(--sc, #B8004A);
-  width: var(--ds, 4px); height: var(--ds, 4px);
-}
-/* line / ribbon */
-.sc-p.ribbon {
-  background: var(--sc, #B8004A);
-  border-radius: 2px;
-  width: var(--rw, 14px); height: 1.5px;
-}
-/* diamond */
-.sc-p.diamond {
-  background: var(--sc, #B8004A);
-  width: var(--ds, 6px); height: var(--ds, 6px);
-  transform: rotate(45deg);
-}
-/* ring */
-.sc-p.ring {
-  border-radius: 50%;
-  border: 1.5px solid var(--sc, #B8004A);
-  width: var(--ds, 8px); height: var(--ds, 8px);
-  background: transparent;
-}
-
-@keyframes sc-float {
-  0%   { opacity: 0;            transform: translateY(0px) rotate(0deg)   scale(0.6); }
-  15%  { opacity: var(--so, 0.55); }
-  50%  { opacity: var(--so, 0.55); transform: translateY(var(--sy, -22px)) rotate(180deg) scale(1); }
-  85%  { opacity: var(--so, 0.45); }
-  100% { opacity: 0;            transform: translateY(var(--sy2, 8px)) rotate(360deg) scale(0.5); }
-}
-
 /* ---- 9. MENU PREVIEW ---- */
 /* ---- CATEGORY SCROLL STRIP ---- */
 .cat-strip {
@@ -894,6 +830,67 @@ h1, h2, h3, h4 {
 }
 .cat-item:hover .cat-item__name { color: var(--gold); }
 
+/* ---- BESTSELLERS ---- */
+.best-strip {
+  padding: var(--pad-md) 0 var(--pad-lg);
+  background: var(--black-2);
+}
+.best-strip__header {
+  max-width: 1280px; margin: 0 auto; padding: 0 40px 32px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+}
+.best-strip__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  color: var(--text-on-dark);
+}
+.best-strip__title em { color: var(--gold); font-style: italic; }
+.best-strip__sub { color: var(--text-muted); font-size: 0.92rem; margin-top: 6px; }
+.best-strip__grid {
+  max-width: 1280px; margin: 0 auto; padding: 0 40px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
+}
+.best-card {
+  display: block; text-decoration: none;
+  background: var(--black); border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg); overflow: hidden;
+  position: relative; transition: var(--ease);
+}
+.best-card:hover { border-color: var(--gold); transform: translateY(-6px); box-shadow: var(--shadow-gold); }
+.best-card__badge {
+  position: absolute; top: 12px; left: 12px; z-index: 2;
+  background: var(--gold); color: #FFFFFF;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.best-card__img-wrap {
+  width: 100%; aspect-ratio: 1/1; overflow: hidden; background: var(--black-3);
+}
+.best-card__img-wrap img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.4s ease;
+}
+.best-card:hover .best-card__img-wrap img { transform: scale(1.06); }
+.best-card__name {
+  font-size: 0.9rem; font-weight: 600; color: var(--text-on-dark);
+  padding: 14px 16px 0;
+}
+.best-card__price {
+  font-size: 0.95rem; font-weight: 700; color: var(--gold);
+  padding: 6px 16px 16px; display: flex; align-items: center; gap: 8px;
+}
+.best-card__mrp {
+  font-size: 0.78rem; font-weight: 500; color: var(--text-muted);
+  text-decoration: line-through;
+}
+@media (max-width: 1000px) {
+  .best-strip__grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .best-strip__header { padding: 0 20px 24px; flex-direction: column; align-items: flex-start; }
+  .best-strip__grid { padding: 0 20px; gap: 14px; }
+}
+
 .menu-preview { padding: var(--pad-lg) 0; }
 .menu-grid {
   display: grid;
@@ -952,16 +949,10 @@ h1, h2, h3, h4 {
   border: 1px solid rgba(122,0,52,0.25);
   overflow: hidden; position: relative;
 }
-.story-snap__frame-bg {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(122,0,52,0.12) 0%, transparent 70%);
+.story-snap__frame-photo {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
 }
-.story-snap__frame-content { text-align: center; padding: 48px; position: relative; z-index: 1; }
-.story-snap__frame-year {
-  font-family: var(--font-display);
-  font-size: 7rem; color: var(--gold); opacity: 0.15; line-height: 1; margin-bottom: 16px;
-}
-.story-snap__frame-logo { width: 100px; margin: 0 auto; }
 .story-snap__badge {
   position: absolute; bottom: -24px; right: -24px;
   width: 110px; height: 110px;
@@ -1216,9 +1207,9 @@ h1, h2, h3, h4 {
   gap: 20px;
   will-change: transform;
 }
-.walllove__track--up-slow { animation: ll-up   55s linear infinite; }
-.walllove__track--up      { animation: ll-up   45s linear infinite; }
-.walllove__track--down    { animation: ll-down 50s linear infinite; }
+.walllove__track--up-slow { animation: ll-up   100s linear infinite; }
+.walllove__track--up      { animation: ll-up   85s linear infinite; }
+.walllove__track--down    { animation: ll-down 92s linear infinite; }
 
 .walllove__col:hover .walllove__track {
   animation-play-state: paused;
@@ -1385,6 +1376,15 @@ h1, h2, h3, h4 {
   transition: var(--ease); display: inline-flex; align-items: center; gap: 4px;
 }
 .loc-card__link:hover { color: var(--gold); }
+.locations__map {
+  width: 100%; height: 340px;
+  border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid rgba(122,0,52,0.2);
+}
+.locations__map iframe { width: 100%; height: 100%; border: 0; display: block; }
+@media (max-width: 640px) {
+  .locations__map { height: 260px; }
+}
 
 /* ---- 14. ORDER CTA ---- */
 .order-cta {
