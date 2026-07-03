@@ -3,21 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Birthday Theme Cakes — Krispie's | Hyderabad Bakery Since 1996</title>
-  <meta name="description" content="Custom birthday theme cakes in Hyderabad — Unicorn, Superhero, Princess, Cars, Jungle, Photo print. Made by 3D fondant experts at Krispie's.">
-  <meta name="keywords" content="birthday theme cake Hyderabad, custom theme cake, kids theme cake Hyderabad">
-  <link rel="canonical" href="https://www.krispies.in/birthday-theme-cakes">
-  <meta property="og:title" content="Birthday Theme Cakes — Krispie's Hyderabad">
-  <meta property="og:description" content="Custom birthday theme cakes in Hyderabad — Unicorn, Superhero, Princess, Cars, Jungle, Photo print. Made by 3D fondant experts at Krispie's.">
-  <meta property="og:url" content="https://www.krispies.in/birthday-theme-cakes">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Birthday Theme Cakes — Krispie's | Hyderabad Bakery Since 1996">
-  <meta property="og:description" content="Custom birthday theme cakes in Hyderabad — Unicorn, Superhero, Princess, Cars, Jungle, Photo print. Made by 3D fondant experts at Krispie">
-  <meta property="og:image" content="https://images.unsplash.com/photo-1562777717-dc6984f65a63?w=1400&h=700&fit=crop&q=80">
-  <meta property="og:url" content="https://www.krispies.in/birthday-theme-cakes">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://images.unsplash.com/photo-1562777717-dc6984f65a63?w=1400&h=700&fit=crop&q=80">
+  <title id="pageTitle">Product — Krispie's</title>
+  <meta name="description" id="pageDesc" content="Order handcrafted cakes from Krispie's — Hyderabad's bakery since 1996.">
+  <link rel="canonical" id="pageCanonical" href="https://www.krispies.in/product">
   <link rel="icon" href="assets/logo.svg" type="image/png">
   <link rel="dns-prefetch" href="https://checkout.razorpay.com">
   <link rel="preconnect" href="https://checkout.razorpay.com">
@@ -25,12 +13,48 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css?v=20">
+  <style>
+    .pdp { padding: calc(110px + var(--promo-h)) 0 64px; }
+    .pdp__breadcrumb { font-size: 0.78rem; color: var(--text-muted-lt); margin-bottom: 20px; }
+    .pdp__breadcrumb a { color: var(--gold-dark); text-decoration: none; }
+    .pdp__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: flex-start; }
+    .pdp__gallery { position: relative; border-radius: 16px; overflow: hidden; background: #f5f0ee; aspect-ratio: 1/1; }
+    .pdp__gallery .pcard__gal-track { height: 100%; }
+    .pdp__gallery .pcard__gal-slide { height: 100%; }
+    .pdp__gallery .pcard__gal-slide img { width:100%; height:100%; object-fit:cover; display:block; }
+    .pdp__thumbs { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .pdp__thumb { width: 68px; height: 68px; border-radius: 10px; overflow: hidden; border: 2px solid transparent; cursor: pointer; opacity: 0.7; }
+    .pdp__thumb.active { border-color: var(--gold); opacity: 1; }
+    .pdp__thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .pdp__tag { display:inline-block; margin-bottom:10px; padding:4px 12px; border-radius:20px; font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#fff; }
+    .pdp__title { font-family: var(--font-display); font-size: clamp(1.6rem, 3vw, 2.3rem); color: var(--text-on-light); margin-bottom: 10px; }
+    .pdp__desc { color: var(--text-muted-lt); line-height: 1.7; margin-bottom: 20px; }
+    .pdp__price-row { display:flex; align-items:center; gap:12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .pdp__price { font-family: var(--font-display); font-size: 1.9rem; font-weight:700; color: var(--text-on-light); }
+    .pdp__mrp { font-size: 1rem; color: var(--text-muted-lt); text-decoration: line-through; }
+    .pdp__discount { background:#1a7a3c; color:#fff; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:700; }
+    .pdp__actions { display:flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
+    .pdp__actions .btn { flex: 1 1 200px; }
+    .pdp__prep-note { margin-top: 16px; }
+    .pdp__empty { padding: 120px 0; text-align: center; color: var(--text-muted-lt); }
+    @media (max-width: 860px) {
+      .pdp__grid { grid-template-columns: 1fr; gap: 28px; }
+    }
+  </style>
 </head>
 <body class="cat-landing">
 
+  <!-- PROMO BAR -->
+  <div class="promo-bar" id="promoBar">
+    <span class="promo-bar__text">
+      <span class="promo-bar__long">✦ First Order Special — Flat ₹100 off on orders above ₹500! Use code</span>
+      <span class="promo-bar__short">₹100 off your first order! Code</span>
+      <span class="promo-bar__code">FIRST100</span>
+    </span>
+    <button class="promo-bar__close" aria-label="Close promo bar" onclick="this.closest('.promo-bar').style.display='none'">×</button>
+  </div>
 
-
-    <nav class="nav" role="navigation">
+  <nav class="nav" role="navigation">
     <div class="container">
       <div class="nav__inner">
         <a href="index" class="nav__logo"><img src="assets/logo.svg" alt="Krispie's"><span class="nav__brand-name">Krispie's</span></a>
@@ -96,71 +120,11 @@
     </div>
   </nav>
 
-  <!-- Sub-page hero -->
-  <header class="cat-page-hero" style="background: linear-gradient(135deg, var(--cream) 0%, var(--cream-2) 100%); padding: calc(110px + var(--promo-h)) 0 28px; text-align: center;">
-    <div class="container">
-      <span class="section-label" style="color:var(--gold-dark)">Their Dream Cake, Made Real</span>
-      <h1 class="page-hero__title" style="color:var(--text-on-light);font-size:clamp(1.8rem,4vw,3rem);margin-top:6px">Birthday Theme Cakes</h1>
-      <p style="color:var(--text-muted-lt);font-size:1rem;margin:10px auto 0;max-width:640px;line-height:1.6">Unicorns, superheroes, princesses, dinosaurs — we sculpt your child's favourite character in fondant.</p>
+  <main class="pdp">
+    <div class="container" id="pdpContainer">
+      <div class="pdp__empty" id="pdpLoading">Loading…</div>
     </div>
-  </header>
-
-<!-- STICKY CATEGORY TABS -->
-  <div class="menu-tabs" id="menuTabs">
-    <div class="menu-tabs__scroll">
-      <a class="menu-tab" href="birthday-cakes" data-cat="birthday-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> Birthday Cakes</a>
-      <a class="menu-tab" href="wedding-cakes" data-cat="wedding-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Wedding Cakes</a>
-      <a class="menu-tab" href="engagement-cakes" data-cat="engagement-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg> Engagement Cakes</a>
-      <a class="menu-tab active" href="birthday-theme-cakes" data-cat="birthday-theme-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Birthday Theme Cakes</a>
-      <a class="menu-tab" href="baby-shower-cakes" data-cat="baby-shower-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Baby Shower &amp; Naming Cakes</a>
-    </div>
-  </div>
-
-  <main class="menu-main">
-<section class="menu-cat-section" id="cat-birthday-theme-cakes">
-      <div class="container">
-        <div class="menu-cat-header fade-up">
-          <span class="section-label">Your Theme, Our Craft</span>
-          <h2>Birthday Theme Cakes</h2>
-          <p>From unicorns to superheroes, dinosaurs to galaxies — we bring your child's dream cake to life with edible art.</p>
-        </div>
-        <div class="pcard-grid" id="grid-birthday-theme-cakes"></div>
-        <div class="whatsapp-cta" id="cta-birthday-theme-cakes" style="--wa-accent:#0288C7">
-          <div class="whatsapp-cta__inner">
-            <div class="whatsapp-cta__left">
-              <div class="whatsapp-cta__badge">
-                <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-                  <path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm0 29.2c-2.5 0-5-.7-7.1-2l-.5-.3-5 1.3 1.3-4.9-.3-.5A13.2 13.2 0 1 1 16 29.2Zm7.3-9.9c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/>
-                </svg>
-              </div>
-              <h3>Not finding what you're looking for?</h3>
-              <p class="whatsapp-cta__lead">Drop a text on WhatsApp with your reference image — our team will call back in a few minutes with pricing and confirmation.</p>
-
-              <ol class="whatsapp-cta__steps">
-                <li><strong>1.</strong> Send your reference image on WhatsApp</li>
-                <li><strong>2.</strong> Our team replies within minutes</li>
-                <li><strong>3.</strong> Custom cake delivered on time</li>
-              </ol>
-            </div>
-
-            <div class="whatsapp-cta__right">
-              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%20team%21%20I%20would%20like%20to%20order%20a%20birthday%20theme%20cake.%20Here%20is%20my%20reference%20image%3A" target="_blank" rel="noopener" class="whatsapp-cta__btn">
-                <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-                  <path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/>
-                </svg>
-                <span>Chat on WhatsApp</span>
-              </a>
-              <a href="tel:+917975218850" class="whatsapp-cta__call">or call <strong>+91 79752 18850</strong></a>
-              <div class="whatsapp-cta__assure">
-                <span>Avg reply time: under 10 minutes · 7 days a week</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
-
 
   <!-- FOOTER -->
   <footer class="footer">
@@ -168,7 +132,6 @@
 
       <div class="footer__grid">
 
-        <!-- Col 1: Brand -->
         <div class="footer__brand">
           <div class="footer__logo-row">
             <img src="assets/logo-white.svg" alt="Krispie's" class="footer__logo"
@@ -187,7 +150,6 @@
           </div>
         </div>
 
-        <!-- Col 2: Navigate -->
         <div class="footer__col">
           <h4 class="footer__col-title">Navigate</h4>
           <a href="index"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
@@ -198,7 +160,6 @@
           <a href="contact"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>Contact Us</a>
         </div>
 
-        <!-- Col 3: Our Outlets -->
         <div class="footer__col">
           <h4 class="footer__col-title">Our Outlets</h4>
           <div class="footer__outlet">
@@ -223,7 +184,6 @@
           </div>
         </div>
 
-        <!-- Col 4: Contact & Orders -->
         <div class="footer__col">
           <h4 class="footer__col-title">Get in Touch</h4>
           <div class="footer__contact-item">
@@ -250,10 +210,8 @@
 
       </div>
 
-      <!-- Divider -->
       <div class="footer__rule"></div>
 
-      <!-- Bottom bar -->
       <div class="footer__bottom">
         <p class="footer__copy">© 2024 Krispie's Celebrations Bakery · Gaura Foodtech Pvt Ltd · Hyderabad, Telangana</p>
         <div class="footer__bottom-links">
@@ -265,9 +223,6 @@
 
     </div>
   </footer>
-
-
-
 
   <!-- CHECKOUT MODAL -->
   <div id="checkoutOverlay" class="checkout-overlay" onclick="if(event.target===this)closeCheckout()">
@@ -334,8 +289,9 @@
     </div>
   </div>
 
-<script src="js/main.js"></script>
+  <script src="js/main.js"></script>
   <script src="js/shop.js"></script>
-<script src="js/track.js" defer></script>
+  <script src="js/product-detail.js"></script>
+  <script src="js/track.js" defer></script>
 </body>
 </html>

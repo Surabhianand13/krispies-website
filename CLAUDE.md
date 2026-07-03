@@ -33,7 +33,9 @@
 krispies-website/
 │
 ├── index.html              ← Homepage (hero carousel, featured products, CTA)
-├── menu.html               ← Full menu (dynamic, reads from localStorage)
+├── menu.html               ← Menu hub (category cards; product grids live on category pages)
+├── birthday-cakes.html     ← Category landing page (+ wedding/engagement/birthday-theme/baby-shower-cakes.html)
+├── product.html            ← Individual product detail page (?slug=<slug>)
 ├── story.html              ← Our Story / brand history
 ├── contact.html            ← Contact form (posts to backend API)
 │
@@ -56,7 +58,10 @@ krispies-website/
 │   └── styles.css          ← Single brand stylesheet (all pages)
 │
 ├── js/
-│   └── main.js             ← Shared frontend JS (nav, hero carousel, contact form)
+│   ├── main.js             ← Shared frontend JS (nav, hero carousel, BACKEND_URL, contact form)
+│   ├── shop.js             ← Shared products/cart/checkout — loaded by menu.html, all 5 category
+│   │                          pages, and product.html. Fetches products from the backend API.
+│   └── product-detail.js   ← product.html-specific rendering (gallery, variant picker)
 │
 ├── assets/
 │   └── logo.png            ← Brand logo
@@ -231,46 +236,87 @@ In `contact.html` — POSTs to `${BACKEND_URL}/api/messages`. Falls back to loca
 
 ---
 
-## 5. Menu Page & Dynamic Products
+## 5. Menu Page, Category Pages & Dynamic Products
 
 ### How it works
 
-1. On page load, `ensureDefaults()` checks if `localStorage['krispies_products']` exists. If not, it seeds ~36 default products.
-2. `renderAll()` reads products from localStorage, filters by category and `active: true`, and builds HTML cards.
-3. The admin panel writes products to the same localStorage key — so admin changes immediately appear on the menu.
+The **backend API is the single source of truth** for products — `menu.html`, the 5 category
+landing pages (`birthday-cakes.html`, `wedding-cakes.html`, `engagement-cakes.html`,
+`birthday-theme-cakes.html`, `baby-shower-cakes.html`), and `product.html` all share one file,
+**`js/shop.js`**, instead of each carrying their own copy of the product/cart/checkout logic.
 
-### Product data shape
+1. On page load, `shop.js`'s boot IIFE calls `loadProducts()`, which does
+   `fetch(`${BACKEND_URL}/api/products`)`. The result is cached to
+   `localStorage['krispies_products']` purely as an **offline fallback** — if the fetch fails,
+   the last-known cached list is used instead so the page doesn't go blank.
+2. `renderAll()` derives the list of categories to render **dynamically** from whatever
+   `category` values come back from the API (`[...new Set(getProducts().map(p => p.category))]`)
+   and fills in any `<div id="grid-<category>">` present on the page — so a brand-new category
+   added in admin automatically gets a place to render without any code changes.
+3. Editing/adding a product in `/admin/products.html` writes directly to the backend
+   (`POST`/`PUT /api/products`) — changes are live on the public site immediately, no separate
+   sync step.
+4. `shop.js` dispatches a `shop:ready` event once products have loaded, which `product.html`
+   listens for to look up its one product by slug.
+
+### Product data shape (as returned by `GET /api/products`)
 
 ```js
 {
-  id:          string,        // e.g. "m3k1a2b"
-  name:        string,        // "Chocolate Overload"
-  category:    string,        // "birthday-cakes" | "customized-cakes" | "wedding-cakes"
-                              // | "engagement-cakes" | "cheesecakes" | "donuts"
-  tag:         string|null,   // "bestseller" | "new" | "seasonal" | "custom" | null
-  description: string,
-  mrp:         number,        // full price in ₹ (e.g. 999)
-  discount:    number,        // percentage e.g. 10 means 10% off
-  images:      string[],      // array of direct image URLs
-  featured:    boolean,       // show on homepage
-  active:      boolean,       // show on menu page
-  createdAt:   ISO string,
-  updatedAt:   ISO string,
+  id:            string,
+  slug:          string,        // unique, auto-generated from name, used in product.html URLs
+  name:          string,
+  category:      string,        // "birthday-cakes" | "wedding-cakes" | "engagement-cakes"
+                                // | "birthday-theme-cakes" | "baby-shower-cakes"
+                                // | "customized-cakes" | "cheesecakes" | "donuts" | "biscuits"
+  tag:           string|null,   // "bestseller" | "new" | "seasonal" | "custom" | null
+  description:   string,
+  mrp:           number,        // full price in ₹ (e.g. 999)
+  discount:      number,        // percentage e.g. 10 means 10% off
+  price:         number,        // computed: Math.round(mrp * (1 - discount/100))
+  priceFrom:     number,        // = price when no variants; lowest combo price when variants exist
+  priceTo:       number,        // = price when no variants; highest combo price when variants exist
+  images:        string[],      // array of image paths/URLs
+  variantGroups: [{ name: string, options: [{ label: string, priceDelta: number }] }],
+  prepHours:     number,        // hours of advance notice needed; gates the delivery-date picker
+  featured:      boolean,       // show on homepage
+  active:        boolean,       // show on menu/category pages
+  createdAt:     string,
+  updatedAt:     string,
 }
 ```
 
-**Final price** = `Math.round(mrp * (1 - discount / 100))`
+### Variants
+
+A product can have any number of **option groups** (e.g. "Weight", "Flavour"), each with options
+that add a `priceDelta` on top of the base price. The customer picks one option per group; the
+final price is `basePrice + sum(selected option priceDeltas)`. This is managed from the admin
+product form's "Variants" section, and rendered as `<select>` dropdowns on `product.html` and in
+the checkout modal's Step 1 (with the price updating live as options change).
+
+### Prep time (`prepHours`)
+
+If a product needs advance notice to prepare, set **Prep Time** in the admin form. The checkout
+modal's minimum selectable delivery date becomes `today + ceil(prepHours / 24)` days, taking
+whichever is later between that and the existing 24-hour-advance rule for wedding/engagement
+cakes.
 
 ### Categories
 
-| Key | Label | Emoji |
-|-----|-------|-------|
-| `birthday-cakes` | Birthday Cakes | 🎂 |
-| `customized-cakes` | Customized Cakes | 🎨 |
-| `wedding-cakes` | Wedding Cakes | 💍 |
-| `engagement-cakes` | Engagement Cakes | 💐 |
-| `cheesecakes` | Cheesecakes | 🍰 |
-| `donuts` | Donuts | 🍩 |
+| Key | Label |
+|-----|-------|
+| `birthday-cakes` | Birthday Cakes |
+| `wedding-cakes` | Wedding Cakes |
+| `engagement-cakes` | Engagement Cakes |
+| `birthday-theme-cakes` | Birthday Theme Cakes |
+| `baby-shower-cakes` | Baby Shower Cakes |
+| `customized-cakes` | Customized Cakes |
+| `cheesecakes` | Cheesecakes |
+| `donuts` | Donuts |
+| `biscuits` | Biscuits |
+
+New categories can be added ad hoc from the admin product form ("+ Add new category…") — no code
+change needed, since category rendering is data-driven.
 
 ### Tags
 
@@ -281,19 +327,35 @@ In `contact.html` — POSTs to `${BACKEND_URL}/api/messages`. Falls back to loca
 | `seasonal` | Seasonal | Orange |
 | `custom` | Made to Order | Purple |
 
-### Product image galleries
+### Product images — local-folder convention
 
-Each product supports **multiple images**. Images are entered as direct URLs in the admin panel (Cloudinary, Google Drive direct links, any public URL). Customers can swipe through them on the menu page.
+Images are **not** uploaded through the browser — the admin image field is a path/URL text input
+with a live thumbnail preview. The convention (same one the seed catalog itself uses):
 
-**To add product images:**
-1. Go to `www.krispies.in/admin/products.html`
-2. Click **Edit** on a product
-3. Paste image URLs in the Image URL fields
-4. Click **Save Changes**
+```
+assets/images/products/<category>/<slug>-1.jpg
+assets/images/products/<category>/<slug>-2.jpg   (additional gallery images, optional)
+```
+
+**Workflow:** whoever is adding a product photo drops the file into that folder in a local clone
+of the repo, then references the same path in the admin form's Image field (the admin form
+shows this exact expected path as a live example next to the field). The file then needs to be
+committed and pushed for it to actually go live — this is a deliberate tradeoff (no third-party
+image host / upload service involved), so **every new product photo requires a code push**, not
+just an admin-panel save.
+
+### Individual product pages
+
+Every product has its own page at `product.html?slug=<slug>` — image gallery with thumbnails,
+variant selectors, quantity, prep-time-aware delivery date, and Add to Cart / Buy Now. Product
+cards everywhere (menu grids, category pages) link through to this page via their image/title,
+while keeping a one-click "Add to Cart" button on the card itself for quick purchases without
+leaving the grid.
 
 ### "Can't Find What You're Looking For?" CTA
 
-Shown at the bottom of Birthday, Customized, Wedding, and Engagement cake sections. Has a form that POSTs to `${BACKEND_URL}/api/messages` (same as contact form).
+Shown at the bottom of category sections. Has a form that POSTs to `${BACKEND_URL}/api/messages`
+(same as contact form). Logic lives in `shop.js`'s `initSharedPageUI()`.
 
 ---
 
@@ -390,38 +452,41 @@ Click Pay Online
 
 ### Admin data storage
 
-The admin panel uses **browser localStorage** for product data. This means:
-- Products edited in admin **immediately appear** on the live menu (same browser)
-- Data is **per-browser** — if you use a different browser/device, the data won't sync
-- To share data across devices → connect the backend API (future enhancement)
+The admin panel is **fully backend-API-driven** — product add/edit/delete, toggling
+active/featured, all call the real `/api/products*` endpoints (JWT-protected) and write straight
+to the SQLite database. There is no separate localStorage product store to keep in sync anymore;
+`krispies_products` in localStorage is only ever a **read cache** written by the public site for
+offline fallback, never a source of truth.
 
-### localStorage keys
+### localStorage keys (fallback / cache only — never authoritative)
 
 | Key | Contains |
 |-----|---------|
-| `krispies_products` | All products array |
-| `krispies_enquiries` | Contact form submissions (fallback) |
+| `krispies_products` | Cached copy of the last successful `/api/products` response |
+| `krispies_enquiries` | Contact form submissions (fallback when backend unreachable) |
 | `krispies_orders` | Orders (fallback when backend unreachable) |
-| `krispies_admin_auth` | Admin session token (sessionStorage) |
+| `krispies_admin_token` | Admin JWT (sessionStorage, not localStorage) |
 
 ### Changing the admin password
 
-Open `admin/admin.js`, line 10:
-```js
-const ADMIN_PASSWORD = 'krispies2024';   // ← change this
-```
+Set the `ADMIN_PASSWORD` environment variable on Render (used to hash the seeded admin user on
+first boot — see `backend/db/database.js`). Changing it after the admin user already exists in
+the DB requires updating the password hash directly, not just the env var.
 
 ### Product form fields
 
 | Field | Required | Notes |
 |-------|----------|-------|
 | Product Name | ✅ | |
-| Category | ✅ | Dropdown — 6 categories |
+| URL Slug | — | Auto-filled from name, editable. Used in `product.html?slug=...` |
+| Category | ✅ | Dropdown of known categories + "Add new category…" free text |
 | Tag | — | Bestseller / New / Seasonal / Made to Order / None |
-| Description | ✅ | Shown under product name on menu |
+| Prep Time (hours) | — | Advance notice needed; gates the delivery-date picker |
+| Description | ✅ | Shown under product name on menu and product page |
 | MRP (₹) | ✅ | Full price before discount |
 | Discount % | — | 0–100. Live preview shows final price |
-| Product Images | — | Paste direct image URLs. Multiple supported. |
+| Product Images | — | Path/URL text field with live thumbnail preview — see local-folder convention in §5 |
+| Variants | — | Repeatable option groups (e.g. Weight, Flavour), each with labelled options and a `+₹` price delta |
 | Featured on Homepage | — | Checkbox — shows in homepage featured section |
 | Active | — | Uncheck to hide from menu without deleting |
 
@@ -501,16 +566,28 @@ created_at  TEXT DEFAULT (datetime('now'))
 
 ### `products` table
 ```sql
-id          TEXT PRIMARY KEY       -- random short ID
-name        TEXT NOT NULL
-category    TEXT NOT NULL
-tag         TEXT                   -- bestseller | new | seasonal | custom | NULL
-description TEXT NOT NULL
-featured    INTEGER DEFAULT 0      -- 0 or 1
-active      INTEGER DEFAULT 1      -- 0 or 1
-created_at  TEXT DEFAULT (datetime('now'))
-updated_at  TEXT DEFAULT (datetime('now'))
+id             TEXT PRIMARY KEY       -- random short ID
+name           TEXT NOT NULL
+category       TEXT NOT NULL
+tag            TEXT                   -- bestseller | new | seasonal | custom | NULL
+description    TEXT NOT NULL
+mrp            REAL DEFAULT 0
+discount       REAL DEFAULT 0         -- percentage, 0-100
+images         TEXT DEFAULT '[]'      -- JSON array of image paths/URLs
+variant_groups TEXT DEFAULT '[]'      -- JSON: [{name, options:[{label, priceDelta}]}]
+prep_hours     INTEGER DEFAULT 0      -- advance notice needed, gates delivery date picker
+slug           TEXT UNIQUE            -- used in product.html?slug=...
+featured       INTEGER DEFAULT 0      -- 0 or 1
+active         INTEGER DEFAULT 1      -- 0 or 1
+created_at     TEXT DEFAULT (datetime('now'))
+updated_at     TEXT DEFAULT (datetime('now'))
 ```
+
+Also note: `backend/db/database.js` runs a **strictly one-time** seed/migration on first boot
+(guarded by a `settings.catalog_seeded_v1` flag) that replaces any pre-existing imageless
+placeholder catalog with the real, image-backed catalog the public site already uses. It will
+never run again after that flag is set, so it's safe from ever wiping products the team adds
+later via admin.
 
 ### `orders` table
 ```sql
@@ -746,11 +823,21 @@ function deliveryFee(km) {
 ### `const` redeclaration crashes inline scripts
 If you add a `const BACKEND_URL` declaration inside a `<script>` block on any page that also loads `main.js`, it will throw `SyntaxError: Identifier 'BACKEND_URL' has already been declared` and silently kill the entire script. Always use the one defined in `main.js`.
 
-### Admin data is browser-local
-Products are stored in `localStorage` of whichever browser you use for admin. If you log in from a different device, products won't be there. The backend has its own separate products table (via API) — but the frontend menu reads from localStorage, not the API. These two are currently independent.
-
 ### Backend free tier cold starts
 Render free tier suspends the backend after 15 min of inactivity. The first request after sleep takes ~20–30 seconds. Contact form submissions during this time fall back to localStorage gracefully.
+
+### Backend database has no persistent disk
+`backend/db/krispies.db` lives on Render's local filesystem, and `render.yaml` does not attach a
+persistent disk. **Confirm this is still true before relying on the database surviving a
+redeploy** — on Render's free/starter tiers without a persistent disk, the whole SQLite file
+(products, orders, messages, everything) can be wiped on every backend redeploy. If the team
+starts relying on the admin panel for real inventory, this should be addressed (Render persistent
+disk add-on, or migrate to a hosted DB) before it causes real data loss.
+
+### Product images are not self-serve
+By design (see §5), product photos aren't uploaded through the browser — they're committed to
+the repo under `assets/images/products/<category>/` and referenced by path from the admin form.
+This means every new product photo needs a code push to go live, not just an admin-panel save.
 
 ### Gmail App Password required
 Regular Gmail password won't work for `nodemailer`. You must generate an App Password (16-character code) from Gmail Security settings with 2FA enabled.

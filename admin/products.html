@@ -37,10 +37,11 @@
         <select id="filter-cat" onchange="filterProducts()">
           <option value="">All Categories</option>
           <option value="birthday-cakes">Birthday Cakes</option>
-          <option value="customized-cakes">Customized Cakes</option>
           <option value="wedding-cakes">Wedding Cakes</option>
           <option value="engagement-cakes">Engagement Cakes</option>
+          <option value="birthday-theme-cakes">Birthday Theme Cakes</option>
           <option value="baby-shower-cakes">Baby Shower Cakes</option>
+          <option value="customized-cakes">Customized Cakes</option>
           <option value="cheesecakes">Cheesecakes</option>
           <option value="donuts">Donuts</option>
           <option value="biscuits">Biscuits</option>
@@ -184,8 +185,25 @@ async function toggleFeatured(id, cb) {
   } catch (e) { showToast('Failed to update', 'error'); cb.checked = !cb.checked; }
 }
 
+const BASE_CATEGORIES = [
+  ['birthday-cakes','Birthday Cakes'],['wedding-cakes','Wedding Cakes'],
+  ['engagement-cakes','Engagement Cakes'],['birthday-theme-cakes','Birthday Theme Cakes'],
+  ['baby-shower-cakes','Baby Shower Cakes'],['customized-cakes','Customized Cakes'],
+  ['cheesecakes','Cheesecakes'],['donuts','Donuts'],['biscuits','Biscuits'],
+];
+
+function slugify(s) {
+  return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 function productForm(p = {}) {
   const images = p.images || [];
+  // Category list: base categories plus any custom ones already used by existing products,
+  // so a category someone typed in as "Other" shows up as a real option from then on.
+  const knownCats = new Set(BASE_CATEGORIES.map(([v]) => v));
+  const extraCats = [...new Set(allProducts.map(x => x.category))].filter(c => c && !knownCats.has(c));
+  const catOptions = [...BASE_CATEGORIES, ...extraCats.map(c => [c, CATEGORY_LABELS[c] || c])];
+
   return `
     <div class="form-grid-2">
       <div class="form-row" style="grid-column:1/-1;">
@@ -193,10 +211,16 @@ function productForm(p = {}) {
         <input id="f-name" value="${esc(p.name || '')}" placeholder="e.g. Chocolate Truffle Cake">
       </div>
       <div class="form-row">
+        <label>URL Slug <span class="hint-inline">(auto-filled, editable)</span></label>
+        <input id="f-slug" value="${esc(p.slug || '')}" placeholder="chocolate-truffle-cake">
+      </div>
+      <div class="form-row">
         <label>Category *</label>
-        <select id="f-cat">
-          ${[['birthday-cakes','Birthday Cakes'],['customized-cakes','Customized Cakes'],['wedding-cakes','Wedding Cakes'],['engagement-cakes','Engagement Cakes'],['baby-shower-cakes','Baby Shower Cakes'],['cheesecakes','Cheesecakes'],['donuts','Donuts'],['biscuits','Biscuits']].map(([v,l]) => `<option value="${v}" ${p.category===v?'selected':''}>${l}</option>`).join('')}
+        <select id="f-cat" onchange="document.getElementById('f-cat-custom').style.display = this.value === '__other__' ? 'block' : 'none'">
+          ${catOptions.map(([v,l]) => `<option value="${v}" ${p.category===v?'selected':''}>${l}</option>`).join('')}
+          <option value="__other__">+ Add new category…</option>
         </select>
+        <input id="f-cat-custom" placeholder="new-category-slug" style="display:none;margin-top:6px;">
       </div>
       <div class="form-row">
         <label>Tag</label>
@@ -207,6 +231,10 @@ function productForm(p = {}) {
           <option value="seasonal"   ${p.tag==='seasonal'?'selected':''}>🌸 Seasonal</option>
           <option value="custom"     ${p.tag==='custom'?'selected':''}>✨ Made to Order</option>
         </select>
+      </div>
+      <div class="form-row">
+        <label>Prep Time <span class="hint-inline">(hours notice needed)</span></label>
+        <input id="f-prep" type="number" min="0" value="${p.prepHours || 0}" placeholder="0">
       </div>
       <div class="form-row">
         <label>MRP (₹) *</label>
@@ -222,19 +250,28 @@ function productForm(p = {}) {
         <textarea id="f-desc" rows="3" placeholder="Short description shown on product card">${esc(p.description || '')}</textarea>
       </div>
       <div class="form-row" style="grid-column:1/-1;">
-        <label>Product Images (paste URLs)</label>
+        <label>Product Images</label>
+        <div class="hint" style="margin-bottom:6px;">Paste a URL, or reference a local file your team dropped into
+          <code>assets/images/products/&lt;category&gt;/&lt;filename&gt;.jpg</code> — e.g.
+          <code id="img-hint-example">assets/images/products/${esc(p.category || 'birthday-cakes')}/${esc(slugify(p.name) || 'product-name')}-1.jpg</code>
+        </div>
         <div class="img-list" id="img-list">${images.map((url,i) => `
           <div class="img-pill" id="imgp-${i}">
             <span class="img-pill__url" title="${esc(url)}">${esc(url)}</span>
             <button class="img-pill__rm" onclick="removeImg(${i})" type="button">✕</button>
           </div>`).join('')}</div>
         <div class="img-add-row">
-          <input id="img-url-input" placeholder="https://example.com/image.jpg" type="url">
+          <input id="img-url-input" placeholder="Paste URL or assets/images/products/... path">
           <button class="btn btn-outline btn-sm" onclick="addImg()" type="button">+ Add</button>
         </div>
         <div class="img-preview" id="img-preview">
           ${images.map(url => `<img src="${esc(url)}" onerror="this.style.display='none'">`).join('')}
         </div>
+      </div>
+      <div class="form-row" style="grid-column:1/-1;">
+        <label>Variants <span class="hint-inline">(optional — e.g. weight tiers or flavours with their own price)</span></label>
+        <div id="variant-groups"></div>
+        <button class="btn btn-outline btn-sm" onclick="addVariantGroup()" type="button" style="margin-top:8px;">+ Add Option Group</button>
       </div>
       <div class="form-row">
         <label class="form-check"><input type="checkbox" id="f-active" ${p.active!==false?'checked':''}> Active (visible on website)</label>
@@ -243,6 +280,51 @@ function productForm(p = {}) {
         <label class="form-check"><input type="checkbox" id="f-featured" ${p.featured?'checked':''}> Featured on homepage</label>
       </div>
     </div>`;
+}
+
+/* ── Variant group builder ──
+   _editVariantGroups shape: [{ name, options: [{label, priceDelta}] }] */
+let _editVariantGroups = [];
+
+function renderVariantGroups() {
+  const container = document.getElementById('variant-groups');
+  if (!container) return;
+  container.innerHTML = _editVariantGroups.map((g, gi) => `
+    <div class="variant-group">
+      <div class="variant-group__hd">
+        <input class="variant-group__name" placeholder="Group name, e.g. Weight" value="${esc(g.name)}"
+          oninput="_editVariantGroups[${gi}].name = this.value">
+        <button class="img-pill__rm" onclick="removeVariantGroup(${gi})" type="button" title="Remove group">✕</button>
+      </div>
+      <div class="variant-group__options">
+        ${g.options.map((o, oi) => `
+          <div class="variant-option-row">
+            <input placeholder="Option label, e.g. Half Kg" value="${esc(o.label)}"
+              oninput="_editVariantGroups[${gi}].options[${oi}].label = this.value">
+            <input type="number" placeholder="+₹ price" value="${o.priceDelta || 0}"
+              oninput="_editVariantGroups[${gi}].options[${oi}].priceDelta = parseFloat(this.value) || 0">
+            <button class="img-pill__rm" onclick="removeVariantOption(${gi}, ${oi})" type="button" title="Remove option">✕</button>
+          </div>`).join('')}
+        <button class="btn btn-outline btn-sm" onclick="addVariantOption(${gi})" type="button">+ Add Option</button>
+      </div>
+    </div>`).join('') || `<div class="hint">No variants — this product has a single fixed price.</div>`;
+}
+
+function addVariantGroup() {
+  _editVariantGroups.push({ name: '', options: [{ label: '', priceDelta: 0 }] });
+  renderVariantGroups();
+}
+function removeVariantGroup(gi) {
+  _editVariantGroups.splice(gi, 1);
+  renderVariantGroups();
+}
+function addVariantOption(gi) {
+  _editVariantGroups[gi].options.push({ label: '', priceDelta: 0 });
+  renderVariantGroups();
+}
+function removeVariantOption(gi, oi) {
+  _editVariantGroups[gi].options.splice(oi, 1);
+  renderVariantGroups();
 }
 
 // Manage image URLs in the form
@@ -271,9 +353,12 @@ function refreshImgUI() {
 
 function openAddProduct() {
   _editImages = [];
+  _editVariantGroups = [];
   document.getElementById('modalTitle').textContent = 'Add Product';
   document.getElementById('modalBody').innerHTML = productForm();
   setupPricePreview();
+  setupSlugAutofill();
+  renderVariantGroups();
   document.getElementById('modalSaveBtn').onclick = saveProduct;
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -282,9 +367,12 @@ function openEditProduct(id) {
   const p = allProducts.find(x => x.id === id);
   if (!p) return;
   _editImages = [...(p.images || [])];
+  _editVariantGroups = (p.variantGroups || []).map(g => ({ name: g.name, options: g.options.map(o => ({ ...o })) }));
   document.getElementById('modalTitle').textContent = 'Edit Product';
   document.getElementById('modalBody').innerHTML = productForm(p);
   setupPricePreview();
+  setupSlugAutofill(true);
+  renderVariantGroups();
   document.getElementById('modalSaveBtn').onclick = () => saveProduct(id);
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -303,20 +391,45 @@ function setupPricePreview() {
   }, 50);
 }
 
+// Auto-fills the slug field from the product name, unless editing an
+// existing product whose slug was already set (or the admin has typed
+// their own slug already — tracked via a "touched" flag).
+function setupSlugAutofill(isEdit = false) {
+  let slugTouched = isEdit; // editing: don't clobber the existing slug on load
+  setTimeout(() => {
+    const nameEl = document.getElementById('f-name');
+    const slugEl = document.getElementById('f-slug');
+    const imgHint = document.getElementById('img-hint-example');
+    const catEl = document.getElementById('f-cat');
+    if (!nameEl || !slugEl) return;
+    slugEl.addEventListener('input', () => { slugTouched = true; });
+    const sync = () => {
+      if (!slugTouched) slugEl.value = slugify(nameEl.value);
+      if (imgHint) imgHint.textContent = `assets/images/products/${catEl?.value || 'birthday-cakes'}/${slugify(nameEl.value) || 'product-name'}-1.jpg`;
+    };
+    nameEl.addEventListener('input', sync);
+    catEl?.addEventListener('change', sync);
+  }, 50);
+}
+
 async function saveProduct(editId) {
   const name = document.getElementById('f-name').value.trim();
   const desc = document.getElementById('f-desc').value.trim();
-  const cat  = document.getElementById('f-cat').value;
+  let cat  = document.getElementById('f-cat').value;
+  if (cat === '__other__') cat = slugify(document.getElementById('f-cat-custom').value);
   if (!name || !desc || !cat) { showToast('Name, category and description are required', 'error'); return; }
 
   const body = {
     name, description: desc, category: cat,
-    tag:      document.getElementById('f-tag').value || null,
-    mrp:      parseFloat(document.getElementById('f-mrp').value) || 0,
-    discount: parseFloat(document.getElementById('f-disc').value) || 0,
-    images:   JSON.stringify(_editImages),
-    active:   document.getElementById('f-active').checked,
-    featured: document.getElementById('f-featured').checked,
+    tag:           document.getElementById('f-tag').value || null,
+    slug:          document.getElementById('f-slug').value.trim() || slugify(name),
+    prepHours:     parseInt(document.getElementById('f-prep').value, 10) || 0,
+    mrp:           parseFloat(document.getElementById('f-mrp').value) || 0,
+    discount:      parseFloat(document.getElementById('f-disc').value) || 0,
+    images:        JSON.stringify(_editImages),
+    variantGroups: JSON.stringify(_editVariantGroups.filter(g => g.name.trim() && g.options.some(o => o.label.trim()))),
+    active:        document.getElementById('f-active').checked,
+    featured:      document.getElementById('f-featured').checked,
   };
 
   const btn = document.getElementById('modalSaveBtn');

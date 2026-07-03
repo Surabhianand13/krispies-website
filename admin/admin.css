@@ -195,6 +195,18 @@ tr:hover td { background: #faf8f5; }
 .img-preview { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
 .img-preview img { width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid var(--border); }
 
+.hint-inline { font-weight:400; text-transform:none; color:var(--text-3); }
+.form-row code { background:#f5f2ee; border-radius:4px; padding:1px 5px; font-size:0.68rem; }
+
+/* ── Variant group builder ── */
+.variant-group { background:#f5f2ee; border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px; }
+.variant-group__hd { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+.variant-group__name { flex:1; font-weight:600; }
+.variant-group__options { display:flex; flex-direction:column; gap:6px; }
+.variant-option-row { display:flex; gap:6px; align-items:center; }
+.variant-option-row input:first-child { flex:2; }
+.variant-option-row input:nth-child(2) { flex:1; }
+
 /* ── Analytics ── */
 .analytics-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:24px; }
 .analytics-tile { background:var(--card-bg); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:16px 18px; text-align:center; }
