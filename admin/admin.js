@@ -86,14 +86,15 @@ function esc(str) {
 
 // ── LABEL MAPS ────────────────────────────────────
 const CATEGORY_LABELS = {
-  'birthday-cakes':    'Birthday Cakes',
-  'customized-cakes':  'Customized Cakes',
-  'wedding-cakes':     'Wedding Cakes',
-  'engagement-cakes':  'Engagement Cakes',
-  'baby-shower-cakes': 'Baby Shower Cakes',
-  'cheesecakes':       'Cheesecakes',
-  'donuts':            'Donuts',
-  'biscuits':          'Biscuits',
+  'birthday-cakes':       'Birthday Cakes',
+  'wedding-cakes':        'Wedding Cakes',
+  'engagement-cakes':     'Engagement Cakes',
+  'birthday-theme-cakes': 'Birthday Theme Cakes',
+  'baby-shower-cakes':    'Baby Shower Cakes',
+  'customized-cakes':     'Customized Cakes',
+  'cheesecakes':          'Cheesecakes',
+  'donuts':               'Donuts',
+  'biscuits':             'Biscuits',
 };
 const TAG_LABELS = {
   'bestseller': 'Bestseller',
