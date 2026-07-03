@@ -642,7 +642,7 @@
       <div class="loc-interactive">
         <div class="loc-map-frame">
           <iframe id="locMapIframe"
-            src="https://www.openstreetmap.org/export/embed.html?bbox=78.4620%2C17.3610%2C78.4900%2C17.3850&amp;layer=mapnik&amp;marker=17.3730,78.4760"
+            src="https://www.google.com/maps?q=17.3730,78.4760&z=16&output=embed"
             title="Map to selected Krispie's outlet"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade">
@@ -1172,8 +1172,7 @@
     function selectStore(i) {
       const s = STORES[i];
       if (!s) return;
-      const d = 0.011;
-      iframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${(s.lng-d).toFixed(4)}%2C${(s.lat-d).toFixed(4)}%2C${(s.lng+d).toFixed(4)}%2C${(s.lat+d).toFixed(4)}&layer=mapnik&marker=${s.lat},${s.lng}`;
+      iframe.src = `https://www.google.com/maps?q=${s.lat},${s.lng}&z=16&output=embed`;
       openBtn.href = s.gmaps;
       popupDir.href = s.gmaps;
       popupName.textContent = s.name;
