@@ -21,18 +21,21 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS products (
-    id          TEXT    PRIMARY KEY,
-    name        TEXT    NOT NULL,
-    category    TEXT    NOT NULL,
-    tag         TEXT,
-    description TEXT    NOT NULL,
-    mrp         REAL    NOT NULL DEFAULT 0,
-    discount    REAL    NOT NULL DEFAULT 0,
-    images      TEXT    NOT NULL DEFAULT '[]',
-    featured    INTEGER NOT NULL DEFAULT 0,
-    active      INTEGER NOT NULL DEFAULT 1,
-    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
-    updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    id             TEXT    PRIMARY KEY,
+    name           TEXT    NOT NULL,
+    category       TEXT    NOT NULL,
+    tag            TEXT,
+    description    TEXT    NOT NULL,
+    mrp            REAL    NOT NULL DEFAULT 0,
+    discount       REAL    NOT NULL DEFAULT 0,
+    images         TEXT    NOT NULL DEFAULT '[]',
+    variant_groups TEXT    NOT NULL DEFAULT '[]',
+    prep_hours     INTEGER NOT NULL DEFAULT 0,
+    slug           TEXT    UNIQUE,
+    featured       INTEGER NOT NULL DEFAULT 0,
+    active         INTEGER NOT NULL DEFAULT 1,
+    created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
   CREATE TABLE IF NOT EXISTS orders (
@@ -88,17 +91,26 @@ db.exec(`
     meta        TEXT,
     created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT
+  );
 `);
 
 // ── Safe migrations for existing DBs ──────────────────────────────────────────
 const safeAddColumn = (table, col, def) => {
   try { db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`); } catch (_) {}
 };
-safeAddColumn('products', 'mrp',         'REAL NOT NULL DEFAULT 0');
-safeAddColumn('products', 'discount',    'REAL NOT NULL DEFAULT 0');
-safeAddColumn('products', 'images',      "TEXT NOT NULL DEFAULT '[]'");
+safeAddColumn('products', 'mrp',            'REAL NOT NULL DEFAULT 0');
+safeAddColumn('products', 'discount',       'REAL NOT NULL DEFAULT 0');
+safeAddColumn('products', 'images',         "TEXT NOT NULL DEFAULT '[]'");
+safeAddColumn('products', 'variant_groups', "TEXT NOT NULL DEFAULT '[]'");
+safeAddColumn('products', 'prep_hours',     'INTEGER NOT NULL DEFAULT 0');
+safeAddColumn('products', 'slug',           'TEXT');
 safeAddColumn('orders',   'customer_email', 'TEXT');
 safeAddColumn('orders',   'payment_method', 'TEXT');
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products(slug)'); } catch (_) {}
 
 // ── Seed admin user ────────────────────────────────────────────────────────────
 const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
@@ -109,52 +121,77 @@ if (!adminExists) {
   console.log('✓ Admin user created');
 }
 
-// ── Seed default products ──────────────────────────────────────────────────────
-const productCount = db.prepare('SELECT COUNT(*) as c FROM products').get().c;
-if (productCount === 0) {
-  const insertProduct = db.prepare(`
-    INSERT INTO products (id, name, category, tag, description, featured, active)
-    VALUES (@id, @name, @category, @tag, @description, @featured, @active)
-  `);
+// ── One-time seed/migration: replace the old imageless placeholder catalog
+//    with the real, image-backed catalog already live on the public site.
+//    This is a STRICTLY ONE-TIME operation guarded by the 'catalog_seeded_v1'
+//    settings flag — once it has run, it never runs again, even across future
+//    deploys, so it can never wipe products the team adds via admin later.
+const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const alreadySeeded = db.prepare('SELECT value FROM settings WHERE key = ?').get('catalog_seeded_v1');
 
-  const defaults = [
-    // Customized Cakes
-    { id: 'p1',  name: 'Photo-Print Cake',          category: 'customized-cakes', tag: 'bestseller', description: 'Edible photo print on a moist sponge — any image, any occasion.', featured: 1, active: 1 },
-    { id: 'p2',  name: 'Floral Fondant Cake',        category: 'customized-cakes', tag: 'custom',     description: 'Hand-sculpted fondant blooms in your choice of colours.', featured: 1, active: 1 },
-    { id: 'p3',  name: 'Name-Script Cake',           category: 'customized-cakes', tag: null,         description: 'Elegant piped lettering over velvet ganache. Simple & stunning.', featured: 0, active: 1 },
-    { id: 'p4',  name: 'Geode Crystal Cake',         category: 'customized-cakes', tag: 'new',        description: 'Rock-candy geode inlaid in rich buttercream. A show stopper.', featured: 0, active: 1 },
-    { id: 'p5',  name: 'Tier Wedding Cake',          category: 'customized-cakes', tag: 'custom',     description: '3-tier heirloom design. Lace, flowers, or minimalist — your call.', featured: 0, active: 1 },
-    { id: 'p6',  name: 'Character Theme Cake',       category: 'customized-cakes', tag: null,         description: 'Kids\' favourite characters in 3-D fondant. Pure joy, guaranteed.', featured: 0, active: 1 },
-    // Birthday Cakes
-    { id: 'p7',  name: 'Chocolate Truffle',          category: 'birthday-cakes',   tag: 'bestseller', description: 'Layers of dark chocolate ganache & moist sponge. The classic.', featured: 1, active: 1 },
-    { id: 'p8',  name: 'Black Forest',               category: 'birthday-cakes',   tag: null,         description: 'Cherries, chantilly cream & dark chocolate shavings on every slice.', featured: 0, active: 1 },
-    { id: 'p9',  name: 'Mango Mousse Cake',          category: 'birthday-cakes',   tag: 'seasonal',   description: 'Fresh Alphonso mango mousse on a buttery sponge — summer special.', featured: 0, active: 1 },
-    { id: 'p10', name: 'Butterscotch Dream',         category: 'birthday-cakes',   tag: null,         description: 'Crunchy butterscotch praline layered in creamy buttercream.', featured: 0, active: 1 },
-    { id: 'p11', name: 'Strawberry Shortcake',       category: 'birthday-cakes',   tag: 'new',        description: 'Fresh strawberries folded into lightly sweetened whipped cream.', featured: 0, active: 1 },
-    { id: 'p12', name: 'Rainbow Funfetti',           category: 'birthday-cakes',   tag: null,         description: 'Colourful sprinkles baked right in. A party inside a cake!', featured: 0, active: 1 },
-    // Biscuits
-    { id: 'p13', name: 'Nankhatai',                  category: 'biscuits',         tag: 'bestseller', description: 'Our 30-year-old Iyengar recipe. Cardamom ghee shortbread at its finest.', featured: 1, active: 1 },
-    { id: 'p14', name: 'Coconut Cookies',            category: 'biscuits',         tag: null,         description: 'Toasted desiccated coconut in a crisp golden cookie.', featured: 0, active: 1 },
-    { id: 'p15', name: 'Chocolate Chip Cookies',     category: 'biscuits',         tag: 'new',        description: 'Gooey centres, crisp edges. Packed with Belgian chocolate chips.', featured: 0, active: 1 },
-    { id: 'p16', name: 'Butter Biscuits',            category: 'biscuits',         tag: null,         description: 'Pure butter, a touch of vanilla — melt-in-the-mouth perfection.', featured: 0, active: 1 },
-    { id: 'p17', name: 'Jeera (Cumin) Cookies',      category: 'biscuits',         tag: null,         description: 'Savoury-sweet cumin biscuits — a uniquely Indian snack.', featured: 0, active: 1 },
-    { id: 'p18', name: 'Tutti Frutti Cake Rusk',     category: 'biscuits',         tag: 'bestseller', description: 'Double-baked sponge rusk loaded with tutti frutti gems.', featured: 0, active: 1 },
-    // Cheesecakes
-    { id: 'p19', name: 'Classic New York',           category: 'cheesecakes',      tag: 'bestseller', description: 'Dense, creamy, no-nonsense New York cheesecake on a graham crust.', featured: 1, active: 1 },
-    { id: 'p20', name: 'Blueberry Swirl',            category: 'cheesecakes',      tag: null,         description: 'Wild blueberry compote ribboned through silky cream cheese.', featured: 0, active: 1 },
-    { id: 'p21', name: 'Mango Cheesecake',           category: 'cheesecakes',      tag: 'seasonal',   description: 'No-bake Alphonso mango cheesecake — light, tropical, irresistible.', featured: 0, active: 1 },
-    { id: 'p22', name: 'Lotus Biscoff',              category: 'cheesecakes',      tag: 'new',        description: 'Biscoff cookie base with a caramelised spread swirl. Utterly addictive.', featured: 0, active: 1 },
-    // Donuts
-    { id: 'p23', name: 'Glazed Classic',             category: 'donuts',           tag: null,         description: 'The OG — fluffy yeast donut with a shiny sugar glaze.', featured: 0, active: 1 },
-    { id: 'p24', name: 'Choco Overload Donut',       category: 'donuts',           tag: 'bestseller', description: 'Triple chocolate: dough, glaze & chocolate chip topping.', featured: 1, active: 1 },
-    { id: 'p25', name: 'Strawberry Sprinkle Donut',  category: 'donuts',           tag: null,         description: 'Pink strawberry glaze with rainbow sprinkles. Cheerful & delicious.', featured: 0, active: 1 },
+if (!alreadySeeded) {
+  const mk = (name, category, description, tag, mrp, discount, featured) => {
+    const slug = slugify(name);
+    return {
+      id: 'p_' + slug,
+      name, category, description, tag: tag || null,
+      mrp, discount: discount || 0,
+      images: JSON.stringify([`assets/images/products/${category}/${slug}.jpg`]),
+      variant_groups: '[]',
+      prep_hours: 0,
+      slug,
+      featured: featured ? 1 : 0,
+      active: 1,
+    };
+  };
+
+  const catalog = [
+    mk('Creamy Rasmalai Cake', 'birthday-cakes', 'Saffron-cardamom sponge soaked in rabri cream, topped with crushed pistachios.', 'bestseller', 899, 10, true),
+    mk('Belgium Chocolate Cake', 'birthday-cakes', 'Rich Belgian chocolate sponge with smooth ganache drip and dark chocolate shards.', 'bestseller', 999, 15, true),
+    mk('Redvelvet Cake', 'birthday-cakes', 'Striking red velvet layers with luscious cream cheese frosting.', 'bestseller', 1099, 10, true),
+    mk('Chocolate Truffle Cake', 'birthday-cakes', 'Decadent chocolate sponge layered with silky truffle ganache and chocolate curls.', 'bestseller', 999, 0, false),
+    mk('Fresh Pineapple Cake', 'birthday-cakes', 'Vanilla sponge with fresh pineapple chunks and light chantilly cream.', 'new', 849, 0, false),
+    mk('Butterscotch Cake', 'birthday-cakes', 'Crunchy butterscotch praline layered in fluffy fresh cream and vanilla sponge.', null, 849, 10, false),
+    mk('Mango Bliss Cake', 'birthday-cakes', 'Alphonso mango sponge layered with mango compote and fresh cream.', 'new', 949, 0, false),
+    mk('Double Heart Two-Tier Anniversary Cake', 'wedding-cakes', 'Two-tier heart-shaped cake with red polka dots, red rose bouquets, customisable gold anniversary topper and floating heart accents.', 'bestseller', 4499, 0, true),
+    mk('Traditional Bride & Groom Wedding Cake', 'wedding-cakes', 'Classic three-tier white fondant with hand-sculpted burgundy roses, pearl drapery and traditional bride-and-groom topper.', 'bestseller', 4999, 0, true),
+    mk('Romantic Pink Rose One Tier Cake', 'wedding-cakes', 'Single tier white with handmade pink roses, gold pearl cascade and soft pink ombre band — intimate and elegant.', 'bestseller', 2999, 0, true),
+    mk('Pastel Wedding Cake with Pearls', 'wedding-cakes', 'Two-tier ivory and peach with pink-white-peach fresh roses, carnations and delicate pearl detailing.', 'new', 3999, 0, false),
+    mk('White & Red Ribbon Wedding Cake', 'wedding-cakes', 'Two-tier white with red daisy fondant flowers, red satin ribbon, oversized red bow and classic bride-groom topper.', 'bestseller', 4499, 0, true),
+    mk('Red Velvet Hearts Romantic Cake', 'wedding-cakes', 'Single tier with red velvet ganache drip, oversized red heart topper, heart sprinkles and red velvet crumb at the base.', 'new', 2499, 0, false),
+    mk('Pink Princess Engagement Couple Cake', 'wedding-cakes', 'Two-tier ivory with hand-painted princess and groom illustration, cascading pink fondant dress, pink carnations and gold engaged topper.', 'bestseller', 4999, 0, true),
+    mk('Royal Pink Ring Box Cake - Two Tier', 'engagement-cakes', 'Stunning two-tier engagement cake — pink hexagonal ring box with two gold rings on top, gold ornamental medallion on the white base and hand-crafted blush fondant roses.', 'bestseller', 4499, 0, true),
+    mk('Forever Couple Silhouette Cake', 'engagement-cakes', 'Two-tier blush fondant with hand-cut bride and groom silhouette, gold heart-with-ring topper, fresh roses and pearl detailing.', 'bestseller', 4999, 0, true),
+    mk('Pearl & Hearts Engagement Cake', 'engagement-cakes', 'Tall single tier finished with delicate hand-piped pearls, red heart accents, double-ring topper and fresh white roses.', 'new', 2999, 0, false),
+    mk('Red Velvet Roses Engagement Cake', 'engagement-cakes', 'Romantic two-tier with red velvet crown on top, fresh red roses cascading down and twin diamond-ring toppers.', 'bestseller', 2799, 10, false),
+    mk('Unicorn Magic', 'birthday-theme-cakes', 'Pastel rainbow swirls, edible glitter horn, and fairy dust sprinkles.', 'bestseller', 1599, 10, true),
+    mk('Dinosaur Roar', 'birthday-theme-cakes', 'T-Rex and friends in sculpted fondant — perfect for little explorers.', 'bestseller', 1699, 0, true),
+    mk('Princess Castle', 'birthday-theme-cakes', 'Dream castle with sugar turrets, fondant flowers and a princess topper.', 'custom', 2199, 0, false),
+    mk('Superhero Action Cake', 'birthday-theme-cakes', "Your child's favourite hero in 3D fondant on a bright sponge.", 'bestseller', 1799, 10, false),
+    mk('Galaxy Space Cake', 'birthday-theme-cakes', 'Deep space swirls in airbrushed purple and blue with sugar stars.', 'new', 1899, 0, false),
+    mk('Safari Animals Cake', 'birthday-theme-cakes', 'Jungle animals peeking from a fondant-wrapped cake.', 'custom', 1599, 0, false),
+    mk('Jungle Theme with Animals Two-Tier Cake', 'baby-shower-cakes', 'Lush green two-tier with lion, zebra, elephant and leopard fondant figurines under monstera leaves — perfect wild one celebration.', 'bestseller', 5999, 0, true),
+    mk('Rainbow Unicorn Birthday Cake for Girl', 'baby-shower-cakes', 'Pastel pink and blue ombre with a magical rainbow unicorn topper, gold stars, clouds and edible flower confetti.', 'bestseller', 2999, 0, true),
+    mk('Winged Baby Unicorn Hearts Cake', 'baby-shower-cakes', 'Sky-blue tier with a baby pegasus topper, pastel hearts, gold stars on sticks and dreamy cloud detailing.', 'new', 2999, 0, false),
+    mk('Half Birthday Teddy Cake', 'baby-shower-cakes', 'Mint blue cake with two adorable brown teddies, halfway to one star sign and a ladder — the perfect 6 month milestone.', 'bestseller', 1999, 0, true),
+    mk('Barbie Doll Pink Floral Cake', 'baby-shower-cakes', 'Classic Barbie doll cake in a flowing pink fondant gown with white floral detailing — a princess birthday showstopper.', 'bestseller', 2999, 0, false),
+    mk('Pastel Rainbow Bear Cake for Kids', 'baby-shower-cakes', 'Pastel pink, yellow, mint and blue rainbow ombre with two adorable teddy bears, fluffy clouds and rainbow topper — pure cuteness.', 'bestseller', 2499, 0, true),
+    mk('Personalised Name 1st Birthday Princess Cake', 'baby-shower-cakes', 'Premium two-tier with a princess doll in pink ruffles, white bunny, custom-piped name, gold 1 number and rose-gold metallic spheres.', 'bestseller', 4999, 0, true),
   ];
 
-  const insertMany = db.transaction((items) => {
+  const insertProduct = db.prepare(`
+    INSERT INTO products (id, name, category, tag, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, active)
+    VALUES (@id, @name, @category, @tag, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @active)
+  `);
+
+  const migrate = db.transaction((items) => {
+    db.prepare('DELETE FROM products').run();
     for (const item of items) insertProduct.run(item);
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+      .run('catalog_seeded_v1', 'true');
   });
-  insertMany(defaults);
-  console.log(`✓ Seeded ${defaults.length} default products`);
+  migrate(catalog);
+  console.log(`✓ Seeded real product catalog (${catalog.length} products) — one-time migration complete`);
 }
 
 module.exports = db;
