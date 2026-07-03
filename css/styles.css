@@ -685,36 +685,6 @@ h1, h2, h3, h4 {
   50%       { transform: translateY(8px); }
 }
 
-/* ---- 8. STRIP / STATS ---- */
-.strip {
-  background: var(--black-2);
-  padding: 40px 0;
-  position: relative;
-}
-.strip__grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-}
-.strip__item {
-  text-align: center;
-  padding: 16px 24px;
-  border-right: 1px solid var(--border-gold);
-}
-.strip__item:last-child { border-right: none; }
-.strip__num {
-  font-family: var(--font-display);
-  font-size: 2.8rem;
-  color: var(--gold);
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.strip__label {
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
 /* ---- QUICK CATEGORY NAV ---- */
 .qcat {
   background: var(--cream);
@@ -1494,17 +1464,6 @@ h1, h2, h3, h4 {
   .loc-map-frame { height: 260px; }
   .loc-map-popup { max-width: 55%; padding: 10px 12px; }
 }
-
-/* ---- 14. ORDER CTA ---- */
-.order-cta {
-  padding: 88px 0; text-align: center;
-  background: var(--black); border-top: 1px solid var(--border-gold);
-}
-.order-cta__tag { margin-bottom: 16px; }
-.order-cta__title { font-size: clamp(2rem, 4.5vw, 3.2rem); color: var(--text-on-dark); margin-bottom: 12px; }
-.order-cta__sub { color: var(--text-muted); margin-bottom: 44px; }
-.order-cta__btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-.order-cta__btn { padding: 16px 40px; font-size: 0.85rem; gap: 12px; }
 
 /* ---- 15. SOCIAL CTA ---- */
 .social-cta {
@@ -2854,8 +2813,6 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   :root { --pad-lg: 52px; --pad-md: 36px; }
   .nav__links, .nav__cta { display: none; }
   .nav__hamburger { display: flex; }
-  .strip__grid { grid-template-columns: repeat(2, 1fr); }
-  .strip__item:nth-child(2) { border-right: none; }
   .story-snap__inner { grid-template-columns: 1fr; gap: 48px; }
   .story-snap__visual { max-width: 380px; margin: 0 auto; }
   .videos__grid { grid-template-columns: 1fr 1fr; }
@@ -2924,19 +2881,14 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .hero__arrow { display: none; }
   .hero__dots { bottom: 16px; }
 
-  /* Stats strip */
   .videos__grid { grid-template-columns: 1fr; }
   .tcard { min-width: 86vw; }
   .locations__grid { grid-template-columns: repeat(2, 1fr); }
-  .order-cta__btns { flex-direction: column; align-items: center; }
   .footer__grid { grid-template-columns: 1fr; gap: 28px; }
   .footer__bottom { flex-direction: column; text-align: center; gap: 12px; }
   .menu-grid { grid-template-columns: 1fr 1fr; }
   .articles-grid { grid-template-columns: 1fr; }
   .social-cta__links { flex-direction: column; align-items: center; }
-  .strip__grid { grid-template-columns: 1fr 1fr; }
-  .strip__item { border-right: none; border-bottom: 1px solid var(--border-gold); }
-  .strip__item:last-child { border-bottom: none; }
 
   /* Subcat circles — smaller on phones */
   .subcat-item__circle { width: clamp(68px, 18vw, 84px); height: clamp(68px, 18vw, 84px); }
@@ -3755,35 +3707,11 @@ textarea.chk-input { resize: vertical; min-height: 80px; }
 /* ================================================================
    SECTION OVERRIDES — Terracotta theme
    Light sections use terracotta tints via global vars.
-   Black sections (strip, order-cta, footer) flip to dark.
+   Black sections (footer) flip to dark.
    ================================================================ */
 
 /* Videos gets the tint background (otherwise inherits white) */
 .videos { background: var(--black-2); }
-
-/* Stats Strip — Warm Cream */
-.strip {
-  background: var(--cream-2);
-  border-top: 1px solid var(--border-gold);
-  border-bottom: 1px solid var(--border-gold);
-}
-
-/* Order CTA — Jet Black */
-.order-cta {
-  background: #0A0A0A;
-  border-top: none;
-  --black: #0A0A0A;
-  --gold: #FFFFFF;
-  --gold-light: rgba(255,255,255,0.85);
-  --gold-faint: rgba(255,255,255,0.08);
-  --border-gold: rgba(255,255,255,0.22);
-  --text-on-dark: #FFFFFF;
-  --text-muted: rgba(255,255,255,0.52);
-}
-.order-cta .btn-gold { background: #FFFFFF; color: #0A0A0A; }
-.order-cta .btn-gold:hover { background: rgba(255,255,255,0.88); transform: translateY(-2px); }
-.order-cta .btn-outline { color: #FFFFFF; border-color: rgba(255,255,255,0.40); }
-.order-cta .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: #FFFFFF; }
 
 /* ── SVG ICON SYSTEM ── */
 .hero__art svg                { width: 52%; height: 52%; color: var(--gold); }
