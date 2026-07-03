@@ -66,6 +66,7 @@
           </li>
           <li><a href="story">Our Story</a></li>
           <li><a href="articles/">Articles</a></li>
+          <li><a href="contact#franchise">Franchise</a></li>
           <li><a href="contact">Contact</a></li>
         </ul>
         <div class="nav__cta">
@@ -88,6 +89,7 @@
       </div>
       <a href="story">Our Story</a>
       <a href="articles/">Articles</a>
+      <a href="contact#franchise">Franchise</a>
       <a href="contact">Contact</a>
     </div>
   </nav>
@@ -263,43 +265,92 @@
     </section>
 
     <!-- LOCATIONS STRIP -->
-    <section style="padding:80px 0; background:var(--black-2); border-top:1px solid var(--border-gold);">
+    <section class="locations" aria-labelledby="locations-heading">
       <div class="container">
         <div class="section-header">
           <span class="section-label">Visit Us</span>
           <span class="gold-line"></span>
-          <h2 class="section-title">Find Your Nearest Krispie's</h2>
+          <h2 class="section-title" id="locations-heading">Find Your Nearest Krispie's</h2>
         </div>
-        <div class="locations__grid">
-          <div class="loc-card fade-up">
+        <div class="locations__grid" id="locGrid">
+          <button type="button" class="loc-card fade-up is-active" data-store="0">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Lalbazar</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Lalbazar+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
-          </div>
-          <div class="loc-card fade-up">
+            <a href="https://share.google/ko11BWxiPSSVPCa6C" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+          <button type="button" class="loc-card fade-up" data-store="1">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Suchitra</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Suchitra+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
-          </div>
-          <div class="loc-card fade-up">
+            <a href="https://share.google/zok5k5ZsybR2LCl29" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+          <button type="button" class="loc-card fade-up" data-store="2">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Boduppal</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Boduppal+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
-          </div>
-          <div class="loc-card fade-up">
+            <a href="https://share.google/cVt7icbkeM6Xc1qLL" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+          <button type="button" class="loc-card fade-up" data-store="3">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Ramantapur</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Ramantapur+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
-          </div>
-          <div class="loc-card fade-up">
+            <a href="https://share.google/OaxXpmGiIa0QBcbzf" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+          <button type="button" class="loc-card fade-up" data-store="4">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Tukkuguda</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Tukkuguda+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
+            <a href="https://share.google/dsMEdJLRGK459qlZT" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+        </div>
+
+        <div class="loc-interactive">
+          <div class="loc-map-frame">
+            <iframe id="locMapIframe"
+              src="https://www.google.com/maps?q=17.4789248,78.5141202&z=16&output=embed"
+              title="Map to selected Krispie's outlet"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <a id="locMapOpen" class="loc-map-open" href="https://share.google/ko11BWxiPSSVPCa6C" target="_blank" rel="noopener">
+              Open in Maps
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+            </a>
+            <div class="loc-map-popup">
+              <div class="loc-map-popup__text">
+                <strong id="locPopupName">Lalbazar</strong>
+                <span id="locPopupAddr">Lalbazar, Hyderabad, Telangana</span>
+              </div>
+              <a id="locPopupDir" class="loc-map-popup__dir" href="https://share.google/ko11BWxiPSSVPCa6C" target="_blank" rel="noopener" aria-label="Get directions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="loc-info-panel">
+            <h3 class="loc-info-panel__title">Visit Us &amp; <span>Say Hello</span></h3>
+            <div class="loc-info-row">
+              <span class="loc-info-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg></span>
+              <div>
+                <span class="loc-info-row__label">Phone</span>
+                <a href="tel:+917975218850">+91 79752 18850</a>
+              </div>
+            </div>
+            <div class="loc-info-row">
+              <span class="loc-info-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+              <div>
+                <span class="loc-info-row__label">Hours</span>
+                <p>Open Daily: 8:00 AM – 10:00 PM</p>
+              </div>
+            </div>
+            <div class="loc-info-row">
+              <span class="loc-info-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+              <div>
+                <span class="loc-info-row__label">WhatsApp</span>
+                <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27d%20like%20to%20place%20an%20order." target="_blank" rel="noopener">Chat with us →</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -403,6 +454,7 @@
           <a href="menu"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>Our Menu</a>
           <a href="story"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Our Story</a>
           <a href="articles/"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>Articles</a>
+          <a href="contact#franchise"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>Franchise</a>
           <a href="contact"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>Contact Us</a>
         </div>
 
@@ -475,6 +527,44 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+  /* ── Interactive store locator: switch map + info on card select ── */
+  (function () {
+    const STORES = [
+      { name: 'Lalbazar',   addr: 'Lalbazar, Hyderabad, Telangana',   lat: 17.4789248, lng: 78.5141202, gmaps: 'https://share.google/ko11BWxiPSSVPCa6C' },
+      { name: 'Suchitra',   addr: 'Suchitra, Hyderabad, Telangana',   query: "Krispie's - Bakery, Cafe & Sweets - Suchitra Branch",  gmaps: 'https://share.google/zok5k5ZsybR2LCl29' },
+      { name: 'Boduppal',   addr: 'Boduppal, Hyderabad, Telangana',   lat: 17.4063298, lng: 78.5868799, gmaps: 'https://share.google/cVt7icbkeM6Xc1qLL' },
+      { name: 'Ramantapur', addr: 'Ramantapur, Hyderabad, Telangana', lat: 17.3955159, lng: 78.5301352, gmaps: 'https://share.google/OaxXpmGiIa0QBcbzf' },
+      { name: 'Tukkuguda',  addr: 'Tukkuguda, Hyderabad, Telangana',  lat: 17.2084205, lng: 78.4767763, gmaps: 'https://share.google/dsMEdJLRGK459qlZT' },
+    ];
+
+    const grid   = document.getElementById('locGrid');
+    const iframe = document.getElementById('locMapIframe');
+    const openBtn = document.getElementById('locMapOpen');
+    const popupName = document.getElementById('locPopupName');
+    const popupAddr = document.getElementById('locPopupAddr');
+    const popupDir = document.getElementById('locPopupDir');
+    if (!grid || !iframe) return;
+
+    const cards = Array.from(grid.querySelectorAll('.loc-card'));
+
+    function selectStore(i) {
+      const s = STORES[i];
+      if (!s) return;
+      const q = s.lat != null ? `${s.lat},${s.lng}` : encodeURIComponent(s.query);
+      iframe.src = `https://www.google.com/maps?q=${q}&z=16&output=embed`;
+      openBtn.href = s.gmaps;
+      popupDir.href = s.gmaps;
+      popupName.textContent = s.name;
+      popupAddr.textContent = s.addr;
+      cards.forEach(c => c.classList.toggle('is-active', c.dataset.store === String(i)));
+    }
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => selectStore(Number(card.dataset.store)));
+    });
+  })();
+  </script>
   <script src="js/tracker.js"></script>
 </body>
 </html>
