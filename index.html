@@ -642,7 +642,7 @@
       <div class="loc-interactive">
         <div class="loc-map-frame">
           <iframe id="locMapIframe"
-            src="https://www.google.com/maps?q=17.3730,78.4760&z=16&output=embed"
+            src="https://www.google.com/maps?q=Krispie%27s%20Bakery%2C%20Cafe%20%26%20Sweets%20-%20Lalbazar&z=16&output=embed"
             title="Map to selected Krispie's outlet"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade">
@@ -1152,11 +1152,11 @@
   /* ── Interactive store locator: switch map + info on card select ── */
   (function () {
     const STORES = [
-      { name: 'Lalbazar',   addr: 'Lalbazar, Hyderabad, Telangana', lat: 17.3730, lng: 78.4760, gmaps: 'https://share.google/ko11BWxiPSSVPCa6C' },
-      { name: 'Suchitra',   addr: 'Suchitra, Hyderabad, Telangana',  lat: 17.5040, lng: 78.4450, gmaps: 'https://share.google/zok5k5ZsybR2LCl29' },
-      { name: 'Boduppal',   addr: 'Boduppal, Hyderabad, Telangana',  lat: 17.4120, lng: 78.5820, gmaps: 'https://share.google/cVt7icbkeM6Xc1qLL' },
-      { name: 'Ramantapur', addr: 'Ramantapur, Hyderabad, Telangana',lat: 17.3980, lng: 78.5470, gmaps: 'https://share.google/OaxXpmGiIa0QBcbzf' },
-      { name: 'Tukkuguda',  addr: 'Tukkuguda, Hyderabad, Telangana', lat: 17.2850, lng: 78.5680, gmaps: 'https://share.google/dsMEdJLRGK459qlZT' },
+      { name: 'Lalbazar',   addr: 'Lalbazar, Hyderabad, Telangana',   query: "Krispie's Bakery, Cafe & Sweets - Lalbazar",           gmaps: 'https://share.google/ko11BWxiPSSVPCa6C' },
+      { name: 'Suchitra',   addr: 'Suchitra, Hyderabad, Telangana',   query: "Krispie's - Bakery, Cafe & Sweets - Suchitra Branch",  gmaps: 'https://share.google/zok5k5ZsybR2LCl29' },
+      { name: 'Boduppal',   addr: 'Boduppal, Hyderabad, Telangana',   query: "Krispie's - Bakery, Cafe & Sweets, Boduppal Branch",   gmaps: 'https://share.google/cVt7icbkeM6Xc1qLL' },
+      { name: 'Ramantapur', addr: 'Ramantapur, Hyderabad, Telangana', query: "Krispie's - Bakery, Cafe & Sweets - Ramanathpuram",    gmaps: 'https://share.google/OaxXpmGiIa0QBcbzf' },
+      { name: 'Tukkuguda',  addr: 'Tukkuguda, Hyderabad, Telangana',  query: "Krispie's - Bakery, Cafe & Sweets - Tukkuguda",        gmaps: 'https://share.google/dsMEdJLRGK459qlZT' },
     ];
 
     const grid   = document.getElementById('locGrid');
@@ -1172,7 +1172,7 @@
     function selectStore(i) {
       const s = STORES[i];
       if (!s) return;
-      iframe.src = `https://www.google.com/maps?q=${s.lat},${s.lng}&z=16&output=embed`;
+      iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(s.query)}&z=16&output=embed`;
       openBtn.href = s.gmaps;
       popupDir.href = s.gmaps;
       popupName.textContent = s.name;
