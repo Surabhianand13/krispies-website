@@ -664,12 +664,13 @@ RAZORPAY_KEY_SECRET=XXXXXXXXXXXXXXXXXXXXXXXX
 
 ## 11. Deployment
 
-### Frontend — Vercel
+### Frontend — Cloudflare Pages (the actual live domain)
 
-- Connected to GitHub repo `Surabhianand13/krispies-website`
-- Auto-deploys on every push to `main`
-- Domain: `www.krispies.in`
-- No build step — Vercel serves static files directly
+- **`www.krispies.in` / `krispies.in` are bound to Cloudflare Pages** (`krispies-website.pages.dev`), confirmed via DNS (`CNAME` → `krispies-website.pages.dev`) and the `server: cloudflare` response header on every request.
+- Connected to GitHub repo `Surabhianand13/krispies-website`, auto-deploys on every push to `main`
+- No build step — serves static files directly
+- Rewrites/redirects for this project live in **`_redirects`** (Cloudflare Pages syntax: `source  destination  status`, `200` = rewrite/URL stays visible, `301`/`302` = redirect). This is the file that actually takes effect in production.
+- **A `vercel.json` also exists in the repo and a Vercel project is connected and builds successfully on every push** (visible as a passing check on PRs) — but it is not what the custom domain resolves to. Any Vercel-specific config (rewrites, redirects, headers) has **zero effect on the live site**. Keep both in sync if you rely on Vercel for anything (e.g. preview deployments), but treat `_redirects`/`_headers` as the source of truth for production routing.
 
 **To deploy changes:**
 ```bash
@@ -677,7 +678,7 @@ cd /Users/surabhia/krispies-website
 git add <files>
 git commit -m "your message"
 git push origin main
-# Vercel auto-deploys in ~30 seconds
+# Cloudflare Pages auto-deploys in ~30-60 seconds
 ```
 
 ### Backend — Render
