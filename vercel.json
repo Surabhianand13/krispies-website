@@ -3,6 +3,9 @@
   "redirects": [
     { "source": "/admin", "destination": "/admin/", "permanent": false }
   ],
+  "rewrites": [
+    { "source": "/product/:slug", "destination": "/product.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

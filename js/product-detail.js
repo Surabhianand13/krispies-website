@@ -9,6 +9,8 @@ let _pdpSelection = null;
 let _pdpGalleryIndex = 0;
 
 function _pdpSlugFromUrl() {
+  const pathMatch = window.location.pathname.match(/\/product\/([^/?#]+)/);
+  if (pathMatch) return decodeURIComponent(pathMatch[1]);
   const params = new URLSearchParams(window.location.search);
   return params.get('slug') || params.get('id') || '';
 }
@@ -150,6 +152,6 @@ document.addEventListener('shop:ready', () => {
   const descEl = document.getElementById('pageDesc');
   if (descEl) descEl.setAttribute('content', p.description || '');
   const canonEl = document.getElementById('pageCanonical');
-  if (canonEl) canonEl.setAttribute('href', `https://www.krispies.in/product?slug=${p.slug}`);
+  if (canonEl) canonEl.setAttribute('href', `https://www.krispies.in/product/${p.slug}`);
   _pdpRender();
 });
