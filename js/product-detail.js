@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════
-   Krispie's — product.html detail page logic.
+   Krispie's — product-page.html detail page logic.
    Requires js/shop.js to already be loaded (uses getProducts, esc,
    productBasePrice, variantSelectionDelta, addToCart, openCheckout, CAT_SVG).
    ════════════════════════════════════════════════════════════════════════ */

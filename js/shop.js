@@ -2,7 +2,7 @@
    Krispie's — shared product / cart / checkout logic
    Loaded by menu.html and every category landing page (birthday-cakes.html,
    wedding-cakes.html, engagement-cakes.html, birthday-theme-cakes.html,
-   baby-shower-cakes.html) and product.html. Requires BACKEND_URL from
+   baby-shower-cakes.html) and product-page.html. Requires BACKEND_URL from
    js/main.js to already be loaded on the page.
    ════════════════════════════════════════════════════════════════════════ */
 
@@ -165,7 +165,7 @@ function renderAll() {
 ════════════════════════════════════════════════════════ */
 let _cartItems = []; // [{cartId, product, qty, addons, variantSelection, unitPrice, subtotal}]
 let _pendingProductId = null;
-let _pendingVariant = null; // selection object set by product.html before calling addToCart()
+let _pendingVariant = null; // selection object set by product-page.html before calling addToCart()
 let _selectedAddons = {}; // addonId -> qty
 
 const ADDONS_CELEBRATION = [
@@ -194,7 +194,7 @@ function getAddonsForCategory(cat) {
 }
 
 /* ── ADD TO CART FLOW ──
-   variantSelection is optional — pass it from product.html once the user has
+   variantSelection is optional — pass it from product-page.html once the user has
    picked options. Called with no selection (e.g. from a card's quick "Add to
    Cart" button), it defaults to the first option of each variant group. */
 function addToCart(productId, variantSelection) {
@@ -205,7 +205,7 @@ function addToCart(productId, variantSelection) {
   if (!product) return;
   const addons = getAddonsForCategory(product.category);
   const grid = document.getElementById('addonsGrid');
-  if (!grid) { _commitToCart([]); return; } // page has no addons modal (e.g. product.html) — commit straight away
+  if (!grid) { _commitToCart([]); return; } // page has no addons modal (e.g. product-page.html) — commit straight away
   grid.innerHTML = addons.map(a => `
     <div class="addon-card" id="acard-${a.id}" onclick="toggleAddon('${a.id}')">
       <div class="addon-card__icon">${a.svgPath}</div>
@@ -1240,7 +1240,7 @@ function _chkToast(msg) {
 
 /* ── Boot: load products from backend, render, wire up page UI ──
    Dispatches 'shop:ready' once products have loaded, for pages like
-   product.html that need to look up a single product before rendering. */
+   product-page.html that need to look up a single product before rendering. */
 (async function initShop() {
   await loadProducts();
   renderAll();
