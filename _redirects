@@ -1,2 +1,2 @@
 /admin  /admin/  302
-/product/*  /product.html  200
+/products/*  /product.html  200

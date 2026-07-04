@@ -83,7 +83,7 @@ function productBasePrice(p) {
 }
 
 function productSlugUrl(p) {
-  return `product/${encodeURIComponent(p.slug || p.id)}`;
+  return `products/${encodeURIComponent(p.slug || p.id)}`;
 }
 
 /* ── RENDER ── */
