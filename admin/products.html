@@ -359,7 +359,7 @@ function openAddProduct() {
   setupPricePreview();
   setupSlugAutofill();
   renderVariantGroups();
-  document.getElementById('modalSaveBtn').onclick = saveProduct;
+  document.getElementById('modalSaveBtn').onclick = () => saveProduct();
   document.getElementById('modalOverlay').classList.add('open');
 }
 
