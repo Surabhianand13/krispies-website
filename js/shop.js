@@ -187,6 +187,7 @@ function renderFeatured() {
 let _cartItems = []; // [{cartId, product, qty, addons, variantSelection, unitPrice, subtotal}]
 let _pendingProductId = null;
 let _pendingVariant = null; // selection object set by product-page.html before calling addToCart()
+let _pendingQty = 1; // quantity set by product-page.html before calling addToCart()
 let _selectedAddons = {}; // addonId -> qty
 
 const ADDONS_CELEBRATION = [
@@ -217,10 +218,12 @@ function getAddonsForCategory(cat) {
 /* ── ADD TO CART FLOW ──
    variantSelection is optional — pass it from product-page.html once the user has
    picked options. Called with no selection (e.g. from a card's quick "Add to
-   Cart" button), it defaults to the first option of each variant group. */
-function addToCart(productId, variantSelection) {
+   Cart" button), it defaults to the first option of each variant group. qty
+   defaults to 1 (card buttons don't have a quantity selector). */
+function addToCart(productId, variantSelection, qty) {
   _pendingProductId = productId;
   _pendingVariant = variantSelection || null;
+  _pendingQty = qty || 1;
   _selectedAddons = {};
   const product = getProducts().find(p => p.id === productId);
   if (!product) return;
@@ -297,16 +300,18 @@ function confirmAddons() {
 function _commitToCart(addons) {
   const product = getProducts().find(p => p.id === _pendingProductId);
   if (!product) return;
+  const qty = _pendingQty || 1;
   const unitPrice = productFinalPrice(product, _pendingVariant);
   const variantLabel = variantSelectionLabel(product, _pendingVariant);
   const addonsTotal = addons.reduce((s, a) => s + a.price * a.qty, 0);
   _cartItems.push({
     cartId: Date.now().toString(36) + Math.random().toString(36).slice(2,4),
-    product, qty: 1, addons, unitPrice,
+    product, qty, addons, unitPrice,
     variantSelection: _pendingVariant,
     variantLabel,
-    subtotal: unitPrice + addonsTotal
+    subtotal: unitPrice * qty + addonsTotal
   });
+  _pendingQty = 1;
   updateCartBadge();
 }
 
@@ -373,7 +378,7 @@ function renderCartDrawer() {
         </div>
       </div>`;
   }).join('');
-  const grand = _cartItems.reduce((s, i) => s + i.subtotal * i.qty, 0);
+  const grand = _cartItems.reduce((s, i) => s + i.subtotal, 0);
   document.getElementById('cartSubtotal').innerHTML    = '&#8377;' + grand.toLocaleString('en-IN');
   document.getElementById('cartTotalDisplay').innerHTML = '&#8377;' + grand.toLocaleString('en-IN');
 }

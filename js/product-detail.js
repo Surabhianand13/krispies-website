@@ -24,10 +24,6 @@ function _pdpRender() {
   const hasVariants = (p.variantGroups || []).length > 0;
   if (!_pdpSelection) _pdpSelection = variantDefaultSelection(p);
 
-  const finalPrice = productFinalPrice(p, _pdpSelection);
-  const mrp = Number(p.mrp) || 0;
-  const discount = Number(p.discount) || 0;
-
   const tagColours = { bestseller:'#A84838', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
   const tagHtml = p.tag ? `<span class="pdp__tag" style="background:${tagColours[p.tag]||'#A84838'}">${TAG_LABELS[p.tag] || p.tag}</span>` : '';
 
@@ -72,11 +68,7 @@ function _pdpRender() {
         ${tagHtml}
         <h1 class="pdp__title">${esc(p.name)}</h1>
         <p class="pdp__desc">${esc(p.description)}</p>
-        <div class="pdp__price-row" id="pdpPriceRow">
-          <span class="pdp__price">₹${finalPrice.toLocaleString('en-IN')}</span>
-          ${discount > 0 && !hasVariants ? `<span class="pdp__mrp">₹${mrp.toLocaleString('en-IN')}</span>` : ''}
-          ${discount > 0 && !hasVariants ? `<span class="pdp__discount">${discount}% OFF</span>` : ''}
-        </div>
+        <div class="pdp__price-row" id="pdpPriceRow"></div>
 
         ${variantHtml}
 
@@ -97,9 +89,30 @@ function _pdpRender() {
         </div>
       </div>
     </div>`;
+  _pdpUpdatePriceDisplay();
 }
 
 let _pdpQtyValue = 1;
+
+// Single source of truth for the price row -- shows qty x unit price as
+// the headline number, with the per-unit price called out once qty > 1
+// so it's clear the total is being multiplied.
+function _pdpUpdatePriceDisplay() {
+  const p = _pdpProduct;
+  const hasVariants = (p.variantGroups || []).length > 0;
+  const mrp = Number(p.mrp) || 0;
+  const discount = Number(p.discount) || 0;
+  const unitPrice = productFinalPrice(p, _pdpSelection);
+  const total = unitPrice * _pdpQtyValue;
+  const row = document.getElementById('pdpPriceRow');
+  if (!row) return;
+  row.innerHTML = `
+    <span class="pdp__price">₹${total.toLocaleString('en-IN')}</span>
+    ${_pdpQtyValue > 1 ? `<span class="pdp__per-unit">(₹${unitPrice.toLocaleString('en-IN')} each)</span>` : ''}
+    ${discount > 0 && !hasVariants ? `<span class="pdp__mrp">₹${(mrp * _pdpQtyValue).toLocaleString('en-IN')}</span>` : ''}
+    ${discount > 0 && !hasVariants ? `<span class="pdp__discount">${discount}% OFF</span>` : ''}
+  `;
+}
 
 function _pdpSetGalleryIndex(i) {
   _pdpGalleryIndex = i;
@@ -108,20 +121,18 @@ function _pdpSetGalleryIndex(i) {
 
 function _pdpVariantChange(groupName, optionIndex) {
   _pdpSelection[groupName] = Number(optionIndex);
-  const p = _pdpProduct;
-  const finalPrice = productFinalPrice(p, _pdpSelection);
-  const row = document.getElementById('pdpPriceRow');
-  if (row) row.innerHTML = `<span class="pdp__price">₹${finalPrice.toLocaleString('en-IN')}</span>`;
+  _pdpUpdatePriceDisplay();
 }
 
 function _pdpQty(delta) {
   _pdpQtyValue = Math.max(1, Math.min(99, _pdpQtyValue + delta));
   const el = document.getElementById('pdpQtyVal');
   if (el) el.textContent = _pdpQtyValue;
+  _pdpUpdatePriceDisplay();
 }
 
 function _pdpAddToCart() {
-  addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null);
+  addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null, _pdpQtyValue);
 }
 
 function _pdpBuyNow() {
