@@ -142,7 +142,7 @@ function renderProducts(list) {
       </td>
       <td><span class="badge badge-none" style="font-size:0.63rem;">${CATEGORY_LABELS[p.category] || p.category}</span></td>
       <td>${p.mrp ? fmtPrice(p.mrp) : '—'}</td>
-      <td><strong>${p.price ? fmtPrice(p.price) : '—'}</strong>${p.discount ? `<br><span class="td-muted" style="font-size:0.68rem;">${p.discount}% off</span>` : ''}</td>
+      <td><strong>${p.variantGroups?.length ? 'From ' : ''}${p.price ? fmtPrice(p.price) : '—'}</strong>${(p.discount && !p.variantGroups?.length) ? `<br><span class="td-muted" style="font-size:0.68rem;">${p.discount}% off</span>` : ''}</td>
       <td>${tagBadge(p.tag)}</td>
       <td>
         <label class="toggle" title="${p.active ? 'Click to deactivate' : 'Click to activate'}">
@@ -270,6 +270,7 @@ function productForm(p = {}) {
       </div>
       <div class="form-row" style="grid-column:1/-1;">
         <label>Variants <span class="hint-inline">(optional — e.g. weight tiers or flavours with their own price)</span></label>
+        <p class="hint" style="margin:-4px 0 10px;">Enter the actual final price for each option (e.g. Half Kg = 699, 1 Kg = 1199) — MRP and Discount above are ignored once a product has variants.</p>
         <div id="variant-groups"></div>
         <button class="btn btn-outline btn-sm" onclick="addVariantGroup()" type="button" style="margin-top:8px;">+ Add Option Group</button>
       </div>
@@ -283,7 +284,9 @@ function productForm(p = {}) {
 }
 
 /* ── Variant group builder ──
-   _editVariantGroups shape: [{ name, options: [{label, priceDelta}] }] */
+   _editVariantGroups shape: [{ name, options: [{label, price}] }] -- each
+   option's price is the final selling price for that choice (e.g. Half Kg
+   = 699), not an add-on to the MRP/discount above. */
 let _editVariantGroups = [];
 
 function renderVariantGroups() {
@@ -301,8 +304,8 @@ function renderVariantGroups() {
           <div class="variant-option-row">
             <input placeholder="Option label, e.g. Half Kg" value="${esc(o.label)}"
               oninput="_editVariantGroups[${gi}].options[${oi}].label = this.value">
-            <input type="number" placeholder="+₹ price" value="${o.priceDelta || 0}"
-              oninput="_editVariantGroups[${gi}].options[${oi}].priceDelta = parseFloat(this.value) || 0">
+            <input type="number" placeholder="Final price, e.g. 699" value="${o.price || 0}"
+              oninput="_editVariantGroups[${gi}].options[${oi}].price = parseFloat(this.value) || 0">
             <button class="img-pill__rm" onclick="removeVariantOption(${gi}, ${oi})" type="button" title="Remove option">✕</button>
           </div>`).join('')}
         <button class="btn btn-outline btn-sm" onclick="addVariantOption(${gi})" type="button">+ Add Option</button>
@@ -311,7 +314,7 @@ function renderVariantGroups() {
 }
 
 function addVariantGroup() {
-  _editVariantGroups.push({ name: '', options: [{ label: '', priceDelta: 0 }] });
+  _editVariantGroups.push({ name: '', options: [{ label: '', price: 0 }] });
   renderVariantGroups();
 }
 function removeVariantGroup(gi) {
@@ -319,7 +322,7 @@ function removeVariantGroup(gi) {
   renderVariantGroups();
 }
 function addVariantOption(gi) {
-  _editVariantGroups[gi].options.push({ label: '', priceDelta: 0 });
+  _editVariantGroups[gi].options.push({ label: '', price: 0 });
   renderVariantGroups();
 }
 function removeVariantOption(gi, oi) {

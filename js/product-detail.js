@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════════════
    Krispie's — product-page.html detail page logic.
    Requires js/shop.js to already be loaded (uses getProducts, esc,
-   productBasePrice, variantSelectionDelta, addToCart, openCheckout, CAT_SVG).
+   productFinalPrice, addToCart, openCheckout, CAT_SVG).
    ════════════════════════════════════════════════════════════════════════ */
 
 let _pdpProduct = null;
@@ -24,9 +24,7 @@ function _pdpRender() {
   const hasVariants = (p.variantGroups || []).length > 0;
   if (!_pdpSelection) _pdpSelection = variantDefaultSelection(p);
 
-  const base = productBasePrice(p);
-  const delta = hasVariants ? variantSelectionDelta(p, _pdpSelection) : 0;
-  const finalPrice = base + delta;
+  const finalPrice = productFinalPrice(p, _pdpSelection);
   const mrp = Number(p.mrp) || 0;
   const discount = Number(p.discount) || 0;
 
@@ -56,7 +54,7 @@ function _pdpRender() {
     <div class="chk-field-group">
       <label class="chk-label">${esc(g.name)} *</label>
       <select class="chk-input" onchange="_pdpVariantChange('${esc(g.name)}', this.value)">
-        ${g.options.map((o, i) => `<option value="${i}" ${_pdpSelection[g.name] === i ? 'selected' : ''}>${esc(o.label)}${o.priceDelta ? ` (+₹${o.priceDelta.toLocaleString('en-IN')})` : ''}</option>`).join('')}
+        ${g.options.map((o, i) => `<option value="${i}" ${_pdpSelection[g.name] === i ? 'selected' : ''}>${esc(o.label)} — ₹${(Number(o.price) || 0).toLocaleString('en-IN')}</option>`).join('')}
       </select>
     </div>`).join('') : '';
 
@@ -111,7 +109,7 @@ function _pdpSetGalleryIndex(i) {
 function _pdpVariantChange(groupName, optionIndex) {
   _pdpSelection[groupName] = Number(optionIndex);
   const p = _pdpProduct;
-  const finalPrice = productBasePrice(p) + variantSelectionDelta(p, _pdpSelection);
+  const finalPrice = productFinalPrice(p, _pdpSelection);
   const row = document.getElementById('pdpPriceRow');
   if (row) row.innerHTML = `<span class="pdp__price">₹${finalPrice.toLocaleString('en-IN')}</span>`;
 }
@@ -131,6 +129,23 @@ function _pdpBuyNow() {
   _chkCart.qty = _pdpQtyValue;
   if (_pdpProduct.variantGroups?.length) _chkCart.variantSelection = { ..._pdpSelection };
   _chkRenderStep(1);
+}
+
+// Shows up to 4 other products below the main listing -- same category
+// first, filled out with other active products if the category is thin.
+function _pdpRenderRelated() {
+  const p = _pdpProduct;
+  const section = document.getElementById('pdpRelatedSection');
+  const grid = document.getElementById('pdpRelatedGrid');
+  if (!section || !grid) return;
+  const others = getProducts().filter(x => x.id !== p.id && x.active !== false);
+  const sameCategory = others.filter(x => x.category === p.category);
+  const rest = others.filter(x => x.category !== p.category);
+  const picks = [...sameCategory, ...rest].slice(0, 4);
+  if (!picks.length) return;
+  grid.innerHTML = picks.map(renderCard).join('');
+  section.style.display = '';
+  initGalleries();
 }
 
 function _pdpNotFound() {
@@ -154,4 +169,5 @@ document.addEventListener('shop:ready', () => {
   const canonEl = document.getElementById('pageCanonical');
   if (canonEl) canonEl.setAttribute('href', `https://www.krispies.in/products/${p.slug}`);
   _pdpRender();
+  _pdpRenderRelated();
 });

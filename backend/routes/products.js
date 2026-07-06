@@ -140,14 +140,15 @@ function buildProduct(id, body) {
   let variantGroups = [];
   try { variantGroups = JSON.parse(body.variantGroups || '[]'); } catch (_) { variantGroups = []; }
   if (!Array.isArray(variantGroups)) variantGroups = [];
-  // Sanitize: each group needs a name and a non-empty options array;
-  // each option needs a label and a numeric priceDelta.
+  // Sanitize: each group needs a name and a non-empty options array; each
+  // option needs a label and a numeric price -- this is the option's own
+  // final selling price (e.g. Half Kg = 699), not an add-on to mrp/discount.
   variantGroups = variantGroups
     .map(g => ({
       name: String(g?.name || '').trim(),
       options: Array.isArray(g?.options)
         ? g.options
-            .map(o => ({ label: String(o?.label || '').trim(), priceDelta: parseFloat(o?.priceDelta) || 0 }))
+            .map(o => ({ label: String(o?.label || '').trim(), price: parseFloat(o?.price) || 0 }))
             .filter(o => o.label)
         : [],
     }))
@@ -179,18 +180,20 @@ function toProduct(row) {
   const disc = row.discount || 0;
   const basePrice = disc > 0 ? Math.round(mrp * (1 - disc / 100)) : mrp;
 
-  // When variants exist, price range = base price + cheapest/priciest option
-  // across all groups (customer picks one option per group).
+  // When variants exist, each option's price IS the final price for that
+  // choice (customer picks one option per group and pays the sum of their
+  // selections) -- mrp/discount are ignored in favour of whatever the
+  // admin set per option.
   let priceFrom = basePrice, priceTo = basePrice;
   if (variantGroups.length) {
-    const groupDeltaRange = g => {
-      const deltas = g.options.map(o => o.priceDelta);
-      return [Math.min(...deltas), Math.max(...deltas)];
+    const groupPriceRange = g => {
+      const prices = g.options.map(o => o.price);
+      return [Math.min(...prices), Math.max(...prices)];
     };
-    const mins = variantGroups.map(g => groupDeltaRange(g)[0]);
-    const maxs = variantGroups.map(g => groupDeltaRange(g)[1]);
-    priceFrom = basePrice + mins.reduce((a, b) => a + b, 0);
-    priceTo   = basePrice + maxs.reduce((a, b) => a + b, 0);
+    const mins = variantGroups.map(g => groupPriceRange(g)[0]);
+    const maxs = variantGroups.map(g => groupPriceRange(g)[1]);
+    priceFrom = mins.reduce((a, b) => a + b, 0);
+    priceTo   = maxs.reduce((a, b) => a + b, 0);
   }
 
   return {
@@ -202,7 +205,7 @@ function toProduct(row) {
     description:   row.description,
     mrp,
     discount:      disc,
-    price:         basePrice,
+    price:         variantGroups.length ? priceFrom : basePrice,
     priceFrom,
     priceTo,
     images,

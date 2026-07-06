@@ -271,13 +271,13 @@ landing pages (`birthday-cakes.html`, `wedding-cakes.html`, `engagement-cakes.ht
                                 // | "customized-cakes" | "cheesecakes" | "donuts" | "biscuits"
   tag:           string|null,   // "bestseller" | "new" | "seasonal" | "custom" | null
   description:   string,
-  mrp:           number,        // full price in ₹ (e.g. 999)
-  discount:      number,        // percentage e.g. 10 means 10% off
-  price:         number,        // computed: Math.round(mrp * (1 - discount/100))
-  priceFrom:     number,        // = price when no variants; lowest combo price when variants exist
-  priceTo:       number,        // = price when no variants; highest combo price when variants exist
+  mrp:           number,        // full price in ₹ (e.g. 999) -- ignored once variantGroups is non-empty
+  discount:      number,        // percentage e.g. 10 means 10% off -- ignored once variantGroups is non-empty
+  price:         number,        // no variants: Math.round(mrp * (1 - discount/100)); with variants: = priceFrom
+  priceFrom:     number,        // = price when no variants; cheapest combo price when variants exist
+  priceTo:       number,        // = price when no variants; priciest combo price when variants exist
   images:        string[],      // array of image paths/URLs
-  variantGroups: [{ name: string, options: [{ label: string, priceDelta: number }] }],
+  variantGroups: [{ name: string, options: [{ label: string, price: number }] }],
   prepHours:     number,        // hours of advance notice needed; gates the delivery-date picker
   featured:      boolean,       // show on homepage
   active:        boolean,       // show on menu/category pages
@@ -289,10 +289,13 @@ landing pages (`birthday-cakes.html`, `wedding-cakes.html`, `engagement-cakes.ht
 ### Variants
 
 A product can have any number of **option groups** (e.g. "Weight", "Flavour"), each with options
-that add a `priceDelta` on top of the base price. The customer picks one option per group; the
-final price is `basePrice + sum(selected option priceDeltas)`. This is managed from the admin
-product form's "Variants" section, and rendered as `<select>` dropdowns on `product.html` and in
-the checkout modal's Step 1 (with the price updating live as options change).
+that carry their own **absolute final price** (e.g. Half Kg = ₹699, 1 Kg = ₹1199) -- entering a
+number for an option sets what that option costs the customer, it does not add to the MRP/discount
+price above. The customer picks one option per group; if a product has more than one group, the
+final price is the sum of the selected options across all groups (in practice, most products use a
+single group). `mrp`/`discount` are only used for products with **no** variant groups. This is
+managed from the admin product form's "Variants" section, and rendered as `<select>` dropdowns on
+`product.html` and in the checkout modal's Step 1 (with the price updating live as options change).
 
 ### Prep time (`prepHours`)
 
@@ -486,7 +489,7 @@ the DB requires updating the password hash directly, not just the env var.
 | MRP (₹) | ✅ | Full price before discount |
 | Discount % | — | 0–100. Live preview shows final price |
 | Product Images | — | Path/URL text field with live thumbnail preview — see local-folder convention in §5 |
-| Variants | — | Repeatable option groups (e.g. Weight, Flavour), each with labelled options and a `+₹` price delta |
+| Variants | — | Repeatable option groups (e.g. Weight, Flavour), each option carrying its own final price (not added to MRP) |
 | Featured on Homepage | — | Checkbox — shows in homepage featured section |
 | Active | — | Uncheck to hide from menu without deleting |
 
@@ -574,7 +577,7 @@ description    TEXT NOT NULL
 mrp            REAL DEFAULT 0
 discount       REAL DEFAULT 0         -- percentage, 0-100
 images         TEXT DEFAULT '[]'      -- JSON array of image paths/URLs
-variant_groups TEXT DEFAULT '[]'      -- JSON: [{name, options:[{label, priceDelta}]}]
+variant_groups TEXT DEFAULT '[]'      -- JSON: [{name, options:[{label, price}]}] -- price is absolute, not a delta
 prep_hours     INTEGER DEFAULT 0      -- advance notice needed, gates delivery date picker
 slug           TEXT UNIQUE            -- used in product.html?slug=...
 featured       INTEGER DEFAULT 0      -- 0 or 1

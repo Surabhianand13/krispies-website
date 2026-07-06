@@ -344,72 +344,7 @@
       </div>
       <a href="menu" class="cat-strip__viewall">View Full Menu →</a>
     </div>
-    <div class="best-strip__grid">
-      <a href="menu#birthday-cakes" class="best-card">
-        <span class="best-card__badge">Bestseller</span>
-        <div class="best-card__img-wrap">
-          <img src="assets/images/products/birthday-cakes/creamy-rasmalai-cake.jpg" alt="Creamy Rasmalai Cake" loading="lazy">
-        </div>
-        <div class="best-card__name">Creamy Rasmalai Cake</div>
-        <div class="best-card__price"><span class="best-card__mrp">₹899</span>₹809</div>
-      </a>
-      <a href="menu#birthday-cakes" class="best-card">
-        <span class="best-card__badge">Bestseller</span>
-        <div class="best-card__img-wrap">
-          <img src="assets/images/products/birthday-cakes/belgium-chocolate-cake.jpg" alt="Belgium Chocolate Cake" loading="lazy">
-        </div>
-        <div class="best-card__name">Belgium Chocolate Cake</div>
-        <div class="best-card__price"><span class="best-card__mrp">₹999</span>₹849</div>
-      </a>
-      <a href="menu#birthday-cakes" class="best-card">
-        <span class="best-card__badge">Bestseller</span>
-        <div class="best-card__img-wrap">
-          <img src="assets/images/products/birthday-cakes/redvelvet-cake.jpg" alt="Redvelvet Cake" loading="lazy">
-        </div>
-        <div class="best-card__name">Redvelvet Cake</div>
-        <div class="best-card__price"><span class="best-card__mrp">₹1,099</span>₹989</div>
-      </a>
-      <a href="menu#wedding-cakes" class="best-card">
-        <span class="best-card__badge">Bestseller</span>
-        <div class="best-card__img-wrap">
-          <img src="assets/images/products/wedding-cakes/double-heart-two-tier-anniversary-cake.jpg" alt="Double Heart Two-Tier Anniversary Cake" loading="lazy">
-        </div>
-        <div class="best-card__name">Double Heart Anniversary Cake</div>
-        <div class="best-card__price">₹4,499</div>
-      </a>
-      <a href="menu#engagement-cakes" class="best-card">
-        <span class="best-card__badge">Bestseller</span>
-        <div class="best-card__img-wrap">
-          <img src="assets/images/products/engagement-cakes/royal-pink-ring-box-cake-two-tier.jpg" alt="Royal Pink Ring Box Cake" loading="lazy">
-        </div>
-        <div class="best-card__name">Royal Pink Ring Box Cake</div>
-        <div class="best-card__price">₹4,499</div>
-      </a>
-      <a href="menu#birthday-theme-cakes" class="best-card">
-        <span class="best-card__badge">Bestseller</span>
-        <div class="best-card__img-wrap">
-          <img src="assets/images/products/birthday-theme-cakes/unicorn-magic.jpg" alt="Unicorn Magic" loading="lazy">
-        </div>
-        <div class="best-card__name">Unicorn Magic</div>
-        <div class="best-card__price"><span class="best-card__mrp">₹1,599</span>₹1,439</div>
-      </a>
-      <a href="menu#baby-shower-cakes" class="best-card">
-        <span class="best-card__badge">Bestseller</span>
-        <div class="best-card__img-wrap">
-          <img src="assets/images/products/baby-shower-cakes/jungle-theme-with-animals-two-tier-cake.jpg" alt="Jungle Theme Two-Tier Cake" loading="lazy">
-        </div>
-        <div class="best-card__name">Jungle Theme Two-Tier Cake</div>
-        <div class="best-card__price">₹5,999</div>
-      </a>
-      <a href="menu#baby-shower-cakes" class="best-card">
-        <span class="best-card__badge">Bestseller</span>
-        <div class="best-card__img-wrap">
-          <img src="assets/images/products/baby-shower-cakes/rainbow-unicorn-birthday-cake-for-girl.jpg" alt="Rainbow Unicorn Birthday Cake" loading="lazy">
-        </div>
-        <div class="best-card__name">Rainbow Unicorn Cake</div>
-        <div class="best-card__price">₹2,999</div>
-      </a>
-    </div>
+    <div class="pcard-grid" id="grid-featured"><div class="menu-empty">Loading cakes&hellip;</div></div>
   </section>
 
   <!-- ========== OUR STORY ========== -->
@@ -892,7 +827,73 @@
     </div>
   </section>
 
+  <!-- CHECKOUT MODAL -->
+  <div id="checkoutOverlay" class="checkout-overlay" onclick="if(event.target===this)closeCheckout()">
+    <div class="checkout-modal">
+      <div class="checkout-modal__hd">
+        <div>
+          <h3 class="checkout-modal__title">Place Your Order</h3>
+          <div class="chk-steps">
+            <span class="chk-step" id="chkStep1">1. Order</span>
+            <span class="chk-sep">›</span>
+            <span class="chk-step" id="chkStep2">2. Details</span>
+            <span class="chk-sep">›</span>
+            <span class="chk-step" id="chkStep3">3. Delivery &amp; Pay</span>
+          </div>
+        </div>
+        <button class="checkout-modal__close" onclick="closeCheckout()" aria-label="Close">✕</button>
+      </div>
+      <div class="checkout-modal__body" id="checkoutBody"></div>
+    </div>
+  </div>
+
+  <!-- CART DRAWER -->
+  <div class="cart-backdrop" id="cartBackdrop" onclick="closeCartDrawer()"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-drawer__hd">
+      <div>
+        <h3 class="cart-drawer__title">Your Cart</h3>
+        <span class="cart-drawer__count" id="cartCount">0 items</span>
+      </div>
+      <button class="cart-drawer__close" onclick="closeCartDrawer()">✕</button>
+    </div>
+    <div class="cart-drawer__body" id="cartBody">
+      <div class="cart-empty" id="cartEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;color:var(--border-gold)"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <p>Your cart is empty</p>
+        <span>Browse our menu and add your favourites!</span>
+      </div>
+      <div id="cartItemsList"></div>
+    </div>
+    <div class="cart-drawer__ft" id="cartFooter" style="display:none">
+      <div class="cart-summary">
+        <div class="cart-summary__row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
+        <div class="cart-summary__row cart-summary__row--total"><span>Total</span><span id="cartTotalDisplay">₹0</span></div>
+      </div>
+      <button class="btn btn-gold" style="width:100%;padding:16px;font-size:0.85rem;margin-top:16px" onclick="openCartCheckout()">Proceed to Checkout →</button>
+    </div>
+  </div>
+
+  <!-- ADD-ONS MODAL -->
+  <div class="addons-overlay" id="addonsOverlay"></div>
+  <div class="addons-modal" id="addonsModal">
+    <div class="addons-modal__hd">
+      <div>
+        <div class="addons-modal__check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:#fff"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h3 class="addons-modal__title">Added to Cart!</h3>
+        <p class="addons-modal__sub">Enhance your celebration with these party essentials</p>
+      </div>
+      <button class="addons-modal__close" onclick="closeAddons()">✕</button>
+    </div>
+    <div class="addons-modal__grid" id="addonsGrid"></div>
+    <div class="addons-modal__ft">
+      <button class="btn btn-outline addons-modal__skip" onclick="skipAddons()">Skip</button>
+      <button class="btn btn-gold addons-modal__confirm" onclick="confirmAddons()">Add Selected &amp; View Cart</button>
+    </div>
+  </div>
+
   <script src="js/main.js"></script>
+  <script src="js/shop.js"></script>
   <script>
   /* ── Page loader: fade out once everything is ready ── */
   (function () {
