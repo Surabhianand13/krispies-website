@@ -175,6 +175,12 @@ function toProduct(row) {
   try { images = JSON.parse(row.images || '[]'); } catch (_) {}
   let variantGroups = [];
   try { variantGroups = JSON.parse(row.variant_groups || '[]'); } catch (_) {}
+  // Normalize legacy rows saved before variant prices were absolute
+  // (priceDelta instead of price) so old data still reads correctly.
+  variantGroups = variantGroups.map(g => ({
+    name: g.name,
+    options: (g.options || []).map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0) })),
+  }));
 
   const mrp = row.mrp || 0;
   const disc = row.discount || 0;

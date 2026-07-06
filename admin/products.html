@@ -370,7 +370,13 @@ function openEditProduct(id) {
   const p = allProducts.find(x => x.id === id);
   if (!p) return;
   _editImages = [...(p.images || [])];
-  _editVariantGroups = (p.variantGroups || []).map(g => ({ name: g.name, options: g.options.map(o => ({ ...o })) }));
+  // Normalize legacy option data saved before variant prices were absolute
+  // (older rows have priceDelta instead of price) so it's editable/visible
+  // here instead of silently showing 0.
+  _editVariantGroups = (p.variantGroups || []).map(g => ({
+    name: g.name,
+    options: g.options.map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0) })),
+  }));
   document.getElementById('modalTitle').textContent = 'Edit Product';
   document.getElementById('modalBody').innerHTML = productForm(p);
   setupPricePreview();
