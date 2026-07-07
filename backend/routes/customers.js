@@ -16,7 +16,7 @@ const jwt       = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const db = require('../db/database');
-const { requireCustomerAuth } = require('../middleware/auth');
+const { requireCustomerAuth, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -120,6 +120,28 @@ router.get('/orders', requireCustomerAuth, (req, res) => {
   ).all(customer.id, customer.phone);
 
   res.json(orders);
+});
+
+// ── ADMIN-ONLY routes below ──────────────────────────────────────────────────
+// GET /api/customers -- list all accounts with an order count each
+router.get('/', requireAuth, (_req, res) => {
+  const rows = db.prepare(`
+    SELECT c.*, COUNT(o.id) AS order_count
+    FROM customers c
+    LEFT JOIN orders o ON o.customer_id = c.id
+    GROUP BY c.id
+    ORDER BY c.created_at DESC
+  `).all();
+  res.json(rows.map(r => ({ ...toCustomer(r), orderCount: r.order_count })));
+});
+
+// DELETE /api/customers/:id -- e.g. to remove test/duplicate accounts
+router.delete('/:id', requireAuth, (req, res) => {
+  const existing = db.prepare('SELECT id FROM customers WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Account not found.' });
+  db.prepare('UPDATE orders SET customer_id = NULL WHERE customer_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM customers WHERE id = ?').run(req.params.id);
+  res.json({ message: 'Account deleted.' });
 });
 
 module.exports = router;

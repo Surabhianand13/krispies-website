@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar__brand"><div class="sidebar__brand-name">🎂 Krispie's</div><div class="sidebar__brand-sub">Admin Panel</div></div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="analytics.html" class="sidebar__link"><span class="sidebar__icon">📈</span> Analytics</a>
+      <div class="sidebar__section-label">Manage</div>
+      <a href="orders.html"    class="sidebar__link"><span class="sidebar__icon">📦</span> Orders</a>
+      <a href="enquiries.html" class="sidebar__link"><span class="sidebar__icon">💬</span> Enquiries</a>
+      <a href="products.html"  class="sidebar__link"><span class="sidebar__icon">🛍️</span> Products</a>
+      <a href="addons.html"    class="sidebar__link"><span class="sidebar__icon">🎈</span> Add-ons</a>
+      <a href="customers.html" class="sidebar__link active"><span class="sidebar__icon">👤</span> Customers</a>
+    </nav>
+    <div class="sidebar__footer"><button class="sidebar__logout" onclick="logout()">↩ Logout</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="topbar">
+      <div><div class="topbar__title">Customers</div><div class="topbar__sub" id="cust-count">Loading…</div></div>
+    </div>
+
+    <div class="page-body">
+      <div class="action-row">
+        <input type="search" id="search" placeholder="Search name, phone, email…" oninput="filterCustomers()">
+        <div class="spacer"></div>
+        <span id="filtered-count" style="font-size:0.78rem;color:var(--text-3);"></span>
+      </div>
+
+      <div class="card full-col">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Orders</th>
+                <th>Signed Up</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cust-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="admin.js"></script>
+<script>
+'use strict';
+if (!checkAuth()) throw new Error('Not authenticated');
+
+let allCustomers = [];
+
+async function loadCustomers() {
+  try {
+    allCustomers = await apiFetch('/api/customers');
+    document.getElementById('cust-count').textContent = `${allCustomers.length} registered`;
+    filterCustomers();
+  } catch (e) { showToast('Failed to load customers', 'error'); }
+}
+
+function filterCustomers() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const list = allCustomers.filter(c => {
+    if (!q) return true;
+    return [c.name, c.phone, c.email].filter(Boolean).join(' ').toLowerCase().includes(q);
+  });
+  document.getElementById('filtered-count').textContent = `${list.length} shown`;
+  renderCustomers(list);
+}
+
+function renderCustomers(list) {
+  const tb = document.getElementById('cust-tbody');
+  if (!list.length) { tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">👤</div>No customers yet</div></td></tr>`; return; }
+  tb.innerHTML = list.map(c => `
+    <tr>
+      <td><div class="td-name">${esc(c.name)}</div></td>
+      <td><a href="tel:${esc(c.phone)}" style="color:var(--brand);">${esc(c.phone)}</a></td>
+      <td class="td-muted">${esc(c.email || '—')}</td>
+      <td>${c.orderCount || 0}</td>
+      <td class="td-muted" style="white-space:nowrap;">${fmtDate(c.createdAt)}</td>
+      <td>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCustomer('${c.id}', '${esc(c.name)}')" title="Delete account">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function deleteCustomer(id, name) {
+  if (!confirm(`Delete the account for "${name}"? Their past orders stay on record but will no longer be linked to a profile.`)) return;
+  try {
+    await apiFetch(`/api/customers/${id}`, 'DELETE');
+    allCustomers = allCustomers.filter(c => c.id !== id);
+    document.getElementById('cust-count').textContent = `${allCustomers.length} registered`;
+    filterCustomers();
+    showToast('Account deleted');
+  } catch (e) { showToast('Failed to delete', 'error'); }
+}
+
+loadCustomers();
+</script>
+</body>
+</html>
