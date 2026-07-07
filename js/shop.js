@@ -616,16 +616,27 @@ let _chkCust     = { name: '', phone: '', email: '', address: '' };
 let _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
 let _chkCoupon   = { code: '', discount: 0, error: '' };
 
-/* Coupon codes -- flat rupee amount off, only above minOrder. Matches the
-   FIRST100 offer already advertised in the site-wide promo bar. */
+/* Coupon codes -- two shapes:
+   - "flat" off: a fixed rupee amount off, only above minOrder. Matches the
+     FIRST100 offer already advertised in the site-wide promo bar.
+   - "setTotal": overrides the grand total (subtotal + delivery fee) down to
+     a fixed amount -- used for SURABHI, an internal test coupon that brings
+     any order down to ₹1 so the post-purchase flow can be tested for real
+     through Razorpay without spending real money. */
 const COUPONS = {
-  FIRST100: { off: 100, minOrder: 500, label: 'FIRST100 applied — ₹100 off' },
+  FIRST100: { type: 'flat', off: 100, minOrder: 500, label: 'FIRST100 applied — ₹100 off' },
+  SURABHI:  { type: 'setTotal', setTotal: 1, minOrder: 0, label: 'SURABHI applied — test order, total set to ₹1' },
 };
 
-function _chkCouponDiscount(subtotal) {
+// Returns the discount amount (in rupees) to subtract from subtotal+fee.
+function _chkCouponDiscount(subtotal, fee) {
   if (!_chkCoupon.code) return 0;
   const c = COUPONS[_chkCoupon.code];
   if (!c || subtotal < c.minOrder) return 0;
+  if (c.type === 'setTotal') {
+    const gross = subtotal + (fee || 0);
+    return Math.max(0, gross - c.setTotal);
+  }
   return c.off;
 }
 
@@ -637,7 +648,7 @@ function _chkApplyCoupon() {
   if (!code) { _chkCoupon = { code: '', discount: 0, error: '' }; }
   else if (!c) { _chkCoupon = { code: '', discount: 0, error: 'Invalid coupon code.' }; }
   else if (sub < c.minOrder) { _chkCoupon = { code: '', discount: 0, error: `Add ₹${(c.minOrder - sub).toLocaleString('en-IN')} more to use ${code}.` }; }
-  else { _chkCoupon = { code, discount: c.off, error: '' }; }
+  else { _chkCoupon = { code, discount: 0, error: '' }; }
   document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
 }
 
@@ -670,9 +681,11 @@ function openCheckout(productId, overrideProduct) {
   _chkCust     = { name: '', phone: '', email: '', address: '' };
   _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
   _chkCoupon   = { code: '', discount: 0, error: '' };
-  closeCartDrawer(); // avoid the cart drawer and checkout modal ever being visible at once
+  closeCartDrawer();    // avoid the cart drawer and checkout modal ever being visible at once
+  closeAccountModal();  // ditto for the account modal
   document.getElementById('checkoutOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  _acctPrefillCheckout(); // fire-and-forget -- fills Step 2 fields before the user gets there
   _chkRenderStep(1);
 }
 
@@ -983,7 +996,7 @@ function _chkDeliveryHTML() {
 
   const sub = _chkSubtotal();
   const fee = _chkDelivery.fee || 0;
-  const disc = _chkCouponDiscount(sub);
+  const disc = _chkCouponDiscount(sub, fee);
   const canPay = !!_chkDelivery.store;
 
   return `
@@ -1011,7 +1024,7 @@ function _chkDeliveryHTML() {
 /* ── Pickup sub-section ── */
 function _chkPickupHTML() {
   const sub = _chkSubtotal();
-  const disc = _chkCouponDiscount(sub);
+  const disc = _chkCouponDiscount(sub, 0);
   const canPay = !!_chkDelivery.store;
   return `
     <div class="chk-stores-label" style="margin-bottom:10px">Choose your pickup store:</div>
@@ -1113,7 +1126,7 @@ function _chkSelectPickup(name) {
 /* ════ ORDER PLACEMENT ════ */
 function _chkOrderPayload(method) {
   const sub   = _chkSubtotal();
-  const disc  = _chkCouponDiscount(sub);
+  const disc  = _chkCouponDiscount(sub, _chkDelivery.fee || 0);
   const total = sub + (_chkDelivery.fee || 0) - disc;
   const variantLabel = (_chkProduct.variantGroups || []).length
     ? variantSelectionLabel(_chkProduct, _chkCart.variantSelection) : '';
@@ -1148,6 +1161,14 @@ async function _chkPlaceOrder(method) {
   }
 }
 
+// Attaches the logged-in customer's session (if any) so the backend can
+// link this order to their account -- guests simply get no header.
+function _chkAuthHeaders() {
+  const h = { 'Content-Type': 'application/json' };
+  if (_custToken) h['Authorization'] = `Bearer ${_custToken}`;
+  return h;
+}
+
 /* ── COD ── */
 async function _chkSubmitCOD() {
   const btn = document.getElementById('chkCodBtn');
@@ -1159,7 +1180,7 @@ async function _chkSubmitCOD() {
   try {
     const res  = await fetch(`${BACKEND_URL}/api/checkout`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: _chkAuthHeaders(),
       body: JSON.stringify(payload),
     });
     const data = await res.json();
@@ -1191,7 +1212,7 @@ async function _chkSubmitRazorpay() {
     /* 1. Create Razorpay order on backend */
     const res  = await fetch(`${BACKEND_URL}/api/checkout/initiate`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: _chkAuthHeaders(),
       body: JSON.stringify(payload),
     });
     const data = await res.json();
@@ -1326,6 +1347,165 @@ function _chkToast(msg) {
   setTimeout(() => t.remove(), 3000);
 }
 
+/* ════════════════════════════════════════════════════════
+   CUSTOMER ACCOUNTS
+   Signup/login, session token, and order history -- injected via JS on
+   every page that loads shop.js rather than duplicated per-page HTML.
+════════════════════════════════════════════════════════ */
+let _custToken   = localStorage.getItem('krispies_customer_token') || null;
+let _custProfile = null;
+
+function _acctInjectUI() {
+  if (!document.getElementById('acctModal')) {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `
+      <div class="acct-overlay" id="acctOverlay" onclick="closeAccountModal()"></div>
+      <div class="acct-modal" id="acctModal">
+        <button class="acct-modal__close" onclick="closeAccountModal()" aria-label="Close">✕</button>
+        <div id="acctModalBody"></div>
+      </div>`;
+    document.body.appendChild(wrap);
+  }
+  const cartBtn = document.querySelector('[onclick="openCartDrawer()"]');
+  if (cartBtn && cartBtn.parentElement && !document.getElementById('acctNavBtn')) {
+    const btn = document.createElement('button');
+    btn.id = 'acctNavBtn';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'My Account');
+    btn.style.cssText = 'background:none;border:none;cursor:pointer;padding:6px 8px;color:var(--gold-dark);display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    btn.onclick = openAccountModal;
+    cartBtn.parentElement.insertBefore(btn, cartBtn);
+  }
+}
+
+function openAccountModal() {
+  _acctInjectUI();
+  closeCheckout();
+  closeCartDrawer();
+  document.getElementById('acctOverlay').classList.add('open');
+  document.getElementById('acctModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (_custToken) _acctRenderLoggedIn(); else _acctRenderAuthForm('login');
+}
+
+function closeAccountModal() {
+  document.getElementById('acctOverlay')?.classList.remove('open');
+  document.getElementById('acctModal')?.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function _acctRenderAuthForm(mode) {
+  const body = document.getElementById('acctModalBody');
+  const isLogin = mode === 'login';
+  body.innerHTML = `
+    <h3 style="font-family:var(--font-display);margin-bottom:16px;">${isLogin ? 'Log In' : 'Create Your Account'}</h3>
+    <div class="acct-tabs">
+      <button class="acct-tab${isLogin ? ' active' : ''}" onclick="_acctRenderAuthForm('login')">Log In</button>
+      <button class="acct-tab${!isLogin ? ' active' : ''}" onclick="_acctRenderAuthForm('signup')">Sign Up</button>
+    </div>
+    <div id="acctError" class="acct-error"></div>
+    ${!isLogin ? `<div class="chk-field-group"><label class="chk-label">Full Name *</label><input class="chk-input" id="acctName" placeholder="Your name"></div>` : ''}
+    <div class="chk-field-group"><label class="chk-label">Phone Number *</label><input class="chk-input" id="acctPhone" placeholder="10-digit mobile number" type="tel"></div>
+    ${!isLogin ? `<div class="chk-field-group"><label class="chk-label">Email <span style="font-weight:400;text-transform:none">(optional)</span></label><input class="chk-input" id="acctEmail" placeholder="you@example.com" type="email"></div>` : ''}
+    <div class="chk-field-group"><label class="chk-label">Password *</label><input class="chk-input" id="acctPassword" placeholder="At least 6 characters" type="password"></div>
+    <button class="btn btn-gold" style="width:100%;margin-top:6px;" onclick="${isLogin ? '_acctSubmitLogin()' : '_acctSubmitSignup()'}">${isLogin ? 'Log In' : 'Create Account'}</button>`;
+}
+
+async function _acctSubmitSignup() {
+  const name     = document.getElementById('acctName').value.trim();
+  const phone    = document.getElementById('acctPhone').value.trim();
+  const email    = document.getElementById('acctEmail').value.trim();
+  const password = document.getElementById('acctPassword').value;
+  const errEl    = document.getElementById('acctError');
+  errEl.textContent = '';
+  if (!name || !phone || !password) { errEl.textContent = 'Name, phone, and password are required.'; return; }
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/customers/signup`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, email: email || null, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Signup failed.');
+    _custToken = data.token; _custProfile = data.customer;
+    localStorage.setItem('krispies_customer_token', _custToken);
+    _acctRenderLoggedIn();
+  } catch (e) { errEl.textContent = e.message; }
+}
+
+async function _acctSubmitLogin() {
+  const phone    = document.getElementById('acctPhone').value.trim();
+  const password = document.getElementById('acctPassword').value;
+  const errEl    = document.getElementById('acctError');
+  errEl.textContent = '';
+  if (!phone || !password) { errEl.textContent = 'Phone and password are required.'; return; }
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/customers/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed.');
+    _custToken = data.token; _custProfile = data.customer;
+    localStorage.setItem('krispies_customer_token', _custToken);
+    _acctRenderLoggedIn();
+  } catch (e) { errEl.textContent = e.message; }
+}
+
+function _acctLogout() {
+  _custToken = null; _custProfile = null;
+  localStorage.removeItem('krispies_customer_token');
+  _acctRenderAuthForm('login');
+}
+
+const ORDER_STATUS_COLOR = { pending: '#9A7A48', confirmed: '#1a7a3c', ready: '#1e5f85', delivered: '#1a7a3c', cancelled: '#A84838' };
+
+async function _acctRenderLoggedIn() {
+  const body = document.getElementById('acctModalBody');
+  body.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:24px 0;">Loading your account…</p>`;
+  try {
+    if (!_custProfile) {
+      const meRes = await fetch(`${BACKEND_URL}/api/customers/me`, { headers: { Authorization: `Bearer ${_custToken}` } });
+      if (!meRes.ok) throw new Error('session-expired');
+      _custProfile = await meRes.json();
+    }
+    const ordersRes = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
+    const orders = ordersRes.ok ? await ordersRes.json() : [];
+    body.innerHTML = `
+      <div class="acct-profile-hd">
+        <div><strong>${esc(_custProfile.name)}</strong><br><span style="color:var(--text-muted);font-size:0.8rem">${esc(_custProfile.phone)}</span></div>
+        <button class="btn btn-outline btn-sm" onclick="_acctLogout()">Log Out</button>
+      </div>
+      <h4 style="margin:20px 0 10px;font-family:var(--font-display);">My Orders</h4>
+      ${orders.length ? orders.map(o => `
+        <div class="acct-order-card">
+          <div class="acct-order-card__row">
+            <strong>${esc(o.items)}</strong>
+            <span class="acct-order-status" style="color:${ORDER_STATUS_COLOR[o.status] || '#9A7A48'}">${esc(o.status)}</span>
+          </div>
+          <div class="acct-order-card__meta">Order #${esc(o.id)} · ₹${o.amount != null ? Number(o.amount).toLocaleString('en-IN') : '—'} · ${esc(o.order_date || '')}</div>
+        </div>`).join('') : `<p style="color:var(--text-muted);font-size:0.85rem">No orders yet — your order history will show up here.</p>`}`;
+  } catch (e) {
+    _acctLogout();
+  }
+}
+
+// Pre-fill checkout's customer-details step from a logged-in profile, and
+// let _chkOrderPayload/COD/Razorpay submit calls attach the auth header.
+async function _acctPrefillCheckout() {
+  if (!_custToken) return;
+  try {
+    if (!_custProfile) {
+      const res = await fetch(`${BACKEND_URL}/api/customers/me`, { headers: { Authorization: `Bearer ${_custToken}` } });
+      if (!res.ok) throw new Error('expired');
+      _custProfile = await res.json();
+    }
+    _chkCust.name  = _chkCust.name  || _custProfile.name  || '';
+    _chkCust.phone = _chkCust.phone || _custProfile.phone || '';
+    _chkCust.email = _chkCust.email || _custProfile.email || '';
+  } catch (_) { _acctLogout(); }
+}
+
 /* ── Boot: load products from backend, render, wire up page UI ──
    Dispatches 'shop:ready' once products have loaded, for pages like
    product-page.html that need to look up a single product before rendering. */
@@ -1334,5 +1514,6 @@ function _chkToast(msg) {
   renderAll();
   renderFeatured();
   initSharedPageUI();
+  _acctInjectUI();
   document.dispatchEvent(new CustomEvent('shop:ready'));
 })();

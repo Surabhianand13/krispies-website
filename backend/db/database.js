@@ -44,6 +44,7 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS orders (
     id              TEXT    PRIMARY KEY,
+    customer_id     TEXT,
     customer_name   TEXT    NOT NULL,
     customer_phone  TEXT,
     customer_email  TEXT,
@@ -59,6 +60,15 @@ db.exec(`
     notes           TEXT,
     created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at      TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS customers (
+    id            TEXT    PRIMARY KEY,
+    name          TEXT    NOT NULL,
+    phone         TEXT    NOT NULL UNIQUE,
+    email         TEXT,
+    password_hash TEXT    NOT NULL,
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
   CREATE TABLE IF NOT EXISTS messages (
@@ -126,7 +136,9 @@ safeAddColumn('products', 'prep_hours',     'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('products', 'slug',           'TEXT');
 safeAddColumn('orders',   'customer_email', 'TEXT');
 safeAddColumn('orders',   'payment_method', 'TEXT');
+safeAddColumn('orders',   'customer_id',    'TEXT');
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products(slug)'); } catch (_) {}
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
 
 // ── Seed admin user ────────────────────────────────────────────────────────────
 const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');

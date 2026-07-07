@@ -225,6 +225,7 @@ function orderForm(o = {}) {
     <div class="form-grid-2">
       <div class="form-row"><label>Customer Name *</label><input id="f-name" value="${esc(o.customer_name||o.customerName||'')}" placeholder="Full name"></div>
       <div class="form-row"><label>Phone</label><input id="f-phone" value="${esc(o.customer_phone||o.customerPhone||'')}" placeholder="+91 98765 43210"></div>
+      <div class="form-row"><label>Email</label><input id="f-email" value="${esc(o.customer_email||o.customerEmail||'')}" placeholder="customer@example.com"></div>
       <div class="form-row" style="grid-column:1/-1;"><label>Items *</label><textarea id="f-items" rows="2" placeholder="Chocolate Truffle 1kg, Birthday Cake">${esc(o.items||'')}</textarea></div>
       <div class="form-row"><label>Amount (₹)</label><input id="f-amount" type="number" min="0" value="${o.amount||''}"></div>
       <div class="form-row"><label>Outlet</label>
@@ -269,6 +270,7 @@ async function saveOrder(editId) {
   const body = {
     customer_name:  name,
     customer_phone: document.getElementById('f-phone').value.trim(),
+    customer_email: document.getElementById('f-email').value.trim(),
     items,
     amount:         parseFloat(document.getElementById('f-amount').value) || 0,
     outlet:         document.getElementById('f-outlet').value,

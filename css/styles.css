@@ -3380,6 +3380,51 @@ textarea.form-ctrl { resize: vertical; min-height: 88px; }
 /* ════════════════════════════════════════════
    CHECKOUT MODAL
    ════════════════════════════════════════════ */
+.acct-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.78);
+  z-index: 1250;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+.acct-overlay.open { opacity: 1; pointer-events: all; }
+.acct-modal {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, calc(-50% + 20px));
+  background: #fff;
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  width: 92%; max-width: 420px;
+  max-height: 88vh; overflow-y: auto;
+  padding: 32px 28px;
+  z-index: 1251;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  box-shadow: 0 28px 80px rgba(0,0,0,0.35);
+}
+.acct-modal.open { opacity: 1; pointer-events: all; transform: translate(-50%, -50%); }
+.acct-modal__close {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; cursor: pointer;
+  font-size: 1rem; color: var(--text-muted-lt);
+}
+.acct-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+.acct-tab {
+  flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--border-gold);
+  background: transparent; color: var(--text-on-light); font-weight: 600;
+  font-size: 0.82rem; cursor: pointer;
+}
+.acct-tab.active { background: var(--gold); color: #fff; border-color: var(--gold); }
+.acct-error { color: #c0392b; font-size: 0.8rem; margin-bottom: 10px; min-height: 1em; }
+.acct-profile-hd { display: flex; justify-content: space-between; align-items: center; }
+.acct-order-card {
+  border: 1px solid var(--border-gold); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 10px; font-size: 0.85rem;
+}
+.acct-order-card__row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.acct-order-status { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
+.acct-order-card__meta { color: var(--text-muted-lt); font-size: 0.75rem; margin-top: 4px; }
+
 .checkout-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.78);

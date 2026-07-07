@@ -109,4 +109,31 @@ function newOrderEmail(order) {
   });
 }
 
-module.exports = { sendEmail, newMessageEmail, newOrderEmail };
+function customerOrderConfirmationEmail(order) {
+  return sendEmail({
+    to:      order.customer_email,
+    subject: `Your Krispie's order is confirmed! 🎂`,
+    html: `
+      <div style="${baseStyle}">
+        <div style="${headerStyle}">
+          <p style="color:#C9A870;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0 0 4px">Krispie's</p>
+          <h2 style="color:#FAF7F0;margin:0;font-size:22px">Thank you, ${order.customer_name}!</h2>
+          <p style="color:#FAF7F0;margin:8px 0 0;font-size:14px;opacity:0.85">Your order has been received and is being prepared with love.</p>
+        </div>
+        <div style="${bodyStyle}">
+          <p style="${labelStyle}">Order ID</p><p style="${valueStyle}">${order.id}</p>
+          <p style="${labelStyle}">Items</p><p style="${valueStyle}">${order.items}</p>
+          <p style="${labelStyle}">Amount</p><p style="${valueStyle}">${order.amount != null ? '₹' + order.amount : '—'}</p>
+          <p style="${labelStyle}">Delivery Date</p><p style="${valueStyle}">${order.delivery_date || '—'}</p>
+          <p style="${labelStyle}">Outlet</p><p style="${valueStyle}">${order.outlet || '—'}</p>
+          <p style="${labelStyle}">Status</p><p style="${valueStyle}">${order.status}</p>
+        </div>
+        <div style="${footerStyle}">
+          Questions about your order? Call us at +91 79752 18850 or reply to this email.<br>
+          <a href="${process.env.FRONTEND_URL}" style="color:#C9A870">www.krispies.in</a>
+        </div>
+      </div>`,
+  });
+}
+
+module.exports = { sendEmail, newMessageEmail, newOrderEmail, customerOrderConfirmationEmail };

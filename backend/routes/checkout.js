@@ -13,9 +13,15 @@ const crypto    = require('crypto');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const db        = require('../db/database');
-const { newOrderEmail } = require('../utils/email');
+const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
+const { optionalCustomerAuth } = require('../middleware/auth');
 
 const router = express.Router();
+
+function notifyOrder(row) {
+  newOrderEmail(row).catch(() => {});
+  if (row.customer_email) customerOrderConfirmationEmail(row).catch(() => {});
+}
 
 /* ── Stricter rate limiter for payment endpoints ──
    Max 10 attempts per IP per 15 minutes.
@@ -55,8 +61,11 @@ const orderValidators = [
     .withMessage(`Amount must be between ₹${MIN_AMOUNT} and ₹${MAX_AMOUNT.toLocaleString('en-IN')}.`),
 ];
 
-/* ── Build DB row from request body ── */
-function buildOrderRow(body, extra = {}) {
+/* ── Build DB row from request body ──
+   req is optional -- when passed, an already-logged-in customer (detected
+   by optionalCustomerAuth) gets their order linked automatically; guests
+   still check out fine with customer_id left null. */
+function buildOrderRow(body, extra = {}, req = null) {
   const noteParts = [
     body.delivery_mode    ? `Mode: ${body.delivery_mode}`           : '',
     body.delivery_address ? `Address: ${body.delivery_address}`     : '',
@@ -64,10 +73,20 @@ function buildOrderRow(body, extra = {}) {
     body.notes            ? body.notes                               : '',
   ].filter(Boolean);
 
+  // A guest can still be a returning customer -- match by phone even
+  // without a token so their order history stays complete either way.
+  let customerId = req?.customer?.id || null;
+  if (!customerId && body.customer_phone) {
+    const match = db.prepare('SELECT id FROM customers WHERE phone = ?').get(body.customer_phone.trim());
+    if (match) customerId = match.id;
+  }
+
   return {
     id:             uid(),
+    customer_id:    customerId,
     customer_name:  body.customer_name.trim(),
     customer_phone: body.customer_phone.trim(),
+    customer_email: body.customer_email ? String(body.customer_email).trim() : null,
     items:          body.items.trim(),
     quantity:       body.quantity  || null,
     amount:         parseFloat(body.amount),
@@ -76,6 +95,7 @@ function buildOrderRow(body, extra = {}) {
     order_date:     new Date().toISOString().split('T')[0],
     delivery_date:  body.delivery_date || null,
     status:         'pending',
+    payment_method: body.payment_method || null,
     notes:          noteParts.join(' | ') || null,
     ...extra,
   };
@@ -83,25 +103,26 @@ function buildOrderRow(body, extra = {}) {
 
 const INSERT_SQL = `
   INSERT INTO orders
-    (id, customer_name, customer_phone, items, quantity, amount,
-     platform, outlet, order_date, delivery_date, status, notes)
+    (id, customer_id, customer_name, customer_phone, customer_email, items, quantity, amount,
+     platform, outlet, order_date, delivery_date, status, payment_method, notes)
   VALUES
-    (@id, @customer_name, @customer_phone, @items, @quantity, @amount,
-     @platform, @outlet, @order_date, @delivery_date, @status, @notes)
+    (@id, @customer_id, @customer_name, @customer_phone, @customer_email, @items, @quantity, @amount,
+     @platform, @outlet, @order_date, @delivery_date, @status, @payment_method, @notes)
 `;
 
 /* ════════════════════════════════════════════════
    POST /api/checkout   — Cash on Delivery order
    ════════════════════════════════════════════════ */
-router.post('/', paymentLimiter, orderValidators, async (req, res) => {
+router.post('/', paymentLimiter, optionalCustomerAuth, orderValidators, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-  const row = buildOrderRow(req.body);
+  const row = buildOrderRow(req.body, {}, req);
   db.prepare(INSERT_SQL).run(row);
 
-  // Fire email notification (non-blocking)
-  newOrderEmail(row).catch(() => {});
+  // Fire email notifications (non-blocking) -- admin always, customer only
+  // if they gave an email address.
+  notifyOrder(row);
 
   res.status(201).json({
     success: true,
@@ -113,7 +134,7 @@ router.post('/', paymentLimiter, orderValidators, async (req, res) => {
 /* ════════════════════════════════════════════════
    POST /api/checkout/initiate  — Razorpay order
    ════════════════════════════════════════════════ */
-router.post('/initiate', paymentLimiter, orderValidators, async (req, res) => {
+router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, async (req, res) => {
   const Razorpay = getRazorpay();
   const keyId     = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -131,7 +152,7 @@ router.post('/initiate', paymentLimiter, orderValidators, async (req, res) => {
   const amountPaise = Math.round(parseFloat(req.body.amount) * 100);
 
   // Save a PENDING order first so we have an internal ID to track
-  const row = buildOrderRow(req.body);
+  const row = buildOrderRow(req.body, {}, req);
   db.prepare(INSERT_SQL).run(row);
 
   try {
@@ -227,7 +248,7 @@ router.post('/verify', paymentLimiter, (req, res) => {
     .run(internal_order_id);
 
   const confirmedOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(internal_order_id);
-  if (confirmedOrder) newOrderEmail(confirmedOrder).catch(() => {});
+  if (confirmedOrder) notifyOrder(confirmedOrder);
 
   res.json({ success: true, message: 'Payment verified. Order confirmed.' });
 });
