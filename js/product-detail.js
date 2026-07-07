@@ -48,7 +48,7 @@ function _pdpRender() {
 
   const variantHtml = hasVariants ? p.variantGroups.map(g => `
     <div class="chk-field-group">
-      <label class="chk-label">${esc(g.name)} *</label>
+      <label class="chk-label">${esc(g.name)}</label>
       <select class="chk-input" onchange="_pdpVariantChange('${esc(g.name)}', this.value)">
         ${g.options.map((o, i) => `<option value="${i}" ${_pdpSelection[g.name] === i ? 'selected' : ''}>${esc(o.label)} — ₹${(Number(o.price) || 0).toLocaleString('en-IN')}</option>`).join('')}
       </select>
@@ -84,7 +84,7 @@ function _pdpRender() {
         ${prepNote}
 
         <div class="pdp__actions">
-          <button class="btn btn-outline" onclick="_pdpAddToCart()">🛒 Add to Cart</button>
+          <button class="btn btn-outline" onclick="_pdpAddToCart()">Add to Cart</button>
           <button class="btn btn-gold" onclick="_pdpBuyNow()">Buy Now →</button>
         </div>
       </div>

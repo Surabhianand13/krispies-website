@@ -238,7 +238,7 @@ function renderTrafficStats(data) {
 
 function renderTopPagesMini(pages) {
   const max = pages[0]?.views || 1;
-  const labels = { '/': 'Home', '/menu': 'Menu', '/story': 'Our Story', '/contact': 'Contact', '/birthday-cakes': 'Birthday', '/wedding-cakes': 'Wedding', '/engagement-cakes': 'Engagement', '/baby-shower-cakes': 'Baby Shower' };
+  const labels = { '/': 'Home', '/menu': 'Menu', '/story': 'Our Story', '/contact': 'Contact', '/birthday-cakes': 'Birthday', '/wedding-cakes': 'Wedding', '/engagement-cakes': 'Engagement', '/baby-shower-cakes': 'Kids Birthday' };
   document.getElementById('top-pages-mini').innerHTML = pages.slice(0,5).map(p => {
     const pct = Math.round((p.views / max) * 100);
     const name = labels[p.path] || p.path.replace(/\//g,'').replace(/-/g,' ') || 'Home';

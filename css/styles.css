@@ -1923,7 +1923,7 @@ h1, h2, h3, h4 {
 }
 .custom-cta__trust-item strong {
   display: block;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 2.2rem;
   font-weight: 800;
   font-style: normal;

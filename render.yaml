@@ -28,3 +28,9 @@ services:
         value: your.gmail@gmail.com
       - key: EMAIL_PASS
         value: your_gmail_app_password_here
+      - key: DB_PATH
+        value: /var/data/krispies.db
+    disk:
+      name: krispies-data
+      mountPath: /var/data
+      sizeGB: 1

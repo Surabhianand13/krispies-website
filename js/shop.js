@@ -125,9 +125,9 @@ function renderCard(p) {
        </div>`;
 
   const priceBlock = (mrp || hasVariants) ? `
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 14px;">
-      <span style="font-family:var(--font-display,serif);font-size:1.3rem;font-weight:800;color:#1a1a1a;">
-        ${hasVariants && priceFrom !== priceTo ? `₹${priceFrom.toLocaleString('en-IN')} – ₹${priceTo.toLocaleString('en-IN')}` : `₹${(hasVariants ? priceFrom : final).toLocaleString('en-IN')}`}
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 14px;min-height:28px;">
+      <span style="font-family:var(--font-body,sans-serif);font-size:1.3rem;font-weight:800;color:#1a1a1a;">
+        ₹${(hasVariants ? priceFrom : final).toLocaleString('en-IN')}
       </span>
       ${discount > 0 && !hasVariants ? `<span style="font-size:0.82rem;color:#aaa;text-decoration:line-through;">₹${mrp.toLocaleString('en-IN')}</span>` : ''}
       ${discount > 0 && !hasVariants ? `<span style="background:#1a7a3c;color:#fff;padding:3px 8px;border-radius:4px;font-size:0.63rem;font-weight:700;">${discount}% OFF</span>` : ''}
@@ -144,7 +144,7 @@ function renderCard(p) {
         <p style="font-size:0.78rem;color:#777;line-height:1.55;margin-bottom:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(p.description)}</p>
         ${priceBlock}
         ${(mrp > 0 || hasVariants)
-          ? `<button onclick="addToCart('${p.id}')" style="width:100%;padding:12px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;display:block;">🛒 ADD TO CART</button>`
+          ? `<button onclick="addToCart('${p.id}')" style="width:100%;padding:12px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;display:block;">ADD TO CART</button>`
           : `<a href="contact" style="display:block;width:100%;padding:12px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;text-decoration:none;box-sizing:border-box;">GET A QUOTE →</a>`
         }
       </div>
@@ -204,7 +204,7 @@ const ADDONS_WEDDING = [
   { id: 'ribbon-deco',  name: 'Ribbon Decoration',       price: 149, unit: 'each',    svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-4 4-4 8 0 12 4-4 4-8 0-12z"/><path d="M12 14c0 4 3 6 4 8"/><path d="M12 14c0 4-3 6-4 8"/></svg>' },
 ];
 const ADDONS_BABY = [
-  { id: 'baby-banner',    name: 'Baby Shower Banner',    price: 149, unit: 'each',       svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="M8 20l4-4 4 4"/></svg>' },
+  { id: 'baby-banner',    name: 'Kids Birthday Banner',    price: 149, unit: 'each',       svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="M8 20l4-4 4 4"/></svg>' },
   { id: 'pastel-balloons',name: 'Pastel Balloon Bouquet',price: 199, unit: 'set of 10', svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="7"/><path d="M12 16v6"/><path d="M9 19h6"/></svg>' },
   { id: 'name-topper',    name: 'Custom Name Topper',    price: 249, unit: 'each',       svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>' },
 ];
@@ -711,7 +711,7 @@ function _chkStep1() {
 
   const variantHtml = hasVariants ? p.variantGroups.map(g => `
     <div class="chk-field-group">
-      <label class="chk-label">${esc(g.name)} *</label>
+      <label class="chk-label">${esc(g.name)}</label>
       <select class="chk-input" onchange="_chkVariantChange('${esc(g.name)}', this.value)">
         ${g.options.map((o, i) => `<option value="${i}" ${selection[g.name] === i ? 'selected' : ''}>${esc(o.label)} — ₹${(Number(o.price) || 0).toLocaleString('en-IN')}</option>`).join('')}
       </select>
