@@ -100,6 +100,18 @@ db.exec(`
     key   TEXT PRIMARY KEY,
     value TEXT
   );
+
+  CREATE TABLE IF NOT EXISTS addons (
+    id         TEXT    PRIMARY KEY,
+    name       TEXT    NOT NULL,
+    price      REAL    NOT NULL DEFAULT 0,
+    unit       TEXT    NOT NULL DEFAULT 'each',
+    image      TEXT    DEFAULT '',
+    categories TEXT    NOT NULL DEFAULT '[]',
+    active     INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // ── Safe migrations for existing DBs ──────────────────────────────────────────
@@ -196,6 +208,45 @@ if (!alreadySeeded) {
   });
   migrate(catalog);
   console.log(`✓ Seeded real product catalog (${catalog.length} products) — one-time migration complete`);
+}
+
+// ── One-time seed: the add-on upsell items that used to be hardcoded in
+//    js/shop.js (icons only, no admin control). Seeded once so the team can
+//    take over managing them (photos, price, which categories they show
+//    for, active/inactive) from admin instead of a code change.
+const alreadySeededAddons = db.prepare('SELECT value FROM settings WHERE key = ?').get('addons_seeded_v1');
+if (!alreadySeededAddons) {
+  const mkAddon = (id, name, price, unit, categories) => ({
+    id, name, price, unit,
+    image: '',
+    categories: JSON.stringify(categories),
+    active: 1,
+  });
+  const addonSeed = [
+    mkAddon('bday-caps',      'Birthday Caps',             49,  'per cap',    []),
+    mkAddon('num-candles',    'Number Candles',            29,  'per number', []),
+    mkAddon('themed-candles', 'Themed Candle Set',         99,  'set of 10',  []),
+    mkAddon('bday-banner',    'Happy Bday Banner',         149, 'each',       []),
+    mkAddon('balloons',       'Metallic Balloons',         49,  '5 balloons', []),
+    mkAddon('horn-blowers',   'Party Horn Blowers',        79,  'set of 6',   []),
+    mkAddon('flower-ring',    'Fresh Flower Ring',         299, 'each',       ['wedding-cakes', 'engagement-cakes']),
+    mkAddon('cake-knife',     'Cake Knife & Server Set',   399, 'set',        ['wedding-cakes', 'engagement-cakes']),
+    mkAddon('ribbon-deco',    'Ribbon Decoration',         149, 'each',       ['wedding-cakes', 'engagement-cakes']),
+    mkAddon('baby-banner',    'Kids Birthday Banner',      149, 'each',       ['baby-shower-cakes']),
+    mkAddon('pastel-balloons','Pastel Balloon Bouquet',    199, 'set of 10',  ['baby-shower-cakes']),
+    mkAddon('name-topper',    'Custom Name Topper',        249, 'each',       ['baby-shower-cakes']),
+  ];
+  const insertAddon = db.prepare(`
+    INSERT INTO addons (id, name, price, unit, image, categories, active)
+    VALUES (@id, @name, @price, @unit, @image, @categories, @active)
+  `);
+  const migrateAddons = db.transaction((items) => {
+    for (const item of items) insertAddon.run(item);
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+      .run('addons_seeded_v1', 'true');
+  });
+  migrateAddons(addonSeed);
+  console.log(`✓ Seeded add-ons (${addonSeed.length}) — one-time migration complete`);
 }
 
 module.exports = db;

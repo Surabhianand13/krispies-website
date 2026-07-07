@@ -183,6 +183,7 @@ tr:hover td { background: #faf8f5; }
 .form-row .hint { font-size:0.68rem; color:var(--text-3); margin-top:4px; }
 .form-check { display:flex; align-items:center; gap:8px; font-size:0.8rem; cursor:pointer; }
 .form-check input { width:16px; height:16px; cursor:pointer; }
+.checkbox-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px 14px; margin-top:6px; }
 
 /* ── Image management ── */
 .img-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }

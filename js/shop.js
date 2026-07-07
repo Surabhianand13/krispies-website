@@ -190,29 +190,30 @@ let _pendingVariant = null; // selection object set by product-page.html before 
 let _pendingQty = 1; // quantity set by product-page.html before calling addToCart()
 let _selectedAddons = {}; // addonId -> qty
 
-const ADDONS_CELEBRATION = [
-  { id: 'bday-caps',     name: 'Birthday Caps',        price: 49,  unit: 'per cap',    svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2 18 4-12 4 12"/><path d="M5.4 15h5.2"/><path d="m14 6 4 12"/><path d="m14 6 4-2 2 6"/></svg>' },
-  { id: 'num-candles',   name: 'Number Candles',       price: 29,  unit: 'per number', svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="21" x2="12" y2="3"/><path d="M9 9c0-1.5 1-2.5 3-3 2 .5 3 1.5 3 3s-1 3-3 3-3-1.5-3-3z"/><path d="M12 3c-.5-1-.5-2 0-3"/></svg>' },
-  { id: 'themed-candles',name: 'Themed Candle Set',    price: 99,  unit: 'set of 10',  svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="6" width="6" height="14" rx="1"/><path d="M12 6V2"/><path d="M9.5 2.5c0-1 1-1.5 2.5-1.5s2.5.5 2.5 1.5"/></svg>' },
-  { id: 'bday-banner',   name: 'Happy Bday Banner',    price: 149, unit: 'each',       svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="M8 20l4-4 4 4"/></svg>' },
-  { id: 'balloons',      name: 'Metallic Balloons',    price: 49,  unit: '5 balloons', svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="7"/><path d="M12 16v6"/><path d="M9 19h6"/></svg>' },
-  { id: 'horn-blowers',  name: 'Party Horn Blowers',   price: 79,  unit: 'set of 6',  svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 9-18 9 3-9-3-9z"/></svg>' },
-];
-const ADDONS_WEDDING = [
-  { id: 'flower-ring',  name: 'Fresh Flower Ring',       price: 299, unit: 'each',    svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg>' },
-  { id: 'cake-knife',   name: 'Cake Knife & Server Set', price: 399, unit: 'set',     svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M21 3H8L3 8l9 9"/><path d="m12 12 5 5"/></svg>' },
-  { id: 'ribbon-deco',  name: 'Ribbon Decoration',       price: 149, unit: 'each',    svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-4 4-4 8 0 12 4-4 4-8 0-12z"/><path d="M12 14c0 4 3 6 4 8"/><path d="M12 14c0 4-3 6-4 8"/></svg>' },
-];
-const ADDONS_BABY = [
-  { id: 'baby-banner',    name: 'Kids Birthday Banner',    price: 149, unit: 'each',       svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="M8 20l4-4 4 4"/></svg>' },
-  { id: 'pastel-balloons',name: 'Pastel Balloon Bouquet',price: 199, unit: 'set of 10', svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="7"/><path d="M12 16v6"/><path d="M9 19h6"/></svg>' },
-  { id: 'name-topper',    name: 'Custom Name Topper',    price: 249, unit: 'each',       svgPath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>' },
-];
+// Add-ons are admin-managed (see admin/addons.html) -- fetched once at
+// boot and cached here, same pattern as products.
+let _addonsCache = [];
+const ADDONS_KEY = 'krispies_addons';
 
+async function loadAddons() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/addons`);
+    if (!res.ok) throw new Error('Bad response: ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('Unexpected response shape');
+    _addonsCache = data;
+    try { localStorage.setItem(ADDONS_KEY, JSON.stringify(data)); } catch (_) {}
+  } catch (err) {
+    console.warn('[shop] Could not reach backend for add-ons, using cache:', err.message);
+    try { _addonsCache = JSON.parse(localStorage.getItem(ADDONS_KEY)) || []; }
+    catch (_) { _addonsCache = []; }
+  }
+}
+
+// An add-on with no categories set applies to every product; otherwise it
+// only shows for the categories the admin picked.
 function getAddonsForCategory(cat) {
-  if (['wedding-cakes','engagement-cakes'].includes(cat)) return ADDONS_WEDDING;
-  if (cat === 'baby-shower-cakes') return ADDONS_BABY;
-  return ADDONS_CELEBRATION; // birthday-cakes, birthday-theme-cakes, and everything else
+  return _addonsCache.filter(a => !a.categories || a.categories.length === 0 || a.categories.includes(cat));
 }
 
 /* ── ADD TO CART FLOW ──
@@ -232,7 +233,7 @@ function addToCart(productId, variantSelection, qty) {
   if (!grid) { _commitToCart([]); return; } // page has no addons modal (e.g. product-page.html) — commit straight away
   grid.innerHTML = addons.map(a => `
     <div class="addon-card" id="acard-${a.id}" onclick="toggleAddon('${a.id}')">
-      <div class="addon-card__icon">${a.svgPath}</div>
+      <div class="addon-card__icon">${a.image ? `<img src="${esc(a.image)}" alt="${esc(a.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.parentElement.innerHTML='🎈'">` : '🎈'}</div>
       <div class="addon-card__info">
         <div class="addon-card__name">${a.name}</div>
         <div class="addon-card__meta">&#8377;${a.price} / ${a.unit}</div>
@@ -287,7 +288,7 @@ function skipAddons() {
 }
 
 function confirmAddons() {
-  const allAddons = [...ADDONS_CELEBRATION, ...ADDONS_WEDDING, ...ADDONS_BABY];
+  const allAddons = _addonsCache;
   const selected = Object.entries(_selectedAddons).map(([id, qty]) => {
     const a = allAddons.find(x => x.id === id);
     return a ? { ...a, qty } : null;
@@ -605,6 +606,53 @@ let _chkProduct  = null;
 let _chkCart     = { qty: 1, deliveryDate: '', deliveryTime: '', notes: '' };
 let _chkCust     = { name: '', phone: '', email: '', address: '' };
 let _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
+let _chkCoupon   = { code: '', discount: 0, error: '' };
+
+/* Coupon codes -- flat rupee amount off, only above minOrder. Matches the
+   FIRST100 offer already advertised in the site-wide promo bar. */
+const COUPONS = {
+  FIRST100: { off: 100, minOrder: 500, label: 'FIRST100 applied — ₹100 off' },
+};
+
+function _chkCouponDiscount(subtotal) {
+  if (!_chkCoupon.code) return 0;
+  const c = COUPONS[_chkCoupon.code];
+  if (!c || subtotal < c.minOrder) return 0;
+  return c.off;
+}
+
+function _chkApplyCoupon() {
+  const input = document.getElementById('chkCouponInput');
+  const code = (input?.value || '').trim().toUpperCase();
+  const sub = _chkSubtotal();
+  const c = COUPONS[code];
+  if (!code) { _chkCoupon = { code: '', discount: 0, error: '' }; }
+  else if (!c) { _chkCoupon = { code: '', discount: 0, error: 'Invalid coupon code.' }; }
+  else if (sub < c.minOrder) { _chkCoupon = { code: '', discount: 0, error: `Add ₹${(c.minOrder - sub).toLocaleString('en-IN')} more to use ${code}.` }; }
+  else { _chkCoupon = { code, discount: c.off, error: '' }; }
+  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+}
+
+function _chkCouponHTML() {
+  if (_chkCoupon.code) {
+    return `
+      <div class="chk-coupon-box chk-coupon-box--applied">
+        <span>&#10003; ${esc(COUPONS[_chkCoupon.code]?.label || _chkCoupon.code)}</span>
+        <button type="button" onclick="_chkRemoveCoupon()">Remove</button>
+      </div>`;
+  }
+  return `
+    <div class="chk-coupon-box">
+      <input id="chkCouponInput" class="chk-input" placeholder="Coupon code (e.g. FIRST100)" style="text-transform:uppercase;flex:1">
+      <button type="button" class="btn btn-outline" onclick="_chkApplyCoupon()">Apply</button>
+    </div>
+    ${_chkCoupon.error ? `<div class="chk-coupon-error">${esc(_chkCoupon.error)}</div>` : ''}`;
+}
+
+function _chkRemoveCoupon() {
+  _chkCoupon = { code: '', discount: 0, error: '' };
+  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+}
 
 /* ── Open / Close ── */
 function openCheckout(productId, overrideProduct) {
@@ -613,6 +661,7 @@ function openCheckout(productId, overrideProduct) {
   _chkCart     = { qty: 1, deliveryDate: '', deliveryTime: '', notes: '' };
   _chkCust     = { name: '', phone: '', email: '', address: '' };
   _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
+  _chkCoupon   = { code: '', discount: 0, error: '' };
   closeCartDrawer(); // avoid the cart drawer and checkout modal ever being visible at once
   document.getElementById('checkoutOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -925,6 +974,7 @@ function _chkDeliveryHTML() {
 
   const sub = _chkSubtotal();
   const fee = _chkDelivery.fee || 0;
+  const disc = _chkCouponDiscount(sub);
   const canPay = !!_chkDelivery.store;
 
   return `
@@ -932,12 +982,15 @@ function _chkDeliveryHTML() {
     <div class="chk-loc-status" id="chkLocStatus"></div>
     ${storesHTML}
     ${canPay ? `
+      ${_chkCouponHTML()}
       <div class="chk-total-box">
         <div class="chk-total-row"><span>Subtotal (&#215;${_chkCart.qty})</span><span>&#8377;${sub.toLocaleString('en-IN')}</span></div>
         <div class="chk-total-row"><span>Delivery to ${_chkDelivery.store}</span><span>&#8377;${fee}</span></div>
-        <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub + fee).toLocaleString('en-IN')}</span></div>
+        ${disc > 0 ? `<div class="chk-total-row" style="color:#1a7a3c"><span>Coupon (${_chkCoupon.code})</span><span>&#8722;&#8377;${disc.toLocaleString('en-IN')}</span></div>` : ''}
+        <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub + fee - disc).toLocaleString('en-IN')}</span></div>
       </div>
       <div class="chk-pay-btns">
+        <button class="chk-pay-cod-btn chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">📦 Cash on Delivery / Pay at Store</button>
         <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">Pay Online (Razorpay)</button>
       </div>` : ''}
     <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
@@ -949,6 +1002,7 @@ function _chkDeliveryHTML() {
 /* ── Pickup sub-section ── */
 function _chkPickupHTML() {
   const sub = _chkSubtotal();
+  const disc = _chkCouponDiscount(sub);
   const canPay = !!_chkDelivery.store;
   return `
     <div class="chk-stores-label" style="margin-bottom:10px">Choose your pickup store:</div>
@@ -962,12 +1016,15 @@ function _chkPickupHTML() {
         </div>`).join('')}
     </div>
     ${canPay ? `
+      ${_chkCouponHTML()}
       <div class="chk-total-box">
         <div class="chk-total-row"><span>Subtotal (&#215;${_chkCart.qty})</span><span>&#8377;${sub.toLocaleString('en-IN')}</span></div>
         <div class="chk-total-row"><span>Pickup from ${_chkDelivery.store}</span><span style="color:#3aac6e">Free</span></div>
-        <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${sub.toLocaleString('en-IN')}</span></div>
+        ${disc > 0 ? `<div class="chk-total-row" style="color:#1a7a3c"><span>Coupon (${_chkCoupon.code})</span><span>&#8722;&#8377;${disc.toLocaleString('en-IN')}</span></div>` : ''}
+        <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub - disc).toLocaleString('en-IN')}</span></div>
       </div>
       <div class="chk-pay-btns">
+        <button class="chk-pay-cod-btn chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">📦 Cash on Delivery / Pay at Store</button>
         <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">Pay Online (Razorpay)</button>
       </div>` : ''}
     <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
@@ -1047,7 +1104,8 @@ function _chkSelectPickup(name) {
 /* ════ ORDER PLACEMENT ════ */
 function _chkOrderPayload(method) {
   const sub   = _chkSubtotal();
-  const total = sub + (_chkDelivery.fee || 0);
+  const disc  = _chkCouponDiscount(sub);
+  const total = sub + (_chkDelivery.fee || 0) - disc;
   const variantLabel = (_chkProduct.variantGroups || []).length
     ? variantSelectionLabel(_chkProduct, _chkCart.variantSelection) : '';
   const itemLabel = variantLabel ? `${_chkProduct.name} (${variantLabel})` : _chkProduct.name;
@@ -1058,6 +1116,8 @@ function _chkOrderPayload(method) {
     items:            `${itemLabel} × ${_chkCart.qty}`,
     quantity:         String(_chkCart.qty),
     amount:           total,
+    coupon_code:      _chkCoupon.code || null,
+    coupon_discount:  disc,
     platform:         'website',
     outlet:           _chkDelivery.store ? _chkDelivery.store.toLowerCase() : null,
     delivery_mode:    _chkDelivery.mode,
@@ -1261,7 +1321,7 @@ function _chkToast(msg) {
    Dispatches 'shop:ready' once products have loaded, for pages like
    product-page.html that need to look up a single product before rendering. */
 (async function initShop() {
-  await loadProducts();
+  await Promise.all([loadProducts(), loadAddons()]);
   renderAll();
   renderFeatured();
   initSharedPageUI();

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add-ons — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar__brand"><div class="sidebar__brand-name">🎂 Krispie's</div><div class="sidebar__brand-sub">Admin Panel</div></div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="analytics.html" class="sidebar__link"><span class="sidebar__icon">📈</span> Analytics</a>
+      <div class="sidebar__section-label">Manage</div>
+      <a href="orders.html"    class="sidebar__link"><span class="sidebar__icon">📦</span> Orders</a>
+      <a href="enquiries.html" class="sidebar__link"><span class="sidebar__icon">💬</span> Enquiries</a>
+      <a href="products.html"  class="sidebar__link"><span class="sidebar__icon">🛍️</span> Products</a>
+      <a href="addons.html"    class="sidebar__link active"><span class="sidebar__icon">🎈</span> Add-ons</a>
+    </nav>
+    <div class="sidebar__footer"><button class="sidebar__logout" onclick="logout()">↩ Logout</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="topbar">
+      <div><div class="topbar__title">Add-ons</div><div class="topbar__sub" id="addon-count">Loading…</div></div>
+      <div class="topbar__actions">
+        <button class="btn btn-primary" onclick="openAddAddon()">+ Add Add-on</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <p class="hint" style="margin-bottom:16px;max-width:640px;">
+        These are the upsell items customers see in the "Added to Cart!" popup (candles, banners, balloons, etc).
+        Leave <strong>Categories</strong> empty to show an add-on for every product, or pick specific categories to
+        only show it there — e.g. a "Fresh Flower Ring" only for Wedding/Engagement cakes.
+      </p>
+      <div class="card full-col">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Add-on</th>
+                <th>Price</th>
+                <th>Categories</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="addons-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add-on Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal__hd">
+      <h3 id="modalTitle">Add Add-on</h3>
+      <button class="modal__close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal__body" id="modalBody"></div>
+    <div class="modal__ft">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn">Save Add-on</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+'use strict';
+if (!checkAuth()) throw new Error('Not authenticated');
+
+let allAddons = [];
+
+const ADDON_CATEGORIES = [
+  ['birthday-cakes',       'Birthday Cakes'],
+  ['wedding-cakes',        'Wedding Cakes'],
+  ['engagement-cakes',     'Engagement Cakes'],
+  ['birthday-theme-cakes', 'Birthday Theme Cakes'],
+  ['baby-shower-cakes',    'Kids Birthday Cakes'],
+  ['customized-cakes',     'Customized Cakes'],
+  ['cheesecakes',          'Cheesecakes'],
+  ['donuts',               'Donuts'],
+  ['biscuits',             'Biscuits'],
+];
+
+async function loadAddons() {
+  try {
+    allAddons = await apiFetch('/api/addons?all=1');
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-ons total`;
+    renderAddons();
+  } catch (e) {
+    showToast('Failed to load add-ons', 'error');
+  }
+}
+
+function renderAddons() {
+  const tb = document.getElementById('addons-tbody');
+  if (!allAddons.length) {
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">🎈</div>No add-ons yet</div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = allAddons.map(a => `
+    <tr id="row-${a.id}">
+      <td>
+        <div class="td-name">${esc(a.name)}</div>
+        ${a.image ? `<img src="${esc(a.image)}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;margin-top:4px;" onerror="this.style.display='none'">` : ''}
+      </td>
+      <td>${fmtPrice(a.price)} <span class="td-muted">/ ${esc(a.unit)}</span></td>
+      <td><span class="td-muted" style="font-size:0.75rem;">${a.categories.length ? a.categories.map(c => (ADDON_CATEGORIES.find(x=>x[0]===c)||[c,c])[1]).join(', ') : 'All products'}</span></td>
+      <td>
+        <label class="toggle" title="${a.active ? 'Click to deactivate' : 'Click to activate'}">
+          <input type="checkbox" ${a.active ? 'checked' : ''} onchange="toggleAddonActive('${a.id}', this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="openEditAddon('${a.id}')" title="Edit">✏️</button>
+          <button class="btn btn-danger  btn-sm btn-icon" onclick="deleteAddon('${a.id}', '${esc(a.name)}')" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function toggleAddonActive(id, checkbox) {
+  const a = allAddons.find(x => x.id === id);
+  if (!a) return;
+  try {
+    const updated = await apiFetch(`/api/addons/${id}`, 'PUT', { ...addonToBody(a), active: checkbox.checked });
+    const idx = allAddons.findIndex(x => x.id === id);
+    allAddons[idx] = updated;
+    showToast(checkbox.checked ? 'Add-on activated' : 'Add-on deactivated');
+  } catch (e) {
+    checkbox.checked = !checkbox.checked;
+    showToast(e.message || 'Failed to update', 'error');
+  }
+}
+
+function addonToBody(a) {
+  return {
+    name: a.name, price: a.price, unit: a.unit, image: a.image,
+    categories: JSON.stringify(a.categories), active: a.active,
+  };
+}
+
+function addonForm(a = {}) {
+  const cats = a.categories || [];
+  return `
+    <div class="form-row">
+      <label>Name *</label>
+      <input id="f-name" value="${esc(a.name || '')}" placeholder="e.g. Metallic Balloons">
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Price (₹) *</label>
+        <input id="f-price" type="number" min="0" value="${a.price ?? ''}" placeholder="49">
+      </div>
+      <div class="form-row">
+        <label>Unit</label>
+        <input id="f-unit" value="${esc(a.unit || 'each')}" placeholder="each, per cap, set of 10...">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Photo <span class="hint-inline">(optional — falls back to a 🎈 icon if left blank)</span></label>
+      <div class="hint" style="margin-bottom:6px;">Paste a URL, or reference a local file dropped into
+        <code>assets/images/addons/&lt;filename&gt;.jpg</code></div>
+      <input id="f-image" value="${esc(a.image || '')}" placeholder="assets/images/addons/balloons.jpg">
+      <div class="img-preview" id="img-preview">${a.image ? `<img src="${esc(a.image)}" onerror="this.style.display='none'">` : ''}</div>
+    </div>
+    <div class="form-row" style="grid-column:1/-1;">
+      <label>Categories <span class="hint-inline">(leave all unchecked to show for every product)</span></label>
+      <div class="checkbox-grid">
+        ${ADDON_CATEGORIES.map(([v,l]) => `
+          <label class="form-check"><input type="checkbox" class="f-cat-check" value="${v}" ${cats.includes(v)?'checked':''}> ${l}</label>`).join('')}
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-check"><input type="checkbox" id="f-active" ${a.active !== false ? 'checked' : ''}> Active (visible to customers)</label>
+    </div>`;
+}
+
+function setupAddonImagePreview() {
+  setTimeout(() => {
+    const input = document.getElementById('f-image');
+    const preview = document.getElementById('img-preview');
+    input?.addEventListener('input', () => {
+      preview.innerHTML = input.value.trim() ? `<img src="${esc(input.value.trim())}" onerror="this.style.display='none'">` : '';
+    });
+  }, 50);
+}
+
+function openAddAddon() {
+  document.getElementById('modalTitle').textContent = 'Add Add-on';
+  document.getElementById('modalBody').innerHTML = addonForm();
+  setupAddonImagePreview();
+  document.getElementById('modalSaveBtn').onclick = () => saveAddon();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditAddon(id) {
+  const a = allAddons.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('modalTitle').textContent = 'Edit Add-on';
+  document.getElementById('modalBody').innerHTML = addonForm(a);
+  setupAddonImagePreview();
+  document.getElementById('modalSaveBtn').onclick = () => saveAddon(id);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function saveAddon(editId) {
+  const name = document.getElementById('f-name').value.trim();
+  const price = parseFloat(document.getElementById('f-price').value);
+  if (!name) { showToast('Name is required', 'error'); return; }
+  if (!(price >= 0)) { showToast('Enter a valid price', 'error'); return; }
+
+  const categories = [...document.querySelectorAll('.f-cat-check:checked')].map(el => el.value);
+  const body = {
+    name,
+    price,
+    unit: document.getElementById('f-unit').value.trim() || 'each',
+    image: document.getElementById('f-image').value.trim(),
+    categories: JSON.stringify(categories),
+    active: document.getElementById('f-active').checked,
+  };
+
+  const btn = document.getElementById('modalSaveBtn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    let saved;
+    if (editId) {
+      saved = await apiFetch(`/api/addons/${editId}`, 'PUT', body);
+      const idx = allAddons.findIndex(a => a.id === editId);
+      if (idx !== -1) allAddons[idx] = saved;
+      showToast('Add-on updated — live on the website ✓');
+    } else {
+      saved = await apiFetch('/api/addons', 'POST', body);
+      allAddons.unshift(saved);
+      showToast('Add-on added — live on the website ✓');
+    }
+    closeModal();
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-ons total`;
+    renderAddons();
+  } catch (e) {
+    showToast(e.message || 'Failed to save', 'error');
+  } finally {
+    btn.textContent = 'Save Add-on'; btn.disabled = false;
+  }
+}
+
+async function deleteAddon(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    await apiFetch(`/api/addons/${id}`, 'DELETE');
+    allAddons = allAddons.filter(a => a.id !== id);
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-ons total`;
+    renderAddons();
+    showToast('Add-on deleted');
+  } catch (e) {
+    showToast(e.message || 'Failed to delete', 'error');
+  }
+}
+
+loadAddons();
+</script>
+</body>
+</html>
