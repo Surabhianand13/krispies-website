@@ -47,26 +47,33 @@ async function loadProducts() {
 }
 
 /* ── Variant helpers ──
-   variantGroups shape: [{ name, options: [{ label, price }] }] -- each
-   option's price is the final selling price for that choice (e.g. Half
-   Kg = 699, 1 Kg = 1199), not an add-on to the base MRP/discount price.
-   A "selection" is { [groupName]: optionIndex }. */
+   variantGroups shape: [{ name, optional, options: [{ label, price }] }] --
+   each option's price is the final selling price for that choice (e.g.
+   Half Kg = 699, 1 Kg = 1199), not an add-on to the base MRP/discount
+   price. A group marked optional defaults to "nothing selected" (index
+   -1) and contributes ₹0 unless the customer actively picks an option --
+   e.g. an "Add Ons" group shouldn't silently add its price to every
+   order. A non-optional group always has a real option selected (index
+   0 by default), since it represents a required choice like Weight.
+   A "selection" is { [groupName]: optionIndex }, -1 meaning "skipped". */
 function variantDefaultSelection(p) {
   const sel = {};
-  (p.variantGroups || []).forEach(g => { sel[g.name] = 0; });
+  (p.variantGroups || []).forEach(g => { sel[g.name] = g.optional ? -1 : 0; });
   return sel;
 }
 
 // Final price for a given variant selection: the sum of each selected
 // option's own price (not added on top of mrp/discount). With a single
 // group (the common case -- weight tiers, or flavour-only pricing) this
-// is just that option's price.
+// is just that option's price. Optional groups left unselected (-1)
+// contribute nothing.
 function productFinalPrice(p, selection) {
   if (!p.variantGroups || !p.variantGroups.length) return productBasePrice(p);
   const sel = selection || variantDefaultSelection(p);
   return p.variantGroups.reduce((sum, g) => {
-    const idx = sel[g.name] != null ? sel[g.name] : 0;
-    const opt = g.options[idx] || g.options[0];
+    const idx = sel[g.name] != null ? sel[g.name] : (g.optional ? -1 : 0);
+    if (idx === -1) return sum;
+    const opt = g.options[idx];
     return sum + (opt ? Number(opt.price) || 0 : 0);
   }, 0);
 }
@@ -75,8 +82,9 @@ function variantSelectionLabel(p, selection) {
   if (!p.variantGroups || !p.variantGroups.length) return '';
   return p.variantGroups
     .map(g => {
-      const idx = selection && selection[g.name] != null ? selection[g.name] : 0;
-      const opt = g.options[idx] || g.options[0];
+      const idx = selection && selection[g.name] != null ? selection[g.name] : (g.optional ? -1 : 0);
+      if (idx === -1) return '';
+      const opt = g.options[idx];
       return opt ? opt.label : '';
     })
     .filter(Boolean)
@@ -762,6 +770,7 @@ function _chkStep1() {
     <div class="chk-field-group">
       <label class="chk-label">${esc(g.name)}</label>
       <select class="chk-input" onchange="_chkVariantChange('${esc(g.name)}', this.value)">
+        ${g.optional ? `<option value="-1" ${selection[g.name] === -1 ? 'selected' : ''}>None</option>` : ''}
         ${g.options.map((o, i) => `<option value="${i}" ${selection[g.name] === i ? 'selected' : ''}>${esc(o.label)} — ₹${(Number(o.price) || 0).toLocaleString('en-IN')}</option>`).join('')}
       </select>
     </div>`).join('') : '';

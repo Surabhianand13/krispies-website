@@ -285,9 +285,12 @@ function productForm(p = {}) {
 }
 
 /* ── Variant group builder ──
-   _editVariantGroups shape: [{ name, options: [{label, price}] }] -- each
-   option's price is the final selling price for that choice (e.g. Half Kg
-   = 699), not an add-on to the MRP/discount above. */
+   _editVariantGroups shape: [{ name, optional, options: [{label, price}] }]
+   -- each option's price is the final selling price for that choice
+   (e.g. Half Kg = 699), not an add-on to the MRP/discount above.
+   "optional" groups (e.g. Add Ons) default to unselected on the site and
+   only affect the price once the customer actually picks one; groups
+   left non-optional (e.g. Weight) always have a real choice selected. */
 let _editVariantGroups = [];
 
 function renderVariantGroups() {
@@ -298,8 +301,13 @@ function renderVariantGroups() {
       <div class="variant-group__hd">
         <input class="variant-group__name" placeholder="Group name, e.g. Weight" value="${esc(g.name)}"
           oninput="_editVariantGroups[${gi}].name = this.value">
+        <label class="form-check" style="white-space:nowrap;">
+          <input type="checkbox" ${g.optional ? 'checked' : ''} onchange="_editVariantGroups[${gi}].optional = this.checked">
+          Optional
+        </label>
         <button class="img-pill__rm" onclick="removeVariantGroup(${gi})" type="button" title="Remove group">✕</button>
       </div>
+      <p class="hint" style="margin:-2px 0 8px;">${g.optional ? 'Optional — customer can leave this unselected and it adds nothing to the price.' : 'Required — a customer must pick one option; the first one is selected by default.'}</p>
       <div class="variant-group__options">
         ${g.options.map((o, oi) => `
           <div class="variant-option-row">
@@ -315,7 +323,7 @@ function renderVariantGroups() {
 }
 
 function addVariantGroup() {
-  _editVariantGroups.push({ name: '', options: [{ label: '', price: 0 }] });
+  _editVariantGroups.push({ name: '', optional: false, options: [{ label: '', price: 0 }] });
   renderVariantGroups();
 }
 function removeVariantGroup(gi) {
@@ -376,6 +384,7 @@ function openEditProduct(id) {
   // here instead of silently showing 0.
   _editVariantGroups = (p.variantGroups || []).map(g => ({
     name: g.name,
+    optional: !!g.optional,
     options: g.options.map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0) })),
   }));
   document.getElementById('modalTitle').textContent = 'Edit Product';

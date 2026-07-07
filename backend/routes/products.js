@@ -146,6 +146,7 @@ function buildProduct(id, body) {
   variantGroups = variantGroups
     .map(g => ({
       name: String(g?.name || '').trim(),
+      optional: !!g?.optional,
       options: Array.isArray(g?.options)
         ? g.options
             .map(o => ({ label: String(o?.label || '').trim(), price: parseFloat(o?.price) || 0 }))
@@ -179,6 +180,7 @@ function toProduct(row) {
   // (priceDelta instead of price) so old data still reads correctly.
   variantGroups = variantGroups.map(g => ({
     name: g.name,
+    optional: !!g.optional,
     options: (g.options || []).map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0) })),
   }));
 
@@ -189,12 +191,13 @@ function toProduct(row) {
   // When variants exist, each option's price IS the final price for that
   // choice (customer picks one option per group and pays the sum of their
   // selections) -- mrp/discount are ignored in favour of whatever the
-  // admin set per option.
+  // admin set per option. An optional group can be skipped entirely, so
+  // its cheapest possible contribution is 0, not its cheapest option.
   let priceFrom = basePrice, priceTo = basePrice;
   if (variantGroups.length) {
     const groupPriceRange = g => {
       const prices = g.options.map(o => o.price);
-      return [Math.min(...prices), Math.max(...prices)];
+      return [g.optional ? 0 : Math.min(...prices), Math.max(...prices)];
     };
     const mins = variantGroups.map(g => groupPriceRange(g)[0]);
     const maxs = variantGroups.map(g => groupPriceRange(g)[1]);
