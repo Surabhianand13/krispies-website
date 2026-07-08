@@ -160,6 +160,38 @@ function _pdpRenderRelated() {
   initGalleries();
 }
 
+function _pdpInjectJsonLd(p) {
+  const images = (p.images || []).filter(Boolean).map(img => `https://www.krispies.in/${img}`);
+  const url = `https://www.krispies.in/products/${p.slug}`;
+  const ld = {
+    '@context': 'https://schema.org/',
+    '@type': 'Product',
+    name: p.name,
+    description: p.description || '',
+    sku: p.id,
+    url,
+    ...(images.length ? { image: images } : {}),
+    brand: { '@type': 'Brand', name: "Krispie's" },
+    offers: {
+      '@type': 'Offer',
+      url,
+      priceCurrency: 'INR',
+      price: p.priceFrom ?? p.price ?? 0,
+      availability: p.active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@type': 'Organization', name: "Krispie's" },
+    },
+  };
+  let script = document.getElementById('pdpJsonLd');
+  if (!script) {
+    script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'pdpJsonLd';
+    document.head.appendChild(script);
+  }
+  script.textContent = JSON.stringify(ld);
+}
+
 function _pdpNotFound() {
   document.getElementById('pdpContainer').innerHTML = `
     <div class="pdp__empty">
@@ -180,6 +212,7 @@ document.addEventListener('shop:ready', () => {
   if (descEl) descEl.setAttribute('content', p.description || '');
   const canonEl = document.getElementById('pageCanonical');
   if (canonEl) canonEl.setAttribute('href', `https://www.krispies.in/products/${p.slug}`);
+  _pdpInjectJsonLd(p);
   _pdpRender();
   _pdpRenderRelated();
 });

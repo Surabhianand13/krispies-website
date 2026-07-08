@@ -54,6 +54,7 @@ app.use('/api/messages',  require('./routes/messages'));
 app.use('/api/checkout',  require('./routes/checkout'));
 app.use('/api/upload',    require('./routes/upload'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/feed',      require('./routes/feed'));
 
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
