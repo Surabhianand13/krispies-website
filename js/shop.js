@@ -117,8 +117,8 @@ function renderCard(p) {
   const priceFrom = p.priceFrom != null ? p.priceFrom : final;
   const priceTo   = p.priceTo != null ? p.priceTo : final;
 
-  const tagColours = { bestseller:'#A84838', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
-  const tagPin  = p.tag ? `<div style='position:absolute;top:10px;left:10px;z-index:5;background:${tagColours[p.tag]||'#A84838'};color:#fff;padding:3px 10px;border-radius:20px;font-size:0.6rem;font-weight:700;text-transform:uppercase;'>${TAG_LABELS[p.tag]||p.tag}</div>` : '';
+  const tagColours = { bestseller:'#9A4A3A', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
+  const tagPin  = p.tag ? `<div style='position:absolute;top:10px;left:10px;z-index:5;background:${tagColours[p.tag]||'#9A4A3A'};color:#fff;padding:3px 10px;border-radius:20px;font-size:0.6rem;font-weight:700;text-transform:uppercase;'>${TAG_LABELS[p.tag]||p.tag}</div>` : '';
   const vegPin  = `<div style='position:absolute;top:10px;right:10px;z-index:5;width:22px;height:22px;background:#fff;border:2px solid #1a8a3c;border-radius:4px;display:flex;align-items:center;justify-content:center;'><span style='width:9px;height:9px;background:#1a8a3c;border-radius:50%;display:block;'></span></div>`;
 
   const imageSection = hasImgs
@@ -152,8 +152,8 @@ function renderCard(p) {
         <p style="font-size:0.78rem;color:#777;line-height:1.55;margin-bottom:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(p.description)}</p>
         ${priceBlock}
         ${(mrp > 0 || hasVariants)
-          ? `<button onclick="addToCart('${p.id}')" style="width:100%;padding:12px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;display:block;">ADD TO CART</button>`
-          : `<a href="contact" style="display:block;width:100%;padding:12px;background:#A84838;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;text-decoration:none;box-sizing:border-box;">GET A QUOTE →</a>`
+          ? `<button onclick="addToCart('${p.id}')" style="width:100%;padding:12px;background:#9A4A3A;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;display:block;">ADD TO CART</button>`
+          : `<a href="contact" style="display:block;width:100%;padding:12px;background:#9A4A3A;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;text-decoration:none;box-sizing:border-box;">GET A QUOTE →</a>`
         }
       </div>
     </div>`;
@@ -1458,7 +1458,7 @@ function _acctLogout() {
   _acctRenderAuthForm('login');
 }
 
-const ORDER_STATUS_COLOR = { pending: '#9A7A48', confirmed: '#1a7a3c', ready: '#1e5f85', delivered: '#1a7a3c', cancelled: '#A84838' };
+const ORDER_STATUS_COLOR = { pending: '#9A7A48', confirmed: '#1a7a3c', ready: '#1e5f85', delivered: '#1a7a3c', cancelled: '#9A4A3A' };
 
 async function _acctRenderLoggedIn() {
   const body = document.getElementById('acctModalBody');

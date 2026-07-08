@@ -24,8 +24,8 @@ function _pdpRender() {
   const hasVariants = (p.variantGroups || []).length > 0;
   if (!_pdpSelection) _pdpSelection = variantDefaultSelection(p);
 
-  const tagColours = { bestseller:'#A84838', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
-  const tagHtml = p.tag ? `<span class="pdp__tag" style="background:${tagColours[p.tag]||'#A84838'}">${TAG_LABELS[p.tag] || p.tag}</span>` : '';
+  const tagColours = { bestseller:'#9A4A3A', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
+  const tagHtml = p.tag ? `<span class="pdp__tag" style="background:${tagColours[p.tag]||'#9A4A3A'}">${TAG_LABELS[p.tag] || p.tag}</span>` : '';
 
   const mainImg = hasImgs ? imgs[_pdpGalleryIndex] || imgs[0] : null;
   const galleryHtml = `
