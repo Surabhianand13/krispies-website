@@ -41,7 +41,8 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   position: fixed; top: 0; left: 0; bottom: 0;
   z-index: 100; overflow-y: auto;
 }
-.sidebar__brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.sidebar__brand { display: flex; align-items: center; gap: 10px; padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.sidebar__logo { width: 36px; height: 36px; object-fit: contain; flex-shrink: 0; }
 .sidebar__brand-name { font-size: 1.1rem; font-weight: 800; color: var(--gold); letter-spacing: -0.3px; }
 .sidebar__brand-sub  { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
 .sidebar__nav { padding: 12px 0; flex: 1; }
