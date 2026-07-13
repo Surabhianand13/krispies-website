@@ -3,12 +3,19 @@
 const express = require('express');
 const multer  = require('multer');
 const path    = require('path');
+const fs      = require('fs');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// UPLOAD_DIR lets Render's persistent disk hold uploads so they survive
+// redeploys (see server.js and render.yaml) — falls back to a local folder
+// for development.
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, '../uploads'),
+  destination: UPLOAD_DIR,
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
     cb(null, Date.now() + '-' + Math.random().toString(36).slice(2, 7) + ext);
