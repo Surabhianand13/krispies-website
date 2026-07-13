@@ -82,40 +82,80 @@ router.get('/summary', requireAuth, (req, res) => {
     return db.prepare(`SELECT COUNT(DISTINCT session_id) as c FROM page_views WHERE created_at >= ? AND session_id IS NOT NULL`).get(from).c;
   }
 
-  // Top pages last 7 days
+  // Selected range for the admin analytics range tabs (Today / 7d / 30d / All time).
+  // Defaults to 7 days so existing callers (e.g. the dashboard) keep their prior window.
+  const daysParam = parseInt(req.query.days, 10);
+  const selectedDays = Number.isFinite(daysParam) ? daysParam : 7;
+  const selectedFrom = selectedDays === 1 ? ranges.today
+    : selectedDays > 0 ? dateStr(selectedDays)
+    : '1970-01-01 00:00:00';
+  const prevFrom = selectedDays === 1 ? ranges.yesterday
+    : selectedDays > 0 ? dateStr(selectedDays * 2)
+    : null;
+  const prevViews    = prevFrom ? viewsInRange(prevFrom, selectedFrom) : null;
+  const prevVisitors = prevFrom ? uniqueInRange(prevFrom, selectedFrom) : null;
+
+  // Top pages for the selected range
   const topPages = db.prepare(`
     SELECT path, COUNT(*) as views
     FROM page_views WHERE created_at >= ?
     GROUP BY path ORDER BY views DESC LIMIT 10
-  `).all(ranges.days7);
+  `).all(selectedFrom);
 
-  // Device split last 7 days
+  // Device split for the selected range
   const deviceSplit = db.prepare(`
     SELECT device_type, COUNT(*) as c
     FROM page_views WHERE created_at >= ?
     GROUP BY device_type
-  `).all(ranges.days7);
+  `).all(selectedFrom);
 
-  // Hourly distribution last 7 days
+  // Hourly distribution for the selected range
   const hourly = db.prepare(`
     SELECT strftime('%H', created_at) as hour, COUNT(*) as views
     FROM page_views WHERE created_at >= ?
     GROUP BY hour ORDER BY hour
-  `).all(ranges.days7);
+  `).all(selectedFrom);
 
-  // Daily trend last 30 days
+  // Daily trend for the selected range
   const dailyTrend = db.prepare(`
     SELECT strftime('%Y-%m-%d', created_at) as date, COUNT(*) as views,
            COUNT(DISTINCT session_id) as visitors
     FROM page_views WHERE created_at >= ?
     GROUP BY date ORDER BY date
-  `).all(ranges.days30);
+  `).all(selectedFrom);
 
-  // Event counts last 7 days
+  // Event counts for the selected range
   const eventCounts = db.prepare(`
     SELECT type, COUNT(*) as c FROM events WHERE created_at >= ?
     GROUP BY type ORDER BY c DESC
-  `).all(ranges.days7);
+  `).all(selectedFrom);
+
+  // Traffic sources for the selected range — bucket raw referrer hostnames
+  // into the same categories the old client-side tracker used.
+  function bucketReferrer(ref) {
+    if (!ref) return 'direct';
+    let host;
+    try { host = new URL(ref).hostname.replace(/^www\./, ''); } catch (e) { return 'direct'; }
+    if (host === 'krispies.in')          return 'internal';
+    if (/google/.test(host))             return 'google';
+    if (/facebook|fb\.com/.test(host))   return 'facebook';
+    if (/instagram/.test(host))          return 'instagram';
+    if (/zomato/.test(host))             return 'zomato';
+    if (/swiggy/.test(host))             return 'swiggy';
+    return 'other';
+  }
+  const rawReferrers = db.prepare(`
+    SELECT referrer, COUNT(*) as c FROM page_views WHERE created_at >= ?
+    GROUP BY referrer
+  `).all(selectedFrom);
+  const sourceBuckets = {};
+  rawReferrers.forEach(r => {
+    const bucket = bucketReferrer(r.referrer);
+    sourceBuckets[bucket] = (sourceBuckets[bucket] || 0) + r.c;
+  });
+  const sources = Object.entries(sourceBuckets)
+    .map(([source, c]) => ({ source, c }))
+    .sort((a, b) => b.c - a.c);
 
   // Revenue summary from orders
   const revenueToday = db.prepare(`
@@ -139,10 +179,12 @@ router.get('/summary', requireAuth, (req, res) => {
   `).all();
 
   const ordersToday = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE created_at >= ?`).get(ranges.today).c;
+  const ordersTotal = db.prepare(`SELECT COUNT(*) as c FROM orders`).get().c;
 
   // Enquiries summary
   const enquiriesUnread = db.prepare(`SELECT COUNT(*) as c FROM messages WHERE status='unread'`).get().c;
   const enquiriesToday  = db.prepare(`SELECT COUNT(*) as c FROM messages WHERE created_at >= ?`).get(ranges.today).c;
+  const enquiriesTotal  = db.prepare(`SELECT COUNT(*) as c FROM messages`).get().c;
 
   // Daily revenue last 30 days
   const dailyRevenue = db.prepare(`
@@ -159,14 +201,17 @@ router.get('/summary', requireAuth, (req, res) => {
       days7:         { views: viewsInRange(ranges.days7), visitors: uniqueInRange(ranges.days7) },
       days30:        { views: viewsInRange(ranges.days30), visitors: uniqueInRange(ranges.days30) },
     },
+    range:     { days: selectedDays, views: viewsInRange(selectedFrom), visitors: uniqueInRange(selectedFrom) },
+    prevRange: prevFrom ? { views: prevViews, visitors: prevVisitors } : null,
     topPages,
     deviceSplit,
     hourly,
     dailyTrend,
+    sources,
     eventCounts,
     revenue: { today: revenueToday, week: revenueWeek, month: revenueMonth },
-    orders:  { summary: orderSummary, today: ordersToday },
-    enquiries: { unread: enquiriesUnread, today: enquiriesToday },
+    orders:  { summary: orderSummary, today: ordersToday, total: ordersTotal },
+    enquiries: { unread: enquiriesUnread, today: enquiriesToday, total: enquiriesTotal },
     dailyRevenue,
   });
 });

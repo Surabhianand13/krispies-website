@@ -268,7 +268,6 @@
           <button class="range-tab" data-days="30">30 days</button>
           <button class="range-tab" data-days="0">All time</button>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="clearAnalytics()">Clear Data</button>
       </div>
     </header>
 
@@ -363,20 +362,17 @@
 'use strict';
 
 checkAuth();
-initDefaults();
 
-// sidebar badges
-(function() {
-  const enq = getData(KEYS.enquiries);
-  const ord = getData(KEYS.orders);
-  const unread  = enq.filter(e => e.status === 'unread').length;
-  const pending = ord.filter(o => o.status === 'pending').length;
-  if (unread  > 0) { const b = document.getElementById('unreadBadge');  b.textContent = unread;  b.style.display = 'inline-flex'; }
-  if (pending > 0) { const b = document.getElementById('ordersBadge');  b.textContent = pending; b.style.display = 'inline-flex'; }
+// sidebar badges — real counts from the backend, not localStorage
+(async function() {
+  try {
+    const d = await apiFetch('/api/analytics/live');
+    if (d.unreadEnquiries > 0) { const b = document.getElementById('unreadBadge'); b.textContent = d.unreadEnquiries; b.style.display = 'inline-flex'; }
+    if (d.pendingOrders   > 0) { const b = document.getElementById('ordersBadge'); b.textContent = d.pendingOrders;   b.style.display = 'inline-flex'; }
+  } catch (e) {}
 })();
 
 // ── constants ─────────────────────────────────────────
-const STORE_KEY = 'krispies_analytics';
 const GOLD    = '#C9A870';
 const GOLD_D  = '#9A7A48';
 const MUTED   = 'rgba(232,217,192,0.3)';
@@ -387,15 +383,23 @@ const PURPLE  = '#B482F0';
 const ORANGE  = '#E09052';
 const RED     = '#E05252';
 
-const PAGE_META = {
-  'index':                   { label: 'Home',                  icon: '🏠' },
-  'menu':                    { label: 'Menu',                  icon: '🎂' },
-  'story':                   { label: 'Our Story',             icon: '📖' },
-  'contact':                 { label: 'Contact',               icon: '📬' },
-  'articles':                { label: 'Articles',              icon: '📰' },
-  'perfect-birthday-cake':   { label: 'Birthday Cake Guide',   icon: '📝' },
-  'customized-cakes-guide':  { label: 'Customized Cakes',      icon: '📝' },
-  'iyengar-baking-heritage': { label: 'Iyengar Heritage',      icon: '📝' },
+const KNOWN_PAGES = {
+  '/':                                  { label: 'Home',                 icon: '🏠' },
+  '/menu':                              { label: 'Menu',                 icon: '🎂' },
+  '/story':                             { label: 'Our Story',            icon: '📖' },
+  '/contact':                           { label: 'Contact',              icon: '📬' },
+  '/birthday-cakes':                    { label: 'Birthday Cakes',       icon: '🎂' },
+  '/wedding-cakes':                     { label: 'Wedding Cakes',        icon: '🎂' },
+  '/engagement-cakes':                  { label: 'Engagement Cakes',     icon: '🎂' },
+  '/birthday-theme-cakes':              { label: 'Birthday Theme Cakes', icon: '🎂' },
+  '/baby-shower-cakes':                 { label: 'Baby Shower Cakes',    icon: '🎂' },
+  '/articles':                          { label: 'Articles',             icon: '📰' },
+  '/articles/':                         { label: 'Articles',             icon: '📰' },
+  '/articles/perfect-birthday-cake':    { label: 'Birthday Cake Guide',  icon: '📝' },
+  '/articles/customized-cakes-guide':   { label: 'Customized Cakes Guide', icon: '📝' },
+  '/articles/iyengar-baking-heritage':  { label: 'Iyengar Heritage',     icon: '📝' },
+  '/privacy-policy':                    { label: 'Privacy Policy',       icon: '📄' },
+  '/terms':                             { label: 'Terms',                icon: '📄' },
 };
 const SOURCE_META = {
   'direct':   { label: 'Direct',    icon: '🔗' },
@@ -405,29 +409,18 @@ const SOURCE_META = {
   'zomato':   { label: 'Zomato',    icon: '🍽️' },
   'swiggy':   { label: 'Swiggy',    icon: '🛵' },
   'internal': { label: 'Internal',  icon: '↩️' },
+  'other':    { label: 'Other',     icon: '🌐' },
 };
 
-// ── data helpers ──────────────────────────────────────
-function loadEvents() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch (e) { return []; }
-}
-function filterDays(events, days) {
-  if (!days) return events;
-  const cutoff = Date.now() - days * 86400000;
-  return events.filter(e => e.ts >= cutoff);
-}
-function prevPeriod(all, days) {
-  if (!days) return [];
-  const now = Date.now();
-  return all.filter(e => e.ts >= now - days * 2 * 86400000 && e.ts < now - days * 86400000);
-}
-function estimateSessions(events) {
-  if (!events.length) return 0;
-  const sorted = [...events].sort((a,b) => a.ts - b.ts);
-  let s = 1;
-  for (let i = 1; i < sorted.length; i++)
-    if (sorted[i].ts - sorted[i-1].ts > 30 * 60000) s++;
-  return s;
+// ── helpers ─────────────────────────────────────────
+function pageLabel(path) {
+  const clean = (path || '/').replace(/\.html$/, '');
+  if (KNOWN_PAGES[clean]) return KNOWN_PAGES[clean];
+  if (clean.indexOf('/products/') === 0) {
+    const name = clean.slice('/products/'.length).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return { icon: '🛍️', label: name || 'Product' };
+  }
+  return { icon: '📄', label: clean.replace(/^\//, '') || path || '/' };
 }
 function topDevice(counts) {
   return Object.entries(counts).sort((a,b) => b[1]-a[1])[0]?.[0] || 'desktop';
@@ -453,7 +446,9 @@ document.getElementById('rangeTabs').addEventListener('click', function(e) {
 });
 
 // ── canvas trend chart ────────────────────────────────
-function drawTrend(events, days) {
+// Takes pre-aggregated buckets ([{label, v}]) from the backend — either
+// 24 hourly buckets (Today) or one bucket per day (7d / 30d / all time).
+function drawTrend(buckets) {
   const canvas = document.getElementById('trendChart');
   const wrap   = canvas.parentElement;
   const dpr    = window.devicePixelRatio || 1;
@@ -464,19 +459,7 @@ function drawTrend(events, days) {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, W, H);
 
-  const numDays = days || 30;
-  const buckets = [];
-  for (let i = numDays - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setHours(0,0,0,0);
-    d.setDate(d.getDate() - i);
-    buckets.push({ label: dayLabel(d, numDays), ts: d.getTime(), v: 0 });
-  }
-  events.forEach(ev => {
-    const d = new Date(ev.ts); d.setHours(0,0,0,0);
-    const b = buckets.find(b => b.ts === d.getTime());
-    if (b) b.v++;
-  });
+  if (!buckets.length) buckets = [{ label: '', v: 0 }];
 
   const max  = Math.max(...buckets.map(b => b.v), 1);
   const pad  = { t: 16, r: 12, b: 32, l: 36 };
@@ -503,7 +486,7 @@ function drawTrend(events, days) {
     v: b.v,
   }));
 
-  if (numDays === 1 || buckets.length === 1) {
+  if (buckets.length === 1) {
     // single bar
     const barW = Math.min(60, cw * 0.4);
     const x = pad.l + cw / 2 - barW / 2;
@@ -511,9 +494,9 @@ function drawTrend(events, days) {
     ctx.fillStyle = GOLD;
     roundRect(ctx, x, pad.t + ch - bh, barW, bh, 4);
     ctx.fill();
-  } else if (numDays <= 14) {
+  } else if (buckets.length <= 31) {
     // bars
-    const barW = Math.max(4, step * 0.55);
+    const barW = Math.max(2, step * 0.55);
     buckets.forEach((b, i) => {
       const x  = pad.l + i * step - barW / 2;
       const bh = Math.max(b.v > 0 ? (b.v / max) * ch : 0, b.v > 0 ? 3 : 0);
@@ -548,7 +531,8 @@ function drawTrend(events, days) {
   }
 
   // x labels
-  const every = numDays <= 7 ? 1 : numDays <= 14 ? 2 : numDays <= 30 ? 5 : 7;
+  const n = buckets.length;
+  const every = n <= 7 ? 1 : n <= 14 ? 2 : n <= 31 ? 5 : Math.ceil(n / 10);
   ctx.fillStyle = MUTED; ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
   buckets.forEach((b, i) => {
     if (i % every !== 0 && i !== buckets.length - 1) return;
@@ -556,9 +540,6 @@ function drawTrend(events, days) {
   });
 }
 
-function dayLabel(date, total) {
-  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-}
 function roundRect(ctx, x, y, w, h, r) {
   if (typeof ctx.roundRect === 'function') { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
   else {
@@ -611,47 +592,45 @@ function drawDonut(slices, total) {
 }
 
 // ── main render ───────────────────────────────────────
-function render() {
-  const all     = loadEvents();
-  const events  = filterDays(all, activeDays);
-  const prev    = prevPeriod(all, activeDays);
-  const total   = events.length;
-  const prevTotal = prev.length;
+async function render() {
+  let data;
+  try {
+    data = await apiFetch(`/api/analytics/summary?days=${activeDays}`);
+  } catch (e) {
+    console.error(e);
+    showToast('Failed to load analytics', 'error');
+    return;
+  }
+
+  const range     = data.range || { views: 0, visitors: 0 };
+  const prevRange = data.prevRange;
+  const total     = range.views;
 
   // aggregations
   const devCounts = { desktop: 0, mobile: 0, tablet: 0 };
-  events.forEach(e => { const k = e.device in devCounts ? e.device : 'desktop'; devCounts[k]++; });
-
-  const pageCounts = {}, srcCounts = {};
-  events.forEach(e => {
-    pageCounts[e.page] = (pageCounts[e.page] || 0) + 1;
-    srcCounts[e.ref]   = (srcCounts[e.ref]   || 0) + 1;
+  (data.deviceSplit || []).forEach(d => {
+    const k = d.device_type in devCounts ? d.device_type : 'desktop';
+    devCounts[k] += d.c;
   });
+  const devTotal = devCounts.desktop + devCounts.mobile + devCounts.tablet;
 
-  const sessions = estimateSessions(events);
-  const prevSess = estimateSessions(prev);
-  const pps      = sessions ? (total / sessions).toFixed(1) : '—';
+  const pps      = range.visitors ? (range.views / range.visitors).toFixed(1) : '—';
   const topDev   = topDevice(devCounts);
-  const topDevPct = total ? Math.round(devCounts[topDev] / total * 100) : 0;
+  const topDevPct = devTotal ? Math.round(devCounts[topDev] / devTotal * 100) : 0;
 
-  // F&B extras from admin data
-  const enquiries = getData(KEYS.enquiries);
-  const orders    = getData(KEYS.orders);
-  const todayStr  = new Date().toISOString().slice(0, 10);
-  const todayEnq  = enquiries.filter(e => (e.submittedAt || e.createdAt || '').slice(0,10) === todayStr).length;
-  const todayOrd  = orders.filter(o => (o.createdAt || '').slice(0,10) === todayStr).length;
-  const revenue   = orders.reduce((s, o) => s + (Number(o.amount) || 0), 0);
+  const enquiries = data.enquiries || {};
+  const orders    = data.orders || {};
 
   // ── stat cards ───────────────────────────────────────
-  const pgChg  = changeMeta(total, prevTotal);
-  const sessChg = changeMeta(sessions, prevSess);
+  const pgChg   = changeMeta(range.views, prevRange && prevRange.views);
+  const sessChg = changeMeta(range.visitors, prevRange && prevRange.visitors);
 
   document.getElementById('statCards').innerHTML = `
     <div class="a-card theme-gold">
       <div class="a-card__accent"></div>
       <div class="a-card__icon">👁️</div>
       <div class="a-card__label">Page Views</div>
-      <div class="a-card__value">${total}</div>
+      <div class="a-card__value">${range.views}</div>
       <div class="a-card__sub">
         <span class="a-card__change ${pgChg.cls}">${pgChg.text}</span>
       </div>
@@ -659,8 +638,8 @@ function render() {
     <div class="a-card theme-blue">
       <div class="a-card__accent"></div>
       <div class="a-card__icon">🚶</div>
-      <div class="a-card__label">Sessions (est.)</div>
-      <div class="a-card__value">${sessions}</div>
+      <div class="a-card__label">Visitors</div>
+      <div class="a-card__value">${range.visitors}</div>
       <div class="a-card__sub">
         <span class="a-card__change ${sessChg.cls}">${sessChg.text}</span>
       </div>
@@ -669,29 +648,46 @@ function render() {
       <div class="a-card__accent"></div>
       <div class="a-card__icon">📋</div>
       <div class="a-card__label">Enquiries Today</div>
-      <div class="a-card__value">${todayEnq}</div>
-      <div class="a-card__sub" style="color:var(--muted)">${enquiries.length} total enquiries</div>
+      <div class="a-card__value">${enquiries.today ?? 0}</div>
+      <div class="a-card__sub" style="color:var(--muted)">${enquiries.total ?? 0} total enquiries</div>
     </div>
     <div class="a-card theme-orange">
       <div class="a-card__accent"></div>
       <div class="a-card__icon">📦</div>
       <div class="a-card__label">Orders Today</div>
-      <div class="a-card__value">${todayOrd}</div>
-      <div class="a-card__sub" style="color:var(--muted)">${orders.length} total orders</div>
+      <div class="a-card__value">${orders.today ?? 0}</div>
+      <div class="a-card__sub" style="color:var(--muted)">${orders.total ?? 0} total orders</div>
     </div>
     <div class="a-card theme-purple">
       <div class="a-card__accent"></div>
       <div class="a-card__icon">📱</div>
       <div class="a-card__label">Top Device</div>
       <div class="a-card__value" style="font-size:1.3rem; text-transform:capitalize; padding-top:4px">${topDev}</div>
-      <div class="a-card__sub" style="color:var(--muted)">${topDevPct}% of traffic · ${pps} pages/session</div>
+      <div class="a-card__sub" style="color:var(--muted)">${topDevPct}% of traffic · ${pps} pages/visitor</div>
     </div>
   `;
 
   // ── trend chart ─────────────────────────────────────
-  const labels = { 1:'Today', 7:'Last 7 days', 30:'Last 30 days', 0:'All time (30d)' };
+  const labels = { 1:'Today', 7:'Last 7 days', 30:'Last 30 days', 0:'All time' };
   document.getElementById('trendSubLabel').textContent = labels[activeDays] || '';
-  drawTrend(events, activeDays || 30);
+
+  let buckets;
+  if (activeDays === 1) {
+    const byHour = {};
+    (data.hourly || []).forEach(h => { byHour[h.hour] = h.views; });
+    buckets = [];
+    for (let h = 0; h < 24; h++) {
+      const hh = String(h).padStart(2, '0');
+      const label = h === 0 ? '12a' : h < 12 ? h + 'a' : h === 12 ? '12p' : (h - 12) + 'p';
+      buckets.push({ label, v: byHour[hh] || 0 });
+    }
+  } else {
+    buckets = (data.dailyTrend || []).map(d => ({
+      label: new Date(d.date + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short' }),
+      v: d.views,
+    }));
+  }
+  drawTrend(buckets);
 
   // ── donut ────────────────────────────────────────────
   const dSlices = [
@@ -701,7 +697,7 @@ function render() {
   ].filter(s => s.value > 0);
 
   const donutArea = document.getElementById('donutArea');
-  if (total === 0) {
+  if (devTotal === 0) {
     donutArea.innerHTML = `
       <div class="empty-analytics" style="flex:1">
         <div class="empty-analytics__icon">📊</div>
@@ -709,7 +705,7 @@ function render() {
         <div class="empty-analytics__sub">Visit the website to start collecting analytics data.</div>
       </div>`;
   } else {
-    const canvas = drawDonut(dSlices, total);
+    const canvas = drawDonut(dSlices, devTotal);
     donutArea.innerHTML = '';
     donutArea.appendChild(canvas);
     const legend = document.createElement('div');
@@ -719,41 +715,42 @@ function render() {
         <span class="legend-dot" style="background:${s.color}"></span>
         <span class="legend-label">${s.label}</span>
         <span class="legend-val">${s.value}</span>
-        <span class="legend-pct">${Math.round(s.value/total*100)}%</span>
+        <span class="legend-pct">${Math.round(s.value/devTotal*100)}%</span>
       </div>
     `).join('');
     donutArea.appendChild(legend);
   }
 
   // ── top pages ─────────────────────────────────────────
-  const topPages = Object.entries(pageCounts).sort((a,b) => b[1]-a[1]);
-  const maxPg    = topPages[0]?.[1] || 1;
+  const topPages = data.topPages || [];
+  const maxPg    = topPages[0]?.views || 1;
   document.getElementById('pagesTable').innerHTML = topPages.length === 0
     ? emptyRow(4)
-    : topPages.map(([slug, count], i) => {
-        const m = PAGE_META[slug] || { label: slug, icon: '📄' };
+    : topPages.map((p, i) => {
+        const m = pageLabel(p.path);
         return `<tr>
           <td style="color:var(--muted); font-size:0.75rem; text-align:center">${i+1}</td>
           <td style="padding:10px 14px">
-            <div style="font-size:0.83rem; color:var(--cream)">${m.icon} ${m.label}</div>
-            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(count/maxPg*100)}%"></div></div>
+            <div style="font-size:0.83rem; color:var(--cream)">${m.icon} ${esc(m.label)}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(p.views/maxPg*100)}%"></div></div>
           </td>
-          <td style="text-align:right; font-size:0.83rem; color:var(--cream)">${count}</td>
-          <td style="text-align:right; font-size:0.72rem; color:var(--muted)">${Math.round(count/total*100)}%</td>
+          <td style="text-align:right; font-size:0.83rem; color:var(--cream)">${p.views}</td>
+          <td style="text-align:right; font-size:0.72rem; color:var(--muted)">${total ? Math.round(p.views/total*100) : 0}%</td>
         </tr>`;
       }).join('');
 
   // ── sources ───────────────────────────────────────────
-  const topSrcs = Object.entries(srcCounts).sort((a,b) => b[1]-a[1]);
-  document.getElementById('sourcesTable').innerHTML = topSrcs.length === 0
+  const sources  = data.sources || [];
+  const srcTotal = sources.reduce((s, x) => s + x.c, 0);
+  document.getElementById('sourcesTable').innerHTML = sources.length === 0
     ? emptyRow(4)
-    : topSrcs.map(([src, count], i) => {
-        const m = SOURCE_META[src] || { label: src, icon: '🌐' };
+    : sources.map((s, i) => {
+        const m = SOURCE_META[s.source] || { label: s.source, icon: '🌐' };
         return `<tr>
           <td style="color:var(--muted); font-size:0.75rem; text-align:center">${i+1}</td>
-          <td style="font-size:0.83rem; color:var(--cream); padding:12px 14px">${m.icon} ${m.label}</td>
-          <td style="text-align:right; font-size:0.83rem; color:var(--cream)">${count}</td>
-          <td style="text-align:right; font-size:0.72rem; color:var(--muted)">${Math.round(count/total*100)}%</td>
+          <td style="font-size:0.83rem; color:var(--cream); padding:12px 14px">${m.icon} ${esc(m.label)}</td>
+          <td style="text-align:right; font-size:0.83rem; color:var(--cream)">${s.c}</td>
+          <td style="text-align:right; font-size:0.72rem; color:var(--muted)">${srcTotal ? Math.round(s.c/srcTotal*100) : 0}%</td>
         </tr>`;
       }).join('');
 }
@@ -766,13 +763,6 @@ function emptyRow(cols) {
       <div class="empty-analytics__sub">Switch to a wider date range or visit the website.</div>
     </div>
   </td></tr>`;
-}
-
-function clearAnalytics() {
-  if (!confirm('Clear all analytics data? This cannot be undone.')) return;
-  localStorage.removeItem(STORE_KEY);
-  render();
-  showToast('Analytics data cleared', 'info');
 }
 
 render();
