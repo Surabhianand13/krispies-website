@@ -14,22 +14,27 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 8h
+      # Secrets below are intentionally NOT stored here (sync: false) — set
+      # their real values once in the Render dashboard → Environment tab.
+      # Never commit actual credentials to render.yaml; see backend/.env.example.
       - key: ADMIN_PASSWORD
-        value: krispies2024
+        sync: false
       - key: FRONTEND_URL
         value: https://www.krispies.in
       - key: RAZORPAY_KEY_ID
-        value: rzp_test_Sg9MmSCY5HNxW7
+        sync: false
       - key: RAZORPAY_KEY_SECRET
-        value: aiasgFXjSwEBQsuEIuRra4Au
+        sync: false
       - key: ADMIN_EMAIL
-        value: your@email.com
+        sync: false
       - key: EMAIL_USER
-        value: your.gmail@gmail.com
+        sync: false
       - key: EMAIL_PASS
-        value: your_gmail_app_password_here
+        sync: false
       - key: DB_PATH
         value: /var/data/krispies.db
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
     disk:
       name: krispies-data
       mountPath: /var/data

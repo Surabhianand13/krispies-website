@@ -33,7 +33,11 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // ── Serve uploaded product images ──────────────────────────────────────────────
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// UPLOAD_DIR lets Render's persistent disk (mounted outside the ephemeral
+// container filesystem) hold uploads so they survive redeploys — see
+// routes/upload.js and render.yaml.
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(UPLOAD_DIR));
 
 // ── Global rate limit ──────────────────────────────────────────────────────────
 app.use(rateLimit({
