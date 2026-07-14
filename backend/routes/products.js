@@ -76,8 +76,8 @@ router.post('/', requireAuth, productValidators(), (req, res) => {
   const p = buildProduct(id, req.body);
   p.slug = uniqueSlug(slugify(req.body.slug || req.body.name), id);
   db.prepare(`
-    INSERT INTO products (id, name, category, tag, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, active)
-    VALUES (@id, @name, @category, @tag, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @active)
+    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, active)
+    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @active)
   `).run(p);
 
   res.status(201).json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(p.id)));
@@ -95,7 +95,7 @@ router.put('/:id', requireAuth, productValidators(), (req, res) => {
   p.slug = uniqueSlug(slugify(req.body.slug || req.body.name), req.params.id);
   db.prepare(`
     UPDATE products
-    SET name=@name, category=@category, tag=@tag, description=@description,
+    SET name=@name, category=@category, tag=@tag, flavour=@flavour, description=@description,
         mrp=@mrp, discount=@discount, images=@images,
         variant_groups=@variant_groups, prep_hours=@prep_hours, slug=@slug,
         featured=@featured, active=@active, updated_at=datetime('now')
@@ -160,6 +160,7 @@ function buildProduct(id, body) {
     name:           String(body.name || '').trim(),
     category:       body.category,
     tag:            body.tag || null,
+    flavour:        String(body.flavour || '').trim() || null,
     description:    String(body.description || '').trim(),
     mrp:            parseFloat(body.mrp) || 0,
     discount:       parseFloat(body.discount) || 0,
@@ -211,6 +212,7 @@ function toProduct(row) {
     slug:          row.slug,
     category:      row.category,
     tag:           row.tag,
+    flavour:       row.flavour || null,
     description:   row.description,
     mrp,
     discount:      disc,

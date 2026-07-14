@@ -122,6 +122,102 @@ router.get('/orders', requireCustomerAuth, (req, res) => {
   res.json(orders);
 });
 
+// ── ADDRESS BOOK ─────────────────────────────────────────────────────────────
+function toAddress(row) {
+  return {
+    id: row.id, label: row.label, name: row.name, phone: row.phone,
+    line: row.line, city: row.city, pincode: row.pincode,
+    isDefault: row.is_default === 1, createdAt: row.created_at,
+  };
+}
+function addressId() { return 'a_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+// GET /api/customers/addresses
+router.get('/addresses', requireCustomerAuth, (req, res) => {
+  const rows = db.prepare(
+    'SELECT * FROM addresses WHERE customer_id = ? ORDER BY is_default DESC, created_at DESC'
+  ).all(req.customer.id);
+  res.json(rows.map(toAddress));
+});
+
+// POST /api/customers/addresses
+router.post('/addresses',
+  requireCustomerAuth,
+  [
+    body('name').trim().notEmpty().withMessage('Name is required.'),
+    body('phone').trim().isLength({ min: 7 }).withMessage('A valid phone number is required.'),
+    body('line').trim().notEmpty().withMessage('Address is required.'),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const row = {
+      id: addressId(),
+      customer_id: req.customer.id,
+      label: (req.body.label || 'Home').trim(),
+      name: req.body.name.trim(),
+      phone: req.body.phone.trim(),
+      line: req.body.line.trim(),
+      city: (req.body.city || 'Hyderabad').trim(),
+      pincode: req.body.pincode ? req.body.pincode.trim() : null,
+      is_default: req.body.isDefault ? 1 : 0,
+    };
+    if (row.is_default) {
+      db.prepare('UPDATE addresses SET is_default = 0 WHERE customer_id = ?').run(req.customer.id);
+    }
+    db.prepare(`
+      INSERT INTO addresses (id, customer_id, label, name, phone, line, city, pincode, is_default)
+      VALUES (@id, @customer_id, @label, @name, @phone, @line, @city, @pincode, @is_default)
+    `).run(row);
+    res.status(201).json(toAddress(db.prepare('SELECT * FROM addresses WHERE id = ?').get(row.id)));
+  }
+);
+
+// PUT /api/customers/addresses/:id
+router.put('/addresses/:id',
+  requireCustomerAuth,
+  [
+    body('name').trim().notEmpty().withMessage('Name is required.'),
+    body('phone').trim().isLength({ min: 7 }).withMessage('A valid phone number is required.'),
+    body('line').trim().notEmpty().withMessage('Address is required.'),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const existing = db.prepare('SELECT id FROM addresses WHERE id = ? AND customer_id = ?').get(req.params.id, req.customer.id);
+    if (!existing) return res.status(404).json({ error: 'Address not found.' });
+
+    const row = {
+      id: req.params.id,
+      label: (req.body.label || 'Home').trim(),
+      name: req.body.name.trim(),
+      phone: req.body.phone.trim(),
+      line: req.body.line.trim(),
+      city: (req.body.city || 'Hyderabad').trim(),
+      pincode: req.body.pincode ? req.body.pincode.trim() : null,
+      is_default: req.body.isDefault ? 1 : 0,
+    };
+    if (row.is_default) {
+      db.prepare('UPDATE addresses SET is_default = 0 WHERE customer_id = ?').run(req.customer.id);
+    }
+    db.prepare(`
+      UPDATE addresses SET label=@label, name=@name, phone=@phone, line=@line, city=@city, pincode=@pincode, is_default=@is_default
+      WHERE id=@id
+    `).run(row);
+    res.json(toAddress(db.prepare('SELECT * FROM addresses WHERE id = ?').get(req.params.id)));
+  }
+);
+
+// DELETE /api/customers/addresses/:id
+router.delete('/addresses/:id', requireCustomerAuth, (req, res) => {
+  const existing = db.prepare('SELECT id FROM addresses WHERE id = ? AND customer_id = ?').get(req.params.id, req.customer.id);
+  if (!existing) return res.status(404).json({ error: 'Address not found.' });
+  db.prepare('DELETE FROM addresses WHERE id = ?').run(req.params.id);
+  res.json({ message: 'Address deleted.' });
+});
+
 // ── ADMIN-ONLY routes below ──────────────────────────────────────────────────
 // GET /api/customers -- list all accounts with an order count each
 router.get('/', requireAuth, (_req, res) => {
