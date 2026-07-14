@@ -92,6 +92,8 @@ const CATEGORY_LABELS = {
   'birthday-theme-cakes': 'Birthday Theme Cakes',
   'baby-shower-cakes':    'Baby Shower Cakes',
   'customized-cakes':     'Customized Cakes',
+  'floral-cakes':         'Floral Cakes',
+  'love-cakes':           'Love Cakes (Him/Her)',
   'cheesecakes':          'Cheesecakes',
   'donuts':               'Donuts',
   'biscuits':             'Biscuits',
