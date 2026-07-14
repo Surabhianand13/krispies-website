@@ -106,55 +106,63 @@ function esc(s) {
   const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
 }
 
+// Swaps a broken product photo for the category's SVG icon. Kept as a
+// named global (not an inline SVG string) because embedding raw SVG
+// markup inside an onerror="" attribute breaks on the quotes the SVG
+// itself needs for its own attributes.
+function handleCardImgError(imgEl, category) {
+  const slide = imgEl.closest('.pcard__gal-slide');
+  if (slide) slide.innerHTML = `<div class="pcard__gal-placeholder">${CAT_SVG[category] || CAT_SVG['birthday-cakes']}</div>`;
+}
+
 function renderCard(p) {
   const imgs     = (p.images || []).filter(Boolean);
   const hasImgs  = imgs.length > 0;
-  const emoji    = CAT_EMOJI[p.category] || CAT_EMOJI['birthday-cakes'];
+  const placeholderIcon = CAT_SVG[p.category] || CAT_SVG['birthday-cakes'];
   const mrp      = Number(p.mrp) || 0;
   const discount = Number(p.discount) || 0;
   const final    = productBasePrice(p);
   const hasVariants = (p.variantGroups || []).length > 0;
   const priceFrom = p.priceFrom != null ? p.priceFrom : final;
-  const priceTo   = p.priceTo != null ? p.priceTo : final;
+  const url = productSlugUrl(p);
 
-  const tagColours = { bestseller:'#9A4A3A', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
-  const tagPin  = p.tag ? `<div style='position:absolute;top:10px;left:10px;z-index:5;background:${tagColours[p.tag]||'#9A4A3A'};color:#fff;padding:3px 10px;border-radius:20px;font-size:0.6rem;font-weight:700;text-transform:uppercase;'>${TAG_LABELS[p.tag]||p.tag}</div>` : '';
-  const vegPin  = `<div style='position:absolute;top:10px;right:10px;z-index:5;width:22px;height:22px;background:#fff;border:2px solid #1a8a3c;border-radius:4px;display:flex;align-items:center;justify-content:center;'><span style='width:9px;height:9px;background:#1a8a3c;border-radius:50%;display:block;'></span></div>`;
+  const tagBadge = p.tag ? `<div class="pcard__tag-badge ${p.tag}">${esc(TAG_LABELS[p.tag] || p.tag)}</div>` : '';
+  const vegBadge = `<div class="pcard__veg-badge" title="Pure Vegetarian"><span></span></div>`;
 
-  const imageSection = hasImgs
-    ? `<div style="position:relative;width:100%;height:220px;overflow:hidden;border-radius:12px 12px 0 0;background:#f5f0ee;">
-         <img src="${esc(imgs[0])}" alt="${esc(p.name)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
-         ${tagPin}${vegPin}
-       </div>`
-    : `<div style="position:relative;width:100%;height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdf0ec 0%,#f5e6e0 100%);border-radius:12px 12px 0 0;">
-         <div style="font-size:3rem;line-height:1;opacity:0.6;">🎂</div>
-         <div style="font-size:0.7rem;color:#b08070;margin-top:8px;font-weight:500;">Photo coming soon</div>
-         ${tagPin}${vegPin}
-       </div>`;
+  const slideHTML = url => `<div class="pcard__gal-slide"><img src="${esc(url)}" alt="${esc(p.name)}" loading="lazy" onerror="handleCardImgError(this,'${p.category}')"></div>`;
+  const placeholderSlide = `<div class="pcard__gal-slide"><div class="pcard__gal-placeholder">${placeholderIcon}</div></div>`;
+  const slides = hasImgs ? imgs.map(slideHTML).join('') : placeholderSlide;
 
-  const priceBlock = (mrp || hasVariants) ? `
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 14px;min-height:28px;">
-      <span style="font-family:var(--font-body,sans-serif);font-size:1.3rem;font-weight:800;color:#1a1a1a;">
-        ₹${(hasVariants ? priceFrom : final).toLocaleString('en-IN')}
-      </span>
-      ${discount > 0 && !hasVariants ? `<span style="font-size:0.82rem;color:#aaa;text-decoration:line-through;">₹${mrp.toLocaleString('en-IN')}</span>` : ''}
-      ${discount > 0 && !hasVariants ? `<span style="background:#1a7a3c;color:#fff;padding:3px 8px;border-radius:4px;font-size:0.63rem;font-weight:700;">${discount}% OFF</span>` : ''}
+  const galleryControls = imgs.length > 1 ? `
+    <button class="pcard__gal-btn pcard__gal-prev" aria-label="Previous photo">&#8249;</button>
+    <button class="pcard__gal-btn pcard__gal-next" aria-label="Next photo">&#8250;</button>
+    <div class="pcard__gal-dots">${imgs.map((_, i) => `<span class="pcard__gal-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>`
+    : '';
+
+  const pricingHTML = (mrp || hasVariants) ? `
+    <div class="pcard__pricing">
+      <span class="pcard__price">₹${(hasVariants ? priceFrom : final).toLocaleString('en-IN')}</span>
+      ${discount > 0 && !hasVariants ? `<span class="pcard__mrp">₹${mrp.toLocaleString('en-IN')}</span>` : ''}
+      ${discount > 0 && !hasVariants ? `<span class="pcard__discount">${discount}% OFF</span>` : ''}
     </div>`
-    : `<p style="font-size:0.82rem;color:#999;font-style:italic;margin:10px 0 14px;">Price on request</p>`;
+    : `<p class="pcard__price-note">Price on request</p>`;
 
-  const nameLink = `<a href="${productSlugUrl(p)}" style="text-decoration:none;color:inherit;">${esc(p.name)}</a>`;
+  const cta = (mrp > 0 || hasVariants)
+    ? `<button class="pcard__btn" onclick="addToCart('${p.id}')">Add to Cart</button>`
+    : `<a class="pcard__btn" href="contact" style="text-decoration:none;">Get a Quote →</a>`;
 
   return `
-    <div style="background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.06);overflow:hidden;transition:transform .2s,box-shadow .2s;" onmouseenter="this.style.transform='translateY(-5px)';this.style.boxShadow='0 10px 30px rgba(0,0,0,0.14)';" onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 16px rgba(0,0,0,0.08)';">
-      <a href="${productSlugUrl(p)}" style="display:block;">${imageSection}</a>
-      <div style="padding:14px 16px 18px;">
-        <h3 style="font-size:1rem;font-weight:700;color:#1a1a1a;line-height:1.3;margin-bottom:5px;">${nameLink}</h3>
-        <p style="font-size:0.78rem;color:#777;line-height:1.55;margin-bottom:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(p.description)}</p>
-        ${priceBlock}
-        ${(mrp > 0 || hasVariants)
-          ? `<button onclick="addToCart('${p.id}')" style="width:100%;padding:12px;background:#9A4A3A;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;display:block;">ADD TO CART</button>`
-          : `<a href="contact" style="display:block;width:100%;padding:12px;background:#9A4A3A;color:#fff;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;text-align:center;text-transform:uppercase;text-decoration:none;box-sizing:border-box;">GET A QUOTE →</a>`
-        }
+    <div class="pcard" data-flavour="${esc((p.flavour || '').toLowerCase())}">
+      <a class="pcard__gallery" href="${url}">
+        <div class="pcard__gal-track">${slides}</div>
+        ${tagBadge}${vegBadge}
+        ${galleryControls}
+      </a>
+      <div class="pcard__body">
+        <h3 class="pcard__name"><a href="${url}" style="text-decoration:none;color:inherit;">${esc(p.name)}</a></h3>
+        <p class="pcard__desc">${esc(p.description)}</p>
+        ${pricingHTML}
+        ${cta}
       </div>
     </div>`;
 }
@@ -173,6 +181,41 @@ function renderAll() {
          </div>`;
   });
   initGalleries();
+}
+
+// Renders the flavour filter circles (e.g. "Chocolate", "Rasmalai") above a
+// category grid, driven by whichever flavours are actually set on active
+// products in that category via admin — instead of a hardcoded, unmanageable
+// list. No-op on pages without a .subcat-scroll container.
+function renderSubcatCircles() {
+  document.querySelectorAll('.subcat-scroll').forEach(scroll => {
+    const section = scroll.closest('.menu-cat-section');
+    if (!section) return;
+    const cat = section.id.replace(/^cat-/, '');
+    const items = getProducts().filter(p => p.category === cat && p.active !== false);
+
+    const seen = new Set();
+    const flavours = [];
+    items.forEach(p => {
+      const f = (p.flavour || '').trim();
+      const key = f.toLowerCase();
+      if (f && !seen.has(key)) { seen.add(key); flavours.push({ label: f, key, image: (p.images || [])[0] }); }
+    });
+
+    if (!flavours.length) { scroll.style.display = 'none'; return; }
+
+    const allImage = items.find(p => (p.images || []).length)?.images[0];
+    const circle = (label, key, image, active) => `
+      <a href="#" class="subcat-item${active ? ' active' : ''}" data-filter="${esc(key)}">
+        <div class="subcat-item__circle">
+          ${image ? `<img src="${esc(image)}" alt="${esc(label)}">` : `<div class="subcat-item__fallback" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--gold)">${CAT_SVG[cat] || CAT_SVG['birthday-cakes']}</div>`}
+        </div>
+        <span>${esc(label)}</span>
+      </a>`;
+
+    scroll.innerHTML = circle('All Cakes', 'all', allImage, true)
+      + flavours.map(f => circle(f.label, f.key, f.image, false)).join('');
+  });
 }
 
 // Renders products flagged "Featured on Homepage" in admin into
@@ -224,6 +267,14 @@ function getAddonsForCategory(cat) {
   return _addonsCache.filter(a => !a.categories || a.categories.length === 0 || a.categories.includes(cat));
 }
 
+// Default add-on icon (gift box) — used when no image is set, and as the
+// onerror fallback for a broken image URL.
+const ADDON_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>';
+function handleAddonImgError(imgEl) {
+  const icon = imgEl.closest('.addon-card__icon');
+  if (icon) icon.innerHTML = ADDON_ICON_SVG;
+}
+
 /* ── ADD TO CART FLOW ──
    variantSelection is optional — pass it from product-page.html once the user has
    picked options. Called with no selection (e.g. from a card's quick "Add to
@@ -241,11 +292,9 @@ function addToCart(productId, variantSelection, qty) {
   if (!grid) { _commitToCart([]); return; } // page has no addons modal (e.g. product-page.html) — commit straight away
   grid.innerHTML = addons.map(a => `
     <div class="addon-card" id="acard-${a.id}" onclick="toggleAddon('${a.id}')">
-      <div class="addon-card__icon">${a.image ? `<img src="${esc(a.image)}" alt="${esc(a.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.parentElement.innerHTML='🎈'">` : '🎈'}</div>
-      <div class="addon-card__info">
-        <div class="addon-card__name">${a.name}</div>
-        <div class="addon-card__meta">&#8377;${a.price} / ${a.unit}</div>
-      </div>
+      <div class="addon-card__icon">${a.image ? `<img src="${esc(a.image)}" alt="${esc(a.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="handleAddonImgError(this)">` : ADDON_ICON_SVG}</div>
+      <p class="addon-card__name">${esc(a.name)}</p>
+      <p class="addon-card__price">&#8377;${a.price} / ${esc(a.unit)}</p>
       <div class="addon-card__qty" id="aqty-${a.id}" style="display:none">
         <button onclick="event.stopPropagation();changeAddonQty('${a.id}',-1)">&#8722;</button>
         <span id="aqtyval-${a.id}">1</span>
@@ -443,7 +492,7 @@ function initGalleries() {
 
     prevBtn?.addEventListener('click', e => { e.preventDefault(); goTo(cur - 1); });
     nextBtn?.addEventListener('click', e => { e.preventDefault(); goTo(cur + 1); });
-    dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
+    dots.forEach((d, i) => d.addEventListener('click', e => { e.preventDefault(); goTo(i); }));
 
     /* Touch swipe */
     let startX = null;
@@ -495,11 +544,47 @@ function initSharedPageUI() {
     }, { passive: true });
   }
 
+  // Sub-category (flavour) circles and filter pills act on the same grid
+  // and combine (AND logic) rather than one resetting the other's state.
+  function applySectionFilters(section) {
+    const grid = section.querySelector('.pcard-grid');
+    if (!grid) return;
+
+    const activeSubcat = section.querySelector('.subcat-item.active');
+    const flavourFilter = activeSubcat ? activeSubcat.dataset.filter : null;
+
+    const activePill = section.querySelector('.filter-pill.active');
+    const tag   = activePill ? activePill.dataset.pill  : null;
+    const price = activePill ? activePill.dataset.price : null;
+
+    grid.querySelectorAll('.pcard').forEach(card => {
+      let show = true;
+
+      if (flavourFilter && flavourFilter !== 'all') {
+        show = card.dataset.flavour === flavourFilter;
+      }
+      if (show && tag && tag !== 'all') {
+        const tagBadge = card.querySelector('.pcard__tag-badge');
+        show = !!(tagBadge && tagBadge.classList.contains(tag));
+      }
+      if (show && price) {
+        const priceEl = card.querySelector('.pcard__price');
+        const amt = parseInt((priceEl?.textContent || '').replace(/[^\d]/g, '')) || 0;
+        if (price === 'under-500')  show = amt < 500;
+        if (price === 'under-1000') show = amt < 1000;
+        if (price === 'under-1500') show = amt < 1500;
+      }
+      card.style.display = show ? '' : 'none';
+    });
+  }
+
   document.querySelectorAll('.subcat-item').forEach(item => {
     item.addEventListener('click', e => {
       e.preventDefault();
-      document.querySelectorAll('.subcat-item').forEach(i => i.classList.remove('active'));
+      const section = item.closest('.menu-cat-section');
+      section.querySelectorAll('.subcat-item').forEach(i => i.classList.remove('active'));
       item.classList.add('active');
+      applySectionFilters(section);
     });
   });
 
@@ -508,27 +593,7 @@ function initSharedPageUI() {
       const section = pill.closest('.menu-cat-section');
       section.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
-
-      const tag = pill.dataset.pill;
-      const price = pill.dataset.price;
-      const grid = section.querySelector('.pcard-grid');
-
-      grid.querySelectorAll('.pcard').forEach(card => {
-        const tagBadge = card.querySelector('.pcard__tag-badge');
-        const priceEl = card.querySelector('.pcard__price');
-        let show = true;
-
-        if (tag && tag !== 'all') {
-          show = tagBadge && tagBadge.classList.contains(tag);
-        }
-        if (price) {
-          const amt = parseInt((priceEl?.textContent || '').replace(/[^\d]/g, '')) || 0;
-          if (price === 'under-500')  show = amt < 500;
-          if (price === 'under-1000') show = amt < 1000;
-          if (price === 'under-1500') show = amt < 1500;
-        }
-        card.style.display = show ? '' : 'none';
-      });
+      applySectionFilters(section);
     });
   });
 
@@ -884,7 +949,18 @@ function _chkStep1Next() {
 /* ════ STEP 2: Customer Details ════ */
 function _chkStep2() {
   const c = _chkCust;
+  const savedAddressChips = (_custToken && _savedAddresses.length) ? `
+    <div class="chk-field-group">
+      <label class="chk-label">Saved Addresses</label>
+      <div class="chk-saved-addr-chips">
+        ${_savedAddresses.map(a => `
+          <button type="button" class="chk-saved-addr-chip" onclick="_chkUseSavedAddress('${a.id}')">
+            <strong>${esc(a.label)}</strong><span>${esc(a.line)}, ${esc(a.city)}</span>
+          </button>`).join('')}
+      </div>
+    </div>` : '';
   return `
+    ${savedAddressChips}
     <div class="chk-field-group">
       <label class="chk-label">Full Name *</label>
       <input type="text" class="chk-input" id="chkName"
@@ -919,6 +995,14 @@ function _chkStep2() {
       <button class="btn btn-outline chk-back-btn" onclick="_chkRenderStep(1)">← Back</button>
       <button class="btn btn-gold chk-next-btn" onclick="_chkStep2Next()">Next: Delivery &amp; Pay →</button>
     </div>`;
+}
+
+function _chkUseSavedAddress(id) {
+  const a = _savedAddresses.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('chkName').value = a.name;
+  document.getElementById('chkPhone').value = a.phone;
+  document.getElementById('chkAddr').value = `${a.line}, ${a.city}${a.pincode ? ' - ' + a.pincode : ''}`;
 }
 
 function _chkStep2Next() {
@@ -1012,7 +1096,7 @@ function _chkDeliveryHTML() {
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub + fee - disc).toLocaleString('en-IN')}</span></div>
       </div>
       <div class="chk-pay-btns">
-        <button class="chk-pay-cod-btn chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">📦 Cash on Delivery / Pay at Store</button>
+        <button class="chk-pay-cod-btn chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">Cash on Delivery / Pay at Store</button>
         <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">Pay Online (Razorpay)</button>
       </div>` : ''}
     <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
@@ -1046,7 +1130,7 @@ function _chkPickupHTML() {
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub - disc).toLocaleString('en-IN')}</span></div>
       </div>
       <div class="chk-pay-btns">
-        <button class="chk-pay-cod-btn chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">📦 Cash on Delivery / Pay at Store</button>
+        <button class="chk-pay-cod-btn chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">Cash on Delivery / Pay at Store</button>
         <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">Pay Online (Razorpay)</button>
       </div>` : ''}
     <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
@@ -1459,6 +1543,16 @@ function _acctLogout() {
 }
 
 const ORDER_STATUS_COLOR = { pending: '#9A7A48', confirmed: '#1a7a3c', ready: '#1e5f85', delivered: '#1a7a3c', cancelled: '#9A4A3A' };
+let _acctTab = 'orders'; // 'orders' | 'addresses'
+let _savedAddresses = [];
+
+async function loadSavedAddresses() {
+  if (!_custToken) { _savedAddresses = []; return; }
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/customers/addresses`, { headers: { Authorization: `Bearer ${_custToken}` } });
+    _savedAddresses = res.ok ? await res.json() : [];
+  } catch (_) { _savedAddresses = []; }
+}
 
 async function _acctRenderLoggedIn() {
   const body = document.getElementById('acctModalBody');
@@ -1469,25 +1563,127 @@ async function _acctRenderLoggedIn() {
       if (!meRes.ok) throw new Error('session-expired');
       _custProfile = await meRes.json();
     }
-    const ordersRes = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
-    const orders = ordersRes.ok ? await ordersRes.json() : [];
+    await loadSavedAddresses();
     body.innerHTML = `
       <div class="acct-profile-hd">
         <div><strong>${esc(_custProfile.name)}</strong><br><span style="color:var(--text-muted);font-size:0.8rem">${esc(_custProfile.phone)}</span></div>
         <button class="btn btn-outline btn-sm" onclick="_acctLogout()">Log Out</button>
       </div>
-      <h4 style="margin:20px 0 10px;font-family:var(--font-display);">My Orders</h4>
-      ${orders.length ? orders.map(o => `
-        <div class="acct-order-card">
-          <div class="acct-order-card__row">
-            <strong>${esc(o.items)}</strong>
-            <span class="acct-order-status" style="color:${ORDER_STATUS_COLOR[o.status] || '#9A7A48'}">${esc(o.status)}</span>
-          </div>
-          <div class="acct-order-card__meta">Order #${esc(o.id)} · ₹${o.amount != null ? Number(o.amount).toLocaleString('en-IN') : '—'} · ${esc(o.order_date || '')}</div>
-        </div>`).join('') : `<p style="color:var(--text-muted);font-size:0.85rem">No orders yet — your order history will show up here.</p>`}`;
+      <div class="acct-tabs" style="margin-top:16px">
+        <button class="acct-tab${_acctTab === 'orders' ? ' active' : ''}" onclick="_acctSwitchTab(this,'orders')">My Orders</button>
+        <button class="acct-tab${_acctTab === 'addresses' ? ' active' : ''}" onclick="_acctSwitchTab(this,'addresses')">Address Book</button>
+      </div>
+      <div id="acctTabBody"></div>`;
+    _acctRenderTabBody();
   } catch (e) {
     _acctLogout();
   }
+}
+
+function _acctSwitchTab(btn, tab) {
+  _acctTab = tab;
+  document.querySelectorAll('#acctModalBody .acct-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  _acctRenderTabBody();
+}
+
+async function _acctRenderTabBody() {
+  const el = document.getElementById('acctTabBody');
+  if (!el) return;
+  if (_acctTab === 'addresses') { _acctRenderAddresses(); return; }
+
+  el.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:16px 0;">Loading…</p>`;
+  const ordersRes = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
+  const orders = ordersRes.ok ? await ordersRes.json() : [];
+  el.innerHTML = orders.length ? orders.map(o => `
+    <div class="acct-order-card">
+      <div class="acct-order-card__row">
+        <strong>${esc(o.items)}</strong>
+        <span class="acct-order-status" style="color:${ORDER_STATUS_COLOR[o.status] || '#9A7A48'}">${esc(o.status)}</span>
+      </div>
+      <div class="acct-order-card__meta">Order #${esc(o.id)} · ₹${o.amount != null ? Number(o.amount).toLocaleString('en-IN') : '—'} · ${esc(o.order_date || '')}</div>
+    </div>`).join('') : `<p style="color:var(--text-muted);font-size:0.85rem">No orders yet — your order history will show up here.</p>`;
+}
+
+function _acctRenderAddresses(editId) {
+  const el = document.getElementById('acctTabBody');
+  if (!el) return;
+  const isNew = editId === 'new';
+  const isRealEdit = editId != null && !isNew;
+  const showForm = isNew || isRealEdit;
+  const a = isRealEdit ? _savedAddresses.find(x => x.id === editId) : null;
+
+  const formHTML = showForm ? `
+    <div class="acct-address-form">
+      <div class="chk-field-group"><label class="chk-label">Label</label><input class="chk-input" id="addrLabel" value="${esc(a?.label || 'Home')}" placeholder="Home / Work / Other"></div>
+      <div class="chk-field-group"><label class="chk-label">Full Name *</label><input class="chk-input" id="addrName" value="${esc(a?.name || _custProfile.name || '')}"></div>
+      <div class="chk-field-group"><label class="chk-label">Phone *</label><input class="chk-input" id="addrPhone" value="${esc(a?.phone || _custProfile.phone || '')}"></div>
+      <div class="chk-field-group"><label class="chk-label">Address *</label><input class="chk-input" id="addrLine" value="${esc(a?.line || '')}" placeholder="House No., Street, Area"></div>
+      <div class="chk-field-row">
+        <div class="chk-field-group"><label class="chk-label">City</label><input class="chk-input" id="addrCity" value="${esc(a?.city || 'Hyderabad')}"></div>
+        <div class="chk-field-group"><label class="chk-label">Pincode</label><input class="chk-input" id="addrPincode" value="${esc(a?.pincode || '')}"></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-muted);margin:4px 0 12px;">
+        <input type="checkbox" id="addrDefault" ${a?.isDefault ? 'checked' : ''}> Set as default address
+      </label>
+      <div id="addrError" class="acct-error"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline" style="flex:1" onclick="_acctRenderAddresses()">Cancel</button>
+        <button class="btn btn-gold" style="flex:1" onclick="_acctSaveAddress(${isRealEdit ? `'${editId}'` : 'null'})">Save Address</button>
+      </div>
+    </div>` : '';
+
+  el.innerHTML = `
+    ${_savedAddresses.map(addr => `
+      <div class="acct-address-card${addr.isDefault ? ' is-default' : ''}">
+        <div class="acct-address-card__hd">
+          <strong>${esc(addr.label)}</strong>
+          ${addr.isDefault ? '<span class="acct-address-default-badge">Default</span>' : ''}
+        </div>
+        <div class="acct-address-card__body">${esc(addr.name)} · ${esc(addr.phone)}<br>${esc(addr.line)}, ${esc(addr.city)}${addr.pincode ? ' – ' + esc(addr.pincode) : ''}</div>
+        <div class="acct-address-card__actions">
+          <button class="btn-link" onclick="_acctRenderAddresses('${addr.id}')">Edit</button>
+          <button class="btn-link btn-link--danger" onclick="_acctDeleteAddress('${addr.id}')">Delete</button>
+        </div>
+      </div>`).join('')}
+    ${!_savedAddresses.length && !showForm ? `<p style="color:var(--text-muted);font-size:0.85rem">No saved addresses yet.</p>` : ''}
+    ${formHTML}
+    ${!showForm ? `<button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="_acctRenderAddresses('new')">+ Add New Address</button>` : ''}`;
+}
+
+async function _acctSaveAddress(id) {
+  const errEl = document.getElementById('addrError');
+  const body = {
+    label: document.getElementById('addrLabel').value.trim() || 'Home',
+    name: document.getElementById('addrName').value.trim(),
+    phone: document.getElementById('addrPhone').value.trim(),
+    line: document.getElementById('addrLine').value.trim(),
+    city: document.getElementById('addrCity').value.trim() || 'Hyderabad',
+    pincode: document.getElementById('addrPincode').value.trim(),
+    isDefault: document.getElementById('addrDefault').checked,
+  };
+  if (!body.name || !body.phone || !body.line) { errEl.textContent = 'Name, phone, and address are required.'; return; }
+  try {
+    const url = id ? `${BACKEND_URL}/api/customers/addresses/${id}` : `${BACKEND_URL}/api/customers/addresses`;
+    const res = await fetch(url, {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_custToken}` },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Failed to save address.');
+    await loadSavedAddresses();
+    _acctRenderAddresses();
+  } catch (e) { errEl.textContent = e.message; }
+}
+
+async function _acctDeleteAddress(id) {
+  if (!confirm('Delete this address?')) return;
+  try {
+    await fetch(`${BACKEND_URL}/api/customers/addresses/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${_custToken}` } });
+    await loadSavedAddresses();
+    _acctRenderAddresses();
+  } catch (_) {}
 }
 
 // Pre-fill checkout's customer-details step from a logged-in profile, and
@@ -1503,6 +1699,9 @@ async function _acctPrefillCheckout() {
     _chkCust.name  = _chkCust.name  || _custProfile.name  || '';
     _chkCust.phone = _chkCust.phone || _custProfile.phone || '';
     _chkCust.email = _chkCust.email || _custProfile.email || '';
+    await loadSavedAddresses();
+    const def = _savedAddresses.find(a => a.isDefault);
+    if (def && !_chkCust.address) _chkCust.address = `${def.line}, ${def.city}${def.pincode ? ' - ' + def.pincode : ''}`;
   } catch (_) { _acctLogout(); }
 }
 
@@ -1513,6 +1712,7 @@ async function _acctPrefillCheckout() {
   await Promise.all([loadProducts(), loadAddons()]);
   renderAll();
   renderFeatured();
+  renderSubcatCircles();
   initSharedPageUI();
   _acctInjectUI();
   document.dispatchEvent(new CustomEvent('shop:ready'));

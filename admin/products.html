@@ -194,6 +194,14 @@ const BASE_CATEGORIES = [
   ['cheesecakes','Cheesecakes'],['donuts','Donuts'],['biscuits','Biscuits'],
 ];
 
+// Flavour drives the sub-category filter circles shown on category pages
+// (e.g. birthday-cakes.html) -- picking one here is what makes a product
+// show up under that flavour's circle and in its filtered grid.
+const BASE_FLAVOURS = [
+  'Chocolate', 'Dark Chocolate', 'Rasmalai', 'Red Velvet',
+  'Pineapple', 'Mango', 'Blueberry', 'Butterscotch',
+];
+
 function slugify(s) {
   return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
@@ -205,6 +213,14 @@ function productForm(p = {}) {
   const knownCats = new Set(BASE_CATEGORIES.map(([v]) => v));
   const extraCats = [...new Set(allProducts.map(x => x.category))].filter(c => c && !knownCats.has(c));
   const catOptions = [...BASE_CATEGORIES, ...extraCats.map(c => [c, CATEGORY_LABELS[c] || c])];
+
+  // Flavour list: base flavours plus any custom ones already in use, same
+  // pattern as category -- a flavour typed in via "Add new" shows up as a
+  // real option from then on.
+  const knownFlavours = new Set(BASE_FLAVOURS.map(f => f.toLowerCase()));
+  const extraFlavours = [...new Set(allProducts.map(x => x.flavour).filter(Boolean))]
+    .filter(f => !knownFlavours.has(f.toLowerCase()));
+  const flavourOptions = [...BASE_FLAVOURS, ...extraFlavours];
 
   return `
     <div class="form-grid-2">
@@ -225,13 +241,22 @@ function productForm(p = {}) {
         <input id="f-cat-custom" placeholder="new-category-slug" style="display:none;margin-top:6px;">
       </div>
       <div class="form-row">
+        <label>Flavour <span class="hint-inline">(drives the sub-category filter circles)</span></label>
+        <select id="f-flavour" onchange="document.getElementById('f-flavour-custom').style.display = this.value === '__other__' ? 'block' : 'none'">
+          <option value="">None</option>
+          ${flavourOptions.map(f => `<option value="${esc(f)}" ${(p.flavour||'').toLowerCase()===f.toLowerCase()?'selected':''}>${esc(f)}</option>`).join('')}
+          <option value="__other__">+ Add new flavour…</option>
+        </select>
+        <input id="f-flavour-custom" placeholder="e.g. Caramel" style="display:none;margin-top:6px;">
+      </div>
+      <div class="form-row">
         <label>Tag</label>
         <select id="f-tag">
           <option value="">None</option>
-          <option value="bestseller" ${p.tag==='bestseller'?'selected':''}>⭐ Bestseller</option>
-          <option value="new"        ${p.tag==='new'?'selected':''}>🆕 New</option>
-          <option value="seasonal"   ${p.tag==='seasonal'?'selected':''}>🌸 Seasonal</option>
-          <option value="custom"     ${p.tag==='custom'?'selected':''}>✨ Made to Order</option>
+          <option value="bestseller" ${p.tag==='bestseller'?'selected':''}>Bestseller</option>
+          <option value="new"        ${p.tag==='new'?'selected':''}>New</option>
+          <option value="seasonal"   ${p.tag==='seasonal'?'selected':''}>Seasonal</option>
+          <option value="custom"     ${p.tag==='custom'?'selected':''}>Made to Order</option>
         </select>
       </div>
       <div class="form-row">
@@ -439,8 +464,12 @@ async function saveProduct(editId) {
   if (cat === '__other__') cat = slugify(document.getElementById('f-cat-custom').value);
   if (!name || !desc || !cat) { showToast('Name, category and description are required', 'error'); return; }
 
+  let flavour = document.getElementById('f-flavour').value;
+  if (flavour === '__other__') flavour = document.getElementById('f-flavour-custom').value.trim();
+
   const body = {
     name, description: desc, category: cat,
+    flavour:       flavour || null,
     tag:           document.getElementById('f-tag').value || null,
     slug:          document.getElementById('f-slug').value.trim() || slugify(name),
     prepHours:     parseInt(document.getElementById('f-prep').value, 10) || 0,

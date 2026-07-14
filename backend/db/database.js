@@ -29,6 +29,7 @@ db.exec(`
     name           TEXT    NOT NULL,
     category       TEXT    NOT NULL,
     tag            TEXT,
+    flavour        TEXT,
     description    TEXT    NOT NULL,
     mrp            REAL    NOT NULL DEFAULT 0,
     discount       REAL    NOT NULL DEFAULT 0,
@@ -69,6 +70,20 @@ db.exec(`
     email         TEXT,
     password_hash TEXT    NOT NULL,
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS addresses (
+    id           TEXT    PRIMARY KEY,
+    customer_id  TEXT    NOT NULL,
+    label        TEXT    NOT NULL DEFAULT 'Home',
+    name         TEXT    NOT NULL,
+    phone        TEXT    NOT NULL,
+    line         TEXT    NOT NULL,
+    city         TEXT    NOT NULL DEFAULT 'Hyderabad',
+    pincode      TEXT,
+    is_default   INTEGER NOT NULL DEFAULT 0,
+    created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS messages (
@@ -134,11 +149,13 @@ safeAddColumn('products', 'images',         "TEXT NOT NULL DEFAULT '[]'");
 safeAddColumn('products', 'variant_groups', "TEXT NOT NULL DEFAULT '[]'");
 safeAddColumn('products', 'prep_hours',     'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('products', 'slug',           'TEXT');
+safeAddColumn('products', 'flavour',        'TEXT');
 safeAddColumn('orders',   'customer_email', 'TEXT');
 safeAddColumn('orders',   'payment_method', 'TEXT');
 safeAddColumn('orders',   'customer_id',    'TEXT');
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products(slug)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_addresses_customer ON addresses(customer_id)'); } catch (_) {}
 
 // ── Seed admin user ────────────────────────────────────────────────────────────
 const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
