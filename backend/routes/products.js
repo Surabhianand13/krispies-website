@@ -31,7 +31,7 @@ function uniqueSlug(base, excludeId) {
 const VALID_CATEGORIES = [
   'birthday-cakes', 'customized-cakes', 'wedding-cakes',
   'engagement-cakes', 'baby-shower-cakes', 'birthday-theme-cakes',
-  'cheesecakes', 'donuts', 'biscuits',
+  'cheesecakes', 'donuts', 'biscuits', 'floral-cakes', 'love-cakes',
 ];
 const VALID_TAGS = ['bestseller', 'new', 'seasonal', 'custom'];
 
