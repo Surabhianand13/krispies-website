@@ -212,7 +212,7 @@ function renderOrders(list) {
 
 async function updateStatus(id, newStatus, select) {
   try {
-    await apiFetch(`/api/orders/${id}`, 'PUT', { status: newStatus });
+    await apiFetch(`/api/orders/${id}/status`, 'PATCH', { status: newStatus });
     const o = allOrders.find(x => x.id === id);
     if (o) o.status = newStatus;
     renderKPIs();
