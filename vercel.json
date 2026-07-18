@@ -2,5 +2,16 @@
   "cleanUrls": true,
   "redirects": [
     { "source": "/admin", "destination": "/admin/", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/products/:slug", "destination": "/product-page.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    }
   ]
 }

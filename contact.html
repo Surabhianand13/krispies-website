@@ -3,13 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact & Bulk Orders — Krispie's Bakery | Hyderabad</title>
-  <meta name="description" content="Get in touch with Krispie's for bulk orders, corporate catering, customized cakes and event desserts across Hyderabad. 5 outlets — Lalbazar, Suchitra, Boduppal, Ramantapur, Tukkuguda.">
+  <link rel="canonical" href="https://www.krispies.in/contact">
+  <title>Contact & Bulk Orders | Krispie's Bakery | Hyderabad</title>
+  <meta name="description" content="Get in touch with Krispie's for bulk orders, corporate catering, customized cakes and event desserts across Hyderabad. 5 outlets, Lalbazar, Suchitra, Boduppal, Ramantapur, Tukkuguda.">
   <link rel="icon" href="assets/logo.svg" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=5">
+  <link rel="stylesheet" href="css/styles.css?v=20">
+  <meta property="og:title" content="Contact & Bulk Orders | Krispie's Bakery | Hyderabad">
+  <meta property="og:description" content="Get in touch with Krispie">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&h=700&fit=crop&q=80">
+  <meta property="og:url" content="https://www.krispies.in/contact">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&h=700&fit=crop&q=80">
 </head>
 <body>
 
@@ -24,16 +32,42 @@
   </div>
 
   <!-- NAVIGATION -->
-  <nav class="nav" role="navigation">
+    <nav class="nav" role="navigation">
     <div class="container">
       <div class="nav__inner">
-        <a href="index" class="nav__logo"><img src="assets/logo.svg" alt="Krispie's"></a>
+        <a href="index" class="nav__logo"><img src="assets/logo.svg" alt="Krispie's"><span class="nav__brand-name">Krispie's</span></a>
         <ul class="nav__links">
           <li><a href="index">Home</a></li>
-          <li><a href="menu">Menu</a></li>
+          <li class="nav__dropdown">
+            <a href="menu" class="nav__dropdown-toggle">Menu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav__dropdown-caret"><polyline points="6 9 12 15 18 9"/></svg></a>
+            <div class="nav__dropdown-menu">
+              <a href="birthday-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg></span>
+                <span><strong>Classic Birthday Cakes</strong><small>Black Forest, Truffle, Butterscotch</small></span>
+              </a>
+              <a href="wedding-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                <span><strong>Wedding Cakes</strong><small>Multi-tier fondant &amp; sugar flowers</small></span>
+              </a>
+              <a href="engagement-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M9 4l3 4 3-4"/></svg></span>
+                <span><strong>Engagement Cakes</strong><small>Ring box, heart &amp; roses, gold drip</small></span>
+              </a>
+              <a href="birthday-theme-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg></span>
+                <span><strong>Birthday Theme Cakes</strong><small>Unicorn, Superhero, Princess</small></span>
+              </a>
+              <a href="baby-shower-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a3 3 0 1 0 6 0c0-1-.5-2-2-3l-1-1-1 1c-1.5 1-2 2-2 3z"/><path d="M5 18c0-3 3-5 7-5s7 2 7 5"/></svg></span>
+                <span><strong>Kids Birthday</strong><small>Seemantham, gender reveal, naming</small></span>
+              </a>
+              <div class="nav__dropdown-foot"><a href="menu">View Full Menu →</a></div>
+            </div>
+          </li>
           <li><a href="story">Our Story</a></li>
           <li><a href="articles/">Articles</a></li>
-          <li><a href="contact" class="active">Contact</a></li>
+          <li><a href="contact#franchise">Franchise</a></li>
+          <li><a href="contact">Contact</a></li>
         </ul>
         <div class="nav__cta">
           <a href="tel:+917975218850" class="nav__call-btn" aria-label="Call us"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>+91 79752 18850</a>
@@ -46,11 +80,17 @@
     <div class="nav__mobile">
       <a href="index">Home</a>
       <a href="menu">Menu</a>
+      <div class="nav__mobile-sub">
+        <a href="birthday-cakes">→ Classic Birthday Cakes</a>
+        <a href="wedding-cakes">→ Wedding Cakes</a>
+        <a href="engagement-cakes">→ Engagement Cakes</a>
+        <a href="birthday-theme-cakes">→ Birthday Theme Cakes</a>
+        <a href="baby-shower-cakes">→ Kids Birthday</a>
+      </div>
       <a href="story">Our Story</a>
       <a href="articles/">Articles</a>
+      <a href="contact#franchise">Franchise</a>
       <a href="contact">Contact</a>
-      <div class="nav__mobile-order">
-      </div>
     </div>
   </nav>
 
@@ -73,7 +113,7 @@
           <!-- LEFT: INFO -->
           <div>
             <h2 class="contact-info__title">Let's Make Something Beautiful Together</h2>
-            <p class="contact-info__intro">Whether you're planning a corporate event for 500 guests, a custom wedding cake, or a surprise birthday delivery — Krispie's team is here to make it extraordinary. Fill in the form and we'll get back to you within 24 hours.</p>
+            <p class="contact-info__intro">Whether you're planning a corporate event for 500 guests, a custom wedding cake, or a school annual day — Krispie's team is here to make it extraordinary. Just tap the WhatsApp button for your order type and we'll reply within 10 minutes.</p>
 
             <div class="contact-info__item fade-up">
               <div class="contact-info__icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
@@ -127,94 +167,96 @@
             </div>
           </div>
 
-          <!-- RIGHT: FORM -->
-          <div class="contact-form-wrap fade-up">
-            <h3 class="form-title">Bulk & Corporate Enquiry</h3>
-            <p class="form-sub">For customized cakes, large orders, and corporate partnerships — tell us about your event below.</p>
+          <!-- RIGHT: WHATSAPP CTA -->
+          <div class="contact-wa-wrap fade-up">
 
-            <form id="contactForm" novalidate>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="name">Your Name *</label>
-                  <input type="text" id="name" name="name" placeholder="e.g. Priya Reddy" required>
-                </div>
-                <div class="form-group">
-                  <label for="phone">Phone Number *</label>
-                  <input type="tel" id="phone" name="phone" placeholder="+91 98765 43210" required>
-                </div>
+            <div class="contact-wa-header">
+              <div class="contact-wa-header__icon">
+                <svg viewBox="0 0 32 32" fill="#fff" width="26" height="26"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
               </div>
-
-              <div class="form-group">
-                <label for="email">Email Address *</label>
-                <input type="email" id="email" name="email" placeholder="you@example.com" required>
+              <div>
+                <div class="contact-wa-header__title">Talk to Us on WhatsApp</div>
+                <div class="contact-wa-header__sub">Pick your order type — message sent instantly</div>
               </div>
+            </div>
 
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="event-type">Event Type *</label>
-                  <select id="event-type" name="event-type" required>
-                    <option value="" disabled selected>Select occasion</option>
-                    <option value="birthday">Birthday</option>
-                    <option value="wedding">Wedding</option>
-                    <option value="anniversary">Anniversary</option>
-                    <option value="baby-shower">Baby Shower</option>
-                    <option value="corporate">Corporate Event</option>
-                    <option value="graduation">Graduation</option>
-                    <option value="festival">Festival / Seasonal</option>
-                    <option value="other">Other</option>
-                  </select>
+            <div class="wa-order-cards">
+
+              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27m%20interested%20in%20a%20bulk%20corporate%20order.%20Could%20you%20share%20details%20on%20pricing%2C%20minimum%20quantities%2C%20and%20customisation%20options%3F" target="_blank" rel="noopener" class="wa-order-card" style="--accent:#C9A870;--accent-bg:rgba(201,168,112,0.12)">
+                <div class="wa-order-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
                 </div>
-                <div class="form-group">
-                  <label for="outlet">Preferred Outlet</label>
-                  <select id="outlet" name="outlet">
-                    <option value="" disabled selected>Select outlet</option>
-                    <option value="lalbazar">Lalbazar</option>
-                    <option value="suchitra">Suchitra</option>
-                    <option value="boduppal">Boduppal</option>
-                    <option value="ramantapur">Ramantapur</option>
-                    <option value="tukkuguda">Tukkuguda</option>
-                    <option value="any">Any / Delivery</option>
-                  </select>
+                <div class="wa-order-card__body">
+                  <div class="wa-order-card__title">Corporate / Bulk Order</div>
+                  <div class="wa-order-card__sub">Events, gifting, large quantities</div>
                 </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="quantity">Quantity / Guest Count</label>
-                  <input type="text" id="quantity" name="quantity" placeholder="e.g. 1 cake for 50 guests">
+                <div class="wa-order-card__cta">
+                  <svg viewBox="0 0 32 32" fill="currentColor" width="14" height="14"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
+                  Chat Now
                 </div>
-                <div class="form-group">
-                  <label for="event-date">Event Date *</label>
-                  <input type="date" id="event-date" name="event-date" required>
+              </a>
+
+              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27m%20enquiring%20about%20a%20school%20or%20college%20event%20order.%20Could%20you%20share%20your%20bulk%20pricing%20and%20what%20you%20can%20offer%20for%20a%20student%20event%3F" target="_blank" rel="noopener" class="wa-order-card" style="--accent:#5BA8A0;--accent-bg:rgba(91,168,160,0.12)">
+                <div class="wa-order-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                 </div>
-              </div>
+                <div class="wa-order-card__body">
+                  <div class="wa-order-card__title">School / College Event</div>
+                  <div class="wa-order-card__sub">Annual days, farewell, fests</div>
+                </div>
+                <div class="wa-order-card__cta">
+                  <svg viewBox="0 0 32 32" fill="currentColor" width="14" height="14"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
+                  Chat Now
+                </div>
+              </a>
 
-              <div class="form-group">
-                <label for="products">Products Required</label>
-                <input type="text" id="products" name="products" placeholder="e.g. 1 custom cake + 200 boxes of assorted biscuits">
-              </div>
+              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27d%20like%20to%20enquire%20about%20a%20wedding%20cake%20order.%20Could%20you%20share%20your%20designs%2C%20pricing%20and%20availability%3F" target="_blank" rel="noopener" class="wa-order-card" style="--accent:#C0636E;--accent-bg:rgba(192,99,110,0.12)">
+                <div class="wa-order-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <div class="wa-order-card__body">
+                  <div class="wa-order-card__title">Wedding / Engagement</div>
+                  <div class="wa-order-card__sub">Tiered cakes, custom designs</div>
+                </div>
+                <div class="wa-order-card__cta">
+                  <svg viewBox="0 0 32 32" fill="currentColor" width="14" height="14"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
+                  Chat Now
+                </div>
+              </a>
 
-              <div class="form-group">
-                <label for="message">Additional Details</label>
-                <textarea id="message" name="message" placeholder="Tell us about your vision, theme, dietary requirements, delivery address, or anything else we should know..."></textarea>
-              </div>
+              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27m%20planning%20a%20celebration%20event%20and%20need%20cakes%20and%20desserts.%20Could%20you%20help%20with%20pricing%20and%20customisation%3F" target="_blank" rel="noopener" class="wa-order-card" style="--accent:#E8956D;--accent-bg:rgba(232,149,109,0.12)">
+                <div class="wa-order-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/></svg>
+                </div>
+                <div class="wa-order-card__body">
+                  <div class="wa-order-card__title">Celebration Event</div>
+                  <div class="wa-order-card__sub">Birthdays, anniversaries, parties</div>
+                </div>
+                <div class="wa-order-card__cta">
+                  <svg viewBox="0 0 32 32" fill="currentColor" width="14" height="14"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
+                  Chat Now
+                </div>
+              </a>
 
-              <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:16px; font-size:0.85rem;">
-                Send Enquiry →
-              </button>
+              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27d%20like%20to%20enquire%20about%20a%20custom%20cake%20order.%20I%27ll%20share%20a%20reference%20image%20and%20details." target="_blank" rel="noopener" class="wa-order-card" style="--accent:#9B89C4;--accent-bg:rgba(155,137,196,0.12)">
+                <div class="wa-order-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <div class="wa-order-card__body">
+                  <div class="wa-order-card__title">Custom / Special Cake</div>
+                  <div class="wa-order-card__sub">Share a reference image, get a quote</div>
+                </div>
+                <div class="wa-order-card__cta">
+                  <svg viewBox="0 0 32 32" fill="currentColor" width="14" height="14"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
+                  Chat Now
+                </div>
+              </a>
 
-              <p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:16px;">
-                We respond within 24 hours. For urgent orders, please reach us on Instagram DM at <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener" style="color:var(--gold);">@krispies.in</a>
-              </p>
-            </form>
+            </div>
 
-            <!-- SUCCESS STATE -->
-            <div class="form-success">
-              <div class="form-success__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg></div>
-              <h3 class="form-success__title">Thank You! We're on it.</h3>
-              <p class="form-success__text">Your enquiry has been received. A member of the Krispie's team will get back to you within 24 hours to discuss your celebration.<br><br>
-              <span style="color:var(--gold);">In the meantime, follow us on Instagram for cake inspiration →</span><br>
-              <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener" style="color:var(--gold); font-weight:600;">@krispies.in</a></p>
+            <div class="wa-reply-note">
+              <svg viewBox="0 0 10 10" width="8" height="8"><circle cx="5" cy="5" r="5" fill="#25D366"/></svg>
+              Team online now · Avg reply under 10 mins · 8 AM – 10 PM daily
             </div>
 
           </div>
@@ -223,43 +265,157 @@
     </section>
 
     <!-- LOCATIONS STRIP -->
-    <section style="padding:80px 0; background:var(--black-2); border-top:1px solid var(--border-gold);">
+    <section class="locations" aria-labelledby="locations-heading">
       <div class="container">
         <div class="section-header">
           <span class="section-label">Visit Us</span>
           <span class="gold-line"></span>
-          <h2 class="section-title">Find Your Nearest Krispie's</h2>
+          <h2 class="section-title" id="locations-heading">Find Your Nearest Krispie's</h2>
         </div>
-        <div class="locations__grid">
-          <div class="loc-card fade-up">
+        <div class="locations__grid" id="locGrid">
+          <button type="button" class="loc-card fade-up is-active" data-store="0">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Lalbazar</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Lalbazar+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
-          </div>
-          <div class="loc-card fade-up">
+            <a href="https://share.google/ko11BWxiPSSVPCa6C" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+          <button type="button" class="loc-card fade-up" data-store="1">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Suchitra</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Suchitra+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
-          </div>
-          <div class="loc-card fade-up">
+            <a href="https://share.google/zok5k5ZsybR2LCl29" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+          <button type="button" class="loc-card fade-up" data-store="2">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Boduppal</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Boduppal+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
-          </div>
-          <div class="loc-card fade-up">
+            <a href="https://share.google/cVt7icbkeM6Xc1qLL" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+          <button type="button" class="loc-card fade-up" data-store="3">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Ramantapur</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Ramantapur+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
-          </div>
-          <div class="loc-card fade-up">
+            <a href="https://share.google/OaxXpmGiIa0QBcbzf" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+          <button type="button" class="loc-card fade-up" data-store="4">
             <div class="loc-card__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
             <div class="loc-card__name">Tukkuguda</div>
             <div class="loc-card__city">Hyderabad</div>
-            <a href="https://maps.google.com/?q=Krispies+Bakery+Tukkuguda+Hyderabad" target="_blank" rel="noopener" class="loc-card__link">Get Directions →</a>
+            <a href="https://share.google/dsMEdJLRGK459qlZT" target="_blank" rel="noopener" class="loc-card__link" onclick="event.stopPropagation()">Get Directions →</a>
+          </button>
+        </div>
+
+        <div class="loc-interactive">
+          <div class="loc-map-frame">
+            <iframe id="locMapIframe"
+              src="https://www.google.com/maps?q=17.4789248,78.5141202&z=16&output=embed"
+              title="Map to selected Krispie's outlet"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <a id="locMapOpen" class="loc-map-open" href="https://share.google/ko11BWxiPSSVPCa6C" target="_blank" rel="noopener">
+              Open in Maps
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+            </a>
+            <div class="loc-map-popup">
+              <div class="loc-map-popup__text">
+                <strong id="locPopupName">Lalbazar</strong>
+                <span id="locPopupAddr">Lalbazar, Hyderabad, Telangana</span>
+              </div>
+              <a id="locPopupDir" class="loc-map-popup__dir" href="https://share.google/ko11BWxiPSSVPCa6C" target="_blank" rel="noopener" aria-label="Get directions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="loc-info-panel">
+            <h3 class="loc-info-panel__title">Visit Us &amp; <span>Say Hello</span></h3>
+            <div class="loc-info-row">
+              <span class="loc-info-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg></span>
+              <div>
+                <span class="loc-info-row__label">Phone</span>
+                <a href="tel:+917975218850">+91 79752 18850</a>
+              </div>
+            </div>
+            <div class="loc-info-row">
+              <span class="loc-info-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+              <div>
+                <span class="loc-info-row__label">Hours</span>
+                <p>Open Daily: 8:00 AM – 10:00 PM</p>
+              </div>
+            </div>
+            <div class="loc-info-row">
+              <span class="loc-info-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+              <div>
+                <span class="loc-info-row__label">WhatsApp</span>
+                <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27d%20like%20to%20place%20an%20order." target="_blank" rel="noopener">Chat with us →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FRANCHISE — FOCO MODEL -->
+    <section id="franchise" style="padding:80px 0 96px; background:var(--cream-2);">
+      <div class="container">
+        <div class="custom-cta" style="max-width:900px; margin:0 auto;">
+          <div class="custom-cta__inner">
+
+            <div class="custom-cta__head">
+              <span class="custom-cta__eyebrow">Franchise Opportunity</span>
+              <h3>Bring Krispie's to Your City</h3>
+              <p>Partner with a 30-year Iyengar baking legacy under our FOCO (Franchise Owned, Company Operated) model — you own the outlet, we run the operations, recipes and training. A proven format already thriving across 5 Hyderabad outlets.</p>
+            </div>
+
+            <div class="custom-cta__trust">
+              <div class="custom-cta__trust-item">
+                <strong>₹50L+</strong>
+                <small>Starting investment</small>
+              </div>
+              <span class="custom-cta__trust-divider"></span>
+              <div class="custom-cta__trust-item">
+                <strong>~4 yrs</strong>
+                <small>Break-even period</small>
+              </div>
+              <span class="custom-cta__trust-divider"></span>
+              <div class="custom-cta__trust-item">
+                <strong>FOCO</strong>
+                <small>Franchise Owned, Company Operated</small>
+              </div>
+              <span class="custom-cta__trust-divider"></span>
+              <div class="custom-cta__trust-item">
+                <strong>30 yrs</strong>
+                <small>Baking legacy since 1996</small>
+              </div>
+            </div>
+
+            <div class="custom-cta__actions" style="margin-top:28px;">
+
+              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%20team%21%20I%27m%20interested%20in%20the%20Krispie%27s%20franchise%20opportunity%20%28FOCO%20model%2C%20starting%20from%20%E2%82%B950%20Lakhs%20investment%29.%20Could%20you%20share%20more%20details%20on%20ROI%2C%20break-even%20timeline%20and%20the%20application%20process%3F" target="_blank" rel="noopener" class="custom-cta__btn custom-cta__btn--wa">
+                <span class="custom-cta__btn-icon">
+                  <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
+                </span>
+                <span class="custom-cta__btn-body">
+                  <span class="custom-cta__btn-title">Enquire About Franchise</span>
+                  <span class="custom-cta__btn-sub">Get investment &amp; ROI details on WhatsApp</span>
+                </span>
+              </a>
+
+              <a href="tel:+917975218850" class="custom-cta__btn custom-cta__btn--call">
+                <span class="custom-cta__btn-icon custom-cta__btn-icon--ring">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
+                  <span class="ring-wave"></span>
+                  <span class="ring-wave ring-wave--2"></span>
+                </span>
+                <span class="custom-cta__btn-body">
+                  <span class="custom-cta__btn-title">+91 79752 18850</span>
+                  <span class="custom-cta__btn-sub">8 AM – 10 PM, 7 days a week</span>
+                </span>
+              </a>
+
+            </div>
+
           </div>
         </div>
       </div>
@@ -269,59 +425,146 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
+
       <div class="footer__grid">
-        <div>
-          <img src="assets/logo.svg" alt="Krispie's" class="footer__logo">
-          <p class="footer__desc">Hyderabad's most loved celebrations bakery — crafting handmade joy since 1996 with the warmth of Iyengar tradition.</p>
+
+        <!-- Col 1: Brand -->
+        <div class="footer__brand">
+          <div class="footer__logo-row">
+            <img src="assets/logo-white.svg" alt="Krispie's" class="footer__logo"
+              onerror="this.src='assets/logo.svg'">
+            <span class="footer__brand-name">Krispie's</span>
+          </div>
+          <p class="footer__tagline">Your Celebrations Partner</p>
+          <p class="footer__desc">Crafting handmade joy since 1996 with the warmth of Iyengar tradition. Hyderabad's most loved bakery for birthdays, weddings &amp; every milestone.</p>
+          <div class="footer__social-links">
+            <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+          </div>
         </div>
+
+        <!-- Col 2: Navigate -->
         <div class="footer__col">
-          <h4 class="footer__col-title">Quick Links</h4>
-          <ul>
-            <li><a href="index">Home</a></li>
-            <li><a href="menu">Our Menu</a></li>
-            <li><a href="story">Our Story</a></li>
-            <li><a href="articles/">Articles</a></li>
-            <li><a href="contact">Contact Us</a></li>
-          </ul>
+          <h4 class="footer__col-title">Navigate</h4>
+          <a href="index"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+          <a href="menu"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>Our Menu</a>
+          <a href="story"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Our Story</a>
+          <a href="articles/"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>Articles</a>
+          <a href="contact#franchise"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>Franchise</a>
+          <a href="contact"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>Contact Us</a>
         </div>
+
+        <!-- Col 3: Our Outlets -->
         <div class="footer__col">
           <h4 class="footer__col-title">Our Outlets</h4>
-          <ul>
-            <li><a href="https://maps.google.com/?q=Krispies+Bakery+Lalbazar+Hyderabad" target="_blank" rel="noopener">Lalbazar</a></li>
-            <li><a href="https://maps.google.com/?q=Krispies+Bakery+Suchitra+Hyderabad" target="_blank" rel="noopener">Suchitra</a></li>
-            <li><a href="https://maps.google.com/?q=Krispies+Bakery+Boduppal+Hyderabad" target="_blank" rel="noopener">Boduppal</a></li>
-            <li><a href="https://maps.google.com/?q=Krispies+Bakery+Ramantapur+Hyderabad" target="_blank" rel="noopener">Ramantapur</a></li>
-            <li><a href="https://maps.google.com/?q=Krispies+Bakery+Tukkuguda+Hyderabad" target="_blank" rel="noopener">Tukkuguda</a></li>
-          </ul>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Lalbazar</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Lalbazar+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Suchitra</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Suchitra+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Boduppal</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Boduppal+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Ramantapur</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Ramantapur+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Tukkuguda</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Tukkuguda+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
         </div>
+
+        <!-- Col 4: Contact & Orders -->
         <div class="footer__col">
-          <h4 class="footer__col-title">Connect With Us</h4>
-          <div class="footer__contact-row">
-            <span class="footer__contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></span>
-            <span class="footer__contact-text"><a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener">@krispies.in</a></span>
+          <h4 class="footer__col-title">Get in Touch</h4>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>Phone</span>
+            <a href="tel:+917975218850">+91 79752 18850</a>
           </div>
-          <div class="footer__contact-row">
-            <span class="footer__contact-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></span>
-            <span class="footer__contact-text"><a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener">krispies.in</a></span>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram</span>
+            <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener">@krispies.in</a>
           </div>
-          <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook</span>
+            <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener">krispies.in</a>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Bulk Orders</span>
+            <a href="contact">Enquire Now</a>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Custom Cakes</span>
+            <a href="contact">Get a Quote</a>
           </div>
         </div>
+
       </div>
+
+      <!-- Divider -->
+      <div class="footer__rule"></div>
+
+      <!-- Bottom bar -->
       <div class="footer__bottom">
-        <p class="footer__copy">© 2024 Krispie's — Your Celebrations Partner. All rights reserved.</p>
-        <div class="footer__social-links">
-          <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-          </a>
-          <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener" aria-label="Facebook">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          </a>
+        <p class="footer__copy">© 2024 Krispie's Celebrations Bakery · Gaura Foodtech Pvt Ltd · Hyderabad, Telangana</p>
+        <div class="footer__bottom-links">
+          <a href="privacy-policy">Privacy Policy</a>
+          <span class="footer__bottom-dot">·</span>
+          <a href="terms">Terms &amp; Conditions</a>
         </div>
       </div>
+
     </div>
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+  /* ── Interactive store locator: switch map + info on card select ── */
+  (function () {
+    const STORES = [
+      { name: 'Lalbazar',   addr: 'Lalbazar, Hyderabad, Telangana',   lat: 17.4789248, lng: 78.5141202, gmaps: 'https://share.google/ko11BWxiPSSVPCa6C' },
+      { name: 'Suchitra',   addr: 'Suchitra, Hyderabad, Telangana',   query: "Krispie's - Bakery, Cafe & Sweets - Suchitra Branch",  gmaps: 'https://share.google/zok5k5ZsybR2LCl29' },
+      { name: 'Boduppal',   addr: 'Boduppal, Hyderabad, Telangana',   lat: 17.4063298, lng: 78.5868799, gmaps: 'https://share.google/cVt7icbkeM6Xc1qLL' },
+      { name: 'Ramantapur', addr: 'Ramantapur, Hyderabad, Telangana', lat: 17.3955159, lng: 78.5301352, gmaps: 'https://share.google/OaxXpmGiIa0QBcbzf' },
+      { name: 'Tukkuguda',  addr: 'Tukkuguda, Hyderabad, Telangana',  lat: 17.2084205, lng: 78.4767763, gmaps: 'https://share.google/dsMEdJLRGK459qlZT' },
+    ];
+
+    const grid   = document.getElementById('locGrid');
+    const iframe = document.getElementById('locMapIframe');
+    const openBtn = document.getElementById('locMapOpen');
+    const popupName = document.getElementById('locPopupName');
+    const popupAddr = document.getElementById('locPopupAddr');
+    const popupDir = document.getElementById('locPopupDir');
+    if (!grid || !iframe) return;
+
+    const cards = Array.from(grid.querySelectorAll('.loc-card'));
+
+    function selectStore(i) {
+      const s = STORES[i];
+      if (!s) return;
+      const q = s.lat != null ? `${s.lat},${s.lng}` : encodeURIComponent(s.query);
+      iframe.src = `https://www.google.com/maps?q=${q}&z=16&output=embed`;
+      openBtn.href = s.gmaps;
+      popupDir.href = s.gmaps;
+      popupName.textContent = s.name;
+      popupAddr.textContent = s.addr;
+      cards.forEach(c => c.classList.toggle('is-active', c.dataset.store === String(i)));
+    }
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => selectStore(Number(card.dataset.store)));
+    });
+  })();
+  </script>
+  <script src="js/track.js" defer></script>
 </body>
 </html>

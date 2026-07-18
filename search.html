@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search | Krispie's | Hyderabad Bakery Since 1996</title>
+  <meta name="description" content="Search Krispie's full range of birthday, wedding, engagement and theme cakes, plus baking guides and articles.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://www.krispies.in/search">
+  <link rel="icon" href="assets/logo.svg" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20">
+  <style>
+    .search-hero { background: linear-gradient(135deg, var(--cream) 0%, var(--cream-2) 100%); padding: calc(110px + var(--promo-h)) 0 32px; text-align: center; }
+    .search-box-wrap { max-width: 560px; margin: 20px auto 0; position: relative; }
+    .search-box-wrap input {
+      width: 100%; padding: 14px 20px 14px 46px; border-radius: 50px; border: 1.5px solid var(--border-gold, rgba(154,74,58,0.25));
+      font-size: 1rem; font-family: var(--font-body, inherit); background: #fff; color: var(--text-on-light, #1A0008);
+    }
+    .search-box-wrap input:focus { outline: none; border-color: var(--gold); }
+    .search-box-wrap svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-muted-lt); pointer-events: none; }
+    .search-results-section { padding: 32px 0 60px; }
+    .search-summary { color: var(--text-muted-lt); font-size: 0.85rem; margin-bottom: 24px; }
+    .search-group-title { font-family: var(--font-display); font-size: 1.3rem; margin: 32px 0 16px; color: var(--text-on-light); }
+    .article-hit { display: block; padding: 16px; border: 1px solid var(--border-gold, rgba(154,74,58,0.2)); border-radius: 12px; margin-bottom: 12px; text-decoration: none; }
+    .article-hit:hover { border-color: var(--gold); }
+    .article-hit__title { font-weight: 700; color: var(--text-on-light, #1A0008); margin-bottom: 4px; }
+    .article-hit__desc { font-size: 0.82rem; color: var(--text-muted-lt); line-height: 1.5; }
+    .search-empty { text-align: center; padding: 60px 20px; color: var(--text-muted-lt); }
+    .search-trending { max-width: 700px; margin: 22px auto 0; }
+    .search-trending__label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted-lt); margin-bottom: 10px; }
+    .search-trending__pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .trending-pill {
+      border: 1.5px solid var(--border-gold, rgba(154,74,58,0.25)); background: #fff; color: var(--text-on-light, #1A0008);
+      padding: 7px 16px; border-radius: 50px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .trending-pill:hover { border-color: var(--gold); background: var(--gold-faint, rgba(154,74,58,0.06)); }
+    .search-fallback-note { font-size: 0.85rem; color: var(--text-muted-lt); margin-bottom: 4px; }
+  </style>
+</head>
+<body class="cat-landing">
+
+
+
+    <nav class="nav" role="navigation">
+    <div class="container">
+      <div class="nav__inner">
+        <a href="index" class="nav__logo"><img src="assets/logo.svg" alt="Krispie's"><span class="nav__brand-name">Krispie's</span></a>
+        <ul class="nav__links">
+          <li><a href="index">Home</a></li>
+          <li class="nav__dropdown">
+            <a href="menu" class="nav__dropdown-toggle">Menu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav__dropdown-caret"><polyline points="6 9 12 15 18 9"/></svg></a>
+            <div class="nav__dropdown-menu">
+              <a href="birthday-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg></span>
+                <span><strong>Classic Birthday Cakes</strong><small>Black Forest, Truffle, Butterscotch</small></span>
+              </a>
+              <a href="wedding-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                <span><strong>Wedding Cakes</strong><small>Multi-tier fondant &amp; sugar flowers</small></span>
+              </a>
+              <a href="engagement-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M9 4l3 4 3-4"/></svg></span>
+                <span><strong>Engagement Cakes</strong><small>Ring box, heart &amp; roses, gold drip</small></span>
+              </a>
+              <a href="birthday-theme-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg></span>
+                <span><strong>Birthday Theme Cakes</strong><small>Unicorn, Superhero, Princess</small></span>
+              </a>
+              <a href="baby-shower-cakes" class="nav__dropdown-item">
+                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a3 3 0 1 0 6 0c0-1-.5-2-2-3l-1-1-1 1c-1.5 1-2 2-2 3z"/><path d="M5 18c0-3 3-5 7-5s7 2 7 5"/></svg></span>
+                <span><strong>Kids Birthday</strong><small>Seemantham, gender reveal, naming</small></span>
+              </a>
+              <div class="nav__dropdown-foot"><a href="menu">View Full Menu →</a></div>
+            </div>
+          </li>
+          <li><a href="story">Our Story</a></li>
+          <li><a href="articles/">Articles</a></li>
+          <li><a href="contact#franchise">Franchise</a></li>
+          <li><a href="contact">Contact</a></li>
+        </ul>
+        <div class="nav__cta" style="display:flex;align-items:center;gap:8px;">
+          <a href="search" aria-label="Search" style="background:none;border:none;cursor:pointer;padding:6px 8px;color:var(--gold-dark);display:flex;align-items:center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </a>
+          <button onclick="openCartDrawer()" aria-label="View cart" style="position:relative;background:none;border:none;cursor:pointer;padding:6px 8px;color:var(--gold-dark);display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span id="cartBadge" style="display:none;position:absolute;top:0;right:0;background:#9A4A3A;color:#fff;font-size:0.6rem;font-weight:700;min-width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1;">0</span>
+          </button>
+          <a href="tel:+917975218850" class="nav__call-btn" aria-label="Call us"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>+91 79752 18850</a>
+        </div>
+        <button class="nav__hamburger" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="nav__mobile">
+      <a href="index">Home</a>
+      <a href="menu">Menu</a>
+      <div class="nav__mobile-sub">
+        <a href="birthday-cakes">→ Classic Birthday Cakes</a>
+        <a href="wedding-cakes">→ Wedding Cakes</a>
+        <a href="engagement-cakes">→ Engagement Cakes</a>
+        <a href="birthday-theme-cakes">→ Birthday Theme Cakes</a>
+        <a href="baby-shower-cakes">→ Kids Birthday</a>
+      </div>
+      <a href="story">Our Story</a>
+      <a href="articles/">Articles</a>
+      <a href="contact#franchise">Franchise</a>
+      <a href="contact">Contact</a>
+    </div>
+  </nav>
+
+  <header class="search-hero">
+    <div class="container">
+      <span class="section-label" style="color:var(--gold-dark)">Find Your Cake</span>
+      <h1 class="page-hero__title" style="color:var(--text-on-light);font-size:clamp(1.8rem,4vw,3rem);margin-top:6px">Search Krispie's</h1>
+      <form id="searchForm" class="search-box-wrap" onsubmit="return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="searchInput" placeholder="Search cakes, flavours, articles…" autocomplete="off">
+      </form>
+      <div class="search-trending" id="searchTrending">
+        <div class="search-trending__label">Trending Searches</div>
+        <div class="search-trending__pills" id="trendingPills"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="menu-main">
+    <section class="search-results-section">
+      <div class="container">
+        <div id="searchSummary" class="search-summary"></div>
+        <div id="fallbackNote" class="search-fallback-note"></div>
+        <div id="productResults"></div>
+        <div id="articleResults"></div>
+        <div id="searchEmpty" class="search-empty" style="display:none">
+          <div style="width:48px;height:48px;margin:0 auto 12px;color:var(--gold)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <p>No results yet. Try a cake name, flavour, or occasion like "birthday" or "wedding".</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+
+      <div class="footer__grid">
+
+        <!-- Col 1: Brand -->
+        <div class="footer__brand">
+          <div class="footer__logo-row">
+            <img src="assets/logo-white.svg" alt="Krispie's" class="footer__logo"
+              onerror="this.src='assets/logo.svg'">
+            <span class="footer__brand-name">Krispie's</span>
+          </div>
+          <p class="footer__tagline">Your Celebrations Partner</p>
+          <p class="footer__desc">Crafting handmade joy since 1996 with the warmth of Iyengar tradition. Hyderabad's most loved bakery for birthdays, weddings &amp; every milestone.</p>
+          <div class="footer__social-links">
+            <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Col 2: Navigate -->
+        <div class="footer__col">
+          <h4 class="footer__col-title">Navigate</h4>
+          <a href="index"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+          <a href="menu"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>Our Menu</a>
+          <a href="story"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Our Story</a>
+          <a href="articles/"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>Articles</a>
+          <a href="contact#franchise"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>Franchise</a>
+          <a href="contact"><svg class="footer__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>Contact Us</a>
+        </div>
+
+        <!-- Col 3: Our Outlets -->
+        <div class="footer__col">
+          <h4 class="footer__col-title">Our Outlets</h4>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Lalbazar</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Lalbazar+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Suchitra</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Suchitra+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Boduppal</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Boduppal+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Ramantapur</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Ramantapur+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+          <div class="footer__outlet">
+            <span class="footer__outlet-name"><svg class="footer__pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Tukkuguda</span>
+            <a href="https://maps.google.com/?q=Krispies+Bakery+Tukkuguda+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a>
+          </div>
+        </div>
+
+        <!-- Col 4: Contact & Orders -->
+        <div class="footer__col">
+          <h4 class="footer__col-title">Get in Touch</h4>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>Phone</span>
+            <a href="tel:+917975218850">+91 79752 18850</a>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram</span>
+            <a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener">@krispies.in</a>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook</span>
+            <a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener">krispies.in</a>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Bulk Orders</span>
+            <a href="contact">Enquire Now</a>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-label"><svg class="footer__contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Custom Cakes</span>
+            <a href="contact">Get a Quote</a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Divider -->
+      <div class="footer__rule"></div>
+
+      <!-- Bottom bar -->
+      <div class="footer__bottom">
+        <p class="footer__copy">© 2024 Krispie's Celebrations Bakery · Gaura Foodtech Pvt Ltd · Hyderabad, Telangana</p>
+        <div class="footer__bottom-links">
+          <a href="privacy-policy">Privacy Policy</a>
+          <span class="footer__bottom-dot">·</span>
+          <a href="terms">Terms &amp; Conditions</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+
+
+
+  <!-- CHECKOUT MODAL -->
+  <div id="checkoutOverlay" class="checkout-overlay" onclick="if(event.target===this)closeCheckout()">
+    <div class="checkout-modal">
+      <div class="checkout-modal__hd">
+        <div>
+          <h3 class="checkout-modal__title">Place Your Order</h3>
+          <div class="chk-steps">
+            <span class="chk-step" id="chkStep1">1. Order</span>
+            <span class="chk-sep">›</span>
+            <span class="chk-step" id="chkStep2">2. Details</span>
+            <span class="chk-sep">›</span>
+            <span class="chk-step" id="chkStep3">3. Delivery &amp; Pay</span>
+          </div>
+        </div>
+        <button class="checkout-modal__close" onclick="closeCheckout()" aria-label="Close">✕</button>
+      </div>
+      <div class="checkout-modal__body" id="checkoutBody"></div>
+    </div>
+  </div>
+
+  <!-- CART DRAWER -->
+  <div class="cart-backdrop" id="cartBackdrop" onclick="closeCartDrawer()"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-drawer__hd">
+      <div>
+        <h3 class="cart-drawer__title">Your Cart</h3>
+        <span class="cart-drawer__count" id="cartCount">0 items</span>
+      </div>
+      <button class="cart-drawer__close" onclick="closeCartDrawer()">✕</button>
+    </div>
+    <div class="cart-drawer__body" id="cartBody">
+      <div class="cart-empty" id="cartEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;color:var(--border-gold)"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <p>Your cart is empty</p>
+        <span>Browse our menu and add your favourites!</span>
+      </div>
+      <div id="cartItemsList"></div>
+    </div>
+    <div class="cart-drawer__ft" id="cartFooter" style="display:none">
+      <div class="cart-summary">
+        <div class="cart-summary__row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
+        <div class="cart-summary__row cart-summary__row--total"><span>Total</span><span id="cartTotalDisplay">₹0</span></div>
+      </div>
+      <button class="btn btn-gold" style="width:100%;padding:16px;font-size:0.85rem;margin-top:16px" onclick="openCartCheckout()">Proceed to Checkout →</button>
+    </div>
+  </div>
+
+  <!-- ADD-ONS MODAL -->
+  <div class="addons-overlay" id="addonsOverlay"></div>
+  <div class="addons-modal" id="addonsModal">
+    <div class="addons-modal__hd">
+      <div>
+        <div class="addons-modal__check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:#fff"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h3 class="addons-modal__title">Added to Cart!</h3>
+        <p class="addons-modal__sub">Enhance your celebration with these party essentials</p>
+      </div>
+      <button class="addons-modal__close" onclick="closeAddons()">✕</button>
+    </div>
+    <div class="addons-modal__grid" id="addonsGrid"></div>
+    <div class="addons-modal__ft">
+      <button class="btn btn-outline addons-modal__skip" onclick="skipAddons()">Skip</button>
+      <button class="btn btn-gold addons-modal__confirm" onclick="confirmAddons()">Add Selected &amp; View Cart</button>
+    </div>
+  </div>
+
+<script src="js/main.js"></script>
+  <script src="js/shop.js?v=5"></script>
+<script src="js/track.js" defer></script>
+<script>
+const ARTICLES = [
+  { slug: 'anniversary-cake-ideas', title: 'Anniversary Cake Ideas That Will Make Your Partner Smile', desc: 'Looking for the perfect anniversary cake idea? From first anniversary to silver and golden anniversaries, here are designs that hit emotionally.' },
+  { slug: 'baby-shower-cakes-modern-guide', title: 'Baby Shower Cakes: A Modern Hyderabad Family Guide', desc: 'Planning a baby shower in Hyderabad? Here are cake ideas, design themes, sizes, and how to surprise the mother-to-be.' },
+  { slug: 'bakery-near-me-hyderabad', title: 'Best Bakery Near Me in Hyderabad', desc: 'Looking for the best bakery near you in Hyderabad? Krispie\'s 5 outlets cover every area, Lalbazar, Suchitra, Boduppal, Ramantapur, Tukkuguda. Find yours.' },
+  { slug: 'best-bakery-bulk-orders-hyderabad', title: 'Best Bakery for Bulk & Corporate Orders in Hyderabad', desc: 'Best bakery in Hyderabad for bulk and corporate orders, Krispie\'s Diwali boxes, Christmas hampers, office cakes. Custom branding, bulk discounts, GST invoicing.' },
+  { slug: 'best-bakery-hyderabad-what-makes-one', title: 'What Makes a Great Bakery in Hyderabad? An Insider\'s Take', desc: 'What separates a great bakery from an ordinary one? After 30 years of baking in Hyderabad, here is what we believe matters most.' },
+  { slug: 'best-bakery-in-hyderabad', title: 'Best Bakery in Hyderabad', desc: 'Looking for the best bakery in Hyderabad? Local guide covering Krispie\'s 5 outlets, what makes a great bakery, popular cakes & pricing, written by 30-year veteran Hyderabad bakers.' },
+  { slug: 'best-birthday-cake-flavours-hyderabad-2026', title: 'The Ultimate Guide to Choosing Birthday Cake Flavours in Hyderabad', desc: 'From classic Black Forest to trending Rasmalai cake, here\'s how to pick the perfect birthday cake flavour in Hyderabad. Tips, pairings & expert insights from Krispie\'s bakers.' },
+  { slug: 'best-birthday-cakes-in-hyderabad', title: 'Best Birthday Cakes in Hyderabad', desc: 'Best birthday cakes in Hyderabad, ranked top 15 cake designs, flavours, prices, and how to order with same-day delivery. Krispie\'s 30-year birthday cake expertise.' },
+  { slug: 'best-cake-shop-in-hyderabad', title: 'Best Cake Shop in Hyderabad', desc: 'Best cake shop in Hyderabad for birthdays, weddings, anniversaries. Krispie\'s 5-outlet guide with same-day delivery, 4.8-star ratings, and 3000+ verified reviews.' },
+  { slug: 'best-cheesecakes-in-hyderabad', title: 'Best Cheesecakes in Hyderabad', desc: 'Best cheesecakes in Hyderabad, Krispie\'s NY-style baked, Japanese cotton, no-bake, fusion flavours. Same-day delivery, 4.8-star ratings, eggless options.' },
+  { slug: 'best-donuts-in-hyderabad', title: 'Best Donuts in Hyderabad', desc: 'Best donuts in Hyderabad, Krispie\'s freshly fried daily, 12+ flavours, glazed, filled, vegan, and Indian fusion options. Same-day delivery from 5 outlets.' },
+  { slug: 'best-eggless-cakes-in-hyderabad', title: 'Best Eggless Cakes in Hyderabad', desc: 'Best eggless cakes in Hyderabad, Krispie\'s full eggless range, flavours, prices, and how 30 years of Iyengar heritage makes our eggless cakes taste as good as egg-based.' },
+  { slug: 'best-wedding-cakes-in-hyderabad', title: 'Best Wedding Cakes in Hyderabad', desc: 'Best wedding cakes in Hyderabad, premium fondant, sugar flowers, gold leaf, multi-tier designs from Krispie\'s. 1000+ Hyderabad weddings served since 1996.' },
+  { slug: 'black-forest-vs-chocolate-truffle', title: 'Black Forest vs Chocolate Truffle', desc: 'Which is the better cake, Black Forest or Chocolate Truffle? A Hyderabad bakery breaks down the differences honestly.' },
+  { slug: 'butterscotch-cake-hyderabad-obsession', title: 'Butterscotch Cake', desc: 'Butterscotch is one of India\'s most popular cake flavours but is barely known abroad. Here\'s the story behind Hyderabad\'s most beloved cake.' },
+  { slug: 'cake-delivery-hyderabad', title: 'Cake Delivery in Hyderabad', desc: 'Cake delivery in Hyderabad, Krispie\'s same-day, midnight surprise, express 1-hour options. Across all areas including HITEC City, Banjara Hills, Madhapur. Order online.' },
+  { slug: 'christmas-plum-cake-iyengar-tradition', title: 'Christmas Plum Cake: The Iyengar Bakery Tradition Behind It', desc: 'How did the British Christmas plum cake become a South Indian tradition? Here is the surprising history and why Iyengar bakeries still bake the best ones.' },
+  { slug: 'corporate-cake-orders-hyderabad', title: 'Corporate Cake Orders in Hyderabad: A Complete Guide', desc: 'Planning corporate cakes for office celebrations, client gifting, or events? Here is the complete guide to corporate cake orders in Hyderabad.' },
+  { slug: 'customized-cakes-guide', title: 'The Art of Customized Cakes', desc: 'What goes into a truly extraordinary customized cake? Krispie\'s expert bakers walk you through the design process, flavour selection, and how to order the perfect bespoke celebration cake in Hyderabad.' },
+  { slug: 'diwali-sweet-boxes-modern-gifting', title: 'Diwali Sweet Boxes: Modern Indian Festive Gifting Ideas', desc: 'Tired of generic mithai boxes for Diwali? Here are modern Diwali sweet box ideas that combine tradition with personalisation and great packaging.' },
+  { slug: 'eggless-cakes-india-guide', title: 'Eggless Cakes: Why India Loves Them and How They\'re Made', desc: 'Eggless cakes are not a compromise. Learn how good bakers make light, moist eggless cakes that taste indistinguishable from their egg-based counterparts.' },
+  { slug: 'engagement-cake-designs-2026', title: 'Engagement Cake Designs Trending in 2026', desc: 'What engagement cake designs are couples ordering in 2026? Ring box cakes, gold drip, heart shapes, two-tier celebrations and more.' },
+  { slug: 'gender-reveal-cakes-trend', title: 'Gender Reveal Cakes', desc: 'How does a gender reveal cake work? When do you order one? Here is everything you need to know about Hyderabad\'s hottest new baby tradition.' },
+  { slug: 'half-year-birthday-cakes-guide', title: 'Half-Year Birthday Cakes: The Sweetest New Family Tradition', desc: 'What is a half-year birthday cake? Why are Indian families ordering them? Krispie\'s guide to celebrating your baby\'s 6-month milestone the right way.' },
+  { slug: 'how-to-order-custom-cake', title: 'How to Order a Custom Cake in Hyderabad: Step by Step', desc: 'First time ordering a custom cake? Here is the complete step-by-step process, how to brief the bakery, what to expect, timelines, and pricing.' },
+  { slug: 'how-to-store-cake-fresh', title: 'How to Store Cake at Home So It Stays Fresh for Days', desc: 'Has the cake gone stale by Day 2? Here is the complete guide to storing different kinds of cake at home so they last longer and taste better.' },
+  { slug: 'iyengar-baking-heritage', title: '30 Years of Iyengar Baking Heritage', desc: 'Explore the rich tradition of Iyengar baking and how Krispie\'s 30-year heritage from Bangalore to Hyderabad has kept this culinary legacy alive through handcrafted breads, biscuits and celebration cakes.' },
+  { slug: 'perfect-birthday-cake', title: 'The Perfect Birthday Cake Guide 2024', desc: 'How to choose the perfect birthday cake in 2024, top flavours, design trends, ordering tips and expert advice from Krispie\'s bakers with 30 years of experience in Hyderabad.' },
+  { slug: 'rasmalai-cake-fusion-trend', title: 'Rasmalai Cake: When Indian Mithai Meets Modern Baking', desc: 'The Rasmalai cake trend is taking over Indian bakeries. Saffron-cardamom sponge, rabri cream, pistachios. Here\'s why this fusion cake is everywhere.' },
+  { slug: 'red-velvet-cake-india-story', title: 'Red Velvet Cake: The Story Behind India\'s Most Photographed Dessert', desc: 'Where did Red Velvet cake come from, and why did Indian bakeries fall in love with it? A Krispie\'s deep dive into the cake everyone is ordering.' },
+  { slug: 'same-day-cake-delivery-hyderabad', title: 'Same-Day Cake Delivery in Hyderabad: Everything You Need to Know', desc: 'Need a cake today in Hyderabad? Here is everything about same-day cake delivery, areas covered, timings, costs, and how to ensure freshness.' },
+  { slug: 'top-theme-cake-trends-hyderabad-2026', title: 'Top 10 Theme Cake Trends Taking Over Hyderabad in 2026', desc: 'From minimalist boho cakes to bold superhero designs, here are the theme cake trends Hyderabadi families are loving in 2026. Real cakes from Krispie\'s, no AI-generated mockups.' },
+  { slug: 'wedding-cake-guide-hyderabad', title: 'The Complete Wedding Cake Guide for Hyderabad Couples', desc: 'Planning a wedding cake in Hyderabad? Sizes, designs, costs, timelines, and insider tips from a bakery that has made wedding cakes for three decades.' }
+];
+
+const TRENDING_TAGS = [
+  'Birthday Cakes', 'Wedding Cakes', 'Engagement Cakes', 'Customized Cakes',
+  'Rasmalai', 'Chocolate Truffle', 'Red Velvet', 'Eggless', 'Anniversary', 'Same Day Delivery',
+];
+
+// ── Typo tolerance ──────────────────────────────────────────────────
+// Classic edit-distance between two strings -- how many single-character
+// insertions/deletions/substitutions turn one into the other.
+function levenshtein(a, b) {
+  a = a.toLowerCase(); b = b.toLowerCase();
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = a[i - 1] === b[j - 1]
+        ? prev[j - 1]
+        : 1 + Math.min(prev[j - 1], prev[j], cur[j - 1]);
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+
+// True if the query is a "close enough" typo of any whole word in text.
+// The allowed typo budget scales with query length so short queries
+// ("egg") don't fuzzy-match unrelated short words.
+function fuzzyWordMatch(text, query) {
+  if (!text || !query) return false;
+  const words = text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  const budget = query.length <= 4 ? 1 : query.length <= 8 ? 2 : 3;
+  return words.some(w => Math.abs(w.length - query.length) <= budget + 1 && levenshtein(w, query) <= budget);
+}
+
+// Higher score = more relevant. 0 = no match at all (not even a typo).
+function scoreProduct(p, q) {
+  const name = (p.name || '').toLowerCase();
+  const desc = (p.description || '').toLowerCase();
+  const cat  = (p.category || '').toLowerCase().replace(/-/g, ' ');
+  const flav = (p.flavour || '').toLowerCase();
+  const tag  = (p.tag || '').toLowerCase();
+  if (name.includes(q)) return 100;
+  if (flav.includes(q) || cat.includes(q) || tag.includes(q)) return 70;
+  if (desc.includes(q)) return 50;
+  if (fuzzyWordMatch(name, q)) return 30;
+  if (fuzzyWordMatch(flav, q) || fuzzyWordMatch(cat, q)) return 20;
+  if (fuzzyWordMatch(desc, q)) return 10;
+  return 0;
+}
+
+function scoreArticle(a, q) {
+  const title = a.title.toLowerCase();
+  const desc = a.desc.toLowerCase();
+  if (title.includes(q)) return 100;
+  if (desc.includes(q)) return 50;
+  if (fuzzyWordMatch(title, q)) return 30;
+  if (fuzzyWordMatch(desc, q)) return 10;
+  return 0;
+}
+
+function renderTrendingPills() {
+  const el = document.getElementById('trendingPills');
+  el.innerHTML = TRENDING_TAGS.map(t =>
+    `<button type="button" class="trending-pill" onclick="applySearch('${t.replace(/'/g, "\\'")}')">${esc(t)}</button>`
+  ).join('');
+}
+
+function applySearch(term) {
+  const input = document.getElementById('searchInput');
+  input.value = term;
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function runSearch(query) {
+  const q = query.trim().toLowerCase();
+  const summary = document.getElementById('searchSummary');
+  const fallbackNote = document.getElementById('fallbackNote');
+  const productEl = document.getElementById('productResults');
+  const articleEl = document.getElementById('articleResults');
+  const emptyEl = document.getElementById('searchEmpty');
+  const trendingEl = document.getElementById('searchTrending');
+
+  trendingEl.style.display = q ? 'none' : 'block';
+
+  if (!q) {
+    summary.textContent = '';
+    fallbackNote.textContent = '';
+    productEl.innerHTML = '';
+    articleEl.innerHTML = '';
+    emptyEl.style.display = 'none';
+    return;
+  }
+
+  let matchedProducts = getProducts()
+    .filter(p => p.active !== false)
+    .map(p => ({ p, score: scoreProduct(p, q) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(x => x.p);
+
+  let matchedArticles = ARTICLES
+    .map(a => ({ a, score: scoreArticle(a, q) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(x => x.a);
+
+  const total = matchedProducts.length + matchedArticles.length;
+  let usingFallback = false;
+
+  if (total === 0) {
+    // Query didn't match anything, not even a typo -- treat it as
+    // gibberish/unrelated rather than showing a dead end, and surface
+    // our best-selling cakes instead.
+    usingFallback = true;
+    matchedProducts = getProducts()
+      .filter(p => p.active !== false && (p.tag === 'bestseller' || p.featured))
+      .slice(0, 8);
+  }
+
+  summary.textContent = !usingFallback
+    ? `${total} result${total === 1 ? '' : 's'} for "${query}"`
+    : '';
+
+  fallbackNote.textContent = usingFallback && matchedProducts.length
+    ? `No matches for "${query}" -- here are some of our bestsellers instead.`
+    : '';
+
+  productEl.innerHTML = matchedProducts.length
+    ? `<h2 class="search-group-title">${usingFallback ? 'Popular Picks' : `Cakes (${matchedProducts.length})`}</h2><div class="pcard-grid">${matchedProducts.map(renderCard).join('')}</div>`
+    : '';
+
+  articleEl.innerHTML = matchedArticles.length
+    ? `<h2 class="search-group-title">Articles (${matchedArticles.length})</h2>` + matchedArticles.map(a => `
+        <a class="article-hit" href="articles/${a.slug}">
+          <div class="article-hit__title">${esc(a.title)}</div>
+          <div class="article-hit__desc">${esc(a.desc)}</div>
+        </a>`).join('')
+    : '';
+
+  emptyEl.style.display = matchedProducts.length || matchedArticles.length ? 'none' : 'block';
+  initGalleries();
+}
+
+function initSearchPage() {
+  renderTrendingPills();
+  const input = document.getElementById('searchInput');
+  const params = new URLSearchParams(location.search);
+  const initialQ = params.get('q') || '';
+  input.value = initialQ;
+  document.getElementById('searchTrending').style.display = initialQ ? 'none' : 'block';
+  if (initialQ) runSearch(initialQ);
+
+  let debounce;
+  input.addEventListener('input', () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      const url = new URL(location.href);
+      if (input.value.trim()) url.searchParams.set('q', input.value.trim());
+      else url.searchParams.delete('q');
+      history.replaceState(null, '', url);
+      runSearch(input.value);
+    }, 200);
+  });
+}
+
+document.addEventListener('shop:ready', initSearchPage);
+</script>
+</body>
+</html>
