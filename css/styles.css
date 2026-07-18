@@ -2343,7 +2343,7 @@ h1, h2, h3, h4 {
 
 /* Story stats bar */
 .story-stats {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
   margin: 0 0 56px; padding: 28px 0;
   border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold);
 }
@@ -2354,7 +2354,7 @@ h1, h2, h3, h4 {
   color: var(--text-muted-lt); margin-top: 4px;
 }
 @media (max-width: 640px) {
-  .story-stats { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; }
+  .story-stats { grid-template-columns: repeat(3, 1fr); gap: 20px 10px; }
 }
 
 /* Story values */
