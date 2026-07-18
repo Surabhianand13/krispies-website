@@ -2341,6 +2341,48 @@ h1, h2, h3, h4 {
 .tl-title { font-size: 1rem; color: var(--text-on-dark); margin-bottom: 8px; font-weight: 600; }
 .tl-desc { font-size: 0.875rem; color: var(--text-muted); line-height: 1.75; }
 
+/* Story stats bar */
+.story-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+  margin: 0 0 56px; padding: 28px 0;
+  border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold);
+}
+.story-stat { text-align: center; }
+.story-stat__num { font-family: var(--font-display); font-size: clamp(1.7rem, 3vw, 2.3rem); color: var(--gold); }
+.story-stat__label {
+  font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-muted-lt); margin-top: 4px;
+}
+@media (max-width: 640px) {
+  .story-stats { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; }
+}
+
+/* Story values */
+.story-values { text-align: center; margin: 56px 0; }
+.story-values__title {
+  font-family: var(--font-display); font-size: clamp(1.6rem, 3vw, 2.1rem);
+  color: var(--text-on-dark); margin: 10px 0 10px;
+}
+.story-values__sub {
+  color: var(--text-muted); font-size: 0.92rem; max-width: 520px;
+  margin: 0 auto 32px; line-height: 1.7;
+}
+.story-values__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.story-value-card {
+  background: var(--cream-2); border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg); padding: 30px 20px; text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.story-value-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(154,74,58,0.14); }
+.story-value-card__title { font-family: var(--font-display); font-size: 1.05rem; color: var(--text-on-dark); margin-bottom: 8px; }
+.story-value-card__desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+@media (max-width: 900px) {
+  .story-values__grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .story-values__grid { grid-template-columns: 1fr; }
+}
+
 /* Founders */
 .founders-section { text-align: center; margin: 56px 0; }
 .founders-section__title {
