@@ -29,6 +29,15 @@
     .article-hit__title { font-weight: 700; color: var(--text-on-light, #1A0008); margin-bottom: 4px; }
     .article-hit__desc { font-size: 0.82rem; color: var(--text-muted-lt); line-height: 1.5; }
     .search-empty { text-align: center; padding: 60px 20px; color: var(--text-muted-lt); }
+    .search-trending { max-width: 700px; margin: 22px auto 0; }
+    .search-trending__label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted-lt); margin-bottom: 10px; }
+    .search-trending__pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .trending-pill {
+      border: 1.5px solid var(--border-gold, rgba(154,74,58,0.25)); background: #fff; color: var(--text-on-light, #1A0008);
+      padding: 7px 16px; border-radius: 50px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .trending-pill:hover { border-color: var(--gold); background: var(--gold-faint, rgba(154,74,58,0.06)); }
+    .search-fallback-note { font-size: 0.85rem; color: var(--text-muted-lt); margin-bottom: 4px; }
   </style>
 </head>
 <body class="cat-landing">
@@ -112,6 +121,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="search" id="searchInput" placeholder="Search cakes, flavours, articles…" autocomplete="off">
       </form>
+      <div class="search-trending" id="searchTrending">
+        <div class="search-trending__label">Trending Searches</div>
+        <div class="search-trending__pills" id="trendingPills"></div>
+      </div>
     </div>
   </header>
 
@@ -119,6 +132,7 @@
     <section class="search-results-section">
       <div class="container">
         <div id="searchSummary" class="search-summary"></div>
+        <div id="fallbackNote" class="search-fallback-note"></div>
         <div id="productResults"></div>
         <div id="articleResults"></div>
         <div id="searchEmpty" class="search-empty" style="display:none">
@@ -342,42 +356,137 @@ const ARTICLES = [
   { slug: 'wedding-cake-guide-hyderabad', title: 'The Complete Wedding Cake Guide for Hyderabad Couples', desc: 'Planning a wedding cake in Hyderabad? Sizes, designs, costs, timelines, and insider tips from a bakery that has made wedding cakes for three decades.' }
 ];
 
+const TRENDING_TAGS = [
+  'Birthday Cakes', 'Wedding Cakes', 'Engagement Cakes', 'Customized Cakes',
+  'Rasmalai', 'Chocolate Truffle', 'Red Velvet', 'Eggless', 'Anniversary', 'Same Day Delivery',
+];
+
+// ── Typo tolerance ──────────────────────────────────────────────────
+// Classic edit-distance between two strings -- how many single-character
+// insertions/deletions/substitutions turn one into the other.
+function levenshtein(a, b) {
+  a = a.toLowerCase(); b = b.toLowerCase();
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = a[i - 1] === b[j - 1]
+        ? prev[j - 1]
+        : 1 + Math.min(prev[j - 1], prev[j], cur[j - 1]);
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+
+// True if the query is a "close enough" typo of any whole word in text.
+// The allowed typo budget scales with query length so short queries
+// ("egg") don't fuzzy-match unrelated short words.
+function fuzzyWordMatch(text, query) {
+  if (!text || !query) return false;
+  const words = text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  const budget = query.length <= 4 ? 1 : query.length <= 8 ? 2 : 3;
+  return words.some(w => Math.abs(w.length - query.length) <= budget + 1 && levenshtein(w, query) <= budget);
+}
+
+// Higher score = more relevant. 0 = no match at all (not even a typo).
+function scoreProduct(p, q) {
+  const name = (p.name || '').toLowerCase();
+  const desc = (p.description || '').toLowerCase();
+  const cat  = (p.category || '').toLowerCase().replace(/-/g, ' ');
+  const flav = (p.flavour || '').toLowerCase();
+  const tag  = (p.tag || '').toLowerCase();
+  if (name.includes(q)) return 100;
+  if (flav.includes(q) || cat.includes(q) || tag.includes(q)) return 70;
+  if (desc.includes(q)) return 50;
+  if (fuzzyWordMatch(name, q)) return 30;
+  if (fuzzyWordMatch(flav, q) || fuzzyWordMatch(cat, q)) return 20;
+  if (fuzzyWordMatch(desc, q)) return 10;
+  return 0;
+}
+
+function scoreArticle(a, q) {
+  const title = a.title.toLowerCase();
+  const desc = a.desc.toLowerCase();
+  if (title.includes(q)) return 100;
+  if (desc.includes(q)) return 50;
+  if (fuzzyWordMatch(title, q)) return 30;
+  if (fuzzyWordMatch(desc, q)) return 10;
+  return 0;
+}
+
+function renderTrendingPills() {
+  const el = document.getElementById('trendingPills');
+  el.innerHTML = TRENDING_TAGS.map(t =>
+    `<button type="button" class="trending-pill" onclick="applySearch('${t.replace(/'/g, "\\'")}')">${esc(t)}</button>`
+  ).join('');
+}
+
+function applySearch(term) {
+  const input = document.getElementById('searchInput');
+  input.value = term;
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 function runSearch(query) {
   const q = query.trim().toLowerCase();
   const summary = document.getElementById('searchSummary');
+  const fallbackNote = document.getElementById('fallbackNote');
   const productEl = document.getElementById('productResults');
   const articleEl = document.getElementById('articleResults');
   const emptyEl = document.getElementById('searchEmpty');
+  const trendingEl = document.getElementById('searchTrending');
+
+  trendingEl.style.display = q ? 'none' : 'block';
 
   if (!q) {
     summary.textContent = '';
+    fallbackNote.textContent = '';
     productEl.innerHTML = '';
     articleEl.innerHTML = '';
     emptyEl.style.display = 'none';
     return;
   }
 
-  const matchedProducts = getProducts().filter(p =>
-    p.active !== false && (
-      (p.name || '').toLowerCase().includes(q) ||
-      (p.description || '').toLowerCase().includes(q) ||
-      (p.category || '').toLowerCase().replace(/-/g, ' ').includes(q) ||
-      (p.flavour || '').toLowerCase().includes(q) ||
-      (p.tag || '').toLowerCase().includes(q)
-    )
-  );
+  let matchedProducts = getProducts()
+    .filter(p => p.active !== false)
+    .map(p => ({ p, score: scoreProduct(p, q) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(x => x.p);
 
-  const matchedArticles = ARTICLES.filter(a =>
-    a.title.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q)
-  );
+  let matchedArticles = ARTICLES
+    .map(a => ({ a, score: scoreArticle(a, q) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(x => x.a);
 
   const total = matchedProducts.length + matchedArticles.length;
-  summary.textContent = total
+  let usingFallback = false;
+
+  if (total === 0) {
+    // Query didn't match anything, not even a typo -- treat it as
+    // gibberish/unrelated rather than showing a dead end, and surface
+    // our best-selling cakes instead.
+    usingFallback = true;
+    matchedProducts = getProducts()
+      .filter(p => p.active !== false && (p.tag === 'bestseller' || p.featured))
+      .slice(0, 8);
+  }
+
+  summary.textContent = !usingFallback
     ? `${total} result${total === 1 ? '' : 's'} for "${query}"`
     : '';
 
+  fallbackNote.textContent = usingFallback && matchedProducts.length
+    ? `No matches for "${query}" -- here are some of our bestsellers instead.`
+    : '';
+
   productEl.innerHTML = matchedProducts.length
-    ? `<h2 class="search-group-title">Cakes (${matchedProducts.length})</h2><div class="pcard-grid">${matchedProducts.map(renderCard).join('')}</div>`
+    ? `<h2 class="search-group-title">${usingFallback ? 'Popular Picks' : `Cakes (${matchedProducts.length})`}</h2><div class="pcard-grid">${matchedProducts.map(renderCard).join('')}</div>`
     : '';
 
   articleEl.innerHTML = matchedArticles.length
@@ -388,15 +497,17 @@ function runSearch(query) {
         </a>`).join('')
     : '';
 
-  emptyEl.style.display = total ? 'none' : 'block';
+  emptyEl.style.display = matchedProducts.length || matchedArticles.length ? 'none' : 'block';
   initGalleries();
 }
 
 function initSearchPage() {
+  renderTrendingPills();
   const input = document.getElementById('searchInput');
   const params = new URLSearchParams(location.search);
   const initialQ = params.get('q') || '';
   input.value = initialQ;
+  document.getElementById('searchTrending').style.display = initialQ ? 'none' : 'block';
   if (initialQ) runSearch(initialQ);
 
   let debounce;
