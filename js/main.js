@@ -11,7 +11,12 @@
    works independently of it. */
 const META_PIXEL_ID = '888144317646311';
 const GOOGLE_ADS_ID = 'AW-17812098070';
-const GOOGLE_ADS_PURCHASE_LABEL = 'AW-17812098070/RAvBCP6CstgcEJaYvK1C';
+const GOOGLE_ADS_PURCHASE_LABEL  = 'AW-17812098070/RAvBCP6CstgcEJaYvK1C';
+// Separate Google Ads account/tag used specifically for WhatsApp-click
+// conversions -- gtag's send_to can target any account regardless of which
+// ID loaded the base script above, so this works alongside the Purchase
+// conversion without needing a second gtag.js load.
+const GOOGLE_ADS_WHATSAPP_LABEL = 'AW-17232345443/ry9rCLni2dgcEOPygplA';
 
 if (META_PIXEL_ID && !META_PIXEL_ID.startsWith('REPLACE_')) {
   (function (f, b, e, v, n, t, s) {
@@ -92,6 +97,19 @@ function krTrackPurchase(orderId, total, items) {
     });
   }
 }
+
+/* ---- WHATSAPP CLICK → GOOGLE ADS CONVERSION ----
+   Delegated listener so this covers every WhatsApp link/button on the site
+   -- the floating button and footer row (both injected below, present on
+   every page) as well as the various static "Chat on WhatsApp" / "Order via
+   WhatsApp" CTAs on individual category pages -- without needing an onclick
+   attribute hand-added to each one. */
+document.addEventListener('click', e => {
+  const link = e.target.closest('a[href*="wa.me"]');
+  if (link && window.gtag) {
+    window.gtag('event', 'conversion', { send_to: GOOGLE_ADS_WHATSAPP_LABEL });
+  }
+}, true);
 
 /* ---- NAV: scroll state ---- */
 const nav = document.querySelector('.nav');
