@@ -9,7 +9,7 @@
    (Connect Data Sources → Web → Meta Pixel), then paste it below. Until this
    is a real ID, the Pixel is skipped entirely -- Google Ads tracking below
    works independently of it. */
-const META_PIXEL_ID = 'REPLACE_WITH_META_PIXEL_ID';
+const META_PIXEL_ID = '888144317646311';
 const GOOGLE_ADS_ID = 'AW-17812098070';
 const GOOGLE_ADS_PURCHASE_LABEL = 'AW-17812098070/RAvBCP6CstgcEJaYvK1C';
 
