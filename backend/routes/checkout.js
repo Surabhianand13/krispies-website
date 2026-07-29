@@ -14,6 +14,7 @@ const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const db        = require('../db/database');
 const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
+const { sendPurchaseEvent } = require('../utils/metaCapi');
 const { optionalCustomerAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -123,6 +124,7 @@ router.post('/', paymentLimiter, optionalCustomerAuth, orderValidators, async (r
   // Fire email notifications (non-blocking) -- admin always, customer only
   // if they gave an email address.
   notifyOrder(row);
+  sendPurchaseEvent(row, req).catch(() => {});
 
   res.status(201).json({
     success: true,
@@ -248,7 +250,10 @@ router.post('/verify', paymentLimiter, (req, res) => {
     .run(internal_order_id);
 
   const confirmedOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(internal_order_id);
-  if (confirmedOrder) notifyOrder(confirmedOrder);
+  if (confirmedOrder) {
+    notifyOrder(confirmedOrder);
+    sendPurchaseEvent(confirmedOrder, req).catch(() => {});
+  }
 
   res.json({ success: true, message: 'Payment verified. Order confirmed.' });
 });
