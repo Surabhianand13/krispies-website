@@ -4,6 +4,95 @@
 
 'use strict';
 
+/* ---- META PIXEL + GOOGLE ADS CONVERSION TRACKING ----
+   Meta Pixel ID: create one at business.facebook.com/events_manager2
+   (Connect Data Sources → Web → Meta Pixel), then paste it below. Until this
+   is a real ID, the Pixel is skipped entirely -- Google Ads tracking below
+   works independently of it. */
+const META_PIXEL_ID = 'REPLACE_WITH_META_PIXEL_ID';
+const GOOGLE_ADS_ID = 'AW-17812098070';
+const GOOGLE_ADS_PURCHASE_LABEL = 'AW-17812098070/RAvBCP6CstgcEJaYvK1C';
+
+if (META_PIXEL_ID && !META_PIXEL_ID.startsWith('REPLACE_')) {
+  (function (f, b, e, v, n, t, s) {
+    if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+    if (!f._fbq) f._fbq = n; n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+    t = b.createElement(e); t.async = true; t.src = v;
+    s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  window.fbq('init', META_PIXEL_ID);
+  window.fbq('track', 'PageView');
+}
+
+(function () {
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag('js', new Date());
+  window.gtag('config', GOOGLE_ADS_ID);
+})();
+
+/* Shared funnel-event helpers, called from shop.js / product-detail.js.
+   Each no-ops safely if the relevant tag hasn't loaded (e.g. Pixel not yet
+   configured, or a script blocker is active). */
+function krTrackViewContent(product) {
+  if (!window.fbq) return;
+  window.fbq('track', 'ViewContent', {
+    content_ids:  [product.id],
+    content_type: 'product',
+    content_name: product.name,
+    currency:     'INR',
+    value:        product.priceFrom ?? product.price ?? 0,
+  });
+}
+
+function krTrackAddToCart(product, qty, unitPrice) {
+  if (!window.fbq) return;
+  window.fbq('track', 'AddToCart', {
+    content_ids:  [product.id],
+    content_type: 'product',
+    content_name: product.name,
+    currency:     'INR',
+    value:        unitPrice * qty,
+  });
+}
+
+function krTrackInitiateCheckout(items, total) {
+  if (!window.fbq) return;
+  window.fbq('track', 'InitiateCheckout', {
+    content_ids:  items.map(i => i.id),
+    content_type: 'product',
+    currency:     'INR',
+    value:        total,
+    num_items:    items.length,
+  });
+}
+
+// Fired once per confirmed order. Passing eventID lets Meta de-duplicate
+// this client-side Pixel hit against the server-side Conversions API event
+// the backend sends for the same order (see backend/utils/metaCapi.js).
+function krTrackPurchase(orderId, total, items) {
+  if (window.fbq) {
+    window.fbq('track', 'Purchase', {
+      content_ids:  items.map(i => i.id),
+      content_type: 'product',
+      currency:     'INR',
+      value:        total,
+    }, { eventID: String(orderId) });
+  }
+  if (window.gtag) {
+    window.gtag('event', 'conversion', {
+      send_to:        GOOGLE_ADS_PURCHASE_LABEL,
+      value:          total,
+      currency:       'INR',
+      transaction_id: String(orderId),
+    });
+  }
+}
+
 /* ---- NAV: scroll state ---- */
 const nav = document.querySelector('.nav');
 if (nav) {

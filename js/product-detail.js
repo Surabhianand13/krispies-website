@@ -207,6 +207,7 @@ document.addEventListener('shop:ready', () => {
   const p = products.find(x => x.slug === slug || x.id === slug);
   if (!p) { _pdpNotFound(); return; }
   _pdpProduct = p;
+  if (typeof krTrackViewContent === 'function') krTrackViewContent(p);
   document.title = `${p.name} — Krispie's`;
   const descEl = document.getElementById('pageDesc');
   if (descEl) descEl.setAttribute('content', p.description || '');

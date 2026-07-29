@@ -379,6 +379,7 @@ function _commitToCart(addons) {
   });
   _pendingQty = 1;
   updateCartBadge();
+  if (typeof krTrackAddToCart === 'function') krTrackAddToCart(product, qty, unitPrice);
 }
 
 /* ── CART DRAWER ── */
@@ -754,6 +755,13 @@ function openCheckout(productId, overrideProduct) {
   _chkCust     = { name: '', phone: '', email: '', address: '' };
   _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
   _chkCoupon   = { code: '', discount: 0, error: '' };
+  if (typeof krTrackInitiateCheckout === 'function') {
+    const items = _chkProduct._isCart ? _chkProduct._cartItems.map(i => i.product) : [_chkProduct];
+    const total = _chkProduct._isCart
+      ? _chkProduct._cartItems.reduce((s, i) => s + i.subtotal, 0)
+      : productFinalPrice(_chkProduct, null);
+    krTrackInitiateCheckout(items, total);
+  }
   closeCartDrawer();    // avoid the cart drawer and checkout modal ever being visible at once
   closeAccountModal();  // ditto for the account modal
   document.getElementById('checkoutOverlay').classList.add('open');
@@ -1386,6 +1394,10 @@ function _chkLoadScript(src) {
 
 /* ── Success screen ── */
 function _chkShowSuccess(orderId, total, method) {
+  if (typeof krTrackPurchase === 'function') {
+    const items = _chkProduct._isCart ? _chkProduct._cartItems.map(i => i.product) : [_chkProduct];
+    krTrackPurchase(orderId, total, items);
+  }
   _chkSetSteps(4); /* all done */
   const modeLabel = method === 'online'
     ? 'Paid Online'
