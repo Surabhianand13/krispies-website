@@ -10,12 +10,11 @@
    is a real ID, the Pixel is skipped entirely -- Google Ads tracking below
    works independently of it. */
 const META_PIXEL_ID = '888144317646311';
-const GOOGLE_ADS_ID = 'AW-17812098070';
-const GOOGLE_ADS_PURCHASE_LABEL  = 'AW-17812098070/RAvBCP6CstgcEJaYvK1C';
-// Separate Google Ads account/tag used specifically for WhatsApp-click
-// conversions -- gtag's send_to can target any account regardless of which
-// ID loaded the base script above, so this works alongside the Purchase
-// conversion without needing a second gtag.js load.
+// Krispie's own Google Ads account (previously wired to the wrong,
+// unrelated connected account -- fixed after verifying this is the
+// correct one directly against the Google Ads API).
+const GOOGLE_ADS_ID = 'AW-17232345443';
+const GOOGLE_ADS_PURCHASE_LABEL = 'AW-17232345443/a6SJCLnJ3tgcEOPygplA';
 const GOOGLE_ADS_WHATSAPP_LABEL = 'AW-17232345443/ry9rCLni2dgcEOPygplA';
 
 if (META_PIXEL_ID && !META_PIXEL_ID.startsWith('REPLACE_')) {
