@@ -279,19 +279,21 @@ function productForm(p = {}) {
       </div>
       <div class="form-row" style="grid-column:1/-1;">
         <label>Product Images</label>
-        <div class="hint" style="margin-bottom:6px;">Paste a URL, or reference a local file your team dropped into
-          <code>assets/images/products/&lt;category&gt;/&lt;filename&gt;.jpg</code> — e.g.
-          <code id="img-hint-example">assets/images/products/${esc(p.category || 'birthday-cakes')}/${esc(slugify(p.name) || 'product-name')}-1.jpg</code>
+        <div class="hint" style="margin-bottom:6px;">Upload a photo directly — it goes live immediately, no code push needed.</div>
+        <div class="img-add-row">
+          <button class="btn btn-gold btn-sm" onclick="document.getElementById('img-file-input').click()" type="button" id="img-upload-btn">Upload Image</button>
+          <input type="file" id="img-file-input" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" onchange="handleProductImgUpload(this)">
+        </div>
+        <div class="hint" style="margin:10px 0 4px;">Or paste an image URL / an already-committed repo path:</div>
+        <div class="img-add-row">
+          <input id="img-url-input" placeholder="Paste URL or assets/images/products/... path">
+          <button class="btn btn-outline btn-sm" onclick="addImg()" type="button">+ Add</button>
         </div>
         <div class="img-list" id="img-list">${images.map((url,i) => `
           <div class="img-pill" id="imgp-${i}">
             <span class="img-pill__url" title="${esc(url)}">${esc(url)}</span>
             <button class="img-pill__rm" onclick="removeImg(${i})" type="button">✕</button>
           </div>`).join('')}</div>
-        <div class="img-add-row">
-          <input id="img-url-input" placeholder="Paste URL or assets/images/products/... path">
-          <button class="btn btn-outline btn-sm" onclick="addImg()" type="button">+ Add</button>
-        </div>
         <div class="img-preview" id="img-preview">
           ${images.map(url => `<img src="${esc(url)}" onerror="this.style.display='none'">`).join('')}
         </div>
@@ -381,6 +383,44 @@ function removeImg(i) {
   _editImages.splice(i, 1);
   refreshImgUI();
 }
+
+// Uploads a file to the backend's persistent /uploads store and returns its
+// public URL — apiFetch always sends JSON, so this needs its own multipart
+// request. Same pattern as admin/images.html's uploadImageFile().
+async function uploadImageFile(file) {
+  const fd = new FormData();
+  fd.append('image', file);
+  const res = await fetch(`${BACKEND_URL}/api/upload`, {
+    method: 'POST',
+    headers: authHeader(),
+    body: fd,
+  });
+  if (res.status === 401) { logout(); throw new Error('Session expired'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Upload failed (HTTP ${res.status})`);
+  return data.url;
+}
+
+async function handleProductImgUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const btn = document.getElementById('img-upload-btn');
+  const prevLabel = btn.textContent;
+  btn.textContent = 'Uploading…';
+  btn.disabled = true;
+  try {
+    const url = await uploadImageFile(file);
+    _editImages.push(url);
+    refreshImgUI();
+  } catch (e) {
+    showToast(e.message || 'Upload failed', 'error');
+  } finally {
+    btn.textContent = prevLabel;
+    btn.disabled = false;
+    input.value = '';
+  }
+}
+
 function refreshImgUI() {
   document.getElementById('img-list').innerHTML = _editImages.map((url, i) => `
     <div class="img-pill">
@@ -445,16 +485,12 @@ function setupSlugAutofill(isEdit = false) {
   setTimeout(() => {
     const nameEl = document.getElementById('f-name');
     const slugEl = document.getElementById('f-slug');
-    const imgHint = document.getElementById('img-hint-example');
-    const catEl = document.getElementById('f-cat');
     if (!nameEl || !slugEl) return;
     slugEl.addEventListener('input', () => { slugTouched = true; });
     const sync = () => {
       if (!slugTouched) slugEl.value = slugify(nameEl.value);
-      if (imgHint) imgHint.textContent = `assets/images/products/${catEl?.value || 'birthday-cakes'}/${slugify(nameEl.value) || 'product-name'}-1.jpg`;
     };
     nameEl.addEventListener('input', sync);
-    catEl?.addEventListener('change', sync);
   }, 50);
 }
 
