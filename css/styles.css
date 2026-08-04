@@ -427,11 +427,12 @@ h1, h2, h3, h4 {
 }
 .nav__hamburger {
   display: none;
-  flex-direction: column; gap: 5px;
-  cursor: pointer; padding: 4px; background: none; border: none;
+  flex-direction: column; justify-content: center; align-items: center; gap: 5px;
+  width: 44px; height: 44px;
+  cursor: pointer; padding: 0; background: none; border: none;
 }
 .nav__hamburger span {
-  display: block; width: 22px; height: 1.5px;
+  display: block; width: 24px; height: 2px;
   background: var(--gold); transition: var(--ease);
 }
 .nav__mobile {
@@ -2965,7 +2966,10 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
 @media (max-width: 400px) {
   .menu-grid { grid-template-columns: 1fr; }
   .locations__grid { grid-template-columns: 1fr 1fr; }
-  .nav__brand-name { display: none; }
+  /* Keep the brand name visible even on the smallest phones -- a bare
+     hamburger icon with nothing next to it doesn't read as a nav bar. */
+  .nav__logo img { height: 40px; }
+  .nav__brand-name { font-size: 0.88rem; margin-right: 6px; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3417,6 +3421,12 @@ textarea.form-ctrl { resize: vertical; min-height: 88px; }
   .cant-find-cta__text { border-right: none; border-bottom: 1px solid var(--border-gold); padding: 32px 28px; }
   .cant-find-form-wrap { padding: 28px; }
   .menu-cat-section { padding: 52px 0 60px; }
+}
+@media (max-width: 640px) {
+  /* This block loads after the single-column rule further up the file, so
+     without this override the 860px rule above would win the cascade and
+     force cramped 2-column cards even on phones. */
+  .pcard-grid { grid-template-columns: 1fr; gap: 14px; }
 }
 
 /* ════════════════════════════════════════════
