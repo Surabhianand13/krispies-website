@@ -427,11 +427,12 @@ h1, h2, h3, h4 {
 }
 .nav__hamburger {
   display: none;
-  flex-direction: column; gap: 5px;
-  cursor: pointer; padding: 4px; background: none; border: none;
+  flex-direction: column; justify-content: center; align-items: center; gap: 5px;
+  width: 44px; height: 44px;
+  cursor: pointer; padding: 0; background: none; border: none;
 }
 .nav__hamburger span {
-  display: block; width: 22px; height: 1.5px;
+  display: block; width: 24px; height: 2px;
   background: var(--gold); transition: var(--ease);
 }
 .nav__mobile {
@@ -497,10 +498,19 @@ h1, h2, h3, h4 {
   background-position: center;
   transition: transform 0.7s ease;
 }
-/* Full-image banner slide */
+/* Full-image banner slide — desktop/tablet uses the wide banner as-is;
+   phones switch to a dedicated mobile crop (--bg-mobile) once one exists.
+   Each --bg-mobile value is itself a 2-image fallback list (see index.html)
+   so nothing breaks before the mobile-specific files are uploaded. */
 .hero__slide-bg--full {
+  background-image: var(--bg-desktop) !important;
   background-size: cover !important;
   background-position: center center !important;
+}
+@media (max-width: 640px) {
+  .hero__slide-bg--full {
+    background-image: var(--bg-mobile) !important;
+  }
 }
 /* Slide backgrounds — matched to each hero image tone */
 .hero__slide--1 .hero__slide-bg {
@@ -2916,9 +2926,13 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .nav__brand-name { font-size: 1rem; margin-right: 8px; }
   .nav { gap: 0; padding: 0 16px; }
 
-  /* Hero */
-  .hero { min-height: 0; height: auto; width: calc(100% - 20px); margin: calc(var(--nav-h) + 10px) auto 10px; border-radius: 14px; }
-  .hero__slide { min-height: 50svh; }
+  /* Hero — was min-height:50svh, which forces a near-square box on phones
+     (e.g. ~406px tall for a 355px-wide screen). The banner images are wide
+     letterbox compositions (1600x537, ~3:1) with text baked in, so cover-
+     cropping into a near-square box was hiding most of the image width.
+     A 3:2 ratio is a much closer match for any reasonably-shaped banner. */
+  .hero { min-height: 0; height: auto; aspect-ratio: 3 / 2; width: calc(100% - 20px); margin: calc(var(--nav-h) + 10px) auto 10px; border-radius: 14px; }
+  .hero__slide { min-height: 0; }
   .hero__slide-inner { flex-direction: column; justify-content: center; padding: 60px 20px 52px; text-align: center; gap: 20px; }
   .hero__content { max-width: 100%; }
   .hero__eyebrow { margin-bottom: 12px; font-size: 0.6rem; }
@@ -2965,7 +2979,10 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
 @media (max-width: 400px) {
   .menu-grid { grid-template-columns: 1fr; }
   .locations__grid { grid-template-columns: 1fr 1fr; }
-  .nav__brand-name { display: none; }
+  /* Keep the brand name visible even on the smallest phones -- a bare
+     hamburger icon with nothing next to it doesn't read as a nav bar. */
+  .nav__logo img { height: 40px; }
+  .nav__brand-name { font-size: 0.88rem; margin-right: 6px; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3417,6 +3434,12 @@ textarea.form-ctrl { resize: vertical; min-height: 88px; }
   .cant-find-cta__text { border-right: none; border-bottom: 1px solid var(--border-gold); padding: 32px 28px; }
   .cant-find-form-wrap { padding: 28px; }
   .menu-cat-section { padding: 52px 0 60px; }
+}
+@media (max-width: 640px) {
+  /* This block loads after the single-column rule further up the file, so
+     without this override the 860px rule above would win the cascade and
+     force cramped 2-column cards even on phones. */
+  .pcard-grid { grid-template-columns: 1fr; gap: 14px; }
 }
 
 /* ════════════════════════════════════════════
