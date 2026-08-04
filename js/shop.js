@@ -33,11 +33,31 @@ function getProducts() {
   return _productsCache;
 }
 
+// Retries a fetch a few times with short delays before giving up. Render's
+// free tier spins the backend down after ~15 min idle, and the first
+// request after that can hit the platform's gateway timeout (a non-OK
+// response) while the container is still waking up, typically for
+// 20-30 seconds. A single-attempt fetch treats that as a permanent
+// failure and falls back to (often empty, for a first-time visitor)
+// localStorage forever, with no error visible anywhere and no way for the
+// page to recover short of a manual refresh -- this makes a cold start
+// just take a few extra seconds instead of silently showing no products.
+async function _fetchWithRetry(url, delays = [0, 4000, 8000, 12000]) {
+  let lastErr;
+  for (let i = 0; i < delays.length; i++) {
+    if (delays[i]) await new Promise(r => setTimeout(r, delays[i]));
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Bad response: ' + res.status);
+      return await res.json();
+    } catch (err) { lastErr = err; }
+  }
+  throw lastErr;
+}
+
 async function loadProducts() {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/products`);
-    if (!res.ok) throw new Error('Bad response: ' + res.status);
-    const data = await res.json();
+    const data = await _fetchWithRetry(`${BACKEND_URL}/api/products`);
     if (!Array.isArray(data)) throw new Error('Unexpected response shape');
     _productsCache = data;
     try { localStorage.setItem(PROD_KEY, JSON.stringify(data)); } catch (_) {}
@@ -256,9 +276,7 @@ const ADDONS_KEY = 'krispies_addons';
 
 async function loadAddons() {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/addons`);
-    if (!res.ok) throw new Error('Bad response: ' + res.status);
-    const data = await res.json();
+    const data = await _fetchWithRetry(`${BACKEND_URL}/api/addons`);
     if (!Array.isArray(data)) throw new Error('Unexpected response shape');
     _addonsCache = data;
     try { localStorage.setItem(ADDONS_KEY, JSON.stringify(data)); } catch (_) {}
