@@ -76,7 +76,11 @@ const orderValidators = [
 const COUPONS = {
   FIRST100: { off: 100, minOrder: 500 },
 };
-const DELIVERY_FEE_TIERS = [0, 30, 60, 100, 150, 200, 250];
+// 0 is deliberately excluded -- that's only ever legitimate for pickup
+// (handled by the separate mode branch below), never for real delivery.
+// Including it here would let a delivery-mode order pass validation with
+// no delivery fee at all.
+const DELIVERY_FEE_TIERS = [30, 60, 100, 150, 200, 250];
 
 function computeUnitPrice(product, variantSelection) {
   let groups = [];
@@ -264,9 +268,12 @@ router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, 
       },
     });
 
-    // Stamp the Razorpay order ID into the notes for traceability
-    db.prepare(`UPDATE orders SET notes = '[RZP:' || ? || '] ' || COALESCE(notes,'') WHERE id = ?`)
-      .run(rzpOrder.id, row.id);
+    // Store the Razorpay order ID against this specific internal order --
+    // /verify requires an exact match on this before ever checking a
+    // signature, so a signature can only ever confirm the order it was
+    // actually issued for (see /verify for why this matters).
+    db.prepare(`UPDATE orders SET razorpay_order_id = ?, notes = '[RZP:' || ? || '] ' || COALESCE(notes,'') WHERE id = ?`)
+      .run(rzpOrder.id, rzpOrder.id, row.id);
 
     return res.json({
       razorpay_order_id: rzpOrder.id,
@@ -289,7 +296,18 @@ router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, 
 /* ════════════════════════════════════════════════
    POST /api/checkout/verify  — Signature check
    ════════════════════════════════════════════════ */
-router.post('/verify', paymentLimiter, (req, res) => {
+router.post('/verify',
+  paymentLimiter,
+  [
+    body('internal_order_id').isString().trim().notEmpty(),
+    body('razorpay_order_id').isString().trim().notEmpty(),
+    body('razorpay_payment_id').isString().trim().notEmpty(),
+    body('razorpay_signature').isString().trim().notEmpty(),
+  ],
+  (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ error: 'Invalid payment data.' });
+
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
   if (!keySecret) {
     // Log server-side but never expose config details to caller
@@ -304,12 +322,8 @@ router.post('/verify', paymentLimiter, (req, res) => {
     razorpay_signature,
   } = req.body;
 
-  if (!internal_order_id || !razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-    return res.status(400).json({ error: 'Invalid payment data.' });
-  }
-
   // Validate internal_order exists in DB before doing anything else
-  const existingOrder = db.prepare('SELECT id, status FROM orders WHERE id = ?').get(internal_order_id);
+  const existingOrder = db.prepare('SELECT id, status, razorpay_order_id FROM orders WHERE id = ?').get(internal_order_id);
   if (!existingOrder) {
     console.warn('[Razorpay] Verify called with unknown internal_order_id:', internal_order_id);
     return res.status(400).json({ error: 'Order not found.' });
@@ -318,6 +332,26 @@ router.post('/verify', paymentLimiter, (req, res) => {
   // Prevent replay: if already confirmed, return success without re-processing
   if (existingOrder.status === 'confirmed') {
     return res.json({ success: true, message: 'Order already confirmed.' });
+  }
+
+  // Only a still-pending order can ever become confirmed here -- e.g. an
+  // order an admin has already cancelled shouldn't be resurrectable by a
+  // late/replayed verify call.
+  if (existingOrder.status !== 'pending') {
+    return res.status(400).json({ error: `This order is ${existingOrder.status} and can no longer be confirmed.` });
+  }
+
+  // A valid HMAC signature only proves that *some* real payment happened
+  // for the given razorpay_order_id + razorpay_payment_id pair -- it says
+  // nothing on its own about which internal order that payment was for.
+  // Without this check, a signature from any real payment (even the
+  // cheapest item on the site) could be replayed against any other pending
+  // internal_order_id to confirm it for free. Requiring the submitted
+  // razorpay_order_id to match the one this internal order actually got
+  // from /initiate ties the payment to *this* order specifically.
+  if (existingOrder.razorpay_order_id !== razorpay_order_id) {
+    console.warn('[Razorpay] razorpay_order_id mismatch for internal_order_id:', internal_order_id);
+    return res.status(400).json({ error: 'Payment does not match this order.' });
   }
 
   // Razorpay signature = HMAC-SHA256( order_id + "|" + payment_id, key_secret )
