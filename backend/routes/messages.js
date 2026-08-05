@@ -7,6 +7,7 @@ const { requireAuth } = require('../middleware/auth');
 const { newMessageEmail } = require('../utils/email');
 const { VALID_OUTLETS, VALID_EVENT_TYPES } = require('../utils/constants');
 const { dbRateLimit } = require('../middleware/dbRateLimit');
+const { verifyTurnstileToken } = require('../utils/turnstile');
 
 const router = express.Router();
 
@@ -37,6 +38,9 @@ router.post('/',
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const turnstileResult = await verifyTurnstileToken(req);
+    if (turnstileResult) return res.status(turnstileResult.status).json({ error: turnstileResult.error });
 
     const m = {
       id:         uid(),
