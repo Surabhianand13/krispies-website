@@ -173,6 +173,13 @@ function renderCard(p) {
     ? `<button class="pcard__btn" onclick="addToCart('${p.id}')">Add to Cart</button>`
     : `<a class="pcard__btn" href="contact" style="text-decoration:none;">Get a Quote →</a>`;
 
+  const ratingHTML = p.ratingCount > 0 ? `
+    <div class="pcard__rating">
+      <span class="pcard__rating-star">★</span>
+      <span class="pcard__rating-value">${p.ratingAvg}</span>
+      <span class="pcard__rating-count">(${p.ratingCount})</span>
+    </div>` : '';
+
   return `
     <div class="pcard" data-flavour="${esc((p.flavour || '').toLowerCase())}">
       <a class="pcard__gallery" href="${url}">
@@ -182,6 +189,7 @@ function renderCard(p) {
       </a>
       <div class="pcard__body">
         <h3 class="pcard__name"><a href="${url}" style="text-decoration:none;color:inherit;">${esc(p.name)}</a></h3>
+        ${ratingHTML}
         <p class="pcard__desc">${esc(p.description)}</p>
         ${pricingHTML}
         ${cta}

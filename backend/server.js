@@ -72,6 +72,7 @@ app.use('/api/checkout',  require('./routes/checkout'));
 app.use('/api/upload',    require('./routes/upload'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/feed',      require('./routes/feed'));
+app.use('/api/reviews',   require('./routes/reviews'));
 
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
