@@ -543,6 +543,21 @@ password) or with any password you're unsure of.
 | PATCH | `/api/messages/:id/status` | JWT | Mark read/responded |
 | DELETE | `/api/messages/:id` | JWT | Delete message |
 
+#### Customers — "My Account" (mixed auth)
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/customers/signup` | None | Phone + password signup, auto-login |
+| POST | `/api/customers/login` | None | Phone + password login |
+| POST | `/api/customers/otp/request` | None | Email OTP login/signup — emails a 6-digit code, 10 min expiry |
+| POST | `/api/customers/otp/verify` | None | Checks the code; auto-creates the account (needs `name` in the body) the first time an email is used, otherwise just logs in |
+| GET | `/api/customers/me` | Customer JWT | Current profile |
+| GET | `/api/customers/orders` | Customer JWT | This customer's order history |
+| GET/POST/PUT/DELETE | `/api/customers/addresses` | Customer JWT | Saved address book |
+| GET | `/api/customers` | Admin JWT | List all customer accounts (admin) |
+| DELETE | `/api/customers/:id` | Admin JWT | Delete a customer account (admin) |
+
+Phone+password and email+OTP are two independent ways into the same `customers` table — a customer can have either, both, or (via OTP) neither a phone nor a password. Admin login and customer login use separate JWT types (`middleware/auth.js` rejects a customer token on admin routes and vice versa) and separate expiry env vars — `JWT_EXPIRES_IN` (admin, 8h) vs `CUSTOMER_JWT_EXPIRES_IN` (customer, 7d) — since the customer token lives in `localStorage` for a "stay logged in" shopping UX rather than `sessionStorage`.
+
 #### Checkout (all public — no auth)
 | Method | Path | Description |
 |--------|------|-------------|
@@ -632,6 +647,48 @@ message     TEXT
 status      TEXT DEFAULT 'unread'  -- unread | read | responded
 created_at  TEXT DEFAULT (datetime('now'))
 ```
+
+### `customers` table — "My Account" logins
+```sql
+id            TEXT PRIMARY KEY
+name          TEXT NOT NULL
+phone         TEXT UNIQUE            -- nullable: an email-OTP-only account has no phone
+email         TEXT UNIQUE            -- nullable: a phone+password account may not set one
+password_hash TEXT                   -- nullable: null for accounts that only ever used email OTP
+created_at    TEXT DEFAULT (datetime('now'))
+```
+`phone` and `password_hash` were `NOT NULL` before email-OTP login existed. `backend/db/database.js`
+runs a one-time table-rebuild migration (SQLite has no `ALTER COLUMN`) that drops those constraints
+on any existing DB — it's guarded by inspecting the live schema via `PRAGMA table_info`, not a
+settings flag, so it's naturally a no-op everywhere it's already run, including fresh installs.
+
+### `addresses` table — saved delivery addresses, keyed to a customer
+```sql
+id          TEXT PRIMARY KEY
+customer_id TEXT NOT NULL            -- FK → customers.id, ON DELETE CASCADE
+label       TEXT DEFAULT 'Home'
+name        TEXT NOT NULL
+phone       TEXT NOT NULL            -- the address's own contact phone, independent of customers.phone
+line        TEXT NOT NULL
+city        TEXT DEFAULT 'Hyderabad'
+pincode     TEXT
+is_default  INTEGER DEFAULT 0
+created_at  TEXT DEFAULT (datetime('now'))
+```
+
+### `email_otps` table — one-time login codes for email OTP
+```sql
+id         TEXT PRIMARY KEY
+email      TEXT NOT NULL
+otp_hash   TEXT NOT NULL             -- bcrypt hash; the plaintext code is never stored
+expires_at TEXT NOT NULL             -- created_at + 10 minutes
+attempts   INTEGER DEFAULT 0         -- locked out at 5 wrong guesses
+consumed   INTEGER DEFAULT 0         -- 0/1 — a used or expired code can't be replayed
+created_at TEXT DEFAULT (datetime('now'))
+```
+Requesting a new code for an email deletes any still-live code for that email first, so only the
+most recently sent one ever works. Expired rows are opportunistically swept on each new request
+rather than needing a scheduled cleanup job.
 
 ---
 

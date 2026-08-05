@@ -67,9 +67,9 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS customers (
     id            TEXT    PRIMARY KEY,
     name          TEXT    NOT NULL,
-    phone         TEXT    NOT NULL UNIQUE,
-    email         TEXT,
-    password_hash TEXT    NOT NULL,
+    phone         TEXT    UNIQUE,
+    email         TEXT    UNIQUE,
+    password_hash TEXT,
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -138,6 +138,16 @@ db.exec(`
     created_at TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS email_otps (
+    id         TEXT    PRIMARY KEY,
+    email      TEXT    NOT NULL,
+    otp_hash   TEXT    NOT NULL,
+    expires_at TEXT    NOT NULL,
+    attempts   INTEGER NOT NULL DEFAULT 0,
+    consumed   INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // ── Safe migrations for existing DBs ──────────────────────────────────────────
@@ -156,7 +166,42 @@ safeAddColumn('orders',   'payment_method', 'TEXT');
 safeAddColumn('orders',   'customer_id',    'TEXT');
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products(slug)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
+try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)'); } catch (_) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_addresses_customer ON addresses(customer_id)'); } catch (_) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_email_otps_email ON email_otps(email)'); } catch (_) {}
+
+// ── One-time migration: customers.phone / customers.password_hash used to be
+//    NOT NULL, back when phone+password was the only way to have an account.
+//    Email-OTP login can create an account with neither, so an existing DB's
+//    columns need to drop that constraint. SQLite has no ALTER COLUMN, so
+//    this rebuilds the table -- guarded by inspecting the live schema (not a
+//    settings flag) so it's naturally a no-op on any DB where it already ran,
+//    including fresh installs that create the column nullable from the start.
+const customersPhoneCol = db.prepare("PRAGMA table_info(customers)").all().find(c => c.name === 'phone');
+if (customersPhoneCol && customersPhoneCol.notnull === 1) {
+  db.exec('PRAGMA foreign_keys = OFF');
+  const migrateCustomersNullable = db.transaction(() => {
+    db.exec(`
+      CREATE TABLE customers_new (
+        id            TEXT    PRIMARY KEY,
+        name          TEXT    NOT NULL,
+        phone         TEXT    UNIQUE,
+        email         TEXT    UNIQUE,
+        password_hash TEXT,
+        created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT INTO customers_new (id, name, phone, email, password_hash, created_at)
+        SELECT id, name, phone, email, password_hash, created_at FROM customers;
+      DROP TABLE customers;
+      ALTER TABLE customers_new RENAME TO customers;
+    `);
+  });
+  migrateCustomersNullable();
+  db.exec('PRAGMA foreign_keys = ON');
+  try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
+  try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)'); } catch (_) {}
+  console.log('✓ Migrated customers table: phone/password_hash are now nullable (email-OTP accounts)');
+}
 
 // ── Seed admin user ────────────────────────────────────────────────────────────
 const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
