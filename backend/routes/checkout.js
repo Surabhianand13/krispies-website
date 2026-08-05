@@ -10,13 +10,13 @@
 
 const express   = require('express');
 const crypto    = require('crypto');
-const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const db        = require('../db/database');
 const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
 const { sendPurchaseEvent } = require('../utils/metaCapi');
 const { optionalCustomerAuth } = require('../middleware/auth');
 const { VALID_OUTLETS } = require('../utils/constants');
+const { dbRateLimit } = require('../middleware/dbRateLimit');
 
 const router = express.Router();
 
@@ -27,14 +27,14 @@ function notifyOrder(row) {
 
 /* ── Stricter rate limiter for payment endpoints ──
    Max 10 attempts per IP per 15 minutes.
-   Prevents brute-force / automated fraud attempts.   */
-const paymentLimiter = rateLimit({
-  windowMs:        15 * 60 * 1000,
-  max:             10,
-  standardHeaders: true,
-  legacyHeaders:   false,
-  message:         { error: 'Too many payment attempts. Please wait a few minutes and try again.' },
-  skip: (req) => process.env.NODE_ENV === 'test',
+   Prevents brute-force / automated fraud attempts. DB-backed (not
+   express-rate-limit's in-memory store) since this runs across multiple
+   instances that don't share process memory -- see middleware/dbRateLimit.js. */
+const paymentLimiter = dbRateLimit({
+  windowMs: 15 * 60 * 1000,
+  max:      10,
+  keyGenerator: (req) => `payment:${req.ip}`,
+  message:  { error: 'Too many payment attempts. Please wait a few minutes and try again.' },
 });
 
 /* ── Razorpay — loaded lazily so the server starts even without the package ── */

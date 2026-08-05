@@ -2,11 +2,11 @@
 
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const rateLimit = require('express-rate-limit');
 const db = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
 const { newMessageEmail } = require('../utils/email');
 const { VALID_OUTLETS, VALID_EVENT_TYPES } = require('../utils/constants');
+const { dbRateLimit } = require('../middleware/dbRateLimit');
 
 const router = express.Router();
 
@@ -14,13 +14,14 @@ function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-// Rate-limit public form submissions to 5 per hour per IP
-const submitLimiter = rateLimit({
+// Rate-limit public form submissions to 5 per hour per IP. DB-backed --
+// see middleware/dbRateLimit.js for why express-rate-limit's in-memory
+// store doesn't work across this app's multiple instances.
+const submitLimiter = dbRateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
+  keyGenerator: (req) => `messages:${req.ip}`,
   message: { error: 'Too many submissions. Please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
 });
 
 // POST /api/messages — public (contact form)
