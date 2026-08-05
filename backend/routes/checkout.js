@@ -57,10 +57,69 @@ const orderValidators = [
   body('customer_name').trim().notEmpty().withMessage('Name is required.'),
   body('customer_phone').trim().notEmpty().withMessage('Phone number is required.'),
   body('items').trim().notEmpty().withMessage('Items are required.'),
+  body('product_id').trim().notEmpty().withMessage('Product is required.'),
   body('amount')
     .isFloat({ min: MIN_AMOUNT, max: MAX_AMOUNT })
     .withMessage(`Amount must be between ₹${MIN_AMOUNT} and ₹${MAX_AMOUNT.toLocaleString('en-IN')}.`),
 ];
+
+/* ── Authoritative price recompute ──
+   The frontend sends `amount` for display purposes only. Every real order
+   total is recomputed here from the product's own DB row (mirrors
+   js/shop.js's productFinalPrice/productBasePrice) plus a server-side copy
+   of coupons and delivery-fee tiers, so nothing the client sends -- a
+   tampered amount, a bogus coupon_discount, or a made-up delivery fee --
+   can change what actually gets charged. */
+const COUPONS = {
+  FIRST100: { off: 100, minOrder: 500 },
+};
+const DELIVERY_FEE_TIERS = [0, 30, 60, 100, 150, 200, 250];
+
+function computeUnitPrice(product, variantSelection) {
+  let groups = [];
+  try { groups = JSON.parse(product.variant_groups || '[]'); } catch (_) { groups = []; }
+
+  if (!Array.isArray(groups) || !groups.length) {
+    const mrp = Number(product.mrp) || 0;
+    const disc = Number(product.discount) || 0;
+    return mrp ? Math.round(mrp * (1 - disc / 100)) : 0;
+  }
+
+  const sel = (variantSelection && typeof variantSelection === 'object') ? variantSelection : {};
+  return groups.reduce((sum, g) => {
+    const idx = sel[g.name] != null ? Number(sel[g.name]) : (g.optional ? -1 : 0);
+    if (idx === -1 || !Array.isArray(g.options)) return sum;
+    const opt = g.options[idx];
+    return sum + (opt ? Number(opt.price) || 0 : 0);
+  }, 0);
+}
+
+/* Returns { amount, error }. error is set (and amount null) when the
+   request can't be priced safely -- caller should respond 400. */
+function computeAuthoritativeAmount(body) {
+  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(body.product_id);
+  if (!product) return { amount: null, error: 'Product not found.' };
+
+  const qty = Math.max(1, Math.min(99, parseInt(body.quantity, 10) || 1));
+  const unitPrice = computeUnitPrice(product, body.variant_selection);
+  const subtotal = unitPrice * qty;
+
+  const mode = body.delivery_mode === 'pickup' ? 'pickup' : 'delivery';
+  let fee = 0;
+  if (mode === 'delivery') {
+    fee = Number(body.delivery_fee);
+    if (!DELIVERY_FEE_TIERS.includes(fee)) {
+      return { amount: null, error: 'Invalid delivery fee — please redo checkout.' };
+    }
+  }
+
+  const code = String(body.coupon_code || '').trim().toUpperCase();
+  const coupon = COUPONS[code];
+  const discount = (coupon && subtotal >= coupon.minOrder) ? coupon.off : 0;
+
+  const total = Math.max(MIN_AMOUNT, Math.round(subtotal + fee - discount));
+  return { amount: total, error: null };
+}
 
 /* ── Build DB row from request body ──
    req is optional -- when passed, an already-logged-in customer (detected
@@ -118,6 +177,10 @@ router.post('/', paymentLimiter, optionalCustomerAuth, orderValidators, async (r
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
+  const { amount, error } = computeAuthoritativeAmount(req.body);
+  if (error) return res.status(400).json({ error });
+  req.body.amount = amount;
+
   const row = buildOrderRow(req.body, {}, req);
   db.prepare(INSERT_SQL).run(row);
 
@@ -150,8 +213,12 @@ router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, 
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-  // Amount comes in rupees from the frontend → convert to paise
-  const amountPaise = Math.round(parseFloat(req.body.amount) * 100);
+  const { amount, error: priceError } = computeAuthoritativeAmount(req.body);
+  if (priceError) return res.status(400).json({ error: priceError });
+  req.body.amount = amount;
+
+  // Amount comes in rupees → convert to paise
+  const amountPaise = Math.round(amount * 100);
 
   // Save a PENDING order first so we have an internal ID to track
   const row = buildOrderRow(req.body, {}, req);

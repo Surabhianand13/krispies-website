@@ -1,13 +1,25 @@
 'use strict';
 
-const express  = require('express');
-const db       = require('../db/database');
+const express   = require('express');
+const rateLimit = require('express-rate-limit');
+const db        = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// These two endpoints are public and write-only, so without their own
+// limiter they're an easy target for filling the DB with junk rows --
+// generous enough for real traffic, tight enough to blunt scripted spam.
+const trackingLimiter = rateLimit({
+  windowMs:        15 * 60 * 1000,
+  max:             120,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message:         { ok: false },
+});
+
 // POST /api/analytics/track — public, lightweight page view tracking
-router.post('/track', (req, res) => {
+router.post('/track', trackingLimiter, (req, res) => {
   try {
     const { session_id, path, referrer, device_type } = req.body || {};
     if (!path) return res.status(400).json({ error: 'path required' });
@@ -28,7 +40,7 @@ router.post('/track', (req, res) => {
 });
 
 // POST /api/analytics/event — public, track custom events
-router.post('/event', (req, res) => {
+router.post('/event', trackingLimiter, (req, res) => {
   try {
     const { session_id, type, label, path, meta } = req.body || {};
     if (!type) return res.status(400).json({ error: 'type required' });

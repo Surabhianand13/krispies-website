@@ -725,27 +725,20 @@ let _chkCust     = { name: '', phone: '', email: '', address: '' };
 let _chkDelivery = { mode: 'delivery', store: null, km: null, fee: 0, lat: null, lng: null };
 let _chkCoupon   = { code: '', discount: 0, error: '' };
 
-/* Coupon codes -- two shapes:
-   - "flat" off: a fixed rupee amount off, only above minOrder. Matches the
-     FIRST100 offer already advertised in the site-wide promo bar.
-   - "setTotal": overrides the grand total (subtotal + delivery fee) down to
-     a fixed amount -- used for SURABHI, an internal test coupon that brings
-     any order down to ₹1 so the post-purchase flow can be tested for real
-     through Razorpay without spending real money. */
+/* Coupon codes -- flat rupee amount off, only above minOrder. Matches the
+   FIRST100 offer already advertised in the site-wide promo bar.
+   NOTE: this list is display-only. The backend (backend/routes/checkout.js)
+   keeps its own authoritative copy and recomputes the order total server-side
+   -- never trust a client-supplied discount/amount for what gets charged. */
 const COUPONS = {
   FIRST100: { type: 'flat', off: 100, minOrder: 500, label: 'FIRST100 applied — ₹100 off' },
-  SURABHI:  { type: 'setTotal', setTotal: 1, minOrder: 0, label: 'SURABHI applied — test order, total set to ₹1' },
 };
 
 // Returns the discount amount (in rupees) to subtract from subtotal+fee.
-function _chkCouponDiscount(subtotal, fee) {
+function _chkCouponDiscount(subtotal, _fee) {
   if (!_chkCoupon.code) return 0;
   const c = COUPONS[_chkCoupon.code];
   if (!c || subtotal < c.minOrder) return 0;
-  if (c.type === 'setTotal') {
-    const gross = subtotal + (fee || 0);
-    return Math.max(0, gross - c.setTotal);
-  }
   return c.off;
 }
 
@@ -1273,11 +1266,17 @@ function _chkOrderPayload(method) {
     items:            `${itemLabel} × ${_chkCart.qty}`,
     quantity:         String(_chkCart.qty),
     amount:           total,
+    // The fields below are for the backend to independently recompute the
+    // authoritative price from -- the amount above is display-only and is
+    // never trusted as-is for what gets charged (see routes/checkout.js).
+    product_id:       _chkProduct.id,
+    variant_selection: _chkCart.variantSelection || null,
     coupon_code:      _chkCoupon.code || null,
     coupon_discount:  disc,
     platform:         'website',
     outlet:           _chkDelivery.store ? _chkDelivery.store.toLowerCase() : null,
     delivery_mode:    _chkDelivery.mode,
+    delivery_fee:     _chkDelivery.fee || 0,
     delivery_address: _chkCust.address,
     delivery_date:    _chkCart.deliveryDate,
     delivery_time:    _chkCart.deliveryTime || null,

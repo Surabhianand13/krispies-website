@@ -1,6 +1,7 @@
 'use strict';
 
 const path    = require('path');
+const crypto  = require('crypto');
 const Database = require('better-sqlite3');
 const bcrypt   = require('bcryptjs');
 
@@ -160,7 +161,18 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_addresses_customer ON addresses(cu
 // ── Seed admin user ────────────────────────────────────────────────────────────
 const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
 if (!adminExists) {
-  const password = process.env.ADMIN_PASSWORD || 'krispies2024';
+  // No hardcoded fallback here on purpose -- a known default password
+  // baked into the repo is a live credential the moment the repo is
+  // public/shared. If ADMIN_PASSWORD isn't set, generate a random one and
+  // print it once so whoever has server log access can retrieve it and
+  // change it via POST /api/auth/change-password.
+  let password = process.env.ADMIN_PASSWORD;
+  if (!password) {
+    password = crypto.randomBytes(12).toString('base64url');
+    console.warn('⚠ ADMIN_PASSWORD not set -- generated a random admin password:');
+    console.warn(`  ${password}`);
+    console.warn('  Set ADMIN_PASSWORD in your environment and change this password via the admin panel.');
+  }
   const hash = bcrypt.hashSync(password, 12);
   db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run('admin', hash);
   console.log('✓ Admin user created');

@@ -440,8 +440,8 @@ Click Pay Online
 ## 7. Admin Panel
 
 **URL:** `www.krispies.in/admin/`  
-**Password:** `krispies2024` (change in `admin/admin.js` line 10)  
-**Auth:** `sessionStorage` — login expires when browser tab is closed
+**Password:** set via the `ADMIN_PASSWORD` env var on Render (see [Section 10](#10-environment-variables)) — bcrypt-hashed server-side, verified through `POST /api/auth/login`. There is no password in the frontend code. To change it, use `POST /api/auth/change-password` from a logged-in admin session, not by editing a file.  
+**Auth:** JWT stored in `sessionStorage` — login expires when browser tab is closed
 
 ### Pages
 
@@ -472,9 +472,16 @@ offline fallback, never a source of truth.
 
 ### Changing the admin password
 
-Set the `ADMIN_PASSWORD` environment variable on Render (used to hash the seeded admin user on
-first boot — see `backend/db/database.js`). Changing it after the admin user already exists in
-the DB requires updating the password hash directly, not just the env var.
+The `ADMIN_PASSWORD` environment variable on Render is **only** consulted the very first time the
+`users` table is empty (see `backend/db/database.js`) — it seeds the initial bcrypt hash and is
+never read again afterward. If it's unset at that first boot, a random password is generated and
+printed once to the Render service logs instead of falling back to any fixed value.
+
+To change the password on a live admin account, log in and call `POST /api/auth/change-password`
+(current + new password) — this is the only supported way; editing the env var after the admin
+user already exists has no effect. Do this now if the account may have ever run with the old
+`krispies2024` default (previously documented here in plaintext, which defeats the point of a
+password) or with any password you're unsure of.
 
 ### Product form fields
 
@@ -640,8 +647,11 @@ PORT=3000
 JWT_SECRET=your_long_random_secret_string_here
 JWT_EXPIRES_IN=8h
 
-# Admin login password (for backend API)
-ADMIN_PASSWORD=krispies2024
+# Admin login password (for backend API) — only used to seed the admin
+# account the very first time the users table is empty; ignored afterward.
+# Pick a strong, unique value. If left unset, a random one is generated
+# and printed once to the server logs on first boot.
+ADMIN_PASSWORD=choose_a_strong_unique_password
 
 # Email — notifications sent TO this address
 ADMIN_EMAIL=your@email.com
@@ -790,10 +800,8 @@ Edit `index.html` — find the `.hero__slide` blocks. Each slide looks like:
 ```
 
 ### Change the admin password
-Edit `admin/admin.js` line 10:
-```js
-const ADMIN_PASSWORD = 'your-new-password';
-```
+Log into `/admin/` and call `POST /api/auth/change-password` with your current and new password
+(see [Section 7](#7-admin-panel)). There is no password stored in the frontend code to edit.
 
 ### Connect backend to frontend
 Edit `js/main.js` line ~40:
