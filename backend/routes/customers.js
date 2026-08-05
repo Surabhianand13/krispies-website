@@ -22,6 +22,7 @@ const db = require('../db/database');
 const { requireCustomerAuth, requireAuth } = require('../middleware/auth');
 const { otpLoginEmail } = require('../utils/email');
 const { dbRateLimit } = require('../middleware/dbRateLimit');
+const { verifyTurnstileToken } = require('../utils/turnstile');
 
 const router = express.Router();
 
@@ -76,9 +77,12 @@ router.post('/signup',
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters.'),
     body('email').optional({ checkFalsy: true }).isEmail().withMessage('Please enter a valid email.'),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const turnstileResult = await verifyTurnstileToken(req);
+    if (turnstileResult) return res.status(turnstileResult.status).json({ error: turnstileResult.error });
 
     const phone = req.body.phone.trim();
     const existing = db.prepare('SELECT id FROM customers WHERE phone = ?').get(phone);
@@ -109,9 +113,12 @@ router.post('/login',
     body('phone').trim().notEmpty().withMessage('Phone number is required.'),
     body('password').notEmpty().withMessage('Password is required.'),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const turnstileResult = await verifyTurnstileToken(req);
+    if (turnstileResult) return res.status(turnstileResult.status).json({ error: turnstileResult.error });
 
     const customer = db.prepare('SELECT * FROM customers WHERE phone = ?').get(req.body.phone.trim());
     // password_hash is null for accounts created via email OTP that never
@@ -133,6 +140,9 @@ router.post('/otp/request',
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const turnstileResult = await verifyTurnstileToken(req);
+    if (turnstileResult) return res.status(turnstileResult.status).json({ error: turnstileResult.error });
 
     const email = req.body.email.trim().toLowerCase();
 

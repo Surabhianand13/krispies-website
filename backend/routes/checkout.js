@@ -17,6 +17,7 @@ const { sendPurchaseEvent } = require('../utils/metaCapi');
 const { optionalCustomerAuth } = require('../middleware/auth');
 const { VALID_OUTLETS } = require('../utils/constants');
 const { dbRateLimit } = require('../middleware/dbRateLimit');
+const { verifyTurnstileToken } = require('../utils/turnstile');
 
 const router = express.Router();
 
@@ -229,6 +230,9 @@ router.post('/', paymentLimiter, (_req, res) => {
 router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+  const turnstileResult = await verifyTurnstileToken(req);
+  if (turnstileResult) return res.status(turnstileResult.status).json({ error: turnstileResult.error });
 
   const phoneLimit = checkPhoneOrderLimit(req.body.customer_phone.trim());
   if (!phoneLimit.ok) return res.status(429).json({ error: phoneLimit.error });
