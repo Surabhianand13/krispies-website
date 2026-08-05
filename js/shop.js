@@ -27,6 +27,59 @@ const CAT_SVG = {
 };
 const CAT_EMOJI = CAT_SVG; // backwards-compat alias
 
+/* ── Cloudflare Turnstile ──────────────────────────────────────────────────
+   Shared across every form that takes a phone number or email (checkout,
+   account signup/login/OTP, the "can't find it" quote form). Skips itself
+   entirely -- rendering nothing and sending no token -- until TURNSTILE_SITE_KEY
+   in main.js is replaced with a real key, so nothing breaks before that's
+   set up. The backend mirrors this: it skips verification (rather than
+   rejecting requests) whenever its matching secret isn't configured either. */
+const turnstileConfigured = typeof TURNSTILE_SITE_KEY === 'string' && !TURNSTILE_SITE_KEY.startsWith('REPLACE_');
+
+let _turnstileScriptPromise = null;
+function _loadTurnstileScript() {
+  if (window.turnstile) return Promise.resolve();
+  if (_turnstileScriptPromise) return _turnstileScriptPromise;
+  _turnstileScriptPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    s.async = true; s.defer = true;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Turnstile script failed to load'));
+    document.head.appendChild(s);
+  });
+  return _turnstileScriptPromise;
+}
+
+// Renders a fresh widget into containerEl (a plain empty <div>) and returns
+// its widget ID, needed to read back the token at submit time. Call this
+// every time the form's HTML is (re)rendered -- replacing a container's
+// innerHTML destroys any widget previously mounted inside it.
+async function renderTurnstile(containerEl) {
+  if (!turnstileConfigured || !containerEl) return null;
+  try {
+    await _loadTurnstileScript();
+    containerEl.innerHTML = '';
+    return window.turnstile.render(containerEl, { sitekey: TURNSTILE_SITE_KEY });
+  } catch (_) {
+    return null; // network hiccup loading the widget -- treat as unconfigured, don't block the form
+  }
+}
+
+// Empty string when Turnstile isn't configured/loaded -- the backend
+// treats a missing token the same way (skips the check) in that case.
+function getTurnstileToken(widgetId) {
+  if (!turnstileConfigured || !window.turnstile || widgetId == null) return '';
+  try { return window.turnstile.getResponse(widgetId) || ''; } catch (_) { return ''; }
+}
+
+// Tokens are single-use -- call this after a failed submit so the widget
+// re-arms itself for the retry instead of resending an already-spent token.
+function resetTurnstile(widgetId) {
+  if (!turnstileConfigured || !window.turnstile || widgetId == null) return;
+  try { window.turnstile.reset(widgetId); } catch (_) {}
+}
+
 /* ── Product loading — backend is the source of truth; localStorage is only
    an offline fallback cache written after every successful fetch. ── */
 let _productsCache = [];
@@ -762,7 +815,7 @@ function _chkApplyCoupon() {
   else if (!c) { _chkCoupon = { code: '', discount: 0, error: 'Invalid coupon code.' }; }
   else if (sub < c.minOrder) { _chkCoupon = { code: '', discount: 0, error: `Add ₹${(c.minOrder - sub).toLocaleString('en-IN')} more to use ${code}.` }; }
   else { _chkCoupon = { code, discount: 0, error: '' }; }
-  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  _chkRenderDelivSection();
 }
 
 function _chkCouponHTML() {
@@ -783,7 +836,7 @@ function _chkCouponHTML() {
 
 function _chkRemoveCoupon() {
   _chkCoupon = { code: '', discount: 0, error: '' };
-  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  _chkRenderDelivSection();
 }
 
 /* ── Open / Close ── */
@@ -829,7 +882,11 @@ function _chkRenderStep(step) {
   const body = document.getElementById('checkoutBody');
   if (step === 1) body.innerHTML = _chkStep1();
   if (step === 2) body.innerHTML = _chkStep2();
-  if (step === 3) { body.innerHTML = _chkStep3(); }
+  if (step === 3) {
+    body.innerHTML = _chkStep3();
+    const container = document.getElementById('chkTurnstileContainer');
+    if (container) renderTurnstile(container).then(id => { _chkTurnstileWidgetId = id; });
+  }
 }
 
 /* ── Minimum lead time: takes the later of the category-based advance-order
@@ -1088,6 +1145,18 @@ function _chkDelivSection() {
   return _chkDelivery.mode === 'pickup' ? _chkPickupHTML() : _chkDeliveryHTML();
 }
 
+// The delivery/pickup section re-renders on every mode switch, store pick,
+// location detect, and coupon apply/remove -- each of those replaces
+// #chkDelivSection's innerHTML, which destroys any Turnstile widget
+// mounted inside it. Centralizing "re-render then re-mount" here instead of
+// repeating it at every call site.
+let _chkTurnstileWidgetId = null;
+function _chkRenderDelivSection() {
+  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  const container = document.getElementById('chkTurnstileContainer');
+  if (container) renderTurnstile(container).then(id => { _chkTurnstileWidgetId = id; });
+}
+
 function _chkSubtotal() {
   const p = _chkProduct;
   return productFinalPrice(p, _chkCart.variantSelection) * _chkCart.qty;
@@ -1150,6 +1219,7 @@ function _chkDeliveryHTML() {
         ${disc > 0 ? `<div class="chk-total-row" style="color:#1a7a3c"><span>Coupon (${_chkCoupon.code})</span><span>&#8722;&#8377;${disc.toLocaleString('en-IN')}</span></div>` : ''}
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub + fee - disc).toLocaleString('en-IN')}</span></div>
       </div>
+      <div id="chkTurnstileContainer" style="margin:12px 0;"></div>
       <div class="chk-pay-btns">
         <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">Pay Online (Razorpay)</button>
       </div>` : ''}
@@ -1183,6 +1253,7 @@ function _chkPickupHTML() {
         ${disc > 0 ? `<div class="chk-total-row" style="color:#1a7a3c"><span>Coupon (${_chkCoupon.code})</span><span>&#8722;&#8377;${disc.toLocaleString('en-IN')}</span></div>` : ''}
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub - disc).toLocaleString('en-IN')}</span></div>
       </div>
+      <div id="chkTurnstileContainer" style="margin:12px 0;"></div>
       <div class="chk-pay-btns">
         <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">Pay Online (Razorpay)</button>
       </div>` : ''}
@@ -1200,7 +1271,7 @@ function _chkSetMode(mode) {
   document.querySelectorAll('.chk-mode-btn').forEach((btn, i) => {
     btn.classList.toggle('active', (mode === 'delivery') ? i === 0 : i === 1);
   });
-  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  _chkRenderDelivSection();
 }
 
 /* ── Location detection ── */
@@ -1228,7 +1299,7 @@ function _chkDetectLoc() {
       _chkDelivery.store = nearest.name;
       _chkDelivery.km    = nearest.km;
       _chkDelivery.fee   = nearest.fee;
-      document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+      _chkRenderDelivSection();
     },
     err => {
       const msgs = {
@@ -1248,14 +1319,14 @@ function _chkSelectStore(name, km, fee) {
   _chkDelivery.store = name;
   _chkDelivery.km    = parseFloat(km);
   _chkDelivery.fee   = fee;
-  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  _chkRenderDelivSection();
 }
 
 function _chkSelectPickup(name) {
   _chkDelivery.store = name;
   _chkDelivery.km    = 0;
   _chkDelivery.fee   = 0;
-  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  _chkRenderDelivSection();
   /* keep pickup toggle highlighted */
   document.querySelectorAll('.chk-mode-btn').forEach((b, i) => b.classList.toggle('active', i === 1));
 }
@@ -1292,6 +1363,7 @@ function _chkOrderPayload(method) {
     notes:            _chkCart.notes || null,
     payment_method:   method,
     status:           'pending',
+    turnstileToken:   getTurnstileToken(_chkTurnstileWidgetId),
   };
 }
 
@@ -1390,6 +1462,10 @@ async function _chkSubmitRazorpay() {
   } catch (err) {
     console.error('Razorpay error:', err);
     if (btn) { btn.textContent = 'Pay Online (Razorpay)'; btn.disabled = false; }
+    // The Turnstile token is single-use and was just spent on this failed
+    // attempt (whether it was rejected or /initiate failed for some other
+    // reason) -- re-arm the widget so retrying doesn't resend a dead token.
+    resetTurnstile(_chkTurnstileWidgetId);
     _chkToast('Payment failed. Please try again or contact us directly.');
   }
 }
@@ -1509,6 +1585,16 @@ function closeAccountModal() {
   document.body.style.overflow = '';
 }
 
+// Shared by the login/signup form and the OTP-request form below -- only
+// one of these is ever shown at a time in the account modal, so one widget
+// ID is enough. Re-mounted every time _acctRenderAuthForm replaces the
+// modal body, same reasoning as the checkout modal's Turnstile widget.
+let _acctTurnstileWidgetId = null;
+function _acctMountTurnstile() {
+  const container = document.getElementById('acctTurnstileContainer');
+  if (container) renderTurnstile(container).then(id => { _acctTurnstileWidgetId = id; });
+}
+
 function _acctRenderAuthForm(mode) {
   const body = document.getElementById('acctModalBody');
 
@@ -1518,8 +1604,10 @@ function _acctRenderAuthForm(mode) {
       <div id="acctError" class="acct-error"></div>
       <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:14px;line-height:1.5;">We'll email you a 6-digit code — no password needed. New here? This creates your account too.</p>
       <div class="chk-field-group"><label class="chk-label">Email *</label><input class="chk-input" id="acctOtpEmail" placeholder="you@example.com" type="email" value="${esc(_acctOtpEmail)}"></div>
+      <div id="acctTurnstileContainer" style="margin:12px 0;"></div>
       <button class="btn btn-gold" style="width:100%;margin-top:6px;" id="acctOtpSendBtn" onclick="_acctSubmitOtpRequest()">Send Code</button>
       <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="_acctRenderAuthForm('login')">← Back to password login</button>`;
+    _acctMountTurnstile();
     return;
   }
 
@@ -1547,8 +1635,10 @@ function _acctRenderAuthForm(mode) {
     <div class="chk-field-group"><label class="chk-label">Phone Number *</label><input class="chk-input" id="acctPhone" placeholder="10-digit mobile number" type="tel"></div>
     ${!isLogin ? `<div class="chk-field-group"><label class="chk-label">Email <span style="font-weight:400;text-transform:none">(optional)</span></label><input class="chk-input" id="acctEmail" placeholder="you@example.com" type="email"></div>` : ''}
     <div class="chk-field-group"><label class="chk-label">Password *</label><input class="chk-input" id="acctPassword" placeholder="At least 6 characters" type="password"></div>
+    <div id="acctTurnstileContainer" style="margin:12px 0;"></div>
     <button class="btn btn-gold" style="width:100%;margin-top:6px;" onclick="${isLogin ? '_acctSubmitLogin()' : '_acctSubmitSignup()'}">${isLogin ? 'Log In' : 'Create Account'}</button>
     ${isLogin ? `<button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="_acctRenderAuthForm('otp-request')">Log in with email code instead</button>` : ''}`;
+  _acctMountTurnstile();
 }
 
 async function _acctSubmitSignup() {
@@ -1562,14 +1652,17 @@ async function _acctSubmitSignup() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/customers/signup`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, email: email || null, password }),
+      body: JSON.stringify({ name, phone, email: email || null, password, turnstileToken: getTurnstileToken(_acctTurnstileWidgetId) }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Signup failed.');
     _custToken = data.token; _custProfile = data.customer;
     localStorage.setItem('krispies_customer_token', _custToken);
     _acctRenderLoggedIn();
-  } catch (e) { errEl.textContent = e.message; }
+  } catch (e) {
+    errEl.textContent = e.message;
+    resetTurnstile(_acctTurnstileWidgetId);
+  }
 }
 
 async function _acctSubmitLogin() {
@@ -1581,14 +1674,17 @@ async function _acctSubmitLogin() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/customers/login`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, password }),
+      body: JSON.stringify({ phone, password, turnstileToken: getTurnstileToken(_acctTurnstileWidgetId) }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed.');
     _custToken = data.token; _custProfile = data.customer;
     localStorage.setItem('krispies_customer_token', _custToken);
     _acctRenderLoggedIn();
-  } catch (e) { errEl.textContent = e.message; }
+  } catch (e) {
+    errEl.textContent = e.message;
+    resetTurnstile(_acctTurnstileWidgetId);
+  }
 }
 
 async function _acctSubmitOtpRequest() {
@@ -1601,7 +1697,7 @@ async function _acctSubmitOtpRequest() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/customers/otp/request`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, turnstileToken: getTurnstileToken(_acctTurnstileWidgetId) }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Could not send code.');
@@ -1610,6 +1706,7 @@ async function _acctSubmitOtpRequest() {
   } catch (e) {
     errEl.textContent = e.message;
     if (btn) { btn.textContent = 'Send Code'; btn.disabled = false; }
+    resetTurnstile(_acctTurnstileWidgetId);
   }
 }
 

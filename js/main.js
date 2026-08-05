@@ -220,6 +220,14 @@ if (fadeEls.length && 'IntersectionObserver' in window) {
 /* ---- CONTACT FORM ---- */
 const BACKEND_URL = 'https://krispies-website.onrender.com';
 
+/* Cloudflare Turnstile site key -- create a widget at Cloudflare dashboard
+   → Turnstile → Add widget (domains: krispies.in, www.krispies.in, mode:
+   Managed), then paste the Site Key here. The matching Secret Key goes in
+   Render's environment as TURNSTILE_SECRET_KEY, never in this file. Until
+   this is replaced with a real key, every form below skips the Turnstile
+   check and works exactly as it did before (see shop.js's turnstileReady). */
+const TURNSTILE_SITE_KEY = 'REPLACE_WITH_YOUR_TURNSTILE_SITE_KEY';
+
 const form = document.getElementById('contactForm');
 const successPanel = document.querySelector('.form-success');
 if (form) {
