@@ -48,20 +48,6 @@
     .wsc-why__icon svg { width:20px; height:20px; }
     .wsc-why__title { font-weight:700; font-size:0.92rem; color:var(--text-on-light); margin-bottom:3px; }
     .wsc-why__desc { font-size:0.82rem; color:var(--text-muted-lt); line-height:1.55; }
-    .wsc-form-wrap { max-width:700px; margin:32px auto 0; background:#fff; border-radius:20px; padding:36px 32px; box-shadow:0 8px 40px rgba(0,0,0,0.06); border:1px solid rgba(0,0,0,0.05); }
-    .wsc-form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .wsc-pills { display:flex; flex-wrap:wrap; gap:10px; }
-    .wsc-pill { padding:7px 16px; border-radius:50px; border:1.5px solid var(--border-gold); background:transparent; color:var(--text-muted-lt); font-family:var(--font-body); font-size:0.78rem; font-weight:500; cursor:pointer; transition:all 0.2s; }
-    .wsc-pill:hover { border-color:var(--gold); color:var(--gold-dark); }
-    .wsc-pill.active { background:var(--gold); border-color:var(--gold); color:#fff; font-weight:600; }
-    .wsc-success { display:none; text-align:center; padding:20px 10px 8px; }
-    .wsc-success__icon { width:56px; height:56px; margin:0 auto 16px; color:#1a7a3c; }
-    .wsc-success h3 { font-family:var(--font-display); font-size:1.4rem; color:var(--text-on-light); margin-bottom:8px; }
-    .wsc-success p { color:var(--text-muted-lt); font-size:0.9rem; }
-    @media (max-width:640px) {
-      .wsc-form-wrap { padding:26px 20px; }
-      .wsc-form-row { grid-template-columns:1fr; }
-    }
   </style>
 </head>
 <body>
@@ -155,14 +141,12 @@
         Since 1996, Krispie's has supplied fresh bread, buns, pizza bases, cake sponges, pastries, brownies and donuts in bulk to restaurants, hotels, cloud kitchens, bakeries and caterers across Nacharam, Boduppal, Uppal, Lalbazar, Suchitra and Amberpet. Cash on Delivery available — new accounts can start with a small trial order, no free samples and no long-term commitment required to get going.
       </p>
       <div class="wsc-stats">
-        <span class="wsc-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Since 1996</span>
         <span class="wsc-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Cash on Delivery</span>
         <span class="wsc-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Small Trial Order to Start</span>
         <span class="wsc-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>No Long-Term Contract</span>
       </div>
       <div class="hero__cta" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:6px">
         <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%20team%21%20I%27m%20interested%20in%20bulk%2Fwholesale%20orders%20for%20my%20business%20(restaurant%2Fhotel%2Fcloud%20kitchen%2Fbakery%2Fcaterer).%20Could%20you%20share%20pricing%20and%20minimum%20order%20quantities%3F" target="_blank" rel="noopener" class="btn btn-gold">WhatsApp Us →</a>
-        <a href="#wsc-form" class="btn btn-outline">Request a Quote</a>
       </div>
     </div>
   </header>
@@ -255,80 +239,38 @@
       </div>
     </section>
 
-    <!-- ENQUIRY FORM -->
-    <section class="container" id="wsc-form" style="padding:56px 0">
-      <div class="menu-cat-header fade-up" style="text-align:center">
-        <span class="section-label">Get Started</span>
-        <h2>Request a Wholesale Quote</h2>
-        <p>Tell us a bit about your business and what you need — our B2B team will get back to you with pricing and next steps.</p>
-      </div>
+    <!-- WHATSAPP CTA -->
+    <section class="container" style="padding:56px 0">
+      <div class="whatsapp-cta" id="cta-wholesale-bakery-orders" style="--wa-accent:#9A7A48">
+        <div class="whatsapp-cta__inner">
+          <div class="whatsapp-cta__left">
+            <div class="whatsapp-cta__badge">
+              <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                <path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm0 29.2c-2.5 0-5-.7-7.1-2l-.5-.3-5 1.3 1.3-4.9-.3-.5A13.2 13.2 0 1 1 16 29.2Zm7.3-9.9c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/>
+              </svg>
+            </div>
+            <h3>Ready to get started?</h3>
+            <p class="whatsapp-cta__lead">Send us your business type, area and what you need in bulk on WhatsApp — our B2B team replies within minutes with pricing.</p>
 
-      <div class="wsc-form-wrap">
-        <form id="wscForm">
-          <div class="wsc-form-row">
-            <div class="chk-field-group">
-              <label class="chk-label">Business / Contact Name *</label>
-              <input type="text" class="chk-input" data-field="name" placeholder="e.g. Spice Route Kitchen" required>
-            </div>
-            <div class="chk-field-group">
-              <label class="chk-label">Phone Number *</label>
-              <input type="tel" class="chk-input" data-field="phone" placeholder="10-digit mobile number" required>
-            </div>
+            <ol class="whatsapp-cta__steps">
+              <li><strong>1.</strong> Message us your business details on WhatsApp</li>
+              <li><strong>2.</strong> Our B2B team replies within minutes</li>
+              <li><strong>3.</strong> Start with a small trial order</li>
+            </ol>
           </div>
-          <div class="wsc-form-row">
-            <div class="chk-field-group">
-              <label class="chk-label">Email</label>
-              <input type="email" class="chk-input" data-field="email" placeholder="you@business.com">
-            </div>
-            <div class="chk-field-group">
-              <label class="chk-label">Business Type</label>
-              <select class="chk-input" data-field="businessType">
-                <option value="Restaurant">Restaurant</option>
-                <option value="Hotel">Hotel</option>
-                <option value="Cloud Kitchen">Cloud Kitchen</option>
-                <option value="Bakery/Cafe">Bakery / Cafe</option>
-                <option value="Caterer">Caterer</option>
-                <option value="Other">Other</option>
-              </select>
+
+          <div class="whatsapp-cta__right">
+            <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%20team%21%20I%27m%20interested%20in%20bulk%2Fwholesale%20orders%20for%20my%20business%20(restaurant%2Fhotel%2Fcloud%20kitchen%2Fbakery%2Fcaterer).%20Could%20you%20share%20pricing%20and%20minimum%20order%20quantities%3F" target="_blank" rel="noopener" class="whatsapp-cta__btn">
+              <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                <path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/>
+              </svg>
+              <span>Chat on WhatsApp</span>
+            </a>
+            <a href="tel:+917975218850" class="whatsapp-cta__call">or call <strong>+91 79752 18850</strong></a>
+            <div class="whatsapp-cta__assure">
+              <span>Avg reply time: under 10 minutes · 7 days a week</span>
             </div>
           </div>
-
-          <div class="chk-field-group">
-            <label class="chk-label">Area / Locality</label>
-            <input type="text" class="chk-input" data-field="area" placeholder="e.g. Nacharam, Boduppal, Uppal, Lalbazar, Suchitra, Amberpet...">
-          </div>
-
-          <div class="chk-field-group">
-            <label class="chk-label">Products Interested In</label>
-            <div class="wsc-pills" id="wscPills">
-              <button type="button" class="wsc-pill" data-product="Bread">Bread</button>
-              <button type="button" class="wsc-pill" data-product="Buns">Buns</button>
-              <button type="button" class="wsc-pill" data-product="Pizza Bases">Pizza Bases</button>
-              <button type="button" class="wsc-pill" data-product="Cake Sponges">Cake Sponges</button>
-              <button type="button" class="wsc-pill" data-product="Pastries">Pastries</button>
-              <button type="button" class="wsc-pill" data-product="Brownies">Brownies</button>
-              <button type="button" class="wsc-pill" data-product="Donuts">Donuts</button>
-            </div>
-          </div>
-
-          <div class="chk-field-group">
-            <label class="chk-label">Estimated Quantity</label>
-            <input type="text" class="chk-input" data-field="quantity" placeholder="e.g. 500 buns / week, 200 pizza bases / week">
-          </div>
-
-          <div class="chk-field-group">
-            <label class="chk-label">Additional Notes</label>
-            <textarea class="chk-input" data-field="message" rows="4" placeholder="Anything else we should know — delivery frequency, packaging needs, etc."></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-gold" style="width:100%;padding:16px;margin-top:8px">Submit Enquiry</button>
-          <p style="text-align:center;font-size:0.78rem;color:var(--text-muted-lt);margin-top:14px">Prefer WhatsApp? <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%20team%21%20I%27m%20interested%20in%20bulk%2Fwholesale%20orders%20for%20my%20business." target="_blank" rel="noopener" style="color:var(--gold-dark);font-weight:600;text-decoration:none">Chat with our B2B team →</a></p>
-        </form>
-
-        <div class="wsc-success" id="wscSuccess">
-          <svg class="wsc-success__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          <h3>Enquiry Received!</h3>
-          <p>Thanks — our B2B team will reach out within 24 hours.</p>
         </div>
       </div>
     </section>
@@ -440,72 +382,6 @@
   </footer>
 
   <script src="js/main.js?v=2"></script>
-  <script>
-    (function () {
-      var pills = document.querySelectorAll('.wsc-pill');
-      pills.forEach(function (pill) {
-        pill.addEventListener('click', function () { pill.classList.toggle('active'); });
-      });
-
-      var form = document.getElementById('wscForm');
-      var success = document.getElementById('wscSuccess');
-
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var btn = form.querySelector('[type="submit"]');
-        var originalLabel = btn.textContent;
-        btn.textContent = 'Sending…';
-        btn.disabled = true;
-
-        var name         = form.querySelector('[data-field="name"]').value.trim();
-        var phone        = form.querySelector('[data-field="phone"]').value.trim();
-        var email        = form.querySelector('[data-field="email"]').value.trim();
-        var businessType = form.querySelector('[data-field="businessType"]').value;
-        var area         = form.querySelector('[data-field="area"]').value.trim();
-        var quantity     = form.querySelector('[data-field="quantity"]').value.trim();
-        var notes        = form.querySelector('[data-field="message"]').value.trim();
-        var products     = Array.prototype.map.call(
-          document.querySelectorAll('.wsc-pill.active'),
-          function (p) { return p.dataset.product; }
-        ).join(', ');
-
-        if (!name || !phone) {
-          btn.textContent = originalLabel;
-          btn.disabled = false;
-          alert('Please enter your business/contact name and phone number.');
-          return;
-        }
-
-        var messageParts = ['Business Type: ' + businessType];
-        if (area) messageParts.push('Area/Locality: ' + area);
-        if (notes) messageParts.push('Notes: ' + notes);
-
-        fetch(BACKEND_URL + '/api/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: name,
-            phone: phone,
-            email: email,
-            eventType: 'wholesale',
-            quantity: quantity,
-            products: products,
-            message: messageParts.join(' | '),
-          }),
-        })
-          .then(function (res) {
-            if (!res.ok) throw new Error('Request failed');
-            form.style.display = 'none';
-            success.style.display = 'block';
-          })
-          .catch(function () {
-            btn.textContent = originalLabel;
-            btn.disabled = false;
-            alert('Could not send your enquiry. Please call or WhatsApp us instead.');
-          });
-      });
-    })();
-  </script>
 <script src="js/track.js" defer></script>
 </body>
 </html>
