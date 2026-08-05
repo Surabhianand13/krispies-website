@@ -17,30 +17,30 @@ const express   = require('express');
 const crypto    = require('crypto');
 const bcrypt    = require('bcryptjs');
 const jwt       = require('jsonwebtoken');
-const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const db = require('../db/database');
 const { requireCustomerAuth, requireAuth } = require('../middleware/auth');
 const { otpLoginEmail } = require('../utils/email');
+const { dbRateLimit } = require('../middleware/dbRateLimit');
 
 const router = express.Router();
 
-const authLimiter = rateLimit({
+// DB-backed -- see middleware/dbRateLimit.js for why express-rate-limit's
+// in-memory store doesn't hold up across this app's multiple instances.
+const authLimiter = dbRateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
+  keyGenerator: (req) => `auth:${req.ip}`,
   message: { error: 'Too many attempts. Please wait a few minutes and try again.' },
-  standardHeaders: true,
-  legacyHeaders: false,
 });
 
 // Tighter than authLimiter -- each hit sends a real email, so this also
 // guards against using the login form to spam someone else's inbox.
-const otpRequestLimiter = rateLimit({
+const otpRequestLimiter = dbRateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
+  keyGenerator: (req) => `otpRequest:${req.ip}`,
   message: { error: 'Too many code requests. Please wait a few minutes and try again.' },
-  standardHeaders: true,
-  legacyHeaders: false,
 });
 
 function uid() {
