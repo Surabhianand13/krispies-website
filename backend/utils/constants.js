@@ -9,7 +9,7 @@ const VALID_OUTLETS = ['lalbazar', 'suchitra', 'boduppal', 'ramantapur', 'tukkug
 
 const VALID_EVENT_TYPES = [
   'birthday', 'wedding', 'anniversary', 'baby-shower',
-  'corporate', 'graduation', 'festival', 'other',
+  'corporate', 'graduation', 'festival', 'wholesale', 'other',
 ];
 
 module.exports = { VALID_OUTLETS, VALID_EVENT_TYPES };

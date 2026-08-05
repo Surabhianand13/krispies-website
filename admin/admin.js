@@ -113,6 +113,7 @@ const EVENT_LABELS = {
   'corporate':   'Corporate',
   'graduation':  'Graduation',
   'festival':    'Festival',
+  'wholesale':   'Wholesale / B2B',
   'other':       'Other',
 };
 const OUTLET_LABELS = {
