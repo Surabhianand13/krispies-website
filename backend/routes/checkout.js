@@ -90,8 +90,24 @@ function computeUnitPrice(product, variantSelection) {
 
   const sel = (variantSelection && typeof variantSelection === 'object') ? variantSelection : {};
   return groups.reduce((sum, g) => {
-    const idx = sel[g.name] != null ? Number(sel[g.name]) : (g.optional ? -1 : 0);
-    if (idx === -1 || !Array.isArray(g.options)) return sum;
+    if (!Array.isArray(g.options) || !g.options.length) return sum;
+
+    let idx = sel[g.name] != null ? Number(sel[g.name]) : (g.optional ? -1 : 0);
+    const isValidIdx = Number.isInteger(idx) && idx >= 0 && idx < g.options.length;
+
+    // A mandatory group can never legitimately contribute ₹0 -- the client
+    // shouldn't be able to skip pricing it at all. -1 is only a real "skip"
+    // for an *optional* group; for a mandatory one, -1 (or an out-of-range
+    // index, or NaN from a non-numeric value) all fall back to the
+    // cheapest real option instead of silently zeroing this group out.
+    // (This was previously exploitable: a crafted variant_selection could
+    // collapse a real product's price down to the ₹1 absolute-floor clamp.)
+    if (!isValidIdx) {
+      if (g.optional) return sum;
+      idx = g.options.reduce((cheapestIdx, opt, i) =>
+        (Number(opt.price) || 0) < (Number(g.options[cheapestIdx].price) || 0) ? i : cheapestIdx, 0);
+    }
+
     const opt = g.options[idx];
     return sum + (opt ? Number(opt.price) || 0 : 0);
   }, 0);
@@ -164,6 +180,24 @@ function buildOrderRow(body, extra = {}, req = null) {
   };
 }
 
+// ── Per-phone order rate limit ──
+// Separate from paymentLimiter (which keys off IP): this catches the same
+// phone number retrying across different devices/IPs/networks, and caps
+// real order volume per customer regardless of how the per-IP window lines
+// up. Counts all orders (any status) in the last hour, since the concern is
+// repeated checkout abuse, not just successfully confirmed ones.
+const MAX_ORDERS_PER_PHONE_PER_HOUR = 2;
+function checkPhoneOrderLimit(phone) {
+  const { c } = db.prepare(`
+    SELECT COUNT(*) as c FROM orders
+    WHERE customer_phone = ? AND created_at >= datetime('now', '-1 hour')
+  `).get(phone);
+  if (c >= MAX_ORDERS_PER_PHONE_PER_HOUR) {
+    return { ok: false, error: 'Too many orders from this phone number in the last hour. Please wait a bit, or call us to place your order.' };
+  }
+  return { ok: true };
+}
+
 const INSERT_SQL = `
   INSERT INTO orders
     (id, customer_id, customer_name, customer_phone, customer_email, items, quantity, amount,
@@ -191,6 +225,9 @@ router.post('/', paymentLimiter, (_req, res) => {
 router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+  const phoneLimit = checkPhoneOrderLimit(req.body.customer_phone.trim());
+  if (!phoneLimit.ok) return res.status(429).json({ error: phoneLimit.error });
 
   const Razorpay = getRazorpay();
   const keyId     = process.env.RAZORPAY_KEY_ID;
