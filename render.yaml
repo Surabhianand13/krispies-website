@@ -14,6 +14,11 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 8h
+      # Customer login sessions (js/shop.js "My Account") are separate from
+      # the admin login above -- kept shorter-lived than the old shared 30d
+      # default since the token sits in localStorage for the whole period.
+      - key: CUSTOMER_JWT_EXPIRES_IN
+        value: 7d
       # Secrets below are intentionally NOT stored here (sync: false) — set
       # their real values once in the Render dashboard → Environment tab.
       # Never commit actual credentials to render.yaml; see backend/.env.example.

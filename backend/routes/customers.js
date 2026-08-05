@@ -32,11 +32,15 @@ function uid() {
   return 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
+// Deliberately a separate env var from the admin login's JWT_EXPIRES_IN --
+// admin and customer sessions have very different risk profiles (admin JWT
+// guards the whole panel; customer JWT lives in localStorage for a "stay
+// logged in" shopping UX) and shouldn't be forced to the same lifetime.
 function signCustomerToken(customer) {
   return jwt.sign(
     { type: 'customer', id: customer.id, name: customer.name, phone: customer.phone },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+    { expiresIn: process.env.CUSTOMER_JWT_EXPIRES_IN || '7d' }
   );
 }
 

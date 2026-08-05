@@ -654,22 +654,23 @@ function initSharedPageUI() {
 
       if (!name || !phone) { showToast('Please enter your name and phone number.'); btn.textContent='Get a Quote in Minutes →'; btn.disabled=false; return; }
 
+      // No localStorage fallback here: it never actually reached the admin
+      // panel (that reads from the backend, not the customer's own browser
+      // storage), so a failed submit was silently "succeeding" for the
+      // customer while going nowhere, and leaving their name/phone/message
+      // sitting in plaintext in their browser indefinitely for no reason.
       try {
-        await fetch(`${BACKEND_URL}/api/messages`, {
+        const res = await fetch(`${BACKEND_URL}/api/messages`, {
           method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ name, phone, message: `[${category}] ${message}`, eventType: 'other' })
         });
+        if (!res.ok) throw new Error('Request failed');
+        form.querySelectorAll('input,textarea,button[type=submit]').forEach(el => el.style.display='none');
+        form.querySelector('.cant-find-success').style.display = 'flex';
       } catch(_) {
-        try {
-          const existing = JSON.parse(localStorage.getItem('krispies_enquiries')||'[]');
-          existing.unshift({ id: Date.now().toString(36), name, phone, message:`[${category}] ${message}`,
-            eventType:'other', status:'unread', submittedAt: new Date().toISOString() });
-          localStorage.setItem('krispies_enquiries', JSON.stringify(existing));
-        } catch(_) {}
+        showToast('Could not send your request. Please call or WhatsApp us instead.');
+        btn.textContent = 'Get a Quote in Minutes →'; btn.disabled = false;
       }
-
-      form.querySelectorAll('input,textarea,button[type=submit]').forEach(el => el.style.display='none');
-      form.querySelector('.cant-find-success').style.display = 'flex';
     });
   });
 

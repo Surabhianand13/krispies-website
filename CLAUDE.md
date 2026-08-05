@@ -645,7 +645,11 @@ PORT=3000
 
 # Security
 JWT_SECRET=your_long_random_secret_string_here
-JWT_EXPIRES_IN=8h
+JWT_EXPIRES_IN=8h              # admin login session length
+CUSTOMER_JWT_EXPIRES_IN=7d     # customer "My Account" session length — kept
+                                # separate from admin above since this token
+                                # lives in localStorage for a "stay logged
+                                # in" shopping UX, not sessionStorage
 
 # Admin login password (for backend API) — only used to seed the admin
 # account the very first time the users table is empty; ignored afterward.

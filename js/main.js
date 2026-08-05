@@ -241,6 +241,11 @@ if (form) {
       message:   (form.querySelector('#message')    ?.value || '').trim(),
     };
 
+    // No localStorage fallback: it never actually reached the admin panel
+    // (that reads from the backend, not the customer's own browser storage),
+    // so a failed submit would silently "succeed" for the customer while
+    // going nowhere, and leave their name/phone/message sitting in
+    // plaintext in their browser indefinitely for no reason.
     let sent = false;
     try {
       const res = await fetch(`${BACKEND_URL}/api/messages`, {
@@ -249,21 +254,13 @@ if (form) {
         body:    JSON.stringify(payload),
       });
       sent = res.ok;
-    } catch (_) { /* backend unavailable — fall through to localStorage */ }
+    } catch (_) { /* backend unavailable */ }
 
-    // Fallback: save to localStorage for admin panel when backend is offline
     if (!sent) {
-      try {
-        const enquiry = {
-          ...payload,
-          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-          status: 'unread',
-          submittedAt: new Date().toISOString(),
-        };
-        const existing = JSON.parse(localStorage.getItem('krispies_enquiries') || '[]');
-        existing.unshift(enquiry);
-        localStorage.setItem('krispies_enquiries', JSON.stringify(existing));
-      } catch (_) { /* storage unavailable */ }
+      btn.textContent = 'Send Message';
+      btn.disabled = false;
+      alert('Could not send your message. Please call or WhatsApp us instead.');
+      return;
     }
 
     form.style.display = 'none';
