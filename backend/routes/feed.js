@@ -20,8 +20,9 @@ const GOOGLE_CATEGORY = {
   'birthday-cakes':       2194, // Food, Beverages & Tobacco > Food Items > Bakery > Cakes & Dessert Bars
   'wedding-cakes':        2194,
   'engagement-cakes':     2194,
-  'birthday-theme-cakes': 2194,
   'baby-shower-cakes':    2194,
+  'half-year-birthday-cakes': 2194,
+  'gender-reveal-cakes':      2194,
   'customized-cakes':     2194,
   'cheesecakes':          2194,
   'donuts':               5751, // Food, Beverages & Tobacco > Food Items > Bakery > Donuts

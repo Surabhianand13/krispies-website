@@ -240,9 +240,10 @@ In `contact.html` — POSTs to `${BACKEND_URL}/api/messages`. Falls back to loca
 
 ### How it works
 
-The **backend API is the single source of truth** for products — `menu.html`, the 5 category
+The **backend API is the single source of truth** for products — `menu.html`, the category
 landing pages (`birthday-cakes.html`, `wedding-cakes.html`, `engagement-cakes.html`,
-`birthday-theme-cakes.html`, `baby-shower-cakes.html`), and `product.html` all share one file,
+`baby-shower-cakes.html`, `half-year-birthday-cakes.html`, `gender-reveal-cakes.html`, etc.),
+and `product.html` all share one file,
 **`js/shop.js`**, instead of each carrying their own copy of the product/cart/checkout logic.
 
 1. On page load, `shop.js`'s boot IIFE calls `loadProducts()`, which does
@@ -267,8 +268,9 @@ landing pages (`birthday-cakes.html`, `wedding-cakes.html`, `engagement-cakes.ht
   slug:          string,        // unique, auto-generated from name, used in product.html URLs
   name:          string,
   category:      string,        // "birthday-cakes" | "wedding-cakes" | "engagement-cakes"
-                                // | "birthday-theme-cakes" | "baby-shower-cakes"
-                                // | "customized-cakes" | "cheesecakes" | "donuts" | "biscuits"
+                                // | "baby-shower-cakes" | "half-year-birthday-cakes"
+                                // | "gender-reveal-cakes" | "customized-cakes"
+                                // | "cheesecakes" | "donuts" | "biscuits"
   tag:           string|null,   // "bestseller" | "new" | "seasonal" | "custom" | null
   description:   string,
   mrp:           number,        // full price in ₹ (e.g. 999) -- ignored once variantGroups is non-empty
@@ -311,8 +313,9 @@ cakes.
 | `birthday-cakes` | Birthday Cakes |
 | `wedding-cakes` | Wedding Cakes |
 | `engagement-cakes` | Engagement Cakes |
-| `birthday-theme-cakes` | Birthday Theme Cakes |
 | `baby-shower-cakes` | Baby Shower Cakes |
+| `half-year-birthday-cakes` | Half Year Birthday Cakes |
+| `gender-reveal-cakes` | Gender Reveal Cakes |
 | `customized-cakes` | Customized Cakes |
 | `cheesecakes` | Cheesecakes |
 | `donuts` | Donuts |
