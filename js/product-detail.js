@@ -68,6 +68,12 @@ function _pdpRender() {
       <div>
         ${tagHtml}
         <h1 class="pdp__title">${esc(p.name)}</h1>
+        ${p.ratingCount > 0 ? `
+          <div class="pdp__rating">
+            <span class="pdp__rating-stars">${'★'.repeat(Math.round(p.ratingAvg))}${'☆'.repeat(5 - Math.round(p.ratingAvg))}</span>
+            <span class="pdp__rating-value">${p.ratingAvg}</span>
+            <a href="#pdpRatingsSection" class="pdp__rating-count">(${p.ratingCount} rating${p.ratingCount === 1 ? '' : 's'})</a>
+          </div>` : ''}
         <p class="pdp__desc">${esc(p.description)}</p>
         <div class="pdp__price-row" id="pdpPriceRow"></div>
 
@@ -160,6 +166,32 @@ function _pdpRenderRelated() {
   initGalleries();
 }
 
+// Fetches the individual real ratings for this product from the backend
+// (name, area, star rating, date -- no review text, see reviews.js) and
+// lists them below the main product block.
+async function _pdpRenderRatings(slug) {
+  const section = document.getElementById('pdpRatingsSection');
+  const list = document.getElementById('pdpRatingsList');
+  if (!section || !list) return;
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/reviews/${encodeURIComponent(slug)}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.count) return;
+    list.innerHTML = data.reviews.map(r => `
+      <div class="pdp__rating-item">
+        <div class="pdp__rating-item-top">
+          <span class="pdp__rating-item-name">${esc(r.name)}</span>
+          <span class="pdp__rating-item-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+        </div>
+        <div class="pdp__rating-item-meta">${esc(r.area || '')}${r.date ? ` · ${esc(new Date(r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))}` : ''}</div>
+      </div>`).join('');
+    section.style.display = '';
+  } catch (_) {
+    // Silently skip -- ratings are supplementary, not critical path.
+  }
+}
+
 function _pdpInjectJsonLd(p) {
   const images = (p.images || []).filter(Boolean).map(img => `https://www.krispies.in/${img}`);
   const url = `https://www.krispies.in/products/${p.slug}`;
@@ -181,6 +213,13 @@ function _pdpInjectJsonLd(p) {
       itemCondition: 'https://schema.org/NewCondition',
       seller: { '@type': 'Organization', name: "Krispie's" },
     },
+    ...(p.ratingCount > 0 ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: p.ratingAvg,
+        reviewCount: p.ratingCount,
+      },
+    } : {}),
   };
   let script = document.getElementById('pdpJsonLd');
   if (!script) {
@@ -216,4 +255,5 @@ document.addEventListener('shop:ready', () => {
   _pdpInjectJsonLd(p);
   _pdpRender();
   _pdpRenderRelated();
+  _pdpRenderRatings(p.slug);
 });

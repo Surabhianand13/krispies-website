@@ -4,6 +4,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const db = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
+const { getRatingsMap } = require('./reviews');
 
 const router = express.Router();
 
@@ -40,31 +41,34 @@ router.get('/', (req, res, next) => {
   if (req.query.all === '1') {
     return requireAuth(req, res, () => {
       const rows = db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
-      res.json(rows.map(toProduct));
+      const ratings = getRatingsMap();
+      res.json(rows.map(r => toProduct(r, ratings)));
     });
   }
   const rows = db.prepare('SELECT * FROM products WHERE active = 1 ORDER BY created_at DESC').all();
-  res.json(rows.map(toProduct));
+  const ratings = getRatingsMap();
+  res.json(rows.map(r => toProduct(r, ratings)));
 });
 
 // GET /api/products/featured — public
 router.get('/featured', (_req, res) => {
   const rows = db.prepare('SELECT * FROM products WHERE active = 1 AND featured = 1 ORDER BY updated_at DESC').all();
-  res.json(rows.map(toProduct));
+  const ratings = getRatingsMap();
+  res.json(rows.map(r => toProduct(r, ratings)));
 });
 
 // GET /api/products/slug/:slug — public, for the product detail page
 router.get('/slug/:slug', (req, res) => {
   const row = db.prepare('SELECT * FROM products WHERE slug = ?').get(req.params.slug);
   if (!row) return res.status(404).json({ error: 'Product not found.' });
-  res.json(toProduct(row));
+  res.json(toProduct(row, getRatingsMap()));
 });
 
 // GET /api/products/:id
 router.get('/:id', (req, res) => {
   const row = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Product not found.' });
-  res.json(toProduct(row));
+  res.json(toProduct(row, getRatingsMap()));
 });
 
 // POST /api/products
@@ -172,7 +176,8 @@ function buildProduct(id, body) {
   };
 }
 
-function toProduct(row) {
+function toProduct(row, ratingsMap) {
+  const rating = ratingsMap ? ratingsMap[row.slug] : null;
   let images = [];
   try { images = JSON.parse(row.images || '[]'); } catch (_) {}
   let variantGroups = [];
@@ -224,6 +229,8 @@ function toProduct(row) {
     prepHours:     row.prep_hours || 0,
     featured:      row.featured === 1,
     active:        row.active === 1,
+    ratingAvg:     rating ? rating.avg : null,
+    ratingCount:   rating ? rating.count : 0,
     createdAt:     row.created_at,
     updatedAt:     row.updated_at,
   };

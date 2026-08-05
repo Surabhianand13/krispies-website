@@ -148,7 +148,20 @@ db.exec(`
     consumed   INTEGER NOT NULL DEFAULT 0,
     created_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS reviews (
+    id            TEXT    PRIMARY KEY,
+    product_slug  TEXT    NOT NULL,
+    customer_name TEXT    NOT NULL,
+    area          TEXT,
+    geography     TEXT,
+    rating        INTEGER NOT NULL,
+    review_date   TEXT,
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);
+
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_reviews_product_slug ON reviews(product_slug)'); } catch (_) {}
 
 // ── Safe migrations for existing DBs ──────────────────────────────────────────
 const safeAddColumn = (table, col, def) => {
@@ -333,6 +346,34 @@ if (!alreadySeededAddons) {
   });
   migrateAddons(addonSeed);
   console.log(`✓ Seeded add-ons (${addonSeed.length}) — one-time migration complete`);
+}
+
+// ── One-time seed: real customer ratings collected offline (in-store /
+//    WhatsApp orders), matched to catalog products by exact name. Guarded
+//    by 'reviews_seeded_v1' so it only ever runs once — later admin-added
+//    reviews are never touched or overwritten by this.
+const alreadySeededReviews = db.prepare('SELECT value FROM settings WHERE key = ?').get('reviews_seeded_v1');
+if (!alreadySeededReviews) {
+  let reviewSeed = [];
+  try {
+    reviewSeed = require('./seed-reviews.json');
+  } catch (_) {
+    reviewSeed = [];
+  }
+
+  if (reviewSeed.length) {
+    const insertReview = db.prepare(`
+      INSERT INTO reviews (id, product_slug, customer_name, area, geography, rating, review_date)
+      VALUES (@id, @productSlug, @customerName, @area, @geography, @rating, @date)
+    `);
+    const migrateReviews = db.transaction((items) => {
+      for (const item of items) insertReview.run(item);
+      db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+        .run('reviews_seeded_v1', 'true');
+    });
+    migrateReviews(reviewSeed);
+    console.log(`✓ Seeded customer ratings (${reviewSeed.length}) — one-time migration complete`);
+  }
 }
 
 module.exports = db;
