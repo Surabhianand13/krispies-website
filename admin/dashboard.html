@@ -307,7 +307,7 @@ function renderRecentEnquiries(msgs) {
   tb.innerHTML = msgs.slice(0,8).map(m => `
     <tr>
       <td class="td-name">${esc(m.name)}</td>
-      <td class="td-muted">${EVENT_LABELS[m.event_type] || m.event_type || '—'}</td>
+      <td class="td-muted">${esc(EVENT_LABELS[m.event_type] || m.event_type || '—')}</td>
       <td><a href="tel:${esc(m.phone)}" style="color:var(--brand);">${esc(m.phone || '—')}</a></td>
       <td>${statusBadge(m.status)}</td>
       <td class="td-muted">${fmtDT(m.created_at || m.createdAt)}</td>

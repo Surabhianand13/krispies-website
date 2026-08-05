@@ -191,7 +191,7 @@ function renderOrders(list) {
       </td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" class="td-muted">${esc(o.items || '—')}</td>
       <td><strong>${fmtPrice(o.amount)}</strong></td>
-      <td class="td-muted">${OUTLET_LABELS[o.outlet] || o.outlet || '—'}</td>
+      <td class="td-muted">${esc(OUTLET_LABELS[o.outlet] || o.outlet || '—')}</td>
       <td style="white-space:nowrap;">${delBadge}</td>
       <td class="td-muted" style="font-size:0.72rem;">${esc(o.payment_method || o.paymentMethod || '—')}</td>
       <td>
@@ -325,6 +325,15 @@ function exportCSV() {
     if (outlet && o.outlet !== outlet) return false;
     return true;
   });
+  // Guards against CSV/formula injection: a cell value starting with
+  // =, +, -, or @ can be interpreted as a formula by Excel/Sheets when the
+  // exported file is opened. customer_name/items/notes all come from the
+  // public checkout form, so prefix a tab to neutralize any formula lead-in
+  // without changing what's visibly displayed.
+  const csvSafe = v => {
+    const s = String(v ?? '');
+    return /^[=+\-@]/.test(s) ? '\t' + s : s;
+  };
   const headers = ['ID','Customer','Phone','Items','Amount','Outlet','Order Date','Delivery Date','Payment','Status','Notes'];
   const rows = list.map(o => [
     o.id, o.customer_name||o.customerName, o.customer_phone||o.customerPhone||'',
@@ -333,7 +342,7 @@ function exportCSV() {
     (o.delivery_date||o.deliveryDate||'').slice(0,10),
     o.payment_method||o.paymentMethod||'',
     o.status, o.notes||''
-  ].map(v => `"${String(v).replace(/"/g,'""')}"`));
+  ].map(v => `"${csvSafe(v).replace(/"/g,'""')}"`));
   const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);

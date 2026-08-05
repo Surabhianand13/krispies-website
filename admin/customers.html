@@ -94,7 +94,7 @@ function renderCustomers(list) {
       <td>${c.orderCount || 0}</td>
       <td class="td-muted" style="white-space:nowrap;">${fmtDate(c.createdAt)}</td>
       <td>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCustomer('${c.id}', '${esc(c.name)}')" title="Delete account">🗑️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCustomer('${c.id}', '${escJsAttr(c.name)}')" title="Delete account">🗑️</button>
       </td>
     </tr>`).join('');
 }

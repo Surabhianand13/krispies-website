@@ -1140,7 +1140,6 @@ function _chkDeliveryHTML() {
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub + fee - disc).toLocaleString('en-IN')}</span></div>
       </div>
       <div class="chk-pay-btns">
-        <button class="chk-pay-cod-btn chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">Cash on Delivery / Pay at Store</button>
         <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">Pay Online (Razorpay)</button>
       </div>` : ''}
     <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
@@ -1174,7 +1173,6 @@ function _chkPickupHTML() {
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub - disc).toLocaleString('en-IN')}</span></div>
       </div>
       <div class="chk-pay-btns">
-        <button class="chk-pay-cod-btn chk-pay-btn" id="chkCodBtn" onclick="_chkPlaceOrder('cod')">Cash on Delivery / Pay at Store</button>
         <button class="chk-pay-online-btn chk-pay-btn" id="chkPayBtn" onclick="_chkPlaceOrder('online')">Pay Online (Razorpay)</button>
       </div>` : ''}
     <div class="chk-footer" style="margin-top:${canPay?'14':'0'}px">
@@ -1286,13 +1284,13 @@ function _chkOrderPayload(method) {
   };
 }
 
+// Prepaid-only: every order must be paid via Razorpay before it's confirmed,
+// so there's no local-storage "fake success" fallback path anymore -- if the
+// payment can't go through, the customer needs to know and retry, not see a
+// success screen for an order nobody actually paid for.
 async function _chkPlaceOrder(method) {
   if (!_chkDelivery.store) { _chkToast('Please select a store first.'); return; }
-  if (method === 'cod') {
-    await _chkSubmitCOD();
-  } else {
-    await _chkSubmitRazorpay();
-  }
+  await _chkSubmitRazorpay();
 }
 
 // Attaches the logged-in customer's session (if any) so the backend can
@@ -1301,38 +1299,6 @@ function _chkAuthHeaders() {
   const h = { 'Content-Type': 'application/json' };
   if (_custToken) h['Authorization'] = `Bearer ${_custToken}`;
   return h;
-}
-
-/* ── COD ── */
-async function _chkSubmitCOD() {
-  const btn = document.getElementById('chkCodBtn');
-  if (btn) { btn.textContent = 'Placing Order…'; btn.disabled = true; }
-
-  const payload = _chkOrderPayload('cod');
-  let orderId;
-
-  try {
-    const res  = await fetch(`${BACKEND_URL}/api/checkout`, {
-      method: 'POST',
-      headers: _chkAuthHeaders(),
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Server error');
-    orderId = data.orderId;
-  } catch (_) {
-    /* fallback — save locally so admin can see it */
-    try {
-      const existing = JSON.parse(localStorage.getItem('krispies_orders') || '[]');
-      orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
-      existing.unshift({ ...payload, id: orderId, createdAt: new Date().toISOString() });
-      localStorage.setItem('krispies_orders', JSON.stringify(existing));
-    } catch(_) {
-      orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
-    }
-  }
-
-  _chkShowSuccess(orderId, payload.amount, 'cod');
 }
 
 /* ── Razorpay ── */
@@ -1388,7 +1354,7 @@ async function _chkSubmitRazorpay() {
             throw new Error(verifyData.error || 'Verification failed');
           }
           /* Only show success after server confirms the signature */
-          _chkShowSuccess(data.internal_order_id, payload.amount, 'online');
+          _chkShowSuccess(data.internal_order_id, payload.amount);
         } catch(verifyErr) {
           /* Payment was captured by Razorpay but our server couldn't verify —
              show a specific message so the customer can contact us with their payment ID */
@@ -1427,15 +1393,13 @@ function _chkLoadScript(src) {
 }
 
 /* ── Success screen ── */
-function _chkShowSuccess(orderId, total, method) {
+function _chkShowSuccess(orderId, total) {
   if (typeof krTrackPurchase === 'function') {
     const items = _chkProduct._isCart ? _chkProduct._cartItems.map(i => i.product) : [_chkProduct];
     krTrackPurchase(orderId, total, items);
   }
   _chkSetSteps(4); /* all done */
-  const modeLabel = method === 'online'
-    ? 'Paid Online'
-    : (_chkDelivery.mode === 'pickup' ? 'Pay at Store' : 'Cash on Delivery');
+  const modeLabel = 'Paid Online';
 
   document.getElementById('checkoutBody').innerHTML = `
     <div class="chk-success">

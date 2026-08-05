@@ -4,10 +4,23 @@ require('dotenv').config();
 
 const express    = require('express');
 const cors       = require('cors');
+const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
 const path       = require('path');
 
 const app = express();
+
+// ── Security headers ──────────────────────────────────────────────────────────
+// This service is a JSON API + static image host (product images uploaded via
+// /api/upload) -- it doesn't render the storefront's HTML, so a strict CSP
+// belongs at the Cloudflare Pages layer (_headers) instead of here. Helmet
+// still gives us nosniff, no X-Powered-By, HSTS, frameguard, etc. by default.
+// crossOriginResourcePolicy is relaxed to cross-origin because /uploads images
+// are fetched from www.krispies.in, a different origin than this API.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
 // ── CORS ───────────────────────────────────────────────────────────────────────
 const allowedOrigins = [

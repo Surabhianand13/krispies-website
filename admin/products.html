@@ -161,7 +161,7 @@ function renderProducts(list) {
       <td>
         <div style="display:flex;gap:6px;">
           <button class="btn btn-outline btn-sm btn-icon" onclick="openEditProduct('${p.id}')" title="Edit">✏️</button>
-          <button class="btn btn-danger  btn-sm btn-icon" onclick="deleteProduct('${p.id}', '${esc(p.name)}')" title="Delete">🗑️</button>
+          <button class="btn btn-danger  btn-sm btn-icon" onclick="deleteProduct('${p.id}', '${escJsAttr(p.name)}')" title="Delete">🗑️</button>
         </div>
       </td>
     </tr>`).join('');

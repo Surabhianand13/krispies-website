@@ -3,7 +3,7 @@
 /**
  * PUBLIC checkout routes — no auth required.
  *
- * POST /api/checkout           — place a Cash-on-Delivery / pay-at-store order
+ * POST /api/checkout           — disabled; Cash on Delivery is no longer offered
  * POST /api/checkout/initiate  — create a Razorpay order and return order details
  * POST /api/checkout/verify    — verify Razorpay payment signature and confirm order
  */
@@ -16,6 +16,7 @@ const db        = require('../db/database');
 const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
 const { sendPurchaseEvent } = require('../utils/metaCapi');
 const { optionalCustomerAuth } = require('../middleware/auth');
+const { VALID_OUTLETS } = require('../utils/constants');
 
 const router = express.Router();
 
@@ -58,6 +59,8 @@ const orderValidators = [
   body('customer_phone').trim().notEmpty().withMessage('Phone number is required.'),
   body('items').trim().notEmpty().withMessage('Items are required.'),
   body('product_id').trim().notEmpty().withMessage('Product is required.'),
+  body('outlet').optional({ checkFalsy: true }).isIn(VALID_OUTLETS).withMessage('Invalid outlet.'),
+  body('delivery_mode').optional({ checkFalsy: true }).isIn(['pickup', 'delivery']).withMessage('Invalid delivery mode.'),
   body('amount')
     .isFloat({ min: MIN_AMOUNT, max: MAX_AMOUNT })
     .withMessage(`Amount must be between ₹${MIN_AMOUNT} and ₹${MAX_AMOUNT.toLocaleString('en-IN')}.`),
@@ -171,28 +174,14 @@ const INSERT_SQL = `
 `;
 
 /* ════════════════════════════════════════════════
-   POST /api/checkout   — Cash on Delivery order
+   POST /api/checkout   — DISABLED: Cash on Delivery is no longer offered.
+   The route is kept (rather than removed) so old/cached frontend builds and
+   direct API callers get a clear, honest error instead of a generic 404 --
+   every order must go through /api/checkout/initiate + /verify (Razorpay).
    ════════════════════════════════════════════════ */
-router.post('/', paymentLimiter, optionalCustomerAuth, orderValidators, async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-  const { amount, error } = computeAuthoritativeAmount(req.body);
-  if (error) return res.status(400).json({ error });
-  req.body.amount = amount;
-
-  const row = buildOrderRow(req.body, {}, req);
-  db.prepare(INSERT_SQL).run(row);
-
-  // Fire email notifications (non-blocking) -- admin always, customer only
-  // if they gave an email address.
-  notifyOrder(row);
-  sendPurchaseEvent(row, req).catch(() => {});
-
-  res.status(201).json({
-    success: true,
-    orderId: row.id,
-    message: 'Order placed successfully.',
+router.post('/', paymentLimiter, (_req, res) => {
+  res.status(410).json({
+    error: 'Cash on Delivery is no longer available. Please pay online to place your order.',
   });
 });
 
@@ -200,18 +189,18 @@ router.post('/', paymentLimiter, optionalCustomerAuth, orderValidators, async (r
    POST /api/checkout/initiate  — Razorpay order
    ════════════════════════════════════════════════ */
 router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
   const Razorpay = getRazorpay();
   const keyId     = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
   if (!Razorpay || !keyId || !keySecret) {
     return res.status(503).json({
-      error: 'Online payment is not configured yet. Please use Cash on Delivery.',
+      error: 'Online payment is temporarily unavailable. Please try again shortly or call us to place your order.',
     });
   }
-
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   const { amount, error: priceError } = computeAuthoritativeAmount(req.body);
   if (priceError) return res.status(400).json({ error: priceError });
@@ -255,7 +244,7 @@ router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, 
     // Remove the orphan pending order we created above
     db.prepare('DELETE FROM orders WHERE id = ?').run(row.id);
     return res.status(500).json({
-      error: 'Payment initiation failed. Please use Cash on Delivery.',
+      error: 'Payment initiation failed. Please try again or call us to place your order.',
     });
   }
 });

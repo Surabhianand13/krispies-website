@@ -411,17 +411,17 @@ Clicking **🛒 Buy Now** on any priced product card opens a 3-step modal:
 | Ramantapur | 17.3980 | 78.5470 |
 | Tukkuguda | 17.2850 | 78.5680 |
 
-**Payment options:**
-1. **📦 Cash on Delivery / Pay at Store** — works immediately, no external setup
-2. **💳 Pay Online (Razorpay)** — requires Razorpay keys (see [Section 12](#12-razorpay-integration))
+**Payment:** Online only (Razorpay) — **💳 Pay Online (Razorpay)** is the only checkout option; requires
+Razorpay keys (see [Section 12](#12-razorpay-integration)). Cash on Delivery / Pay at Store has been
+removed from the public checkout: it was a completed, unpaid order with no payment verification
+behind it, so anyone scripting a direct request to the API (no UI needed) could "place an order"
+for free. `POST /api/checkout` (the old COD endpoint) now always returns `410 Gone`. If Razorpay
+isn't configured or `/initiate` fails, checkout shows an error and asks the customer to retry or
+call the store — it no longer silently saves an unpaid "order" to `localStorage` as if it succeeded.
+Admin can still manually log phone/walk-in/cash orders via `/admin/orders.html` → *Log New Order*
+(hits the JWT-protected `POST /api/orders`, not the public checkout flow).
 
 ### Order submission flow
-
-**COD path:**
-```
-Click COD → POST /api/checkout → Order saved in DB → Email sent to admin → Success screen
-```
-If backend is unreachable → order saved to `localStorage['krispies_orders']` as fallback.
 
 **Razorpay path:**
 ```
@@ -546,7 +546,7 @@ password) or with any password you're unsure of.
 #### Checkout (all public — no auth)
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/checkout` | Place COD / Pay-at-store order |
+| POST | `/api/checkout` | Disabled — always `410 Gone`. COD/Pay-at-store was removed; kept as a route only so old clients get a clear error instead of a 404. |
 | POST | `/api/checkout/initiate` | Create Razorpay order, returns order details |
 | POST | `/api/checkout/verify` | Verify Razorpay HMAC-SHA256 signature |
 
@@ -855,7 +855,9 @@ This means every new product photo needs a code push to go live, not just an adm
 Regular Gmail password won't work for `nodemailer`. You must generate an App Password (16-character code) from Gmail Security settings with 2FA enabled.
 
 ### Razorpay "Pay Online" requires backend to be connected
-If `BACKEND_URL` is still `localhost:3000` and you're on the live site, Razorpay won't work. The fallback message "Please use Cash on Delivery" will show. COD always works even without backend.
+If `BACKEND_URL` is still `localhost:3000` and you're on the live site, Razorpay won't work, and
+checkout has no fallback anymore since COD was removed — customers will see "Online payment is
+temporarily unavailable" and be asked to call the store instead.
 
 ---
 
