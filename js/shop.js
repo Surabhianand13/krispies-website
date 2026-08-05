@@ -615,6 +615,23 @@ function initSharedPageUI() {
     });
   });
 
+  // Deep-link support: ?flavour=<key> (e.g. from the homepage's quick-
+  // category circles) pre-selects that flavour filter and scrolls to it,
+  // instead of landing on the unfiltered category page.
+  const flavourParam = new URLSearchParams(location.search).get('flavour');
+  if (flavourParam) {
+    const match = document.querySelector(`.subcat-item[data-filter="${CSS.escape(flavourParam.toLowerCase())}"]`);
+    if (match) {
+      const section = match.closest('.menu-cat-section');
+      section.querySelectorAll('.subcat-item').forEach(i => i.classList.remove('active'));
+      match.classList.add('active');
+      applySectionFilters(section);
+      const offset = (document.getElementById('menuTabs')?.offsetHeight || 0) + 90;
+      const top = section.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  }
+
   document.querySelectorAll('.filter-pill').forEach(pill => {
     pill.addEventListener('click', () => {
       const section = pill.closest('.menu-cat-section');
