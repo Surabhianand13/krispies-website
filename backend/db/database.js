@@ -161,9 +161,10 @@ safeAddColumn('products', 'variant_groups', "TEXT NOT NULL DEFAULT '[]'");
 safeAddColumn('products', 'prep_hours',     'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('products', 'slug',           'TEXT');
 safeAddColumn('products', 'flavour',        'TEXT');
-safeAddColumn('orders',   'customer_email', 'TEXT');
-safeAddColumn('orders',   'payment_method', 'TEXT');
-safeAddColumn('orders',   'customer_id',    'TEXT');
+safeAddColumn('orders',   'customer_email',     'TEXT');
+safeAddColumn('orders',   'payment_method',     'TEXT');
+safeAddColumn('orders',   'customer_id',        'TEXT');
+safeAddColumn('orders',   'razorpay_order_id',  'TEXT');
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products(slug)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)'); } catch (_) {}
