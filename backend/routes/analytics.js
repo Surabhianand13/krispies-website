@@ -1,21 +1,22 @@
 'use strict';
 
 const express   = require('express');
-const rateLimit = require('express-rate-limit');
 const db        = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
+const { dbRateLimit } = require('../middleware/dbRateLimit');
 
 const router = express.Router();
 
 // These two endpoints are public and write-only, so without their own
 // limiter they're an easy target for filling the DB with junk rows --
 // generous enough for real traffic, tight enough to blunt scripted spam.
-const trackingLimiter = rateLimit({
-  windowMs:        15 * 60 * 1000,
-  max:             120,
-  standardHeaders: true,
-  legacyHeaders:   false,
-  message:         { ok: false },
+// DB-backed -- see middleware/dbRateLimit.js for why express-rate-limit's
+// in-memory store doesn't hold up across this app's multiple instances.
+const trackingLimiter = dbRateLimit({
+  windowMs: 15 * 60 * 1000,
+  max:      120,
+  keyGenerator: (req) => `tracking:${req.ip}`,
+  message:  { ok: false },
 });
 
 // POST /api/analytics/track — public, lightweight page view tracking

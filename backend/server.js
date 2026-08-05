@@ -5,8 +5,8 @@ require('dotenv').config();
 const express    = require('express');
 const cors       = require('cors');
 const helmet     = require('helmet');
-const rateLimit  = require('express-rate-limit');
 const path       = require('path');
+const { dbRateLimit } = require('./middleware/dbRateLimit');
 
 const app = express();
 
@@ -53,11 +53,14 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 app.use('/uploads', express.static(UPLOAD_DIR));
 
 // ── Global rate limit ──────────────────────────────────────────────────────────
-app.use(rateLimit({
+// DB-backed -- see middleware/dbRateLimit.js. express-rate-limit's in-memory
+// store silently doesn't work once an app runs as more than one process,
+// which this one does; confirmed live (12 requests to a "10 per 15 min"
+// limiter never tripped it before this fix).
+app.use(dbRateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
-  standardHeaders: true,
-  legacyHeaders: false,
+  keyGenerator: (req) => `global:${req.ip}`,
   message: { error: 'Too many requests, please slow down.' },
 }));
 
