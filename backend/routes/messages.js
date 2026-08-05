@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const db = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
 const { newMessageEmail } = require('../utils/email');
+const { VALID_OUTLETS, VALID_EVENT_TYPES } = require('../utils/constants');
 
 const router = express.Router();
 
@@ -29,6 +30,8 @@ router.post('/',
     body('name').trim().notEmpty().withMessage('Name is required.'),
     body('email').optional({ checkFalsy: true }).isEmail().withMessage('Invalid email.'),
     body('phone').optional({ checkFalsy: true }).trim(),
+    body('eventType').optional({ checkFalsy: true }).isIn(VALID_EVENT_TYPES).withMessage('Invalid event type.'),
+    body('outlet').optional({ checkFalsy: true }).isIn(VALID_OUTLETS).withMessage('Invalid outlet.'),
   ],
   async (req, res) => {
     const errors = validationResult(req);

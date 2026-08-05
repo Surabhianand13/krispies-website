@@ -126,7 +126,7 @@ function renderAddons() {
       <td>
         <div style="display:flex;gap:6px;">
           <button class="btn btn-outline btn-sm btn-icon" onclick="openEditAddon('${a.id}')" title="Edit">✏️</button>
-          <button class="btn btn-danger  btn-sm btn-icon" onclick="deleteAddon('${a.id}', '${esc(a.name)}')" title="Delete">🗑️</button>
+          <button class="btn btn-danger  btn-sm btn-icon" onclick="deleteAddon('${a.id}', '${escJsAttr(a.name)}')" title="Delete">🗑️</button>
         </div>
       </td>
     </tr>`).join('');

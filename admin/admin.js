@@ -202,6 +202,18 @@ function esc(str) {
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+// ── ESCAPE FOR INLINE onclick="fn('...')" ARGUMENTS ────────────────────────
+// esc() alone is NOT safe inside an inline event-handler attribute: the
+// browser HTML-decodes the attribute value (turning &#39; back into ') before
+// handing it to the JS parser, so an HTML-escaped quote does not stop a user
+// -controlled string from breaking out of the surrounding '...' JS literal.
+// This escapes backslashes/quotes so they survive that decode step intact,
+// then applies esc() on top so the value is also safe as HTML attribute text.
+function escJsAttr(str) {
+  if (str == null) return '';
+  return esc(String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n'));
+}
+
 // ── SIDEBAR ACTIVE ────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const page = window.location.pathname.split('/').pop();

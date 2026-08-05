@@ -1,6 +1,18 @@
 # Cloudflare Pages headers configuration
 # https://developers.cloudflare.com/pages/configuration/headers/
 
+# Security headers, site-wide. Most important for /admin/* (login + JWT-
+# protected panel) but applied everywhere since the storefront also handles
+# checkout/payment. X-Frame-Options: DENY stops the admin login or checkout
+# flow from being embedded in a clickjacking iframe on another site.
+# geolocation is allowed for self only -- checkout's "detect my location"
+# delivery-fee feature needs it.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=(self)
+
 # Always revalidate banner & hero images so new uploads reflect instantly
 /assets/images/hero-*.jpg
   Cache-Control: public, max-age=0, must-revalidate

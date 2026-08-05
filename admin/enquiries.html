@@ -151,10 +151,10 @@ function renderEnquiries(list) {
         ${phone ? `<div style="font-size:0.7rem;margin-top:2px;"><a href="tel:${esc(phone)}" style="color:var(--brand);">${esc(phone)}</a></div>` : ''}
         ${m.email ? `<div class="td-muted" style="font-size:0.68rem;">${esc(m.email)}</div>` : ''}
       </td>
-      <td>${EVENT_LABELS[m.event_type] || m.event_type || '—'}</td>
+      <td>${esc(EVENT_LABELS[m.event_type] || m.event_type || '—')}</td>
       <td class="td-muted" style="font-size:0.72rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.products || m.message || '—')}</td>
       <td class="td-muted" style="white-space:nowrap;">${fmtDate(m.event_date)}</td>
-      <td class="td-muted">${OUTLET_LABELS[m.outlet] || m.outlet || '—'}</td>
+      <td class="td-muted">${esc(OUTLET_LABELS[m.outlet] || m.outlet || '—')}</td>
       <td>${m.status === 'unread' ? slaLabel(m.created_at || m.createdAt) : '<span class="td-muted">—</span>'}</td>
       <td>
         <select class="status-select" onchange="updateStatus('${m.id}', this.value)">
@@ -210,9 +210,9 @@ function openDetail(id) {
       <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">NAME</div><strong>${esc(m.name)}</strong></div>
       <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">PHONE</div>${m.phone ? `<a href="tel:${esc(m.phone)}" style="color:var(--brand);font-weight:600;">${esc(m.phone)}</a>` : '—'}</div>
       <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">EMAIL</div>${esc(m.email||'—')}</div>
-      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">EVENT TYPE</div>${EVENT_LABELS[m.event_type]||m.event_type||'—'}</div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">EVENT TYPE</div>${esc(EVENT_LABELS[m.event_type]||m.event_type||'—')}</div>
       <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">EVENT DATE</div>${fmtDate(m.event_date)}</div>
-      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">OUTLET PREF</div>${OUTLET_LABELS[m.outlet]||m.outlet||'—'}</div>
+      <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">OUTLET PREF</div>${esc(OUTLET_LABELS[m.outlet]||m.outlet||'—')}</div>
       <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">QUANTITY</div>${esc(m.quantity||'—')}</div>
       <div><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">RECEIVED</div>${fmtDT(m.created_at||m.createdAt)}</div>
       ${m.products ? `<div style="grid-column:1/-1;"><div style="font-size:0.7rem;color:var(--text-3);margin-bottom:3px;">PRODUCTS INTERESTED IN</div>${esc(m.products)}</div>` : ''}
