@@ -152,4 +152,26 @@ function customerOrderConfirmationEmail(order) {
   });
 }
 
-module.exports = { sendEmail, newMessageEmail, newOrderEmail, customerOrderConfirmationEmail };
+function otpLoginEmail(email, otp) {
+  return sendEmail({
+    to:      email,
+    subject: `${otp} is your Krispie's login code`,
+    html: `
+      <div style="${baseStyle}">
+        <div style="${headerStyle}">
+          <p style="color:#C9A870;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0 0 4px">Krispie's</p>
+          <h2 style="color:#FAF7F0;margin:0;font-size:22px">Your login code</h2>
+        </div>
+        <div style="${bodyStyle}">
+          <p style="${valueStyle}margin-bottom:6px;">Enter this code to log in:</p>
+          <p style="font-family:Georgia,serif;font-size:36px;letter-spacing:0.2em;color:#C9A870;font-weight:700;margin:0 0 18px;">${esc(otp)}</p>
+          <p style="${valueStyle}font-size:13px;opacity:0.75;">This code expires in 10 minutes. If you didn't request it, you can safely ignore this email.</p>
+        </div>
+        <div style="${footerStyle}">
+          <a href="${process.env.FRONTEND_URL}" style="color:#C9A870">www.krispies.in</a>
+        </div>
+      </div>`,
+  });
+}
+
+module.exports = { sendEmail, newMessageEmail, newOrderEmail, customerOrderConfirmationEmail, otpLoginEmail };

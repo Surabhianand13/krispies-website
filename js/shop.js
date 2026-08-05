@@ -654,22 +654,23 @@ function initSharedPageUI() {
 
       if (!name || !phone) { showToast('Please enter your name and phone number.'); btn.textContent='Get a Quote in Minutes →'; btn.disabled=false; return; }
 
+      // No localStorage fallback here: it never actually reached the admin
+      // panel (that reads from the backend, not the customer's own browser
+      // storage), so a failed submit was silently "succeeding" for the
+      // customer while going nowhere, and leaving their name/phone/message
+      // sitting in plaintext in their browser indefinitely for no reason.
       try {
-        await fetch(`${BACKEND_URL}/api/messages`, {
+        const res = await fetch(`${BACKEND_URL}/api/messages`, {
           method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ name, phone, message: `[${category}] ${message}`, eventType: 'other' })
         });
+        if (!res.ok) throw new Error('Request failed');
+        form.querySelectorAll('input,textarea,button[type=submit]').forEach(el => el.style.display='none');
+        form.querySelector('.cant-find-success').style.display = 'flex';
       } catch(_) {
-        try {
-          const existing = JSON.parse(localStorage.getItem('krispies_enquiries')||'[]');
-          existing.unshift({ id: Date.now().toString(36), name, phone, message:`[${category}] ${message}`,
-            eventType:'other', status:'unread', submittedAt: new Date().toISOString() });
-          localStorage.setItem('krispies_enquiries', JSON.stringify(existing));
-        } catch(_) {}
+        showToast('Could not send your request. Please call or WhatsApp us instead.');
+        btn.textContent = 'Get a Quote in Minutes →'; btn.disabled = false;
       }
-
-      form.querySelectorAll('input,textarea,button[type=submit]').forEach(el => el.style.display='none');
-      form.querySelector('.cant-find-success').style.display = 'flex';
     });
   });
 
@@ -1456,6 +1457,7 @@ function _chkToast(msg) {
 ════════════════════════════════════════════════════════ */
 let _custToken   = localStorage.getItem('krispies_customer_token') || null;
 let _custProfile = null;
+let _acctOtpEmail = ''; // email the last OTP request was sent to, for the verify step
 
 function _acctInjectUI() {
   if (!document.getElementById('acctModal')) {
@@ -1499,6 +1501,30 @@ function closeAccountModal() {
 
 function _acctRenderAuthForm(mode) {
   const body = document.getElementById('acctModalBody');
+
+  if (mode === 'otp-request') {
+    body.innerHTML = `
+      <h3 style="font-family:var(--font-display);margin-bottom:16px;">Log In with Email</h3>
+      <div id="acctError" class="acct-error"></div>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:14px;line-height:1.5;">We'll email you a 6-digit code — no password needed. New here? This creates your account too.</p>
+      <div class="chk-field-group"><label class="chk-label">Email *</label><input class="chk-input" id="acctOtpEmail" placeholder="you@example.com" type="email" value="${esc(_acctOtpEmail)}"></div>
+      <button class="btn btn-gold" style="width:100%;margin-top:6px;" id="acctOtpSendBtn" onclick="_acctSubmitOtpRequest()">Send Code</button>
+      <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="_acctRenderAuthForm('login')">← Back to password login</button>`;
+    return;
+  }
+
+  if (mode === 'otp-verify') {
+    body.innerHTML = `
+      <h3 style="font-family:var(--font-display);margin-bottom:16px;">Enter Your Code</h3>
+      <div id="acctError" class="acct-error"></div>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:14px;">We sent a 6-digit code to <strong>${esc(_acctOtpEmail)}</strong>. It expires in 10 minutes.</p>
+      <div class="chk-field-group"><label class="chk-label">6-Digit Code *</label><input class="chk-input" id="acctOtpCode" placeholder="123456" inputmode="numeric" maxlength="6"></div>
+      <div class="chk-field-group"><label class="chk-label">Name <span style="font-weight:400;text-transform:none">(only needed for new accounts)</span></label><input class="chk-input" id="acctOtpName" placeholder="Your name"></div>
+      <button class="btn btn-gold" style="width:100%;margin-top:6px;" id="acctOtpVerifyBtn" onclick="_acctSubmitOtpVerify()">Verify &amp; Log In</button>
+      <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="_acctRenderAuthForm('otp-request')">← Use a different email</button>`;
+    return;
+  }
+
   const isLogin = mode === 'login';
   body.innerHTML = `
     <h3 style="font-family:var(--font-display);margin-bottom:16px;">${isLogin ? 'Log In' : 'Create Your Account'}</h3>
@@ -1511,7 +1537,8 @@ function _acctRenderAuthForm(mode) {
     <div class="chk-field-group"><label class="chk-label">Phone Number *</label><input class="chk-input" id="acctPhone" placeholder="10-digit mobile number" type="tel"></div>
     ${!isLogin ? `<div class="chk-field-group"><label class="chk-label">Email <span style="font-weight:400;text-transform:none">(optional)</span></label><input class="chk-input" id="acctEmail" placeholder="you@example.com" type="email"></div>` : ''}
     <div class="chk-field-group"><label class="chk-label">Password *</label><input class="chk-input" id="acctPassword" placeholder="At least 6 characters" type="password"></div>
-    <button class="btn btn-gold" style="width:100%;margin-top:6px;" onclick="${isLogin ? '_acctSubmitLogin()' : '_acctSubmitSignup()'}">${isLogin ? 'Log In' : 'Create Account'}</button>`;
+    <button class="btn btn-gold" style="width:100%;margin-top:6px;" onclick="${isLogin ? '_acctSubmitLogin()' : '_acctSubmitSignup()'}">${isLogin ? 'Log In' : 'Create Account'}</button>
+    ${isLogin ? `<button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="_acctRenderAuthForm('otp-request')">Log in with email code instead</button>` : ''}`;
 }
 
 async function _acctSubmitSignup() {
@@ -1554,6 +1581,52 @@ async function _acctSubmitLogin() {
   } catch (e) { errEl.textContent = e.message; }
 }
 
+async function _acctSubmitOtpRequest() {
+  const email = document.getElementById('acctOtpEmail').value.trim();
+  const errEl = document.getElementById('acctError');
+  errEl.textContent = '';
+  if (!email) { errEl.textContent = 'Please enter your email.'; return; }
+  const btn = document.getElementById('acctOtpSendBtn');
+  if (btn) { btn.textContent = 'Sending…'; btn.disabled = true; }
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/customers/otp/request`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Could not send code.');
+    _acctOtpEmail = email;
+    _acctRenderAuthForm('otp-verify');
+  } catch (e) {
+    errEl.textContent = e.message;
+    if (btn) { btn.textContent = 'Send Code'; btn.disabled = false; }
+  }
+}
+
+async function _acctSubmitOtpVerify() {
+  const otp  = document.getElementById('acctOtpCode').value.trim();
+  const name = document.getElementById('acctOtpName').value.trim();
+  const errEl = document.getElementById('acctError');
+  errEl.textContent = '';
+  if (!/^\d{6}$/.test(otp)) { errEl.textContent = 'Enter the 6-digit code from your email.'; return; }
+  const btn = document.getElementById('acctOtpVerifyBtn');
+  if (btn) { btn.textContent = 'Verifying…'; btn.disabled = true; }
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/customers/otp/verify`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: _acctOtpEmail, otp, name: name || undefined }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Verification failed.');
+    _custToken = data.token; _custProfile = data.customer;
+    localStorage.setItem('krispies_customer_token', _custToken);
+    _acctRenderLoggedIn();
+  } catch (e) {
+    errEl.textContent = e.message;
+    if (btn) { btn.textContent = 'Verify & Log In'; btn.disabled = false; }
+  }
+}
+
 function _acctLogout() {
   _custToken = null; _custProfile = null;
   localStorage.removeItem('krispies_customer_token');
@@ -1584,7 +1657,7 @@ async function _acctRenderLoggedIn() {
     await loadSavedAddresses();
     body.innerHTML = `
       <div class="acct-profile-hd">
-        <div><strong>${esc(_custProfile.name)}</strong><br><span style="color:var(--text-muted);font-size:0.8rem">${esc(_custProfile.phone)}</span></div>
+        <div><strong>${esc(_custProfile.name)}</strong><br><span style="color:var(--text-muted);font-size:0.8rem">${esc(_custProfile.phone || _custProfile.email || '')}</span></div>
         <button class="btn btn-outline btn-sm" onclick="_acctLogout()">Log Out</button>
       </div>
       <div class="acct-tabs" style="margin-top:16px">
