@@ -4,7 +4,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const db = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
-const { newOrderEmail } = require('../utils/email');
+const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
 
 const router = express.Router();
 
@@ -55,6 +55,7 @@ router.post('/',
       id:             uid(),
       customer_name:  req.body.customer_name.trim(),
       customer_phone: (req.body.customer_phone || '').trim() || null,
+      customer_email: (req.body.customer_email || '').trim() || null,
       items:          req.body.items.trim(),
       quantity:       (req.body.quantity || '').trim() || null,
       amount:         req.body.amount ? parseFloat(req.body.amount) : null,
@@ -63,22 +64,24 @@ router.post('/',
       order_date:     req.body.order_date || null,
       delivery_date:  req.body.delivery_date || null,
       status:         req.body.status || 'pending',
+      payment_method: req.body.payment_method || null,
       notes:          (req.body.notes || '').trim() || null,
     };
 
     db.prepare(`
       INSERT INTO orders
-        (id, customer_name, customer_phone, items, quantity, amount, platform,
-         outlet, order_date, delivery_date, status, notes)
+        (id, customer_name, customer_phone, customer_email, items, quantity, amount, platform,
+         outlet, order_date, delivery_date, status, payment_method, notes)
       VALUES
-        (@id, @customer_name, @customer_phone, @items, @quantity, @amount, @platform,
-         @outlet, @order_date, @delivery_date, @status, @notes)
+        (@id, @customer_name, @customer_phone, @customer_email, @items, @quantity, @amount, @platform,
+         @outlet, @order_date, @delivery_date, @status, @payment_method, @notes)
     `).run(o);
 
     const created = toOrder(db.prepare('SELECT * FROM orders WHERE id = ?').get(o.id));
 
     // Fire-and-forget email
     newOrderEmail(o).catch(() => {});
+    if (o.customer_email) customerOrderConfirmationEmail(o).catch(() => {});
 
     res.status(201).json(created);
   }
@@ -100,15 +103,18 @@ router.put('/:id',
     db.prepare(`
       UPDATE orders
       SET customer_name = @customer_name, customer_phone = @customer_phone,
+          customer_email = @customer_email,
           items = @items, quantity = @quantity, amount = @amount,
           platform = @platform, outlet = @outlet, order_date = @order_date,
-          delivery_date = @delivery_date, status = @status, notes = @notes,
+          delivery_date = @delivery_date, status = @status,
+          payment_method = @payment_method, notes = @notes,
           updated_at = datetime('now')
       WHERE id = @id
     `).run({
       id:             req.params.id,
       customer_name:  req.body.customer_name.trim(),
       customer_phone: (req.body.customer_phone || '').trim() || null,
+      customer_email: (req.body.customer_email || '').trim() || null,
       items:          req.body.items.trim(),
       quantity:       (req.body.quantity || '').trim() || null,
       amount:         req.body.amount ? parseFloat(req.body.amount) : null,
@@ -117,6 +123,7 @@ router.put('/:id',
       order_date:     req.body.order_date || null,
       delivery_date:  req.body.delivery_date || null,
       status:         req.body.status || 'pending',
+      payment_method: req.body.payment_method || null,
       notes:          (req.body.notes || '').trim() || null,
     });
 
@@ -153,8 +160,10 @@ router.delete('/:id', (req, res) => {
 function toOrder(row) {
   return {
     id:            row.id,
+    customerId:    row.customer_id,
     customerName:  row.customer_name,
     customerPhone: row.customer_phone,
+    customerEmail: row.customer_email,
     items:         row.items,
     quantity:      row.quantity,
     amount:        row.amount,
@@ -163,6 +172,7 @@ function toOrder(row) {
     orderDate:     row.order_date,
     deliveryDate:  row.delivery_date,
     status:        row.status,
+    paymentMethod: row.payment_method,
     notes:         row.notes,
     createdAt:     row.created_at,
     updatedAt:     row.updated_at,
