@@ -43,7 +43,7 @@ router.get('/', (req, res, next) => {
     return requireAuth(req, res, () => {
       const rows = db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
       const ratings = getRatingsMap();
-      res.json(rows.map(r => toProduct(r, ratings)));
+      res.json(rows.map(r => toProduct(r, ratings, { raw: true })));
     });
   }
   const rows = db.prepare('SELECT * FROM products WHERE active = 1 ORDER BY created_at DESC').all();
@@ -65,11 +65,12 @@ router.get('/slug/:slug', (req, res) => {
   res.json(toProduct(row, getRatingsMap()));
 });
 
-// GET /api/products/:id
-router.get('/:id', (req, res) => {
+// GET /api/products/:id — admin/management use (raw sticker prices, not
+// customer-facing discounted ones); not currently called by the public site.
+router.get('/:id', requireAuth, (req, res) => {
   const row = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Product not found.' });
-  res.json(toProduct(row, getRatingsMap()));
+  res.json(toProduct(row, getRatingsMap(), { raw: true }));
 });
 
 // POST /api/products
@@ -85,7 +86,7 @@ router.post('/', requireAuth, productValidators(), (req, res) => {
     VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @active)
   `).run(p);
 
-  res.status(201).json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(p.id)));
+  res.status(201).json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(p.id), null, { raw: true }));
 });
 
 // PUT /api/products/:id
@@ -107,7 +108,7 @@ router.put('/:id', requireAuth, productValidators(), (req, res) => {
     WHERE id=@id
   `).run(p);
 
-  res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id)));
+  res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id), null, { raw: true }));
 });
 
 // PATCH /api/products/:id/toggle-active
@@ -116,7 +117,7 @@ router.patch('/:id/toggle-active', requireAuth, (req, res) => {
   if (!row) return res.status(404).json({ error: 'Product not found.' });
   db.prepare(`UPDATE products SET active=@a, updated_at=datetime('now') WHERE id=@id`)
     .run({ a: row.active ? 0 : 1, id: req.params.id });
-  res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id)));
+  res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id), null, { raw: true }));
 });
 
 // PATCH /api/products/:id/toggle-featured
@@ -125,7 +126,7 @@ router.patch('/:id/toggle-featured', requireAuth, (req, res) => {
   if (!row) return res.status(404).json({ error: 'Product not found.' });
   db.prepare(`UPDATE products SET featured=@f, updated_at=datetime('now') WHERE id=@id`)
     .run({ f: row.featured ? 0 : 1, id: req.params.id });
-  res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id)));
+  res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id), null, { raw: true }));
 });
 
 // DELETE /api/products/:id
@@ -135,6 +136,40 @@ router.delete('/:id', requireAuth, (req, res) => {
   db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
   res.json({ message: 'Product deleted.' });
 });
+
+// PATCH /api/products/bulk-discount — set the same discount % across many
+// products at once (site-wide, one category, or a hand-picked list) instead
+// of editing each product individually. Applies to both simple and
+// variant-priced products, since discount now works the same way for both.
+router.patch('/bulk-discount',
+  requireAuth,
+  [
+    body('discount').isFloat({ min: 0, max: 100 }).withMessage('Discount must be 0-100.'),
+    body('scope').isIn(['all', 'category', 'selected']).withMessage('Invalid scope.'),
+    body('category').if(body('scope').equals('category')).isIn(VALID_CATEGORIES).withMessage('Invalid category.'),
+    body('productIds').if(body('scope').equals('selected')).isArray({ min: 1 }).withMessage('Select at least one product.'),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const { discount, scope, category, productIds } = req.body;
+    let result;
+
+    if (scope === 'all') {
+      result = db.prepare(`UPDATE products SET discount = ?, updated_at = datetime('now')`).run(discount);
+    } else if (scope === 'category') {
+      result = db.prepare(`UPDATE products SET discount = ?, updated_at = datetime('now') WHERE category = ?`).run(discount, category);
+    } else {
+      const ids = productIds.filter(id => typeof id === 'string' && id);
+      if (!ids.length) return res.status(400).json({ error: 'Select at least one product.' });
+      const placeholders = ids.map(() => '?').join(',');
+      result = db.prepare(`UPDATE products SET discount = ?, updated_at = datetime('now') WHERE id IN (${placeholders})`).run(discount, ...ids);
+    }
+
+    res.json({ updated: result.changes });
+  }
+);
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function buildProduct(id, body) {
@@ -177,7 +212,15 @@ function buildProduct(id, body) {
   };
 }
 
-function toProduct(row, ratingsMap) {
+// `raw: true` (admin/management reads) returns variant option prices exactly
+// as entered -- the "sticker" price. Customer-facing reads (raw: false,
+// the default) apply the product's discount % on top of each option's
+// sticker price, same as it already applies to a no-variant product's mrp.
+// This matters beyond display: keeping raw untouched is what lets the admin
+// edit form always show/save the real sticker price, never an
+// already-discounted value that would compound further on the next save.
+function toProduct(row, ratingsMap, opts = {}) {
+  const raw = !!opts.raw;
   const rating = ratingsMap ? ratingsMap[row.slug] : null;
   let images = [];
   try { images = JSON.parse(row.images || '[]'); } catch (_) {}
@@ -194,16 +237,23 @@ function toProduct(row, ratingsMap) {
   const mrp = row.mrp || 0;
   const disc = row.discount || 0;
   const basePrice = disc > 0 ? Math.round(mrp * (1 - disc / 100)) : mrp;
+  const applyDiscount = (price) => (raw || !disc) ? price : Math.round(price * (1 - disc / 100));
 
-  // When variants exist, each option's price IS the final price for that
-  // choice (customer picks one option per group and pays the sum of their
-  // selections) -- mrp/discount are ignored in favour of whatever the
-  // admin set per option. An optional group can be skipped entirely, so
-  // its cheapest possible contribution is 0, not its cheapest option.
+  const displayVariantGroups = variantGroups.map(g => ({
+    ...g,
+    options: g.options.map(o => ({ ...o, price: applyDiscount(o.price) })),
+  }));
+
+  // Each option's (possibly discounted) price is the final price for that
+  // choice -- customer picks one option per group and pays the sum of their
+  // selections; mrp/discount above are only the source of that per-option
+  // discount now, not a separate pricing path. An optional group can be
+  // skipped entirely, so its cheapest possible contribution is 0, not its
+  // cheapest option.
   let priceFrom = basePrice, priceTo = basePrice;
   if (variantGroups.length) {
     const groupPriceRange = g => {
-      const prices = g.options.map(o => o.price);
+      const prices = g.options.map(o => applyDiscount(o.price));
       return [g.optional ? 0 : Math.min(...prices), Math.max(...prices)];
     };
     const mins = variantGroups.map(g => groupPriceRange(g)[0]);
@@ -226,7 +276,7 @@ function toProduct(row, ratingsMap) {
     priceFrom,
     priceTo,
     images,
-    variantGroups,
+    variantGroups: displayVariantGroups,
     prepHours:     row.prep_hours || 0,
     featured:      row.featured === 1,
     active:        row.active === 1,

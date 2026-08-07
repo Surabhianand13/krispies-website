@@ -29,6 +29,7 @@
     <div class="topbar">
       <div><div class="topbar__title">Products</div><div class="topbar__sub" id="prod-count">Loading…</div></div>
       <div class="topbar__actions">
+        <button class="btn btn-outline" onclick="openBulkOffer()">🏷️ Bulk Offer</button>
         <button class="btn btn-primary" onclick="openAddProduct()">+ Add Product</button>
       </div>
     </div>
@@ -64,6 +65,7 @@
           <table>
             <thead>
               <tr>
+                <th style="width:32px;"><input type="checkbox" id="selectAllProducts" onchange="toggleSelectAllProducts(this)" title="Select all shown"></th>
                 <th>Product</th>
                 <th>Category</th>
                 <th>MRP</th>
@@ -97,12 +99,133 @@
   </div>
 </div>
 
+<!-- Bulk Offer Modal -->
+<div class="modal-overlay" id="bulkOfferOverlay">
+  <div class="modal">
+    <div class="modal__hd">
+      <h3>Apply Bulk Offer</h3>
+      <button class="modal__close" onclick="closeBulkOffer()">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="form-row">
+        <label>Discount % *</label>
+        <input type="number" id="bulkDiscount" min="0" max="100" step="1" placeholder="e.g. 20">
+        <div class="td-muted" style="font-size:0.72rem;margin-top:4px;">
+          Replaces each product's current discount with this value — applies to the sticker price whether the product has weight/flavour variants or not.
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:14px;">
+        <label>Apply To *</label>
+        <select id="bulkScope" onchange="renderBulkScopeOptions()">
+          <option value="all">All Products</option>
+          <option value="category">Products in a Category</option>
+          <option value="selected">Selected Products (checked in the table)</option>
+        </select>
+      </div>
+      <div id="bulkScopeOptions"></div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn btn-outline" onclick="closeBulkOffer()">Cancel</button>
+      <button class="btn btn-primary" id="bulkOfferApplyBtn" onclick="applyBulkOffer()">Apply Offer</button>
+    </div>
+  </div>
+</div>
+
 <script src="admin.js"></script>
 <script>
 'use strict';
 if (!checkAuth()) throw new Error('Not authenticated');
 
 let allProducts = [];
+let _selectedProductIds = new Set();
+
+function toggleSelectProduct(id, cb) {
+  if (cb.checked) _selectedProductIds.add(id); else _selectedProductIds.delete(id);
+  const selectAll = document.getElementById('selectAllProducts');
+  if (selectAll) selectAll.checked = false;
+  updateBulkOfferSelectedCount();
+}
+
+function toggleSelectAllProducts(cb) {
+  document.querySelectorAll('.product-select').forEach(el => {
+    el.checked = cb.checked;
+    if (cb.checked) _selectedProductIds.add(el.value); else _selectedProductIds.delete(el.value);
+  });
+  updateBulkOfferSelectedCount();
+}
+
+// ── Bulk Offer ────────────────────────────────────────────────────────────
+function openBulkOffer() {
+  document.getElementById('bulkDiscount').value = '';
+  document.getElementById('bulkScope').value = 'all';
+  renderBulkScopeOptions();
+  document.getElementById('bulkOfferOverlay').classList.add('open');
+}
+
+function closeBulkOffer() {
+  document.getElementById('bulkOfferOverlay').classList.remove('open');
+}
+
+function renderBulkScopeOptions() {
+  const scope = document.getElementById('bulkScope').value;
+  const el = document.getElementById('bulkScopeOptions');
+  if (scope === 'category') {
+    const knownCats = new Set(BASE_CATEGORIES.map(([v]) => v));
+    const extraCats = [...new Set(allProducts.map(x => x.category))].filter(c => c && !knownCats.has(c));
+    const catOptions = [...BASE_CATEGORIES, ...extraCats.map(c => [c, CATEGORY_LABELS[c] || c])];
+    el.innerHTML = `
+      <div class="form-row" style="margin-top:10px;">
+        <label>Category *</label>
+        <select id="bulkCategory">
+          ${catOptions.map(([v,l]) => `<option value="${v}">${l} (${allProducts.filter(p=>p.category===v).length})</option>`).join('')}
+        </select>
+      </div>`;
+  } else if (scope === 'selected') {
+    el.innerHTML = `<div class="td-muted" style="font-size:0.78rem;margin-top:10px;" id="bulkSelectedCount"></div>`;
+    updateBulkOfferSelectedCount();
+  } else {
+    el.innerHTML = `<div class="td-muted" style="font-size:0.78rem;margin-top:10px;">Applies to all ${allProducts.length} products.</div>`;
+  }
+}
+
+// Keeps the "N selected" hint in sync with the checkboxes even while the
+// modal is open and the admin is ticking rows in the table behind it.
+function updateBulkOfferSelectedCount() {
+  const el = document.getElementById('bulkSelectedCount');
+  if (el) el.textContent = _selectedProductIds.size
+    ? `${_selectedProductIds.size} product${_selectedProductIds.size === 1 ? '' : 's'} selected.`
+    : 'No products selected yet — check some rows in the table first.';
+}
+
+async function applyBulkOffer() {
+  const discount = parseFloat(document.getElementById('bulkDiscount').value);
+  const scope = document.getElementById('bulkScope').value;
+  if (!(discount >= 0 && discount <= 100)) { showToast('Enter a discount between 0 and 100', 'error'); return; }
+
+  const body = { discount, scope };
+  if (scope === 'category') {
+    body.category = document.getElementById('bulkCategory').value;
+  } else if (scope === 'selected') {
+    body.productIds = [..._selectedProductIds];
+    if (!body.productIds.length) { showToast('Select at least one product first', 'error'); return; }
+  }
+
+  const btn = document.getElementById('bulkOfferApplyBtn');
+  btn.textContent = 'Applying…'; btn.disabled = true;
+  try {
+    const result = await apiFetch('/api/products/bulk-discount', 'PATCH', body);
+    showToast(`${discount}% offer applied to ${result.updated} product${result.updated === 1 ? '' : 's'} ✓`);
+    closeBulkOffer();
+    _selectedProductIds.clear();
+    const selectAll = document.getElementById('selectAllProducts');
+    if (selectAll) selectAll.checked = false;
+    await loadProducts();
+  } catch (e) {
+    showToast(e.message || 'Failed to apply offer', 'error');
+  } finally {
+    btn.textContent = 'Apply Offer'; btn.disabled = false;
+  }
+}
 
 async function loadProducts() {
   try {
@@ -133,11 +256,12 @@ function filterProducts() {
 function renderProducts(list) {
   const tb = document.getElementById('products-tbody');
   if (!list.length) {
-    tb.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">🛍️</div>No products found</div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">🛍️</div>No products found</div></td></tr>`;
     return;
   }
   tb.innerHTML = list.map(p => `
     <tr id="row-${p.id}">
+      <td><input type="checkbox" class="product-select" value="${p.id}" ${_selectedProductIds.has(p.id) ? 'checked' : ''} onchange="toggleSelectProduct('${p.id}', this)"></td>
       <td>
         <div class="td-name">${esc(p.name)}</div>
         <div class="td-muted" style="font-size:0.7rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</div>
@@ -145,7 +269,7 @@ function renderProducts(list) {
       </td>
       <td><span class="badge badge-none" style="font-size:0.63rem;">${CATEGORY_LABELS[p.category] || p.category}</span></td>
       <td>${p.mrp ? fmtPrice(p.mrp) : '—'}</td>
-      <td><strong>${p.variantGroups?.length ? 'From ' : ''}${p.price ? fmtPrice(p.price) : '—'}</strong>${(p.discount && !p.variantGroups?.length) ? `<br><span class="td-muted" style="font-size:0.68rem;">${p.discount}% off</span>` : ''}</td>
+      <td><strong>${p.variantGroups?.length ? 'From ' : ''}${p.price ? fmtPrice(p.price) : '—'}</strong>${p.discount ? `<br><span class="td-muted" style="font-size:0.68rem;">${p.discount}% off</span>` : ''}</td>
       <td>${tagBadge(p.tag)}</td>
       <td>
         <label class="toggle" title="${p.active ? 'Click to deactivate' : 'Click to activate'}">
