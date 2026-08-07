@@ -182,14 +182,17 @@ async function _pdpRenderRatings(slug) {
     if (!res.ok) return;
     const data = await res.json();
     if (!data.count) return;
-    list.innerHTML = data.reviews.map(r => `
+    list.innerHTML = data.reviews.map(r => {
+      const stars = Math.min(5, Math.max(0, Math.round(r.rating)));
+      return `
       <div class="pdp__rating-item">
         <div class="pdp__rating-item-top">
           <span class="pdp__rating-item-name">${esc(r.name)}</span>
-          <span class="pdp__rating-item-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+          <span class="pdp__rating-item-stars">${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}</span>
         </div>
         <div class="pdp__rating-item-meta">${esc(r.area || '')}${r.date ? ` · ${esc(new Date(r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))}` : ''}</div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     section.style.display = '';
   } catch (_) {
     // Silently skip -- ratings are supplementary, not critical path.

@@ -382,6 +382,65 @@ if (!alreadySeededReviews) {
   }
 }
 
+// ── One-time seed: second batch of customer ratings supplied for a specific
+//    set of popular products (engagement/wedding/kids-theme cakes), on top
+//    of the original 'reviews_seeded_v1' batch above. Guarded separately by
+//    'reviews_seeded_v2' so it only ever runs once and won't re-run or
+//    collide with v1's guard.
+const alreadySeededReviewsV2 = db.prepare('SELECT value FROM settings WHERE key = ?').get('reviews_seeded_v2');
+if (!alreadySeededReviewsV2) {
+  let reviewSeedV2 = [];
+  try {
+    reviewSeedV2 = require('./seed-reviews-2.json');
+  } catch (_) {
+    reviewSeedV2 = [];
+  }
+
+  if (reviewSeedV2.length) {
+    const insertReviewV2 = db.prepare(`
+      INSERT INTO reviews (id, product_slug, customer_name, area, geography, rating, review_date)
+      VALUES (@id, @productSlug, @customerName, @area, @geography, @rating, @date)
+    `);
+    const migrateReviewsV2 = db.transaction((items) => {
+      for (const item of items) insertReviewV2.run(item);
+      db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+        .run('reviews_seeded_v2', 'true');
+    });
+    migrateReviewsV2(reviewSeedV2);
+    console.log(`✓ Seeded additional customer ratings (${reviewSeedV2.length}) — one-time migration complete`);
+  }
+}
+
+// ── One-time cleanup: reviewer names seeded so far mix three styles --
+//    "First Last", "First M. Last" (an awkward inserted middle initial),
+//    and "First I." -- which look inconsistent side by side on the
+//    storefront. Strips any lone single-letter-plus-period token (a
+//    middle initial or an initial standing in for a surname) from every
+//    existing review's customer_name, leaving either a full "First Last"
+//    name or just "First" -- both of which read cleanly. Guarded by
+//    'reviews_name_cleanup_v1' so it only ever runs once; reviews added
+//    afterward (via admin, or the v2 batch above, which is already clean)
+//    are never touched by this again.
+const alreadyCleanedReviewNames = db.prepare('SELECT value FROM settings WHERE key = ?').get('reviews_name_cleanup_v1');
+if (!alreadyCleanedReviewNames) {
+  const messyNames = db.prepare(`SELECT id, customer_name FROM reviews WHERE customer_name LIKE '% _.%' OR customer_name LIKE '% _.'`).all();
+  const updateName = db.prepare('UPDATE reviews SET customer_name = ? WHERE id = ?');
+  const cleanupNames = db.transaction((rows) => {
+    for (const row of rows) {
+      const cleaned = row.customer_name
+        .split(/\s+/)
+        .filter(w => !/^[A-Za-z]\.$/.test(w))
+        .join(' ')
+        .trim();
+      if (cleaned && cleaned !== row.customer_name) updateName.run(cleaned, row.id);
+    }
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+      .run('reviews_name_cleanup_v1', 'true');
+  });
+  cleanupNames(messyNames);
+  console.log(`✓ Cleaned up ${messyNames.length} reviewer name(s) — one-time migration complete`);
+}
+
 // ── One-time migration: Birthday Theme Cakes category removed (its 6
 //    products deleted outright — team's call, not a recategorization) and
 //    two new categories introduced. "Half Birthday Teddy Cake" is a real
