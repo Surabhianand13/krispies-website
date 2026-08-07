@@ -113,11 +113,15 @@ function _pdpUpdatePriceDisplay() {
   const total = unitPrice * _pdpQtyValue;
   const row = document.getElementById('pdpPriceRow');
   if (!row) return;
+  // For a variant product there's no single mrp to multiply -- reverse the
+  // uniform discount off the (already-discounted) unit price instead, same
+  // approach as the checkout modal and menu cards.
+  const wasUnit = hasVariants ? Math.round(unitPrice / (1 - discount / 100)) : mrp;
   row.innerHTML = `
     <span class="pdp__price">₹${total.toLocaleString('en-IN')}</span>
     ${_pdpQtyValue > 1 ? `<span class="pdp__per-unit">(₹${unitPrice.toLocaleString('en-IN')} each)</span>` : ''}
-    ${discount > 0 && !hasVariants ? `<span class="pdp__mrp">₹${(mrp * _pdpQtyValue).toLocaleString('en-IN')}</span>` : ''}
-    ${discount > 0 && !hasVariants ? `<span class="pdp__discount">${discount}% OFF</span>` : ''}
+    ${discount > 0 ? `<span class="pdp__mrp">₹${(wasUnit * _pdpQtyValue).toLocaleString('en-IN')}</span>` : ''}
+    ${discount > 0 ? `<span class="pdp__discount">${discount}% OFF</span>` : ''}
   `;
 }
 

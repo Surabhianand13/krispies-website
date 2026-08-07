@@ -216,11 +216,21 @@ function renderCard(p) {
     <div class="pcard__gal-dots">${imgs.map((_, i) => `<span class="pcard__gal-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>`
     : '';
 
+  // The discount % applies on top of variant option prices too (see
+  // backend/routes/products.js's toProduct) -- priceFrom already reflects
+  // it here since this is a public/customer-facing read. There's no single
+  // "was" price for a variant product the way mrp is for a simple one, so
+  // reverse the uniform discount off priceFrom for the strikethrough --
+  // exact enough for a badge, doesn't need to be precise to the rupee.
+  const wasPrice = hasVariants
+    ? Math.round(priceFrom / (1 - discount / 100))
+    : mrp;
+
   const pricingHTML = (mrp || hasVariants) ? `
     <div class="pcard__pricing">
       <span class="pcard__price">₹${(hasVariants ? priceFrom : final).toLocaleString('en-IN')}</span>
-      ${discount > 0 && !hasVariants ? `<span class="pcard__mrp">₹${mrp.toLocaleString('en-IN')}</span>` : ''}
-      ${discount > 0 && !hasVariants ? `<span class="pcard__discount">${discount}% OFF</span>` : ''}
+      ${discount > 0 ? `<span class="pcard__mrp">₹${wasPrice.toLocaleString('en-IN')}</span>` : ''}
+      ${discount > 0 ? `<span class="pcard__discount">${discount}% OFF</span>` : ''}
     </div>`
     : `<p class="pcard__price-note">Price on request</p>`;
 
@@ -975,9 +985,9 @@ function _chkStep1() {
       <div>
         <div class="chk-product-name">${esc(p.name)}</div>
         <div class="chk-product-price" id="chkProductPrice">
-          ${disc > 0 && !hasVariants ? `<s style="color:var(--text-muted);font-size:0.78rem">&#8377;${mrp.toLocaleString('en-IN')}</s> ` : ''}
+          ${disc > 0 ? `<s style="color:var(--text-muted);font-size:0.78rem">&#8377;${(hasVariants ? Math.round(fin / (1 - disc / 100)) : mrp).toLocaleString('en-IN')}</s> ` : ''}
           <strong style="color:var(--gold)">&#8377;${fin.toLocaleString('en-IN')}</strong>
-          ${disc > 0 && !hasVariants ? `<span class="chk-disc-tag">${disc}% OFF</span>` : ''}
+          ${disc > 0 ? `<span class="chk-disc-tag">${disc}% OFF</span>` : ''}
         </div>
       </div>
     </div>

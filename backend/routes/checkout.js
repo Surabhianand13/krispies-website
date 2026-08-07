@@ -84,13 +84,19 @@ const COUPONS = {
 const DELIVERY_FEE_TIERS = [30, 60, 100, 150, 200, 250];
 
 function computeUnitPrice(product, variantSelection) {
+  const disc = Number(product.discount) || 0;
+  // Same discount field used for the no-variant case below now also applies
+  // on top of each variant option's own "sticker" price -- must mirror
+  // products.js's toProduct() exactly, since that's what the customer sees
+  // displayed; this is what actually gets charged.
+  const applyDiscount = (price) => disc ? Math.round(price * (1 - disc / 100)) : price;
+
   let groups = [];
   try { groups = JSON.parse(product.variant_groups || '[]'); } catch (_) { groups = []; }
 
   if (!Array.isArray(groups) || !groups.length) {
     const mrp = Number(product.mrp) || 0;
-    const disc = Number(product.discount) || 0;
-    return mrp ? Math.round(mrp * (1 - disc / 100)) : 0;
+    return mrp ? applyDiscount(mrp) : 0;
   }
 
   const sel = (variantSelection && typeof variantSelection === 'object') ? variantSelection : {};
@@ -114,7 +120,7 @@ function computeUnitPrice(product, variantSelection) {
     }
 
     const opt = g.options[idx];
-    return sum + (opt ? Number(opt.price) || 0 : 0);
+    return sum + (opt ? applyDiscount(Number(opt.price) || 0) : 0);
   }, 0);
 }
 
