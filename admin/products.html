@@ -39,22 +39,13 @@
         <input type="search" id="search" placeholder="Search products…" oninput="filterProducts()">
         <select id="filter-cat" onchange="filterProducts()">
           <option value="">All Categories</option>
-          <option value="birthday-cakes">Birthday Cakes</option>
-          <option value="wedding-cakes">Wedding Cakes</option>
-          <option value="engagement-cakes">Engagement Cakes</option>
-          <option value="baby-shower-cakes">Kids Birthday Cakes</option>
-          <option value="half-year-birthday-cakes">Half Year Birthday Cakes</option>
-          <option value="gender-reveal-cakes">Gender Reveal Cakes</option>
-          <option value="customized-cakes">Customized Cakes</option>
-          <option value="cheesecakes">Cheesecakes</option>
-          <option value="donuts">Donuts</option>
-          <option value="biscuits">Biscuits</option>
         </select>
         <select id="filter-status" onchange="filterProducts()">
           <option value="">All Status</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
           <option value="featured">Featured</option>
+          <option value="trending">Trending</option>
         </select>
         <div class="spacer"></div>
         <span id="filtered-count" style="font-size:0.78rem;color:var(--text-3);"></span>
@@ -73,6 +64,7 @@
                 <th>Tag</th>
                 <th>Active</th>
                 <th>Featured</th>
+                <th>Trending</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -231,10 +223,28 @@ async function loadProducts() {
   try {
     allProducts = await apiFetch('/api/products?all=1');
     document.getElementById('prod-count').textContent = `${allProducts.length} products total`;
+    populateCategoryFilter();
     renderProducts(allProducts);
   } catch (e) {
     showToast('Failed to load products', 'error');
   }
+}
+
+// Rebuilds the "All Categories" filter from BASE_CATEGORIES plus any custom
+// category already in use by a real product -- this dropdown used to be a
+// hand-written, unmanaged <option> list that silently fell out of sync with
+// BASE_CATEGORIES (Floral Cakes and Love Cakes were addable via the product
+// form but had no way to be *filtered* to here). Same source of truth as
+// the product form's category <select>, so the two can't diverge again.
+function populateCategoryFilter() {
+  const sel = document.getElementById('filter-cat');
+  const current = sel.value;
+  const knownCats = new Set(BASE_CATEGORIES.map(([v]) => v));
+  const extraCats = [...new Set(allProducts.map(p => p.category))].filter(c => c && !knownCats.has(c));
+  const catOptions = [...BASE_CATEGORIES, ...extraCats.map(c => [c, CATEGORY_LABELS[c] || c])];
+  sel.innerHTML = `<option value="">All Categories</option>`
+    + catOptions.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+  sel.value = current;
 }
 
 function filterProducts() {
@@ -247,6 +257,7 @@ function filterProducts() {
     if (status === 'active'   && !p.active)   return false;
     if (status === 'inactive' && p.active)    return false;
     if (status === 'featured' && !p.featured) return false;
+    if (status === 'trending' && !p.trending) return false;
     return true;
   });
   document.getElementById('filtered-count').textContent = `${list.length} shown`;
@@ -256,7 +267,7 @@ function filterProducts() {
 function renderProducts(list) {
   const tb = document.getElementById('products-tbody');
   if (!list.length) {
-    tb.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">🛍️</div>No products found</div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="icon">🛍️</div>No products found</div></td></tr>`;
     return;
   }
   tb.innerHTML = list.map(p => `
@@ -280,6 +291,12 @@ function renderProducts(list) {
       <td>
         <label class="toggle" title="${p.featured ? 'Click to unfeature' : 'Click to feature on homepage'}">
           <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <label class="toggle" title="${p.trending ? 'Click to remove from Trending' : 'Click to mark Trending on homepage'}">
+          <input type="checkbox" ${p.trending ? 'checked' : ''} onchange="toggleTrending('${p.id}', this)">
           <span class="toggle-slider"></span>
         </label>
       </td>
@@ -309,6 +326,16 @@ async function toggleFeatured(id, cb) {
     if (idx !== -1) allProducts[idx] = updated;
     cb.checked = updated.featured;
     showToast(updated.featured ? 'Now featured on homepage' : 'Removed from homepage');
+  } catch (e) { showToast('Failed to update', 'error'); cb.checked = !cb.checked; }
+}
+
+async function toggleTrending(id, cb) {
+  try {
+    const updated = await apiFetch(`/api/products/${id}/toggle-trending`, 'PATCH');
+    const idx = allProducts.findIndex(p => p.id === id);
+    if (idx !== -1) allProducts[idx] = updated;
+    cb.checked = updated.trending;
+    showToast(updated.trending ? 'Now trending on homepage' : 'Removed from Trending');
   } catch (e) { showToast('Failed to update', 'error'); cb.checked = !cb.checked; }
 }
 
@@ -435,6 +462,9 @@ function productForm(p = {}) {
       </div>
       <div class="form-row">
         <label class="form-check"><input type="checkbox" id="f-featured" ${p.featured?'checked':''}> Featured on homepage</label>
+      </div>
+      <div class="form-row">
+        <label class="form-check"><input type="checkbox" id="f-trending" ${p.trending?'checked':''}> Trending on homepage</label>
       </div>
     </div>`;
 }
@@ -642,6 +672,7 @@ async function saveProduct(editId) {
     variantGroups: JSON.stringify(_editVariantGroups.filter(g => g.name.trim() && g.options.some(o => o.label.trim()))),
     active:        document.getElementById('f-active').checked,
     featured:      document.getElementById('f-featured').checked,
+    trending:      document.getElementById('f-trending').checked,
   };
 
   const btn = document.getElementById('modalSaveBtn');
