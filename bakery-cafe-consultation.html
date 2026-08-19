@@ -45,9 +45,56 @@
 }
 </script>
   <style>
+    /* Big stat band replacing the old pill badges -- numbers carry more
+       authority at this scale than a row of small rounded chips does. */
+    .bcc-bignums { display:flex; flex-wrap:wrap; justify-content:center; gap:0; margin:30px 0 6px; border:1px solid var(--border-gold); border-radius:18px; overflow:hidden; background:#fff; }
+    .bcc-bignum { flex:1 1 200px; padding:22px 20px; text-align:center; border-left:1px solid var(--border-gold); }
+    .bcc-bignum:first-child { border-left:none; }
+    .bcc-bignum__num { font-family:var(--font-display); font-size:2.1rem; font-weight:700; color:var(--gold-dark); line-height:1; }
+    .bcc-bignum__label { font-size:0.74rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted-lt); margin-top:6px; font-weight:600; }
+    @media (max-width: 700px) {
+      .bcc-bignum { border-left:none; border-top:1px solid var(--border-gold); }
+      .bcc-bignum:first-child { border-top:none; }
+    }
+
     .bcc-stats { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin:22px 0 28px; }
     .bcc-stat { display:flex; align-items:center; gap:8px; background:var(--gold-faint); border:1px solid var(--border-gold); border-radius:50px; padding:8px 18px; font-size:0.8rem; color:var(--text-on-light); font-weight:600; }
     .bcc-stat svg { width:16px; height:16px; color:var(--gold-dark); flex-shrink:0; }
+
+    /* "Own it, don't rent it" comparison -- two contrasted cards rather
+       than a plain <table>, so the difference reads at a glance. */
+    .bcc-compare { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:20px; overflow:hidden; border:1px solid rgba(0,0,0,0.07); margin-top:36px; }
+    .bcc-compare__col { padding:34px 32px; }
+    .bcc-compare__col--rent { background:#F7F4EF; }
+    .bcc-compare__col--own { background:var(--black); }
+    .bcc-compare__label { font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:700; margin-bottom:6px; display:block; }
+    .bcc-compare__col--rent .bcc-compare__label { color:#9A7A5A; }
+    .bcc-compare__col--own .bcc-compare__label { color:var(--gold-light); }
+    .bcc-compare__title { font-family:var(--font-display); font-size:1.3rem; margin-bottom:20px; }
+    .bcc-compare__col--rent .bcc-compare__title { color:var(--text-on-light); }
+    .bcc-compare__col--own .bcc-compare__title { color:#fff; }
+    .bcc-compare__list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:14px; }
+    .bcc-compare__list li { display:flex; gap:10px; align-items:flex-start; font-size:0.9rem; line-height:1.5; }
+    .bcc-compare__list svg { width:18px; height:18px; flex-shrink:0; margin-top:1px; }
+    .bcc-compare__col--rent .bcc-compare__list li { color:#6B5A48; }
+    .bcc-compare__col--rent .bcc-compare__list svg { color:#B0503F; }
+    .bcc-compare__col--own .bcc-compare__list li { color:#E8D9C0; }
+    .bcc-compare__col--own .bcc-compare__list svg { color:var(--gold-light); }
+    .bcc-compare__callout { text-align:center; font-family:var(--font-display); font-size:1.15rem; color:var(--text-on-light); margin-top:28px; line-height:1.5; }
+    .bcc-compare__callout strong { color:var(--gold-dark); }
+    @media (max-width: 760px) { .bcc-compare { grid-template-columns:1fr; } }
+
+    /* Numbered process -- gives the page a structured "how we work"
+       instead of only feature lists, closer to how established
+       consultancies frame an engagement. */
+    .bcc-process { display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin-top:36px; counter-reset:bcc-step; }
+    .bcc-process__step { position:relative; padding:0 28px 0 0; }
+    .bcc-process__step:not(:last-child)::after { content:''; position:absolute; top:22px; right:0; width:100%; height:1px; background:var(--border-gold); }
+    .bcc-process__num { counter-increment:bcc-step; font-family:var(--font-display); font-size:1.4rem; font-weight:700; color:var(--gold-dark); width:44px; height:44px; border:1.5px solid var(--gold-dark); border-radius:50%; display:flex; align-items:center; justify-content:center; position:relative; z-index:1; background:var(--cream); margin-bottom:16px; }
+    .bcc-process__num::before { content: counter(bcc-step); }
+    .bcc-process__title { font-family:var(--font-display); font-size:1.1rem; color:var(--text-on-light); margin-bottom:8px; }
+    .bcc-process__desc { font-size:0.86rem; color:var(--text-muted-lt); line-height:1.6; }
+    @media (max-width: 760px) { .bcc-process { grid-template-columns:1fr; gap:32px; } .bcc-process__step::after { display:none; } }
 
     .bcc-pillars { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; margin-top:36px; }
     .bcc-pillar { background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:18px; padding:32px 26px; transition:transform 0.2s, box-shadow 0.2s; }
@@ -171,12 +218,13 @@
       <p style="color:var(--text-muted-lt);font-size:1rem;margin:10px auto 0;max-width:700px;line-height:1.7">
         Store setup, menu engineering, technology and digital marketing — from the team that has run 5 bakery outlets in Hyderabad since 1996, and built the ordering, billing and marketing systems behind them. For bakeries and cafes launching or scaling in Hyderabad &amp; Bangalore.
       </p>
-      <div class="bcc-stats">
-        <span class="bcc-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>Operating Since 1996</span>
-        <span class="bcc-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>5 Outlets, Hyderabad</span>
-        <span class="bcc-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Own Tech &amp; Marketing Stack</span>
+      <div class="bcc-bignums">
+        <div class="bcc-bignum"><div class="bcc-bignum__num">30</div><div class="bcc-bignum__label">Years in Business</div></div>
+        <div class="bcc-bignum"><div class="bcc-bignum__num">5</div><div class="bcc-bignum__label">Outlets Run Daily</div></div>
+        <div class="bcc-bignum"><div class="bcc-bignum__num">Zero</div><div class="bcc-bignum__label">Monthly Software Rent</div></div>
+        <div class="bcc-bignum"><div class="bcc-bignum__num">100%</div><div class="bcc-bignum__label">Code You Own</div></div>
       </div>
-      <div class="hero__cta" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:6px">
+      <div class="hero__cta" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px">
         <a href="https://wa.me/917975218850?text=Hi%20Surabhi%21%20I%20found%20your%20Bakery%20%26%20Cafe%20Consultation%20page%20and%20I%27d%20like%20to%20talk%20about%20setting%20up%20or%20growing%20my%20bakery%2Fcafe%20business." target="_blank" rel="noopener" class="btn btn-gold">WhatsApp Us →</a>
         <a href="tel:+917975218850" class="btn btn-outline">Call +91 79752 18850</a>
       </div>
@@ -192,6 +240,41 @@
         <h2>Run by Operators, Not Just Advisors</h2>
         <p>Most consultants sell a slide deck. This website you're reading right now — the online ordering, the Razorpay checkout, the admin dashboard that manages products and orders, the ad tracking behind our Instagram and Google campaigns — is the actual system running Krispie's 5 outlets today. When we consult on your bakery or cafe, we're describing what we already do, not theorising about it.</p>
       </div>
+    </section>
+
+    <!-- OWN IT, DON'T RENT IT -->
+    <section class="container" style="padding:56px 0 8px">
+      <div class="menu-cat-header fade-up" style="text-align:center;max-width:760px;margin-left:auto;margin-right:auto;">
+        <span class="section-label">The Technology Difference</span>
+        <h2>Own Your Software. Stop Renting It.</h2>
+        <p>Most bakeries and cafes pay a monthly fee to Petpooja, or a similar billing/ordering tool, for as long as they're in business — and never own a line of the code. We build your ordering website, billing software and admin dashboard as a one-time project. When it's done, it's yours: the code, the database, all of it.</p>
+      </div>
+
+      <div class="bcc-compare">
+        <div class="bcc-compare__col bcc-compare__col--rent">
+          <span class="bcc-compare__label">The Usual Way</span>
+          <h3 class="bcc-compare__title">Renting from Petpooja &amp; Co.</h3>
+          <ul class="bcc-compare__list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>A subscription fee every single month, forever</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>You never own the software, even after years of paying</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Locked into whatever features they decide to build</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Your sales &amp; customer data lives on their servers</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Stop paying, lose access to your own ordering system</li>
+          </ul>
+        </div>
+        <div class="bcc-compare__col bcc-compare__col--own">
+          <span class="bcc-compare__label">Built By Us</span>
+          <h3 class="bcc-compare__title">Yours, One Time, Forever</h3>
+          <ul class="bcc-compare__list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>One project cost — no recurring software fee</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>You own 100% of the code and the database</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Built around your exact menu, workflow and outlets</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Your data stays with you, in a database you control</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Add outlets, products or staff — no extra software cost</li>
+          </ul>
+        </div>
+      </div>
+      <p class="bcc-compare__callout">No Petpooja. No monthly SaaS rent. <strong>Just software you own.</strong></p>
     </section>
 
     <!-- SERVICE PILLARS -->
@@ -223,6 +306,7 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom ordering website with online payment checkout</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Billing / POS software and an admin dashboard for your team</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Customer accounts, order tracking, sales &amp; visit analytics</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><strong>One-time build — you own it, no Petpooja-style monthly rent</strong></li>
           </ul>
           <a class="bcc-pillar__cta" href="https://wa.me/917975218850?text=Hi%20Surabhi%21%20I%27m%20interested%20in%20your%20technology%20solutions%20%E2%80%94%20custom%20billing%2Fordering%20software%20for%20my%20business.%20Could%20we%20set%20up%20a%20call%3F" target="_blank" rel="noopener">Ask about this →</a>
         </div>
@@ -237,6 +321,31 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Instagram &amp; WhatsApp ordering funnels</li>
           </ul>
           <a class="bcc-pillar__cta" href="https://wa.me/917975218850?text=Hi%20Surabhi%21%20I%27m%20interested%20in%20digital%20marketing%20for%20my%20business%20%E2%80%94%20ads%20and%20online%20growth.%20Could%20we%20set%20up%20a%20call%3F" target="_blank" rel="noopener">Ask about this →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW WE WORK -->
+    <section class="container" style="padding:56px 0 8px">
+      <div class="menu-cat-header fade-up" style="text-align:center">
+        <span class="section-label">How We Work</span>
+        <h2>From First Call to Launch</h2>
+      </div>
+      <div class="bcc-process">
+        <div class="bcc-process__step">
+          <div class="bcc-process__num"></div>
+          <h3 class="bcc-process__title">Understand</h3>
+          <p class="bcc-process__desc">A free call to learn your business, your current tools (if any), and what "done" looks like for you.</p>
+        </div>
+        <div class="bcc-process__step">
+          <div class="bcc-process__num"></div>
+          <h3 class="bcc-process__title">Build</h3>
+          <p class="bcc-process__desc">Store setup, software or campaigns — scoped and priced upfront as a one-time project, not a retainer.</p>
+        </div>
+        <div class="bcc-process__step">
+          <div class="bcc-process__num"></div>
+          <h3 class="bcc-process__title">Launch &amp; Own</h3>
+          <p class="bcc-process__desc">You go live with a system that's entirely yours — code, data and all — handed over, not rented out.</p>
         </div>
       </div>
     </section>
