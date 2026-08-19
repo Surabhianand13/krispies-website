@@ -39,6 +39,7 @@ db.exec(`
     prep_hours     INTEGER NOT NULL DEFAULT 0,
     slug           TEXT    UNIQUE,
     featured       INTEGER NOT NULL DEFAULT 0,
+    trending       INTEGER NOT NULL DEFAULT 0,
     active         INTEGER NOT NULL DEFAULT 1,
     created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
@@ -185,6 +186,7 @@ safeAddColumn('products', 'variant_groups', "TEXT NOT NULL DEFAULT '[]'");
 safeAddColumn('products', 'prep_hours',     'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('products', 'slug',           'TEXT');
 safeAddColumn('products', 'flavour',        'TEXT');
+safeAddColumn('products', 'trending',       'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('orders',   'customer_email',     'TEXT');
 safeAddColumn('orders',   'payment_method',     'TEXT');
 safeAddColumn('orders',   'customer_id',        'TEXT');

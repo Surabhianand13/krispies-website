@@ -262,13 +262,20 @@ function renderCard(p) {
     </div>`;
 }
 
+// grid-<x> ids that aren't real categories -- they're rendered separately
+// (renderFeatured(), renderTrending()) and would otherwise get treated as an
+// empty category by the [id^="grid-"] scan below.
+const NON_CATEGORY_GRID_IDS = ['featured', 'trending'];
+
 function renderAll() {
   // Categories with at least one product, plus any grid-<category> container
   // already on the page (e.g. a brand-new category page with zero products
   // yet) -- otherwise a category with no products yet never gets visited and
   // its grid is stuck on the initial "Loading cakes…" placeholder forever.
   const fromProducts = getProducts().map(p => p.category);
-  const fromPage = [...document.querySelectorAll('[id^="grid-"]')].map(el => el.id.replace(/^grid-/, ''));
+  const fromPage = [...document.querySelectorAll('[id^="grid-"]')]
+    .map(el => el.id.replace(/^grid-/, ''))
+    .filter(id => !NON_CATEGORY_GRID_IDS.includes(id));
   const categories = [...new Set([...fromProducts, ...fromPage])];
   categories.forEach(cat => {
     const grid = document.getElementById(`grid-${cat}`);
@@ -330,6 +337,20 @@ function renderFeatured() {
   grid.innerHTML = items.length
     ? items.map(renderCard).join('')
     : `<div class="menu-empty">No featured products yet.</div>`;
+  initGalleries();
+}
+
+// Same pattern as renderFeatured(), for products flagged "Trending on
+// Homepage" in admin, into #grid-trending (only index.html has that
+// container, and only once at least one product is marked trending --
+// see the section-hiding note next to #trending-section in index.html).
+function renderTrending() {
+  const grid = document.getElementById('grid-trending');
+  if (!grid) return;
+  const section = document.getElementById('trending-section');
+  const items = getProducts().filter(p => p.trending && p.active !== false).slice(0, 8);
+  if (section) section.style.display = items.length ? '' : 'none';
+  grid.innerHTML = items.map(renderCard).join('');
   initGalleries();
 }
 
@@ -1920,6 +1941,7 @@ async function _acctPrefillCheckout() {
   await Promise.all([loadProducts(), loadAddons()]);
   renderAll();
   renderFeatured();
+  renderTrending();
   renderSubcatCircles();
   initSharedPageUI();
   _acctInjectUI();

@@ -58,6 +58,13 @@ router.get('/featured', (_req, res) => {
   res.json(rows.map(r => toProduct(r, ratings)));
 });
 
+// GET /api/products/trending — public
+router.get('/trending', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM products WHERE active = 1 AND trending = 1 ORDER BY updated_at DESC').all();
+  const ratings = getRatingsMap();
+  res.json(rows.map(r => toProduct(r, ratings)));
+});
+
 // GET /api/products/slug/:slug — public, for the product detail page
 router.get('/slug/:slug', (req, res) => {
   const row = db.prepare('SELECT * FROM products WHERE slug = ?').get(req.params.slug);
@@ -82,8 +89,8 @@ router.post('/', requireAuth, productValidators(), (req, res) => {
   const p = buildProduct(id, req.body);
   p.slug = uniqueSlug(slugify(req.body.slug || req.body.name), id);
   db.prepare(`
-    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, active)
-    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @active)
+    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, trending, active)
+    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @trending, @active)
   `).run(p);
 
   res.status(201).json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(p.id), null, { raw: true }));
@@ -104,7 +111,7 @@ router.put('/:id', requireAuth, productValidators(), (req, res) => {
     SET name=@name, category=@category, tag=@tag, flavour=@flavour, description=@description,
         mrp=@mrp, discount=@discount, images=@images,
         variant_groups=@variant_groups, prep_hours=@prep_hours, slug=@slug,
-        featured=@featured, active=@active, updated_at=datetime('now')
+        featured=@featured, trending=@trending, active=@active, updated_at=datetime('now')
     WHERE id=@id
   `).run(p);
 
@@ -126,6 +133,15 @@ router.patch('/:id/toggle-featured', requireAuth, (req, res) => {
   if (!row) return res.status(404).json({ error: 'Product not found.' });
   db.prepare(`UPDATE products SET featured=@f, updated_at=datetime('now') WHERE id=@id`)
     .run({ f: row.featured ? 0 : 1, id: req.params.id });
+  res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id), null, { raw: true }));
+});
+
+// PATCH /api/products/:id/toggle-trending
+router.patch('/:id/toggle-trending', requireAuth, (req, res) => {
+  const row = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Product not found.' });
+  db.prepare(`UPDATE products SET trending=@t, updated_at=datetime('now') WHERE id=@id`)
+    .run({ t: row.trending ? 0 : 1, id: req.params.id });
   res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id), null, { raw: true }));
 });
 
@@ -208,6 +224,7 @@ function buildProduct(id, body) {
     variant_groups: JSON.stringify(variantGroups),
     prep_hours:     Math.max(0, parseInt(body.prepHours, 10) || 0),
     featured:       body.featured ? 1 : 0,
+    trending:       body.trending ? 1 : 0,
     active:         body.active !== false && body.active !== 0 ? 1 : 0,
   };
 }
@@ -279,6 +296,7 @@ function toProduct(row, ratingsMap, opts = {}) {
     variantGroups: displayVariantGroups,
     prepHours:     row.prep_hours || 0,
     featured:      row.featured === 1,
+    trending:      row.trending === 1,
     active:        row.active === 1,
     ratingAvg:     rating ? rating.avg : null,
     ratingCount:   rating ? rating.count : 0,

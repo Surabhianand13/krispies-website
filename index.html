@@ -400,6 +400,22 @@
     </a>
   </section>
 
+  <!-- ========== TRENDING ==========
+       Hidden by shop.js's renderTrending() until at least one product is
+       marked "Trending on homepage" in admin -- starts empty, so it stays
+       out of the way rather than showing a section with nothing in it. -->
+  <section class="best-strip" id="trending-section" aria-labelledby="trending-heading" style="display:none;">
+    <div class="best-strip__header">
+      <div>
+        <span class="section-label">Right Now</span>
+        <h2 class="best-strip__title" id="trending-heading">Trending <em>Cakes</em></h2>
+        <p class="best-strip__sub">What Hyderabad is ordering this week.</p>
+      </div>
+      <a href="menu" class="cat-strip__viewall">View Full Menu →</a>
+    </div>
+    <div class="pcard-grid" id="grid-trending"></div>
+  </section>
+
   <!-- ========== BESTSELLERS ========== -->
   <section class="best-strip" aria-labelledby="bestsellers-heading">
     <div class="best-strip__header">
@@ -959,7 +975,7 @@
   </div>
 
   <script src="js/main.js?v=2"></script>
-  <script src="js/shop.js?v=8"></script>
+  <script src="js/shop.js?v=9"></script>
   <script>
   /* ── Page loader: fade out once everything is ready ── */
   (function () {
