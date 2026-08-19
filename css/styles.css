@@ -248,6 +248,7 @@ h1, h2, h3, h4 {
   transition: var(--ease);
   position: relative;
   padding-bottom: 2px;
+  white-space: nowrap;
 }
 .nav__links a::after {
   content: ''; position: absolute;
