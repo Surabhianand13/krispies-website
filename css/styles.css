@@ -1969,6 +1969,22 @@ h1, h2, h3, h4 {
   .custom-cta__btn-title { font-size: 0.98rem; }
 }
 
+/* ---- CORPORATE TRUST (companies who order from us) ---- */
+.corp-trust__stats { display:flex; flex-wrap:wrap; justify-content:center; gap:0; margin:30px 0 6px; border:1px solid var(--border-gold); border-radius:18px; overflow:hidden; background:#fff; }
+.corp-trust__stat { flex:1 1 200px; padding:22px 20px; text-align:center; border-left:1px solid var(--border-gold); }
+.corp-trust__stat:first-child { border-left:none; }
+.corp-trust__stat-num { font-family:var(--font-display); font-size:2rem; font-weight:700; color:var(--gold-dark); line-height:1; }
+.corp-trust__stat-label { font-size:0.74rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted-lt); margin-top:6px; font-weight:600; }
+@media (max-width: 700px) {
+  .corp-trust__stat { border-left:none; border-top:1px solid var(--border-gold); }
+  .corp-trust__stat:first-child { border-top:none; }
+}
+.corp-trust__wall { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:32px; max-width:960px; margin-left:auto; margin-right:auto; }
+.corp-trust__chip { display:flex; align-items:center; gap:10px; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:10px; padding:8px 16px 8px 8px; font-size:0.86rem; font-weight:600; color:var(--text-on-light); transition:transform 0.15s, box-shadow 0.15s; }
+.corp-trust__chip:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.08); }
+.corp-trust__chip-mark { width:26px; height:26px; border-radius:7px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:700; font-size:0.82rem; }
+.corp-trust__note { text-align:center; font-size:0.8rem; color:var(--text-muted-lt); margin-top:22px; }
+
 /* ---- WHATSAPP CTA (replaces cant-find-cta) ---- */
 .whatsapp-cta {
   margin: 56px 0 0;
