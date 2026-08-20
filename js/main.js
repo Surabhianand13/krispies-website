@@ -4,6 +4,112 @@
 
 'use strict';
 
+/* ---- META PIXEL + GOOGLE ADS CONVERSION TRACKING ----
+   Meta Pixel ID: create one at business.facebook.com/events_manager2
+   (Connect Data Sources → Web → Meta Pixel), then paste it below. Until this
+   is a real ID, the Pixel is skipped entirely -- Google Ads tracking below
+   works independently of it. */
+const META_PIXEL_ID = '888144317646311';
+// Krispie's own Google Ads account (previously wired to the wrong,
+// unrelated connected account -- fixed after verifying this is the
+// correct one directly against the Google Ads API).
+const GOOGLE_ADS_ID = 'AW-17232345443';
+const GOOGLE_ADS_PURCHASE_LABEL = 'AW-17232345443/a6SJCLnJ3tgcEOPygplA';
+const GOOGLE_ADS_WHATSAPP_LABEL = 'AW-17232345443/ry9rCLni2dgcEOPygplA';
+
+if (META_PIXEL_ID && !META_PIXEL_ID.startsWith('REPLACE_')) {
+  (function (f, b, e, v, n, t, s) {
+    if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+    if (!f._fbq) f._fbq = n; n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+    t = b.createElement(e); t.async = true; t.src = v;
+    s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  window.fbq('init', META_PIXEL_ID);
+  window.fbq('track', 'PageView');
+}
+
+(function () {
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag('js', new Date());
+  window.gtag('config', GOOGLE_ADS_ID);
+})();
+
+/* Shared funnel-event helpers, called from shop.js / product-detail.js.
+   Each no-ops safely if the relevant tag hasn't loaded (e.g. Pixel not yet
+   configured, or a script blocker is active). */
+function krTrackViewContent(product) {
+  if (!window.fbq) return;
+  window.fbq('track', 'ViewContent', {
+    content_ids:  [product.id],
+    content_type: 'product',
+    content_name: product.name,
+    currency:     'INR',
+    value:        product.priceFrom ?? product.price ?? 0,
+  });
+}
+
+function krTrackAddToCart(product, qty, unitPrice) {
+  if (!window.fbq) return;
+  window.fbq('track', 'AddToCart', {
+    content_ids:  [product.id],
+    content_type: 'product',
+    content_name: product.name,
+    currency:     'INR',
+    value:        unitPrice * qty,
+  });
+}
+
+function krTrackInitiateCheckout(items, total) {
+  if (!window.fbq) return;
+  window.fbq('track', 'InitiateCheckout', {
+    content_ids:  items.map(i => i.id),
+    content_type: 'product',
+    currency:     'INR',
+    value:        total,
+    num_items:    items.length,
+  });
+}
+
+// Fired once per confirmed order. Passing eventID lets Meta de-duplicate
+// this client-side Pixel hit against the server-side Conversions API event
+// the backend sends for the same order (see backend/utils/metaCapi.js).
+function krTrackPurchase(orderId, total, items) {
+  if (window.fbq) {
+    window.fbq('track', 'Purchase', {
+      content_ids:  items.map(i => i.id),
+      content_type: 'product',
+      currency:     'INR',
+      value:        total,
+    }, { eventID: String(orderId) });
+  }
+  if (window.gtag) {
+    window.gtag('event', 'conversion', {
+      send_to:        GOOGLE_ADS_PURCHASE_LABEL,
+      value:          total,
+      currency:       'INR',
+      transaction_id: String(orderId),
+    });
+  }
+}
+
+/* ---- WHATSAPP CLICK → GOOGLE ADS CONVERSION ----
+   Delegated listener so this covers every WhatsApp link/button on the site
+   -- the floating button and footer row (both injected below, present on
+   every page) as well as the various static "Chat on WhatsApp" / "Order via
+   WhatsApp" CTAs on individual category pages -- without needing an onclick
+   attribute hand-added to each one. */
+document.addEventListener('click', e => {
+  const link = e.target.closest('a[href*="wa.me"]');
+  if (link && window.gtag) {
+    window.gtag('event', 'conversion', { send_to: GOOGLE_ADS_WHATSAPP_LABEL });
+  }
+}, true);
+
 /* ---- NAV: scroll state ---- */
 const nav = document.querySelector('.nav');
 if (nav) {
@@ -114,6 +220,11 @@ if (fadeEls.length && 'IntersectionObserver' in window) {
 /* ---- CONTACT FORM ---- */
 const BACKEND_URL = 'https://krispies-website.onrender.com';
 
+/* Cloudflare Turnstile site key (public, safe to expose client-side). The
+   matching Secret Key lives in Render's environment as TURNSTILE_SECRET_KEY,
+   never in this file -- the check only actually activates once that's set. */
+const TURNSTILE_SITE_KEY = '0x4AAAAAAEHUL-aVUi8Qatp4';
+
 const form = document.getElementById('contactForm');
 const successPanel = document.querySelector('.form-success');
 if (form) {
@@ -135,6 +246,11 @@ if (form) {
       message:   (form.querySelector('#message')    ?.value || '').trim(),
     };
 
+    // No localStorage fallback: it never actually reached the admin panel
+    // (that reads from the backend, not the customer's own browser storage),
+    // so a failed submit would silently "succeed" for the customer while
+    // going nowhere, and leave their name/phone/message sitting in
+    // plaintext in their browser indefinitely for no reason.
     let sent = false;
     try {
       const res = await fetch(`${BACKEND_URL}/api/messages`, {
@@ -143,21 +259,13 @@ if (form) {
         body:    JSON.stringify(payload),
       });
       sent = res.ok;
-    } catch (_) { /* backend unavailable — fall through to localStorage */ }
+    } catch (_) { /* backend unavailable */ }
 
-    // Fallback: save to localStorage for admin panel when backend is offline
     if (!sent) {
-      try {
-        const enquiry = {
-          ...payload,
-          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-          status: 'unread',
-          submittedAt: new Date().toISOString(),
-        };
-        const existing = JSON.parse(localStorage.getItem('krispies_enquiries') || '[]');
-        existing.unshift(enquiry);
-        localStorage.setItem('krispies_enquiries', JSON.stringify(existing));
-      } catch (_) { /* storage unavailable */ }
+      btn.textContent = 'Send Message';
+      btn.disabled = false;
+      alert('Could not send your message. Please call or WhatsApp us instead.');
+      return;
     }
 
     form.style.display = 'none';
@@ -211,8 +319,8 @@ if (form) {
   if (nextBtn) nextBtn.addEventListener('click', () => { next(); resetTimer(); });
   if (prevBtn) prevBtn.addEventListener('click', () => { prev(); resetTimer(); });
 
-  // Auto-advance every 5 seconds
-  function startTimer() { timer = setInterval(next, 5000); }
+  // Auto-advance every 10 seconds
+  function startTimer() { timer = setInterval(next, 10000); }
   function resetTimer() { clearInterval(timer); startTimer(); }
 
   // Pause on hover
