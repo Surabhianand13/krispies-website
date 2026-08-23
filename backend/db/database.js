@@ -462,4 +462,105 @@ if (!alreadyRestructured) {
   console.log('✓ Category restructure complete — Birthday Theme Cakes removed, Half Year Birthday Cakes seeded');
 }
 
+// ── One-time seed: launch catalog for the new Rakhi & Sweets Hampers
+//    category. Each product uses two variant groups on the existing
+//    variant-pricing system -- "Rakhi Set" (required: how many rakhis) and
+//    "Add a Sweet Treat" (optional: which mithai/cake add-on, if any) --
+//    exactly the same required+optional variant-group mechanism already
+//    used elsewhere (e.g. Ferrero Rocher's Weight + Add-ons), so no schema
+//    or checkout changes were needed. Guarded by 'rakhi_hampers_seeded_v1'
+//    so it only ever runs once and never re-runs over admin-edited data.
+const alreadySeededRakhi = db.prepare('SELECT value FROM settings WHERE key = ?').get('rakhi_hampers_seeded_v1');
+if (!alreadySeededRakhi) {
+  const rakhiProducts = [
+    {
+      name: 'Classic Rakhi & Sweets Hamper',
+      tag: 'bestseller',
+      description: 'A traditional rakhi paired with your choice of motichoor laddu, kaju katli or an assorted mithai box — the simple, classic way to celebrate Raksha Bandhan.',
+      variantGroups: [
+        { name: 'Rakhi Set', optional: false, options: [
+          { label: 'Single Rakhi', price: 149 },
+          { label: 'Bhaiya-Bhabhi Set (2)', price: 249 },
+          { label: 'Family Set (4)', price: 399 },
+        ]},
+        { name: 'Add a Sweet Treat', optional: true, options: [
+          { label: 'Motichoor Laddu (250g)', price: 249 },
+          { label: 'Kaju Katli (250g)', price: 349 },
+          { label: 'Assorted Mithai Box (500g)', price: 549 },
+        ]},
+      ],
+    },
+    {
+      name: 'Meenakari Rakhi & Kaju Katli Hamper',
+      tag: 'new',
+      description: 'Elegant meenakari-work rakhi with a box of pure kaju katli — a premium pick for a special Raksha Bandhan.',
+      variantGroups: [
+        { name: 'Rakhi Set', optional: false, options: [
+          { label: 'Single Meenakari Rakhi', price: 249 },
+          { label: 'Bhaiya-Bhabhi Meenakari Set (2)', price: 399 },
+        ]},
+        { name: 'Add a Sweet Treat', optional: true, options: [
+          { label: 'Kaju Katli (250g)', price: 349 },
+          { label: 'Kaju Katli (500g)', price: 649 },
+          { label: 'Assorted Mithai Box (500g)', price: 549 },
+        ]},
+      ],
+    },
+    {
+      name: 'Kids Rakhi & Chocolate Treat Box',
+      tag: null,
+      description: 'A fun cartoon-character rakhi for your little brother, paired with a box of chocolate treats or mini cupcakes he’ll actually be excited about.',
+      variantGroups: [
+        { name: 'Rakhi Set', optional: false, options: [
+          { label: 'Single Kids Rakhi', price: 99 },
+          { label: 'Set of 2 Kids Rakhis', price: 179 },
+        ]},
+        { name: 'Add a Sweet Treat', optional: true, options: [
+          { label: 'Chocolate Truffle Bites (200g)', price: 299 },
+          { label: 'Mini Cupcakes (Box of 4)', price: 399 },
+        ]},
+      ],
+    },
+    {
+      name: 'Family Rakhi & Mithai Celebration Hamper',
+      tag: 'bestseller',
+      description: 'A generous set of rakhis for the whole family with a curated mithai or dry fruit box — built for the big Raksha Bandhan get-together.',
+      variantGroups: [
+        { name: 'Rakhi Set', optional: false, options: [
+          { label: 'Family Set (4)', price: 399 },
+          { label: 'Extended Family Set (6)', price: 549 },
+        ]},
+        { name: 'Add a Sweet Treat', optional: true, options: [
+          { label: 'Assorted Mithai Box (500g)', price: 549 },
+          { label: 'Assorted Mithai Box (1kg)', price: 999 },
+          { label: 'Dry Fruit Box (500g)', price: 799 },
+        ]},
+      ],
+    },
+  ];
+
+  const insertRakhi = db.prepare(`
+    INSERT INTO products (id, name, category, tag, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, trending, active)
+    VALUES (@id, @name, 'rakhi-hampers', @tag, @description, 0, 0, '[]', @variant_groups, 0, @slug, @featured, 0, 1)
+  `);
+  const seedRakhi = db.transaction((items) => {
+    items.forEach((p, i) => {
+      const slug = slugify(p.name);
+      insertRakhi.run({
+        id: 'p_' + slug,
+        name: p.name,
+        tag: p.tag,
+        description: p.description,
+        variant_groups: JSON.stringify(p.variantGroups),
+        slug,
+        featured: i === 0 ? 1 : 0,
+      });
+    });
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+      .run('rakhi_hampers_seeded_v1', 'true');
+  });
+  seedRakhi(rakhiProducts);
+  console.log(`✓ Seeded Rakhi & Sweets Hampers catalog (${rakhiProducts.length} products) — one-time migration complete`);
+}
+
 module.exports = db;
