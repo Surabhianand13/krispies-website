@@ -46,7 +46,10 @@ function _pdpRender() {
       </div>` : ''}
   `;
 
-  const variantHtml = hasVariants ? p.variantGroups.map(g => `
+  const useVariantCards = CATEGORIES_WITH_VARIANT_CARDS.includes(p.category);
+  const variantHtml = hasVariants ? p.variantGroups.map((g, gi) => useVariantCards
+    ? renderVariantCards(g.name, g, _pdpSelection[g.name], '_pdpVariantCardClick', gi)
+    : `
     <div class="chk-field-group">
       <label class="chk-label">${esc(g.name)}</label>
       <select class="chk-input" onchange="_pdpVariantChange('${esc(g.name)}', this.value)">
@@ -133,6 +136,15 @@ function _pdpSetGalleryIndex(i) {
 function _pdpVariantChange(groupName, optionIndex) {
   _pdpSelection[groupName] = Number(optionIndex);
   _pdpUpdatePriceDisplay();
+}
+
+// Card-picker equivalent -- a full _pdpRender() (not just a price update)
+// so the clicked card's "selected" border shows immediately. Safe to
+// re-render the whole panel here: quantity lives in the module-level
+// _pdpQtyValue, not in the DOM, so it survives the rebuild.
+function _pdpVariantCardClick(groupName, optionIndex) {
+  _pdpSelection[groupName] = Number(optionIndex);
+  _pdpRender();
 }
 
 function _pdpQty(delta) {
@@ -253,6 +265,10 @@ document.addEventListener('shop:ready', () => {
   const p = products.find(x => x.slug === slug || x.id === slug);
   if (!p) { _pdpNotFound(); return; }
   _pdpProduct = p;
+  // Scopes the pink/festive CTA theming (see css/styles.css's
+  // body.rakhi-theme rules) to just this product's page -- doesn't touch
+  // any other product's Buy Now/Add to Cart styling.
+  document.body.classList.toggle('rakhi-theme', p.category === 'rakhi-hampers');
   if (typeof krTrackViewContent === 'function') krTrackViewContent(p);
   document.title = `${p.name} — Krispie's`;
   const descEl = document.getElementById('pageDesc');
