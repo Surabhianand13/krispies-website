@@ -34,6 +34,7 @@ const VALID_CATEGORIES = [
   'engagement-cakes', 'baby-shower-cakes',
   'half-year-birthday-cakes', 'gender-reveal-cakes',
   'cheesecakes', 'donuts', 'biscuits', 'floral-cakes', 'love-cakes',
+  'rakhi-hampers',
 ];
 const VALID_TAGS = ['bestseller', 'new', 'seasonal', 'custom'];
 

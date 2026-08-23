@@ -98,6 +98,7 @@ const CATEGORY_LABELS = {
   'cheesecakes':          'Cheesecakes',
   'donuts':               'Donuts',
   'biscuits':             'Biscuits',
+  'rakhi-hampers':        'Rakhi & Sweets Hampers',
 };
 const TAG_LABELS = {
   'bestseller': 'Bestseller',
