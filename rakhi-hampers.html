@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=27">
+  <link rel="stylesheet" href="css/styles.css?v=28">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -37,36 +37,45 @@
 </script>
   <style>
     .rk-hero {
-      background: radial-gradient(circle at 15% 20%, rgba(255,255,255,0.15) 0%, transparent 45%),
-                  linear-gradient(135deg, #9A2A3A 0%, #C9414F 45%, #B8792B 100%);
+      background: radial-gradient(circle at 12% 15%, rgba(224,65,122,0.07) 0%, transparent 40%),
+                  radial-gradient(circle at 88% 85%, rgba(201,168,112,0.10) 0%, transparent 45%),
+                  #FFFDFB;
       position: relative; overflow: hidden;
     }
-    .rk-hero::before, .rk-hero::after {
-      content: ''; position: absolute; border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,215,140,0.35) 0%, transparent 70%);
-    }
-    .rk-hero::before { width: 340px; height: 340px; top: -120px; right: -80px; }
-    .rk-hero::after { width: 260px; height: 260px; bottom: -100px; left: -60px; }
     .rk-hero .container { position: relative; z-index: 1; }
-    .rk-hero .section-label { color: #FFE3B0 !important; }
-    .rk-hero .section-label::before, .rk-hero .section-label::after { background: #FFE3B0; }
-    .rk-hero h1 { color: #fff !important; text-shadow: 0 2px 18px rgba(0,0,0,0.18); }
-    .rk-hero p { color: rgba(255,255,255,0.92) !important; }
-    .rk-hero .btn-outline { border-color: #fff; color: #fff; }
-    .rk-hero .btn-outline:hover { background: rgba(255,255,255,0.12); }
+    .rk-hero .section-label { color: var(--rk-pink) !important; }
+    .rk-hero .section-label::before, .rk-hero .section-label::after { background: var(--rk-pink); }
+    .rk-hero h1 { color: var(--text-on-light) !important; }
+    .rk-hero p { color: var(--text-muted-lt) !important; }
+    .rk-hero .btn-outline { border-color: var(--rk-pink); color: var(--rk-pink); }
+    .rk-hero .btn-outline:hover { background: rgba(224,65,122,0.08); }
 
-    .rk-why { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-top:32px; }
+    /* Small decorative festive icons scattered across the hero */
+    .rk-splash { position: absolute; pointer-events: none; z-index: 0; }
+    .rk-splash svg { width: 100%; height: 100%; }
+    .rk-splash--1 { top: 14%; left: 6%;  width: 34px; height: 34px; color: var(--rk-pink); opacity: 0.28; transform: rotate(-8deg); }
+    .rk-splash--2 { top: 62%; left: 11%; width: 20px; height: 20px; color: var(--gold-dark); opacity: 0.3; }
+    .rk-splash--3 { top: 20%; right: 8%; width: 26px; height: 26px; color: var(--gold-dark); opacity: 0.3; transform: rotate(12deg); }
+    .rk-splash--4 { top: 68%; right: 13%; width: 30px; height: 30px; color: var(--rk-pink); opacity: 0.26; transform: rotate(6deg); }
+    .rk-splash--5 { top: 42%; left: 48%;  width: 16px; height: 16px; color: var(--rk-pink); opacity: 0.22; }
+
+    .rk-why { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-top:32px; position: relative; z-index: 1; }
     .rk-why__card { border-radius:16px; padding:26px 22px; color:#fff; }
     .rk-why__icon { width:38px; height:38px; margin-bottom:14px; }
     .rk-why__title { font-family:var(--font-display); font-size:1.05rem; margin-bottom:6px; }
     .rk-why__desc { font-size:0.84rem; line-height:1.55; opacity:0.92; }
-    .rk-why__card--1 { background:linear-gradient(135deg,#C9414F,#9A2A3A); }
+    .rk-why__card--1 { background:linear-gradient(135deg,#E0417A,#B8306A); }
     .rk-why__card--2 { background:linear-gradient(135deg,#B8792B,#8C5A1E); }
     .rk-why__card--3 { background:linear-gradient(135deg,#7B5EA7,#5A4180); }
     .rk-why__card--4 { background:linear-gradient(135deg,#2E7D6B,#1E5A4C); }
+
+    /* Small festive sparkle icon dividers between sections */
+    .rk-sparkle-row { display:flex; align-items:center; justify-content:center; gap:10px; margin: 8px 0 0; opacity: 0.5; }
+    .rk-sparkle-row svg { width: 14px; height: 14px; color: var(--rk-pink); }
+    .rk-sparkle-row svg:nth-child(2) { width: 18px; height: 18px; color: var(--gold-dark); }
   </style>
 </head>
-<body class="cat-landing">
+<body class="cat-landing rakhi-theme">
 
   <!-- PROMO BAR -->
   <div class="promo-bar" id="promoBar">
@@ -158,6 +167,11 @@
 
   <!-- HERO -->
   <header class="cat-page-hero rk-hero" style="padding: calc(110px + var(--promo-h)) 0 40px; text-align: center;">
+    <div class="rk-splash rk-splash--1" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a4 4 0 1 0-4-4c0 2 4 4 4 4Z"/><path d="M12 8a4 4 0 1 1 4-4c0 2-4 4-4 4Z"/><path d="M12 8v13"/><path d="M8 21h8"/></svg></div>
+    <div class="rk-splash rk-splash--2" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.6 2.4 7.4L12 16.8 5.8 21.4l2.4-7.4L2 9.4h7.6z"/></svg></div>
+    <div class="rk-splash rk-splash--3" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.6 2.4 7.4L12 16.8 5.8 21.4l2.4-7.4L2 9.4h7.6z"/></svg></div>
+    <div class="rk-splash rk-splash--4" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="9" cy="9" r="0.9" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="0.9" fill="currentColor" stroke="none"/><circle cx="10" cy="15" r="0.9" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="0.9" fill="currentColor" stroke="none"/></svg></div>
+    <div class="rk-splash rk-splash--5" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.6 2.4 7.4L12 16.8 5.8 21.4l2.4-7.4L2 9.4h7.6z"/></svg></div>
     <div class="container">
       <span class="section-label">This Raksha Bandhan</span>
       <h1 class="page-hero__title" style="font-size:clamp(1.8rem,4vw,3rem);margin-top:6px">Rakhi &amp; Sweets Hampers</h1>
@@ -204,7 +218,12 @@
         </div>
 
         <!-- PRODUCT GRID -->
-        <div class="menu-cat-header fade-up" style="text-align:center;margin-top:56px" id="rakhi-grid">
+        <div class="rk-sparkle-row" aria-hidden="true" style="margin-top:56px">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.6 2.4 7.4L12 16.8 5.8 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.6 2.4 7.4L12 16.8 5.8 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.6 2.4 7.4L12 16.8 5.8 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
+        </div>
+        <div class="menu-cat-header fade-up" style="text-align:center" id="rakhi-grid">
           <span class="section-label">Shop Now</span>
           <h2>Rakhi Hampers</h2>
           <p>Pick a rakhi set, then add a sweet treat — the price updates as you choose.</p>
@@ -418,7 +437,7 @@
   </div>
 
 <script src="js/main.js?v=2"></script>
-  <script src="js/shop.js?v=10"></script>
+  <script src="js/shop.js?v=11"></script>
 <script src="js/track.js" defer></script>
 </body>
 </html>

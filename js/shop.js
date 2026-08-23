@@ -28,6 +28,75 @@ const CAT_SVG = {
 };
 const CAT_EMOJI = CAT_SVG; // backwards-compat alias
 
+/* ── Variant option cards (Rakhi & Sweets Hampers) ──────────────────────────
+   Every other category still uses a plain <select> for variant groups (see
+   the `else` branch wherever this is called) -- this richer, image-style
+   card picker is opt-in per category (currently just 'rakhi-hampers') so it
+   doesn't change the tested selection UI on every other product's page.
+   Option data only carries {label, price} today, no per-option photo, so
+   each card shows a small icon guessed from the group/option text instead
+   of a real product photo -- swap VARIANT_ICONS[key] for an <img> once real
+   per-variant photography exists. */
+const VARIANT_ICONS = {
+  rakhi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a4 4 0 1 0-4-4c0 2 4 4 4 4Z"/><path d="M12 8a4 4 0 1 1 4-4c0 2-4 4-4 4Z"/><path d="M12 8v13"/><path d="M8 21h8"/></svg>',
+  laddu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="9" cy="9" r="0.9" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="0.9" fill="currentColor" stroke="none"/><circle cx="10" cy="15" r="0.9" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="0.9" fill="currentColor" stroke="none"/></svg>',
+  barfi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 22 12 12 22 2 12Z"/><path d="M12 7v10"/><path d="M7 12h10"/></svg>',
+  box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/><path d="M19 8V6a3 3 0 0 0-6 0 3 3 0 0 0-6 0v2"/></svg>',
+  cupcake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16"/><path d="M5 21 7 10h10l2 11"/><path d="M12 10c-2 0-3-1.5-3-3a3 3 0 0 1 6 0c0 1.5-1 3-3 3Z"/></svg>',
+  sweet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="9" width="14" height="8" rx="4"/><path d="M5 13H2M22 13h-3M8 9l-1.5-3M16 9l1.5-3"/></svg>',
+  none: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+};
+const VARIANT_ICON_PALETTE = ['#C9414F', '#B8792B', '#7B5EA7', '#2E7D6B', '#3C7FB1', '#C46A2E'];
+
+function _variantOptionIconKey(groupName, label) {
+  const g = (groupName || '').toLowerCase();
+  const l = (label || '').toLowerCase();
+  if (/rakhi/.test(g) || /rakhi/.test(l)) return 'rakhi';
+  if (/laddu/.test(l)) return 'laddu';
+  if (/katli|barfi/.test(l)) return 'barfi';
+  if (/box|mithai|dry fruit/.test(l)) return 'box';
+  if (/chocolate|cupcake|cake/.test(l)) return 'cupcake';
+  return 'sweet';
+}
+
+// Renders one variant group as a grid of clickable image-style cards
+// (icon + label + price) instead of a <select> -- used for categories
+// where CATEGORIES_WITH_VARIANT_CARDS opts in. `onclickFn` is the name of
+// the page-specific handler to call (e.g. '_pdpVariantCardClick' on the
+// product page, '_chkVariantCardClick' inside the checkout modal).
+const CATEGORIES_WITH_VARIANT_CARDS = ['rakhi-hampers'];
+
+function renderVariantCards(groupName, group, selectedIndex, onclickFn, groupIdx) {
+  const noneCard = group.optional ? `
+    <div class="rk-vcard${selectedIndex === -1 ? ' selected' : ''}" onclick="${onclickFn}('${escJsStr(groupName)}', -1, ${groupIdx})">
+      <div class="rk-vcard__icon rk-vcard__icon--none">${VARIANT_ICONS.none}</div>
+      <div class="rk-vcard__label">None</div>
+    </div>` : '';
+  const optionCards = group.options.map((o, i) => {
+    const key = _variantOptionIconKey(groupName, o.label);
+    const color = VARIANT_ICON_PALETTE[i % VARIANT_ICON_PALETTE.length];
+    return `
+    <div class="rk-vcard${selectedIndex === i ? ' selected' : ''}" onclick="${onclickFn}('${escJsStr(groupName)}', ${i}, ${groupIdx})">
+      <div class="rk-vcard__icon" style="background:${color}">${VARIANT_ICONS[key]}</div>
+      <div class="rk-vcard__label">${esc(o.label)}</div>
+      <div class="rk-vcard__price">₹${(Number(o.price) || 0).toLocaleString('en-IN')}</div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="chk-field-group">
+      <label class="chk-label">${esc(groupName)}</label>
+      <div class="rk-vcards">${noneCard}${optionCards}</div>
+    </div>`;
+}
+
+// esc() alone isn't safe inside a single-quoted inline onclick="fn('...')"
+// argument -- see admin.js's escJsAttr for the same issue/fix. Group names
+// here are short, fixed, admin-authored strings, but this keeps the pattern
+// consistent and safe regardless.
+function escJsStr(str) {
+  return String(str == null ? '' : str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 /* ── Cloudflare Turnstile ──────────────────────────────────────────────────
    Shared across every form that takes a phone number or email (checkout,
    account signup/login/OTP, the "can't find it" quote form). Skips itself
@@ -988,7 +1057,10 @@ function _chkStep1() {
       </select>
     </div>` : '';
 
-  const variantHtml = hasVariants ? p.variantGroups.map(g => `
+  const useCards = CATEGORIES_WITH_VARIANT_CARDS.includes(p.category);
+  const variantHtml = hasVariants ? p.variantGroups.map((g, gi) => useCards
+    ? renderVariantCards(g.name, g, selection[g.name], '_chkVariantCardClick', gi)
+    : `
     <div class="chk-field-group">
       <label class="chk-label">${esc(g.name)}</label>
       <select class="chk-input" onchange="_chkVariantChange('${esc(g.name)}', this.value)">
@@ -1014,7 +1086,7 @@ function _chkStep1() {
       </div>
     </div>
 
-    ${variantHtml}
+    <div id="chkVariantsWrap">${variantHtml}</div>
 
     <div class="chk-field-group">
       <label class="chk-label">Quantity</label>
@@ -1055,6 +1127,24 @@ function _chkVariantChange(groupName, optionIndex) {
   const fin = productFinalPrice(p, _chkCart.variantSelection);
   const priceEl = document.getElementById('chkProductPrice');
   if (priceEl) priceEl.innerHTML = `<strong style="color:var(--gold)">&#8377;${fin.toLocaleString('en-IN')}</strong>`;
+}
+
+// Card-picker equivalent of _chkVariantChange -- re-renders just the
+// #chkVariantsWrap block (not the whole step) so the date/notes fields
+// the customer may have already filled in aren't reset.
+function _chkVariantCardClick(groupName, optionIndex) {
+  if (!_chkCart.variantSelection) _chkCart.variantSelection = {};
+  _chkCart.variantSelection[groupName] = Number(optionIndex);
+  const p = _chkProduct;
+  const fin = productFinalPrice(p, _chkCart.variantSelection);
+  const priceEl = document.getElementById('chkProductPrice');
+  if (priceEl) priceEl.innerHTML = `<strong style="color:var(--gold)">&#8377;${fin.toLocaleString('en-IN')}</strong>`;
+  const wrap = document.getElementById('chkVariantsWrap');
+  if (wrap) {
+    wrap.innerHTML = p.variantGroups.map((g, gi) =>
+      renderVariantCards(g.name, g, _chkCart.variantSelection[g.name], '_chkVariantCardClick', gi)
+    ).join('');
+  }
 }
 
 function _chkQty(delta) {
