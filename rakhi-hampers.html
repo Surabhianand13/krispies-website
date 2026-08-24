@@ -38,39 +38,19 @@
   <style>
     /* Rakhi hero is the shared .hero banner-carousel component (same
        #heroTrack/.hero__slide markup + JS as the homepage carousel in
-       main.js) so it auto-advances, has arrows/dots, and is swipeable --
-       just re-tinted pink/white and re-skinned with rakhi-specific slides
-       instead of homepage photos (no rakhi product photography exists yet). */
-    .rk-hero.hero { background: #FFFDFB; box-shadow: 0 6px 28px rgba(163,25,66,0.10); }
-    .rk-hero .hero__slide-bg { background: linear-gradient(135deg, #FFF7F9 0%, #FDEEF2 55%, #FBE3E9 100%); }
-    .rk-hero .hero__slide-overlay { background: rgba(255,255,255,0.35); }
-    /* The shared .hero box is a short, fixed-height banner (clamp(300px,34vw,480px)).
-       The stock .hero__slide-inner padding/title size were sized for taller
-       hero content and overflow-clip inside this shorter box, so both are
-       tightened here, scoped to .rk-hero only. */
-    .rk-hero .hero__slide-inner { padding: 28px 48px; }
-    .rk-hero .hero__eyebrow { color: var(--rk-pink); border-color: rgba(163,25,66,0.35); background: rgba(163,25,66,0.08); margin-bottom: 14px; }
-    .rk-hero .hero__title { color: var(--text-on-light); font-size: clamp(1.7rem, 3.2vw, 2.5rem); margin-bottom: 10px; }
-    .rk-hero .hero__sub { color: var(--text-muted-lt); margin-bottom: 20px; }
-    .rk-hero .hero__art { width: clamp(160px, 22vw, 260px); height: clamp(160px, 22vw, 260px); }
-    .rk-hero .hero__art svg { color: var(--rk-pink); }
+       main.js) so it auto-advances, has arrows/dots, and is swipeable.
+       Both slides are now plain full-image banners (hero__slide--full-img,
+       same as the homepage's own slides) with the title/tagline baked
+       into the photo itself -- no HTML text overlay, so none of the
+       text-layout overrides that used to live here (slide-inner padding,
+       eyebrow/title/sub colours, the early arrow-hiding breakpoint, the
+       640px stacked-text override) are needed any more; this behaves
+       exactly like the homepage hero at every width. Only the arrow/dot
+       re-tinting stays, since those controls still exist. */
     .rk-hero .hero__arrow { border-color: rgba(163,25,66,0.35); color: var(--rk-pink); }
     .rk-hero .hero__arrow:hover { border-color: var(--rk-pink); color: var(--rk-pink); box-shadow: 0 4px 20px rgba(163,25,66,0.22); }
     .rk-hero .hero__dot { border-color: rgba(163,25,66,0.4); }
     .rk-hero .hero__dot.active { background: var(--rk-pink); border-color: var(--rk-pink); }
-    /* Rakhi slides carry real paragraph text (unlike the homepage's
-       image-only slides), so the arrows can overlap the copy in the
-       tablet range before .hero__slide-inner stacks vertically at 640px.
-       Hide them a bit earlier here; dots + swipe + keyboard still work. */
-    @media (max-width: 900px) { .rk-hero .hero__arrow { display: none; } }
-    /* Below 640px the shared .hero switches to a fixed 3:2 aspect-ratio box
-       (sized for the homepage's full-bleed image slides) and stacks
-       .hero__slide-inner vertically -- too short for rakhi's stacked
-       text+buttons, so let this one grow to fit its content instead. */
-    @media (max-width: 640px) {
-      .rk-hero.hero { aspect-ratio: unset; height: auto; }
-      .rk-hero .hero__slide-inner { padding: 40px 24px 32px; }
-    }
 
     /* Small decorative festive icons scattered across the hero banner */
     .rk-splash { position: absolute; pointer-events: none; z-index: 2; }
@@ -197,42 +177,13 @@
 
     <div class="hero__track" id="heroTrack">
 
-      <a href="#rakhi-grid" class="hero__slide hero__slide--rk1 hero__slide--full-img" aria-label="Rakhi Hamper — Slide 1 of 3">
+      <a href="#rakhi-grid" class="hero__slide hero__slide--rk1 hero__slide--full-img" aria-label="Rakhi Hamper — Slide 1 of 2">
         <div class="hero__slide-bg hero__slide-bg--full" style="--bg-desktop:url('/assets/images/banners/banner-rakhi-hamper-title-full.jpg'); --bg-mobile:url('/assets/images/banners/banner-rakhi-hamper-title-full.jpg');"></div>
       </a>
 
-      <div class="hero__slide hero__slide--rk2">
-        <div class="hero__slide-bg"></div>
-        <div class="hero__slide-overlay"></div>
-        <div class="hero__slide-inner">
-          <div class="hero__content">
-            <span class="hero__eyebrow">Freshly Made, Same-Day</span>
-            <h1 class="hero__title">Freshly Made Sweets</h1>
-            <p class="hero__sub">Motichoor laddu, kaju katli and mithai boxes made fresh, Iyengar-bakery style — ordered today, delivered today across Hyderabad.</p>
-            <div class="hero__actions">
-              <a href="#rakhi-grid" class="btn btn-gold">Shop Rakhi Hampers →</a>
-              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27d%20like%20to%20know%20more%20about%20your%20Rakhi%20%26%20Sweets%20Hampers." target="_blank" rel="noopener" class="btn btn-outline">Ask on WhatsApp</a>
-            </div>
-          </div>
-          <div class="hero__art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="9" cy="9" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="10" cy="15" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="1" fill="currentColor" stroke="none"/></svg></div>
-        </div>
-      </div>
-
-      <div class="hero__slide hero__slide--rk3">
-        <div class="hero__slide-bg" style="background-image:url('/assets/images/banners/banner-rakhi-hamper-timeless-full.jpg'); background-size:cover; background-position:center;"></div>
-        <div class="hero__slide-overlay"></div>
-        <div class="hero__slide-inner">
-          <div class="hero__content">
-            <span class="hero__eyebrow">5 Outlets, Hyderabad-Wide</span>
-            <h1 class="hero__title">Pickup or Delivery</h1>
-            <p class="hero__sub">Lalbazar, Suchitra, Boduppal, Ramantapur &amp; Tukkuguda — pick up in-store or get it delivered to your door.</p>
-            <div class="hero__actions">
-              <a href="#rakhi-grid" class="btn btn-gold">Shop Rakhi Hampers →</a>
-              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%21%20I%27d%20like%20to%20know%20more%20about%20your%20Rakhi%20%26%20Sweets%20Hampers." target="_blank" rel="noopener" class="btn btn-outline">Ask on WhatsApp</a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <a href="#rakhi-grid" class="hero__slide hero__slide--rk3 hero__slide--full-img" aria-label="Rakhi Hamper — Slide 2 of 2">
+        <div class="hero__slide-bg hero__slide-bg--full" style="--bg-desktop:url('/assets/images/banners/banner-rakhi-hamper-timeless-full.jpg'); --bg-mobile:url('/assets/images/banners/banner-rakhi-hamper-timeless-full.jpg');"></div>
+      </a>
 
     </div>
 
