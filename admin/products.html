@@ -57,6 +57,7 @@
             <thead>
               <tr>
                 <th style="width:32px;"><input type="checkbox" id="selectAllProducts" onchange="toggleSelectAllProducts(this)" title="Select all shown"></th>
+                <th style="width:56px;" title="Where this product shows within its category — filter to one category first to reorder cleanly">Order</th>
                 <th>Product</th>
                 <th>Category</th>
                 <th>MRP</th>
@@ -264,15 +265,25 @@ function filterProducts() {
   renderProducts(list);
 }
 
+let _lastRenderedList = [];
+
 function renderProducts(list) {
+  _lastRenderedList = list;
   const tb = document.getElementById('products-tbody');
   if (!list.length) {
-    tb.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="icon">🛍️</div>No products found</div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="icon">🛍️</div>No products found</div></td></tr>`;
     return;
   }
-  tb.innerHTML = list.map(p => `
+  tb.innerHTML = list.map((p, i) => `
     <tr id="row-${p.id}">
       <td><input type="checkbox" class="product-select" value="${p.id}" ${_selectedProductIds.has(p.id) ? 'checked' : ''} onchange="toggleSelectProduct('${p.id}', this)"></td>
+      <td>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <button class="btn btn-outline btn-sm btn-icon" style="padding:1px 6px;" onclick="bumpProductOrder('${p.id}', -1)" title="Move earlier" ${i === 0 ? 'disabled' : ''}>▲</button>
+          <span class="td-muted" style="font-size:0.62rem;">${p.sortOrder || 0}</span>
+          <button class="btn btn-outline btn-sm btn-icon" style="padding:1px 6px;" onclick="bumpProductOrder('${p.id}', 1)" title="Move later" ${i === list.length - 1 ? 'disabled' : ''}>▼</button>
+        </div>
+      </td>
       <td>
         <div class="td-name">${esc(p.name)}</div>
         <div class="td-muted" style="font-size:0.7rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</div>
@@ -307,6 +318,64 @@ function renderProducts(list) {
         </div>
       </td>
     </tr>`).join('');
+}
+
+// Builds a full PUT body from an already-fetched product record (the
+// admin ?all=1 list is raw/sticker-priced, same shape the edit form
+// works with) rather than from form fields -- used by bumpProductOrder()
+// so a reorder click doesn't need to open the edit modal.
+function _buildFullProductBody(p, sortOrderOverride) {
+  return {
+    name: p.name,
+    description: p.description,
+    category: p.category,
+    flavour: p.flavour || null,
+    tag: p.tag || null,
+    slug: p.slug,
+    prepHours: p.prepHours || 0,
+    mrp: p.mrp || 0,
+    discount: p.discount || 0,
+    images: JSON.stringify(p.images || []),
+    variantGroups: JSON.stringify(p.variantGroups || []),
+    active: p.active,
+    featured: p.featured,
+    trending: p.trending,
+    sortOrder: sortOrderOverride !== undefined ? sortOrderOverride : (p.sortOrder || 0),
+  };
+}
+
+// Moves a product up/down relative to the currently-rendered (filtered)
+// table order -- filter to one category first for this to mean "earlier/
+// later within that category," which is the common case. Renumbers the
+// whole visible list sequentially rather than swapping the two products'
+// raw sort_order values, since a swap is a no-op whenever they're tied
+// (e.g. both still sitting at the default 0).
+async function bumpProductOrder(id, direction) {
+  const list = _lastRenderedList;
+  const idx = list.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  const swapIdx = idx + direction;
+  if (swapIdx < 0 || swapIdx >= list.length) return;
+
+  const reordered = [...list];
+  [reordered[idx], reordered[swapIdx]] = [reordered[swapIdx], reordered[idx]];
+
+  try {
+    await Promise.all(reordered.map((p, i) => {
+      if ((p.sortOrder || 0) === i) return null;
+      return apiFetch(`/api/products/${p.id}`, 'PUT', _buildFullProductBody(p, i));
+    }));
+    // Reload from the server (which now returns rows in sort_order order)
+    // rather than hand-patching allProducts in place -- that array's own
+    // element order wouldn't reflect the swap even though the sortOrder
+    // *values* were updated, since renumbering doesn't move anything
+    // within the array itself. Re-applying the current filter after
+    // keeps whatever search/category/status view the admin was already in.
+    await loadProducts();
+    filterProducts();
+  } catch (e) {
+    showToast('Failed to reorder', 'error');
+  }
 }
 
 async function toggleActive(id, cb) {
@@ -417,6 +486,11 @@ function productForm(p = {}) {
       <div class="form-row">
         <label>Prep Time <span class="hint-inline">(hours notice needed)</span></label>
         <input id="f-prep" type="number" min="0" value="${p.prepHours || 0}" placeholder="0">
+      </div>
+      <div class="form-row">
+        <label>Display Order <span class="hint-inline">(within its category — lower shows first)</span></label>
+        <input id="f-order" type="number" value="${p.sortOrder || 0}" placeholder="0">
+        <p class="hint" style="margin:4px 0 0;">Leave at 0 to sort by newest first (the default). Give a product a smaller number (or a negative one) to pin it earlier, or a bigger number to push it later — same category's other products don't need renumbering.</p>
       </div>
       <div class="form-row">
         <label>MRP (₹) *</label>
@@ -707,6 +781,7 @@ async function saveProduct(editId) {
     tag:           document.getElementById('f-tag').value || null,
     slug:          document.getElementById('f-slug').value.trim() || slugify(name),
     prepHours:     parseInt(document.getElementById('f-prep').value, 10) || 0,
+    sortOrder:     parseInt(document.getElementById('f-order').value, 10) || 0,
     mrp:           parseFloat(document.getElementById('f-mrp').value) || 0,
     discount:      parseFloat(document.getElementById('f-disc').value) || 0,
     images:        JSON.stringify(_editImages),
