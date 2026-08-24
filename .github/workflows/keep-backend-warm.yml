@@ -1,0 +1,18 @@
+name: Keep backend warm
+
+# Render's free tier spins the backend down after 15 minutes of
+# inactivity, and the first request after that takes 20-30s to wake it
+# back up -- which is what makes product/category pages feel like
+# they're hanging. Pinging the health endpoint often enough that it
+# never goes idle keeps every real visitor request fast.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: curl -sf https://krispies-website.onrender.com/api/health
