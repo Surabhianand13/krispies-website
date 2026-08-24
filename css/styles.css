@@ -511,6 +511,12 @@ h1, h2, h3, h4 {
 @media (max-width: 640px) {
   .hero__slide-bg--full {
     background-image: var(--bg-mobile) !important;
+    /* The mobile crops are square (1:1) dropped into a much wider 3:2 box,
+       so `cover` scales to match width and crops top+bottom -- center
+       cropping was cutting the title text baked into the top of each
+       image. Anchor to the top instead so the title always survives; the
+       bottom (mostly decorative cake photography) is what gets trimmed. */
+    background-position: center top !important;
   }
 }
 /* Slide backgrounds — matched to each hero image tone */
