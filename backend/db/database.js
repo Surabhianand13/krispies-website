@@ -187,6 +187,7 @@ safeAddColumn('products', 'prep_hours',     'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('products', 'slug',           'TEXT');
 safeAddColumn('products', 'flavour',        'TEXT');
 safeAddColumn('products', 'trending',       'INTEGER NOT NULL DEFAULT 0');
+safeAddColumn('products', 'sort_order',     'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('orders',   'customer_email',     'TEXT');
 safeAddColumn('orders',   'payment_method',     'TEXT');
 safeAddColumn('orders',   'customer_id',        'TEXT');
@@ -228,6 +229,25 @@ if (customersPhoneCol && customersPhoneCol.notnull === 1) {
   try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
   try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)'); } catch (_) {}
   console.log('✓ Migrated customers table: phone/password_hash are now nullable (email-OTP accounts)');
+}
+
+// ── One-time migration: backfill products.sort_order so admin-controlled
+//    display ordering (added alongside this column) starts from whatever
+//    order products already showed in (created_at DESC, the previous
+//    hardcoded sort) instead of every row defaulting to the same 0 --
+//    keeps every category's display order unchanged until an admin
+//    explicitly reorders something.
+const alreadyBackfilledSortOrder = db.prepare('SELECT value FROM settings WHERE key = ?').get('products_sort_order_backfilled_v1');
+if (!alreadyBackfilledSortOrder) {
+  const rows = db.prepare('SELECT id FROM products ORDER BY created_at DESC').all();
+  const setOrder = db.prepare('UPDATE products SET sort_order = ? WHERE id = ?');
+  const backfillSortOrder = db.transaction(() => {
+    rows.forEach((r, i) => setOrder.run(i, r.id));
+  });
+  backfillSortOrder();
+  db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+    .run('products_sort_order_backfilled_v1', '1');
+  console.log(`✓ Backfilled sort_order for ${rows.length} product(s) — one-time migration complete`);
 }
 
 // ── Seed admin user ────────────────────────────────────────────────────────────

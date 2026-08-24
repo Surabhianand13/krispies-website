@@ -42,12 +42,12 @@ const VALID_TAGS = ['bestseller', 'new', 'seasonal', 'custom'];
 router.get('/', (req, res, next) => {
   if (req.query.all === '1') {
     return requireAuth(req, res, () => {
-      const rows = db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
+      const rows = db.prepare('SELECT * FROM products ORDER BY sort_order ASC, created_at DESC').all();
       const ratings = getRatingsMap();
       res.json(rows.map(r => toProduct(r, ratings, { raw: true })));
     });
   }
-  const rows = db.prepare('SELECT * FROM products WHERE active = 1 ORDER BY created_at DESC').all();
+  const rows = db.prepare('SELECT * FROM products WHERE active = 1 ORDER BY sort_order ASC, created_at DESC').all();
   const ratings = getRatingsMap();
   res.json(rows.map(r => toProduct(r, ratings)));
 });
@@ -90,8 +90,8 @@ router.post('/', requireAuth, productValidators(), (req, res) => {
   const p = buildProduct(id, req.body);
   p.slug = uniqueSlug(slugify(req.body.slug || req.body.name), id);
   db.prepare(`
-    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, trending, active)
-    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @trending, @active)
+    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, trending, active, sort_order)
+    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @trending, @active, @sort_order)
   `).run(p);
 
   res.status(201).json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(p.id), null, { raw: true }));
@@ -112,7 +112,8 @@ router.put('/:id', requireAuth, productValidators(), (req, res) => {
     SET name=@name, category=@category, tag=@tag, flavour=@flavour, description=@description,
         mrp=@mrp, discount=@discount, images=@images,
         variant_groups=@variant_groups, prep_hours=@prep_hours, slug=@slug,
-        featured=@featured, trending=@trending, active=@active, updated_at=datetime('now')
+        featured=@featured, trending=@trending, active=@active, sort_order=@sort_order,
+        updated_at=datetime('now')
     WHERE id=@id
   `).run(p);
 
@@ -231,6 +232,11 @@ function buildProduct(id, body) {
     featured:       body.featured ? 1 : 0,
     trending:       body.trending ? 1 : 0,
     active:         body.active !== false && body.active !== 0 ? 1 : 0,
+    // Lower shows first within a category (ties break by newest first, the
+    // old default). Left at 0, a product just falls back to that recency
+    // order; an admin only needs to set this to pin something earlier or
+    // push it later.
+    sort_order:     parseInt(body.sortOrder, 10) || 0,
   };
 }
 
@@ -303,6 +309,7 @@ function toProduct(row, ratingsMap, opts = {}) {
     featured:      row.featured === 1,
     trending:      row.trending === 1,
     active:        row.active === 1,
+    sortOrder:     row.sort_order || 0,
     ratingAvg:     rating ? rating.avg : null,
     ratingCount:   rating ? rating.count : 0,
     createdAt:     row.created_at,
@@ -319,6 +326,7 @@ function productValidators() {
     body('mrp').optional().isFloat({ min: 0 }).withMessage('MRP must be a positive number.'),
     body('discount').optional().isFloat({ min: 0, max: 100 }).withMessage('Discount must be 0-100.'),
     body('prepHours').optional().isInt({ min: 0 }).withMessage('Prep time must be a positive number of hours.'),
+    body('sortOrder').optional().isInt().withMessage('Display order must be a whole number.'),
   ];
 }
 

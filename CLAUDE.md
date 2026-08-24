@@ -511,6 +511,7 @@ password) or with any password you're unsure of.
 | Category | ✅ | Dropdown of known categories + "Add new category…" free text |
 | Tag | — | Bestseller / New / Seasonal / Made to Order / None |
 | Prep Time (hours) | — | Advance notice needed; gates the delivery-date picker |
+| Display Order | — | Lower shows first within its category; 0 (default) falls back to newest-first. Admin products table also has ▲▼ buttons per row to bump this without opening the edit form — filter to one category first so "up/down" means what it looks like |
 | Description | ✅ | Shown under product name on menu and product page |
 | MRP (₹) | ✅ | Full price before discount |
 | Discount % | — | 0–100. Live preview shows final price |
@@ -622,6 +623,9 @@ variant_groups TEXT DEFAULT '[]'      -- JSON: [{name, options:[{label, price, i
 prep_hours     INTEGER DEFAULT 0      -- advance notice needed, gates delivery date picker
 slug           TEXT UNIQUE            -- used in product.html?slug=...
 featured       INTEGER DEFAULT 0      -- 0 or 1
+trending       INTEGER DEFAULT 0      -- 0 or 1 -- shown on GET /api/products/trending
+sort_order     INTEGER DEFAULT 0      -- display order within a category, lower shows first; ties
+                                       -- break by created_at DESC (newest first, the old default)
 active         INTEGER DEFAULT 1      -- 0 or 1
 created_at     TEXT DEFAULT (datetime('now'))
 updated_at     TEXT DEFAULT (datetime('now'))
