@@ -21,7 +21,16 @@
     .pdp { padding: calc(110px + var(--promo-h)) 0 64px; }
     .pdp__breadcrumb { font-size: 0.78rem; color: var(--text-muted-lt); margin-bottom: 20px; }
     .pdp__breadcrumb a { color: var(--gold-dark); text-decoration: none; }
+    /* min-width:0 on both columns is load-bearing, not decoration: a bare
+       "1fr 1fr" leaves each grid item's automatic minimum size at its
+       min-content size, and the right column's content (the horizontally-
+       scrolling variant-card rows in particular) has a min-content width
+       far wider than the page -- without this override, that alone forces
+       the right column to claim the entire row and the left (gallery)
+       column collapses to a literal 0px, hiding the product image
+       entirely even though it loaded fine. */
     .pdp__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: flex-start; }
+    .pdp__grid > * { min-width: 0; }
     .pdp__gallery { position: relative; border-radius: 16px; overflow: hidden; background: #f5f0ee; aspect-ratio: 1/1; }
     .pdp__gallery .pcard__gal-track { height: 100%; }
     .pdp__gallery .pcard__gal-slide { height: 100%; }
