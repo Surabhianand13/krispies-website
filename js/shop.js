@@ -66,33 +66,55 @@ function _variantOptionIconKey(groupName, label) {
 // product page, '_chkVariantCardClick' inside the checkout modal).
 const CATEGORIES_WITH_VARIANT_CARDS = ['rakhi-hampers'];
 
+const RK_CHEVRON_LEFT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+const RK_CHEVRON_RIGHT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+
+// IGP-style "Select Variant" strip: a photo box (real upload, else an
+// auto-picked icon) with the label/price left-aligned underneath, in a
+// horizontally scrollable row with chevron buttons -- rather than the
+// generic small icon-circle cards this replaces.
 function renderVariantCards(groupName, group, selectedIndex, onclickFn, groupIdx) {
+  const scrollId = `rkvc-${onclickFn}-${groupIdx}`;
   const noneCard = group.optional ? `
     <div class="rk-vcard${selectedIndex === -1 ? ' selected' : ''}" onclick="${onclickFn}('${escJsStr(groupName)}', -1, ${groupIdx})">
-      <div class="rk-vcard__icon rk-vcard__icon--none">${VARIANT_ICONS.none}</div>
-      <div class="rk-vcard__label">None</div>
+      <div class="rk-vcard__img rk-vcard__img--none">${VARIANT_ICONS.none}</div>
+      <div class="rk-vcard__info">
+        <div class="rk-vcard__label">None</div>
+      </div>
     </div>` : '';
   const optionCards = group.options.map((o, i) => {
     const key = _variantOptionIconKey(groupName, o.label);
     const color = VARIANT_ICON_PALETTE[i % VARIANT_ICON_PALETTE.length];
     // Uploaded per-option photo takes priority over the auto-picked icon;
     // a hidden fallback icon swaps in if the photo URL 404s/fails to load.
-    const iconHtml = o.image
+    const imgHtml = o.image
       ? `<img src="${esc(o.image)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-         <span class="rk-vcard__icon-fallback" style="background:${color}">${VARIANT_ICONS[key]}</span>`
+         <span class="rk-vcard__img-fallback" style="background:${color}">${VARIANT_ICONS[key]}</span>`
       : VARIANT_ICONS[key];
     return `
     <div class="rk-vcard${selectedIndex === i ? ' selected' : ''}" onclick="${onclickFn}('${escJsStr(groupName)}', ${i}, ${groupIdx})">
-      <div class="rk-vcard__icon${o.image ? ' rk-vcard__icon--photo' : ''}"${o.image ? '' : ` style="background:${color}"`}>${iconHtml}</div>
-      <div class="rk-vcard__label">${esc(o.label)}</div>
-      <div class="rk-vcard__price">₹${(Number(o.price) || 0).toLocaleString('en-IN')}</div>
+      <div class="rk-vcard__img${o.image ? ' rk-vcard__img--photo' : ''}"${o.image ? '' : ` style="background:${color}"`}>${imgHtml}</div>
+      <div class="rk-vcard__info">
+        <div class="rk-vcard__label">${esc(o.label)}</div>
+        <div class="rk-vcard__price">₹${(Number(o.price) || 0).toLocaleString('en-IN')}</div>
+      </div>
     </div>`;
   }).join('');
   return `
     <div class="chk-field-group">
       <label class="chk-label">${esc(groupName)}</label>
-      <div class="rk-vcards">${noneCard}${optionCards}</div>
+      <div class="rk-vcards-wrap">
+        <div class="rk-vcards" id="${scrollId}">${noneCard}${optionCards}</div>
+        <button type="button" class="rk-vcards-nav rk-vcards-nav--prev" onclick="_rkScrollCards('${scrollId}', -1)" aria-label="Scroll left">${RK_CHEVRON_LEFT}</button>
+        <button type="button" class="rk-vcards-nav rk-vcards-nav--next" onclick="_rkScrollCards('${scrollId}', 1)" aria-label="Scroll right">${RK_CHEVRON_RIGHT}</button>
+      </div>
     </div>`;
+}
+
+function _rkScrollCards(id, dir) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
 }
 
 // esc() alone isn't safe inside a single-quoted inline onclick="fn('...')"
