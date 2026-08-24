@@ -299,9 +299,9 @@ single group). `mrp`/`discount` are only used for products with **no** variant g
 managed from the admin product form's "Variants" section, and rendered as `<select>` dropdowns on
 `product.html` and in the checkout modal's Step 1 (with the price updating live as options change).
 
-Each option can optionally carry its own **image** (path/URL, same local-folder convention as
-product photos in §5 above — dropped into the repo under `assets/images/products/...` and
-referenced by path from the admin form, with a live thumbnail preview next to the field). For
+Each option can optionally carry its own **image** — an **Upload** button next to each option
+(same `POST /api/upload` flow as the main product photos above) or a pasted path/URL, either way
+with a live thumbnail preview next to the field. For
 categories in `js/shop.js`'s `CATEGORIES_WITH_VARIANT_CARDS` (currently just `rakhi-hampers`),
 options render as clickable image+price cards instead of `<select>` dropdowns — an option's own
 image is used if set, falling back to a client-side icon auto-picked from the option's label
@@ -343,22 +343,28 @@ change needed, since category rendering is data-driven.
 | `seasonal` | Seasonal | Orange |
 | `custom` | Made to Order | Purple |
 
-### Product images — local-folder convention
+### Product images — direct upload
 
-Images are **not** uploaded through the browser — the admin image field is a path/URL text input
-with a live thumbnail preview. The convention (same one the seed catalog itself uses):
+Product photos are uploaded straight from the browser: the admin form's **Upload Image** button
+sends the file to `POST /api/upload` (JWT-protected, `backend/routes/upload.js`), which sniffs
+the actual file bytes (not the filename or claimed MIME type) to confirm it's really a jpg/png/
+webp/gif, saves it under a random name in `UPLOAD_DIR`, and returns a public `/uploads/<file>`
+URL that's added straight to the product's image list — **live immediately, no code push**.
+`UPLOAD_DIR` points at the Render persistent disk in production (see `render.yaml` — same disk
+the SQLite DB lives on, see §14), so uploads survive redeploys.
+
+The admin image field also still accepts a plain path/URL pasted directly (with a live thumbnail
+preview either way) — this is how the seed catalog's own images are wired, and remains useful for
+already-committed repo assets:
 
 ```
 assets/images/products/<category>/<slug>-1.jpg
 assets/images/products/<category>/<slug>-2.jpg   (additional gallery images, optional)
 ```
 
-**Workflow:** whoever is adding a product photo drops the file into that folder in a local clone
-of the repo, then references the same path in the admin form's Image field (the admin form
-shows this exact expected path as a live example next to the field). The file then needs to be
-committed and pushed for it to actually go live — this is a deliberate tradeoff (no third-party
-image host / upload service involved), so **every new product photo requires a code push**, not
-just an admin-panel save.
+A path typed this way only works once that file actually exists at that path in the repo (i.e. is
+committed and pushed) — pasting a path that doesn't exist yet will just show a broken thumbnail
+until it's added. This local-folder route is optional now, not the only way to add a photo.
 
 ### Individual product pages
 
@@ -508,7 +514,7 @@ password) or with any password you're unsure of.
 | Description | ✅ | Shown under product name on menu and product page |
 | MRP (₹) | ✅ | Full price before discount |
 | Discount % | — | 0–100. Live preview shows final price |
-| Product Images | — | Path/URL text field with live thumbnail preview — see local-folder convention in §5 |
+| Product Images | — | Upload button, or paste a path/URL — live thumbnail preview either way, see §5 |
 | Variants | — | Repeatable option groups (e.g. Weight, Flavour), each option carrying its own final price (not added to MRP) |
 | Featured on Homepage | — | Checkbox — shows in homepage featured section |
 | Active | — | Uncheck to hide from menu without deleting |
@@ -851,8 +857,8 @@ RAZORPAY_KEY_SECRET = XXXXXXXXXXXXXXXXXXXXXXXX
 3. Check **Featured on Homepage** to show it on the home page too
 
 ### Add product images
-- In the product edit form, paste direct image URLs
-- Use [Cloudinary](https://cloudinary.com) (free) to host images and get URLs
+- In the product edit form, click **Upload Image** and pick a file — it's live immediately
+- Or paste a direct image URL / already-committed repo path instead, if you prefer
 - Multiple images supported — customers swipe through them
 
 ### Change carousel slides (homepage)
@@ -912,18 +918,13 @@ If you add a `const BACKEND_URL` declaration inside a `<script>` block on any pa
 ### Backend free tier cold starts
 Render free tier suspends the backend after 15 min of inactivity. The first request after sleep takes ~20–30 seconds. Contact form submissions during this time fall back to localStorage gracefully.
 
-### Backend database has no persistent disk
-`backend/db/krispies.db` lives on Render's local filesystem, and `render.yaml` does not attach a
-persistent disk. **Confirm this is still true before relying on the database surviving a
-redeploy** — on Render's free/starter tiers without a persistent disk, the whole SQLite file
-(products, orders, messages, everything) can be wiped on every backend redeploy. If the team
-starts relying on the admin panel for real inventory, this should be addressed (Render persistent
-disk add-on, or migrate to a hosted DB) before it causes real data loss.
-
-### Product images are not self-serve
-By design (see §5), product photos aren't uploaded through the browser — they're committed to
-the repo under `assets/images/products/<category>/` and referenced by path from the admin form.
-This means every new product photo needs a code push to go live, not just an admin-panel save.
+### Backend persistent disk
+`render.yaml` attaches a 1 GB persistent disk (`krispies-data`, mounted at `/var/data`), and both
+`DB_PATH` and `UPLOAD_DIR` point into it — so `backend/db/krispies.db` and everything under
+`backend/uploads/` (product photos uploaded via the admin panel, see §5) survive a redeploy.
+**Confirm this is still true before relying on it** — if the disk is ever removed from the Render
+service or those env vars get unset, both the DB and uploaded photos would fall back to the
+container's local (non-persistent) filesystem and could be wiped on the next redeploy.
 
 ### Gmail App Password required
 Regular Gmail password won't work for `nodemailer`. You must generate an App Password (16-character code) from Gmail Security settings with 2FA enabled.
