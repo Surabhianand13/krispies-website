@@ -26,6 +26,13 @@ function _pdpRender() {
 
   const tagColours = { bestseller:'#9A4A3A', new:'#1a7a3c', seasonal:'#1e5f85', custom:'#7b3f9e' };
   const tagHtml = p.tag ? `<span class="pdp__tag" style="background:${tagColours[p.tag]||'#9A4A3A'}">${TAG_LABELS[p.tag] || p.tag}</span>` : '';
+  // Same-day trust badge, data-driven off prepHours rather than hardcoded
+  // to one category -- true for any product that needs no advance notice,
+  // not just rakhi. Products that DO need notice already get that called
+  // out via prepNote below, so this only shows when it's a genuine claim.
+  const badgeHtml = (Number(p.prepHours) || 0) === 0
+    ? `<div class="pdp__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Same-Day Delivery Available</div>`
+    : '';
 
   const mainImg = hasImgs ? imgs[_pdpGalleryIndex] || imgs[0] : null;
   const galleryHtml = `
@@ -69,6 +76,7 @@ function _pdpRender() {
     <div class="pdp__grid">
       <div>${galleryHtml}</div>
       <div>
+        ${badgeHtml}
         ${tagHtml}
         <h1 class="pdp__title">${esc(p.name)}</h1>
         ${p.ratingCount > 0 ? `
