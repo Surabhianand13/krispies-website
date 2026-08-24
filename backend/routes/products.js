@@ -206,7 +206,11 @@ function buildProduct(id, body) {
       optional: !!g?.optional,
       options: Array.isArray(g?.options)
         ? g.options
-            .map(o => ({ label: String(o?.label || '').trim(), price: parseFloat(o?.price) || 0 }))
+            .map(o => ({
+              label: String(o?.label || '').trim(),
+              price: parseFloat(o?.price) || 0,
+              image: String(o?.image || '').trim() || null,
+            }))
             .filter(o => o.label)
         : [],
     }))
@@ -249,7 +253,7 @@ function toProduct(row, ratingsMap, opts = {}) {
   variantGroups = variantGroups.map(g => ({
     name: g.name,
     optional: !!g.optional,
-    options: (g.options || []).map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0) })),
+    options: (g.options || []).map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0), image: o.image || null })),
   }));
 
   const mrp = row.mrp || 0;

@@ -502,6 +502,12 @@ function renderVariantGroups() {
             <input type="number" placeholder="Final price, e.g. 699" value="${o.price || 0}"
               oninput="_editVariantGroups[${gi}].options[${oi}].price = parseFloat(this.value) || 0">
             <button class="img-pill__rm" onclick="removeVariantOption(${gi}, ${oi})" type="button" title="Remove option">✕</button>
+            <div class="variant-option-img">
+              <input placeholder="Option image path/URL (optional), e.g. assets/images/products/rakhi-hampers/single-rakhi.jpg" value="${esc(o.image || '')}"
+                oninput="_editVariantGroups[${gi}].options[${oi}].image = this.value; setVariantOptionImgPreview(${gi}, ${oi}, this.value);">
+              <img id="voimg-${gi}-${oi}" ${o.image ? `src="${esc(o.image)}"` : ''} style="visibility:${o.image ? 'visible' : 'hidden'}"
+                onload="this.style.visibility='visible'" onerror="this.style.visibility='hidden'">
+            </div>
           </div>`).join('')}
         <button class="btn btn-outline btn-sm" onclick="addVariantOption(${gi})" type="button">+ Add Option</button>
       </div>
@@ -509,7 +515,7 @@ function renderVariantGroups() {
 }
 
 function addVariantGroup() {
-  _editVariantGroups.push({ name: '', optional: false, options: [{ label: '', price: 0 }] });
+  _editVariantGroups.push({ name: '', optional: false, options: [{ label: '', price: 0, image: '' }] });
   renderVariantGroups();
 }
 function removeVariantGroup(gi) {
@@ -517,8 +523,14 @@ function removeVariantGroup(gi) {
   renderVariantGroups();
 }
 function addVariantOption(gi) {
-  _editVariantGroups[gi].options.push({ label: '', price: 0 });
+  _editVariantGroups[gi].options.push({ label: '', price: 0, image: '' });
   renderVariantGroups();
+}
+
+function setVariantOptionImgPreview(gi, oi, value) {
+  const img = document.getElementById(`voimg-${gi}-${oi}`);
+  if (!img) return;
+  if (value) { img.src = value; } else { img.removeAttribute('src'); img.style.visibility = 'hidden'; }
 }
 function removeVariantOption(gi, oi) {
   _editVariantGroups[gi].options.splice(oi, 1);
@@ -609,7 +621,7 @@ function openEditProduct(id) {
   _editVariantGroups = (p.variantGroups || []).map(g => ({
     name: g.name,
     optional: !!g.optional,
-    options: g.options.map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0) })),
+    options: g.options.map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0), image: o.image || '' })),
   }));
   document.getElementById('modalTitle').textContent = 'Edit Product';
   document.getElementById('modalBody').innerHTML = productForm(p);
