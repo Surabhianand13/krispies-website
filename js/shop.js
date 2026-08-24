@@ -234,7 +234,27 @@ async function loadProducts() {
    A "selection" is { [groupName]: optionIndex }, -1 meaning "skipped". */
 function variantDefaultSelection(p) {
   const sel = {};
-  (p.variantGroups || []).forEach(g => { sel[g.name] = g.optional ? -1 : 0; });
+  const groups = p.variantGroups || [];
+  // Defaulting every optional group to "None" is right for the normal
+  // mixed case (a required group already anchors a real price, so an
+  // add-on group defaulting unselected is expected). But if *every* group
+  // on the product is optional, that default lands on a genuine ₹0 --
+  // nothing anyone would actually check out for -- so pin the product's
+  // single cheapest option as the starting pick instead, mirroring the
+  // priceFrom fallback in the backend's toProduct(). Every other optional
+  // group still starts at None.
+  if (groups.length && groups.every(g => g.optional)) {
+    let cheapest = null;
+    groups.forEach(g => {
+      g.options.forEach((o, i) => {
+        const price = Number(o.price) || 0;
+        if (!cheapest || price < cheapest.price) cheapest = { groupName: g.name, index: i, price };
+      });
+    });
+    groups.forEach(g => { sel[g.name] = (cheapest && g.name === cheapest.groupName) ? cheapest.index : -1; });
+    return sel;
+  }
+  groups.forEach(g => { sel[g.name] = g.optional ? -1 : 0; });
   return sel;
 }
 
