@@ -279,7 +279,7 @@ and `product.html` all share one file,
   priceFrom:     number,        // = price when no variants; cheapest combo price when variants exist
   priceTo:       number,        // = price when no variants; priciest combo price when variants exist
   images:        string[],      // array of image paths/URLs
-  variantGroups: [{ name: string, options: [{ label: string, price: number }] }],
+  variantGroups: [{ name: string, options: [{ label: string, price: number, image: string|null }] }],
   prepHours:     number,        // hours of advance notice needed; gates the delivery-date picker
   featured:      boolean,       // show on homepage
   active:        boolean,       // show on menu/category pages
@@ -298,6 +298,16 @@ final price is the sum of the selected options across all groups (in practice, m
 single group). `mrp`/`discount` are only used for products with **no** variant groups. This is
 managed from the admin product form's "Variants" section, and rendered as `<select>` dropdowns on
 `product.html` and in the checkout modal's Step 1 (with the price updating live as options change).
+
+Each option can optionally carry its own **image** (path/URL, same local-folder convention as
+product photos in §5 above — dropped into the repo under `assets/images/products/...` and
+referenced by path from the admin form, with a live thumbnail preview next to the field). For
+categories in `js/shop.js`'s `CATEGORIES_WITH_VARIANT_CARDS` (currently just `rakhi-hampers`),
+options render as clickable image+price cards instead of `<select>` dropdowns — an option's own
+image is used if set, falling back to a client-side icon auto-picked from the option's label
+(`renderVariantCards()`/`_variantOptionIconKey()` in `js/shop.js`) if no image is set or the image
+URL fails to load. Other categories still get the plain `<select>` regardless of whether options
+have images set.
 
 ### Prep time (`prepHours`)
 
@@ -602,7 +612,7 @@ description    TEXT NOT NULL
 mrp            REAL DEFAULT 0
 discount       REAL DEFAULT 0         -- percentage, 0-100
 images         TEXT DEFAULT '[]'      -- JSON array of image paths/URLs
-variant_groups TEXT DEFAULT '[]'      -- JSON: [{name, options:[{label, price}]}] -- price is absolute, not a delta
+variant_groups TEXT DEFAULT '[]'      -- JSON: [{name, options:[{label, price, image}]}] -- price is absolute, not a delta; image is optional
 prep_hours     INTEGER DEFAULT 0      -- advance notice needed, gates delivery date picker
 slug           TEXT UNIQUE            -- used in product.html?slug=...
 featured       INTEGER DEFAULT 0      -- 0 or 1

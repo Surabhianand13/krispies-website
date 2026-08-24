@@ -205,9 +205,12 @@ tr:hover td { background: #faf8f5; }
 .variant-group__hd { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
 .variant-group__name { flex:1; font-weight:600; }
 .variant-group__options { display:flex; flex-direction:column; gap:6px; }
-.variant-option-row { display:flex; gap:6px; align-items:center; }
+.variant-option-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
 .variant-option-row input:first-child { flex:2; }
 .variant-option-row input:nth-child(2) { flex:1; }
+.variant-option-img { flex:1 1 100%; display:flex; gap:6px; align-items:center; }
+.variant-option-img input { flex:1; }
+.variant-option-img img { width:28px; height:28px; object-fit:cover; border-radius:4px; border:1px solid var(--border); flex:0 0 auto; background:#fff; }
 
 /* ── Analytics ── */
 .analytics-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:24px; }

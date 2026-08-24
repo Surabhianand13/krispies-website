@@ -75,9 +75,15 @@ function renderVariantCards(groupName, group, selectedIndex, onclickFn, groupIdx
   const optionCards = group.options.map((o, i) => {
     const key = _variantOptionIconKey(groupName, o.label);
     const color = VARIANT_ICON_PALETTE[i % VARIANT_ICON_PALETTE.length];
+    // Uploaded per-option photo takes priority over the auto-picked icon;
+    // a hidden fallback icon swaps in if the photo URL 404s/fails to load.
+    const iconHtml = o.image
+      ? `<img src="${esc(o.image)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+         <span class="rk-vcard__icon-fallback" style="background:${color}">${VARIANT_ICONS[key]}</span>`
+      : VARIANT_ICONS[key];
     return `
     <div class="rk-vcard${selectedIndex === i ? ' selected' : ''}" onclick="${onclickFn}('${escJsStr(groupName)}', ${i}, ${groupIdx})">
-      <div class="rk-vcard__icon" style="background:${color}">${VARIANT_ICONS[key]}</div>
+      <div class="rk-vcard__icon${o.image ? ' rk-vcard__icon--photo' : ''}"${o.image ? '' : ` style="background:${color}"`}>${iconHtml}</div>
       <div class="rk-vcard__label">${esc(o.label)}</div>
       <div class="rk-vcard__price">₹${(Number(o.price) || 0).toLocaleString('en-IN')}</div>
     </div>`;
