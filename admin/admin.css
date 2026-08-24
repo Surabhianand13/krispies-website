@@ -209,6 +209,7 @@ tr:hover td { background: #faf8f5; }
 .variant-option-row input:first-child { flex:2; }
 .variant-option-row input:nth-child(2) { flex:1; }
 .variant-option-img { flex:1 1 100%; display:flex; gap:6px; align-items:center; }
+.variant-option-img button { flex:0 0 auto; white-space:nowrap; }
 .variant-option-img input { flex:1; }
 .variant-option-img img { width:28px; height:28px; object-fit:cover; border-radius:4px; border:1px solid var(--border); flex:0 0 auto; background:#fff; }
 

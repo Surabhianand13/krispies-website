@@ -503,7 +503,9 @@ function renderVariantGroups() {
               oninput="_editVariantGroups[${gi}].options[${oi}].price = parseFloat(this.value) || 0">
             <button class="img-pill__rm" onclick="removeVariantOption(${gi}, ${oi})" type="button" title="Remove option">✕</button>
             <div class="variant-option-img">
-              <input placeholder="Option image path/URL (optional), e.g. assets/images/products/rakhi-hampers/single-rakhi.jpg" value="${esc(o.image || '')}"
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('vo-file-${gi}-${oi}').click()" type="button" id="vo-upload-btn-${gi}-${oi}">Upload</button>
+              <input type="file" id="vo-file-${gi}-${oi}" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" onchange="handleVariantOptionImgUpload(${gi}, ${oi}, this)">
+              <input id="voimg-input-${gi}-${oi}" placeholder="Or paste image path/URL, e.g. assets/images/products/rakhi-hampers/single-rakhi.jpg" value="${esc(o.image || '')}"
                 oninput="_editVariantGroups[${gi}].options[${oi}].image = this.value; setVariantOptionImgPreview(${gi}, ${oi}, this.value);">
               <img id="voimg-${gi}-${oi}" ${o.image ? `src="${esc(o.image)}"` : ''} style="visibility:${o.image ? 'visible' : 'hidden'}"
                 onload="this.style.visibility='visible'" onerror="this.style.visibility='hidden'">
@@ -531,6 +533,32 @@ function setVariantOptionImgPreview(gi, oi, value) {
   const img = document.getElementById(`voimg-${gi}-${oi}`);
   if (!img) return;
   if (value) { img.src = value; } else { img.removeAttribute('src'); img.style.visibility = 'hidden'; }
+}
+
+// Same upload flow as the main product image field -- reuses this file's
+// uploadImageFile() helper, which goes to the backend's persistent
+// /uploads store and comes back with a public URL, live immediately, no
+// code push needed.
+async function handleVariantOptionImgUpload(gi, oi, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const btn = document.getElementById(`vo-upload-btn-${gi}-${oi}`);
+  const prevLabel = btn.textContent;
+  btn.textContent = '…';
+  btn.disabled = true;
+  try {
+    const url = await uploadImageFile(file);
+    _editVariantGroups[gi].options[oi].image = url;
+    const textInput = document.getElementById(`voimg-input-${gi}-${oi}`);
+    if (textInput) textInput.value = url;
+    setVariantOptionImgPreview(gi, oi, url);
+  } catch (e) {
+    showToast(e.message || 'Upload failed', 'error');
+  } finally {
+    btn.textContent = prevLabel;
+    btn.disabled = false;
+    input.value = '';
+  }
 }
 function removeVariantOption(gi, oi) {
   _editVariantGroups[gi].options.splice(oi, 1);
