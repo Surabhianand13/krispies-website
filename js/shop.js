@@ -353,9 +353,16 @@ function renderCard(p) {
     </div>`
     : `<p class="pcard__price-note">Price on request</p>`;
 
-  const cta = (mrp > 0 || hasVariants)
-    ? `<button class="pcard__btn" onclick="addToCart('${p.id}')">Add to Cart</button>`
-    : `<a class="pcard__btn" href="contact" style="text-decoration:none;">Get a Quote →</a>`;
+  // Rakhi cards route straight to the product page instead of quick-adding:
+  // their variant choices (which rakhi set, which sweet) are the actual
+  // decision a customer needs to make, and the generic party-addon upsell
+  // modal that follows a quick add (candles/balloons/banners) doesn't apply
+  // to a rakhi hamper -- other categories keep the quick add-to-cart flow.
+  const cta = p.category === 'rakhi-hampers'
+    ? `<a class="pcard__btn" href="${url}" style="text-decoration:none;">Select Options</a>`
+    : (mrp > 0 || hasVariants)
+      ? `<button class="pcard__btn" onclick="addToCart('${p.id}')">Add to Cart</button>`
+      : `<a class="pcard__btn" href="contact" style="text-decoration:none;">Get a Quote →</a>`;
 
   const ratingHTML = p.ratingCount > 0 ? `
     <div class="pcard__rating">
