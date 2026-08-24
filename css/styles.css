@@ -2009,12 +2009,24 @@ h1, h2, h3, h4 {
 }
 .rk-vcard:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.07); }
 .rk-vcard.selected { border-color:var(--rk-pink,#A31942); background:rgba(163,25,66,0.05); }
-.rk-vcard__img { width:100%; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; color:#fff; position:relative; overflow:hidden; }
-.rk-vcard__img svg { width:40px; height:40px; }
-.rk-vcard__img--none { background:#EDEDED; color:#999; }
+.rk-vcard__img { width:100%; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+.rk-vcard__img svg { width:44px; height:44px; }
+.rk-vcard__img--none { background:#F1EEEA; color:#9A8A78; }
+/* One consistent soft brand-tinted wash for every option that has no
+   photo yet, instead of a different flat saturated colour per card index
+   -- reads as an intentional "photo coming soon" placeholder that sits
+   quietly next to real photos, rather than a clashing rainbow of tiles. */
+.rk-vcard__img--icon {
+  background: linear-gradient(135deg, rgba(163,25,66,0.08), rgba(201,168,112,0.16));
+  color: var(--rk-pink, #A31942);
+}
 .rk-vcard__img--photo img { width:100%; height:100%; object-fit:cover; display:block; }
-.rk-vcard__img-fallback { position:absolute; inset:0; display:none; align-items:center; justify-content:center; color:#fff; }
-.rk-vcard__img-fallback svg { width:40px; height:40px; }
+.rk-vcard__img-fallback {
+  position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+  background: linear-gradient(135deg, rgba(163,25,66,0.08), rgba(201,168,112,0.16));
+  color: var(--rk-pink, #A31942);
+}
+.rk-vcard__img-fallback svg { width:44px; height:44px; }
 .rk-vcard__info { padding:10px 12px 12px; text-align:left; }
 .rk-vcard__label {
   font-size:0.85rem; font-weight:600; color:var(--text-on-light); line-height:1.3; margin-bottom:4px;

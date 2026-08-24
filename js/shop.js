@@ -46,8 +46,6 @@ const VARIANT_ICONS = {
   sweet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="9" width="14" height="8" rx="4"/><path d="M5 13H2M22 13h-3M8 9l-1.5-3M16 9l1.5-3"/></svg>',
   none: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
 };
-const VARIANT_ICON_PALETTE = ['#C9414F', '#B8792B', '#7B5EA7', '#2E7D6B', '#3C7FB1', '#C46A2E'];
-
 function _variantOptionIconKey(groupName, label) {
   const g = (groupName || '').toLowerCase();
   const l = (label || '').toLowerCase();
@@ -84,16 +82,19 @@ function renderVariantCards(groupName, group, selectedIndex, onclickFn, groupIdx
     </div>` : '';
   const optionCards = group.options.map((o, i) => {
     const key = _variantOptionIconKey(groupName, o.label);
-    const color = VARIANT_ICON_PALETTE[i % VARIANT_ICON_PALETTE.length];
     // Uploaded per-option photo takes priority over the auto-picked icon;
     // a hidden fallback icon swaps in if the photo URL 404s/fails to load.
+    // The fallback uses one consistent soft brand tint (not a per-option
+    // rainbow colour) so a still-photoless option reads as an intentional
+    // "photo coming soon" placeholder next to cards that do have a real
+    // photo, rather than a clashing block of flat colour.
     const imgHtml = o.image
       ? `<img src="${esc(o.image)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-         <span class="rk-vcard__img-fallback" style="background:${color}">${VARIANT_ICONS[key]}</span>`
+         <span class="rk-vcard__img-fallback">${VARIANT_ICONS[key]}</span>`
       : VARIANT_ICONS[key];
     return `
     <div class="rk-vcard${selectedIndex === i ? ' selected' : ''}" onclick="${onclickFn}('${escJsStr(groupName)}', ${i}, ${groupIdx})">
-      <div class="rk-vcard__img${o.image ? ' rk-vcard__img--photo' : ''}"${o.image ? '' : ` style="background:${color}"`}>${imgHtml}</div>
+      <div class="rk-vcard__img${o.image ? ' rk-vcard__img--photo' : ' rk-vcard__img--icon'}">${imgHtml}</div>
       <div class="rk-vcard__info">
         <div class="rk-vcard__label">${esc(o.label)}</div>
         <div class="rk-vcard__price">₹${(Number(o.price) || 0).toLocaleString('en-IN')}</div>
