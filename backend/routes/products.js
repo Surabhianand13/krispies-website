@@ -288,6 +288,19 @@ function toProduct(row, ratingsMap, opts = {}) {
     const maxs = variantGroups.map(g => groupPriceRange(g)[1]);
     priceFrom = mins.reduce((a, b) => a + b, 0);
     priceTo   = maxs.reduce((a, b) => a + b, 0);
+
+    // priceFrom lands on a real ₹0 only when *every* group is optional --
+    // "skip everything" is a legitimate minimum for a mixed required+
+    // optional product (the required group(s) still contribute a real
+    // floor), but when nothing is required at all, ₹0 isn't a price
+    // anyone can actually buy at. Fall back to the single cheapest option
+    // across every group so the storefront never advertises "From ₹0".
+    if (priceFrom === 0) {
+      const cheapestOption = variantGroups
+        .flatMap(g => g.options.map(o => applyDiscount(o.price)))
+        .reduce((min, price) => Math.min(min, price), Infinity);
+      if (Number.isFinite(cheapestOption)) priceFrom = cheapestOption;
+    }
   }
 
   return {
