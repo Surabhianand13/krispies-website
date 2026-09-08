@@ -963,25 +963,25 @@ function _chkCouponDiscount(subtotal, _fee) {
   return c.off;
 }
 
-// SURABHI isn't a real public coupon (it's never in the COUPONS table
-// above, and carries zero discount here) -- it's a marker the backend only
-// ever honors when the request also carries a valid admin session token
-// (see isAdminTestRequest in backend/routes/checkout.js), forcing the real
-// Razorpay flow to run for ₹1 so the payment pipeline itself can be
-// verified without spending a full order's worth of money each time. A
-// customer who somehow discovers the string gets nowhere without the
-// actual admin password -- accepting it here client-side changes nothing
-// about what gets charged, since the backend recomputes the total itself.
-const ADMIN_TEST_COUPON = 'SURABHI';
-
+// This browser tab being logged into /admin/ (sessionStorage carries an
+// admin token) unlocks one thing: an unrecognized coupon code is no longer
+// immediately rejected as invalid here -- it's tentatively accepted and
+// sent to the backend, which is the only place that actually knows which
+// code (if any) forces the real Razorpay flow to run for ₹1 instead of
+// full price (see isAdminTestRequest in backend/routes/checkout.js). That
+// code is deliberately not written anywhere in this file: a customer who
+// reads this script learns nothing beyond "admin sessions get an extra
+// coupon check," which is useless without the actual admin password to
+// ever produce a token that passes it. The real total is always whatever
+// /api/checkout/initiate returns -- this tentative state changes no price.
 function _chkApplyCoupon() {
   const input = document.getElementById('chkCouponInput');
   const code = (input?.value || '').trim().toUpperCase();
   const sub = _chkSubtotal();
   const c = COUPONS[code];
-  const isAdminTestCode = code === ADMIN_TEST_COUPON && !!sessionStorage.getItem('krispies_admin_token');
+  const isAdminSession = !!sessionStorage.getItem('krispies_admin_token');
   if (!code) { _chkCoupon = { code: '', discount: 0, error: '' }; }
-  else if (isAdminTestCode) { _chkCoupon = { code, discount: 0, error: '' }; }
+  else if (!c && isAdminSession) { _chkCoupon = { code, discount: 0, error: '', pendingServerCheck: true }; }
   else if (!c) { _chkCoupon = { code: '', discount: 0, error: 'Invalid coupon code.' }; }
   else if (sub < c.minOrder) { _chkCoupon = { code: '', discount: 0, error: `Add ₹${(c.minOrder - sub).toLocaleString('en-IN')} more to use ${code}.` }; }
   else { _chkCoupon = { code, discount: 0, error: '' }; }
@@ -990,12 +990,12 @@ function _chkApplyCoupon() {
 
 function _chkCouponHTML() {
   if (_chkCoupon.code) {
-    const label = _chkCoupon.code === ADMIN_TEST_COUPON
-      ? 'SURABHI applied — internal test order (₹1 at payment)'
-      : (COUPONS[_chkCoupon.code]?.label || _chkCoupon.code);
+    const label = _chkCoupon.pendingServerCheck
+      ? `${esc(_chkCoupon.code)} — checking at payment`
+      : esc(COUPONS[_chkCoupon.code]?.label || _chkCoupon.code);
     return `
       <div class="chk-coupon-box chk-coupon-box--applied">
-        <span>&#10003; ${esc(label)}</span>
+        <span>&#10003; ${label}</span>
         <button type="button" onclick="_chkRemoveCoupon()">Remove</button>
       </div>`;
   }
@@ -1574,8 +1574,9 @@ async function _chkPlaceOrder(method) {
 // link this order to their account -- guests simply get no header. Also
 // attaches the admin session token, if this browser tab happens to be
 // logged into /admin/, as a separate X-Admin-Test header -- this is what
-// lets the SURABHI code above actually take effect; it's never read by
-// any other endpoint and never substitutes for real customer auth.
+// lets the pending-coupon path above actually take effect server-side; it's
+// never read by any other endpoint and never substitutes for real customer
+// auth.
 function _chkAuthHeaders() {
   const h = { 'Content-Type': 'application/json' };
   if (_custToken) h['Authorization'] = `Bearer ${_custToken}`;
