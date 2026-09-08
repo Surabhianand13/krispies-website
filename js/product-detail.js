@@ -191,8 +191,9 @@ function _pdpRenderRelated() {
 }
 
 // Fetches the individual real ratings for this product from the backend
-// (name, area, star rating, date -- no review text, see reviews.js) and
-// lists them below the main product block.
+// (name, area, star rating, date, and review text where available --
+// older seeded ratings predate text and simply omit it, see reviews.js)
+// and lists them below the main product block.
 async function _pdpRenderRatings(slug) {
   const section = document.getElementById('pdpRatingsSection');
   const list = document.getElementById('pdpRatingsList');
@@ -211,6 +212,7 @@ async function _pdpRenderRatings(slug) {
           <span class="pdp__rating-item-stars">${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}</span>
         </div>
         <div class="pdp__rating-item-meta">${esc(r.area || '')}${r.date ? ` · ${esc(new Date(r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))}` : ''}</div>
+        ${r.text ? `<div class="pdp__rating-item-text">${esc(r.text)}</div>` : ''}
       </div>`;
     }).join('');
     section.style.display = '';

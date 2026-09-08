@@ -24,7 +24,7 @@ function getRatingsMap() {
 // GET /api/reviews/:slug — public. Aggregate + individual ratings for one product.
 router.get('/:slug', (req, res) => {
   const rows = db.prepare(`
-    SELECT customer_name, area, geography, rating, review_date
+    SELECT customer_name, area, geography, rating, review_date, review_text
     FROM reviews
     WHERE product_slug = ?
     ORDER BY review_date DESC
@@ -42,6 +42,7 @@ router.get('/:slug', (req, res) => {
       geography: r.geography,
       rating: r.rating,
       date: r.review_date,
+      text: r.review_text || null,
     })),
   });
 });
