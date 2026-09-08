@@ -963,25 +963,25 @@ function _chkCouponDiscount(subtotal, _fee) {
   return c.off;
 }
 
-// This browser tab being logged into /admin/ (sessionStorage carries an
-// admin token) unlocks one thing: an unrecognized coupon code is no longer
-// immediately rejected as invalid here -- it's tentatively accepted and
-// sent to the backend, which is the only place that actually knows which
-// code (if any) forces the real Razorpay flow to run for ₹1 instead of
-// full price (see isAdminTestRequest in backend/routes/checkout.js). That
-// code is deliberately not written anywhere in this file: a customer who
-// reads this script learns nothing beyond "admin sessions get an extra
-// coupon check," which is useless without the actual admin password to
-// ever produce a token that passes it. The real total is always whatever
-// /api/checkout/initiate returns -- this tentative state changes no price.
+// A code starting with TEST- is never a real public coupon -- it's a
+// one-time, 15-minute-lived code an admin generates from the dashboard to
+// verify the real Razorpay flow for ₹1 (see redeemTestCode in
+// backend/routes/checkout.js). It's accepted tentatively here rather than
+// immediately rejected, since this file has no way to know if a given
+// TEST- code is currently valid -- only the backend tracks that. A real
+// customer's mistyped coupon never starts with TEST-, so this doesn't
+// weaken the "Invalid coupon code" feedback for genuine typos. The actual
+// total is always whatever /api/checkout/initiate returns.
+const TEST_CODE_PREFIX = 'TEST-';
+
 function _chkApplyCoupon() {
   const input = document.getElementById('chkCouponInput');
   const code = (input?.value || '').trim().toUpperCase();
   const sub = _chkSubtotal();
   const c = COUPONS[code];
-  const isAdminSession = !!sessionStorage.getItem('krispies_admin_token');
+  const isPendingTestCode = code.startsWith(TEST_CODE_PREFIX);
   if (!code) { _chkCoupon = { code: '', discount: 0, error: '' }; }
-  else if (!c && isAdminSession) { _chkCoupon = { code, discount: 0, error: '', pendingServerCheck: true }; }
+  else if (isPendingTestCode) { _chkCoupon = { code, discount: 0, error: '', pendingServerCheck: true }; }
   else if (!c) { _chkCoupon = { code: '', discount: 0, error: 'Invalid coupon code.' }; }
   else if (sub < c.minOrder) { _chkCoupon = { code: '', discount: 0, error: `Add ₹${(c.minOrder - sub).toLocaleString('en-IN')} more to use ${code}.` }; }
   else { _chkCoupon = { code, discount: 0, error: '' }; }
@@ -1571,17 +1571,10 @@ async function _chkPlaceOrder(method) {
 }
 
 // Attaches the logged-in customer's session (if any) so the backend can
-// link this order to their account -- guests simply get no header. Also
-// attaches the admin session token, if this browser tab happens to be
-// logged into /admin/, as a separate X-Admin-Test header -- this is what
-// lets the pending-coupon path above actually take effect server-side; it's
-// never read by any other endpoint and never substitutes for real customer
-// auth.
+// link this order to their account -- guests simply get no header.
 function _chkAuthHeaders() {
   const h = { 'Content-Type': 'application/json' };
   if (_custToken) h['Authorization'] = `Bearer ${_custToken}`;
-  const adminToken = sessionStorage.getItem('krispies_admin_token');
-  if (adminToken) h['X-Admin-Test'] = adminToken;
   return h;
 }
 
@@ -1667,7 +1660,11 @@ async function _chkSubmitRazorpay() {
     // attempt (whether it was rejected or /initiate failed for some other
     // reason) -- re-arm the widget so retrying doesn't resend a dead token.
     resetTurnstile(_chkTurnstileWidgetId);
-    _chkToast('Payment failed. Please try again or contact us directly.');
+    // Surface the backend's actual reason (e.g. a specific coupon/Turnstile
+    // error) when there is one, rather than a generic message that hides
+    // why -- every error thrown above already carries a customer-safe
+    // string via data.error, never a raw exception.
+    _chkToast(err.message || 'Payment failed. Please try again or contact us directly.');
   }
 }
 

@@ -10,12 +10,11 @@
 
 const express   = require('express');
 const crypto    = require('crypto');
-const jwt       = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const db        = require('../db/database');
 const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
 const { sendPurchaseEvent } = require('../utils/metaCapi');
-const { optionalCustomerAuth } = require('../middleware/auth');
+const { optionalCustomerAuth, requireAuth } = require('../middleware/auth');
 const { VALID_OUTLETS } = require('../utils/constants');
 const { dbRateLimit } = require('../middleware/dbRateLimit');
 const { verifyTurnstileToken } = require('../utils/turnstile');
@@ -52,22 +51,32 @@ function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-/* True only when the request carries a genuine, currently-valid admin JWT
-   in the X-Admin-Test header -- a completely separate channel from the
-   customer Authorization header above, and from anything a guest checkout
-   ever sends. This is what SURABHI (below) is gated on: the code itself
-   means nothing without it, so even a customer who discovers the string in
-   devtools/network traffic gets nowhere -- they'd need the actual admin
-   password to ever produce a token that passes this check. */
-function isAdminTestRequest(req) {
-  const header = req.headers['x-admin-test'];
-  if (!header) return false;
-  try {
-    const payload = jwt.verify(header, process.env.JWT_SECRET);
-    return payload.type !== 'customer';
-  } catch (_) {
-    return false;
-  }
+/* Test-checkout codes: minted only by an authenticated admin (see the
+   /test-code route below), random, single-use, and expire in 15 minutes.
+   Redeeming one at checkout needs no admin session -- possessing a
+   currently-valid, unused, unexpired code is proof enough, since there's
+   no way to produce one without already being logged into /admin/. This
+   replaces an earlier fixed-string design (a hardcoded coupon gated on an
+   admin JWT header) that, while not guessable by a guest, still sat as a
+   permanent secret in source forever; a random code that expires and can
+   only ever be spent once has a much smaller window to matter if it ever
+   leaked. */
+const TEST_CODE_PREFIX = 'TEST-';
+
+function generateTestCode() {
+  return TEST_CODE_PREFIX + crypto.randomBytes(4).toString('hex').toUpperCase();
+}
+
+/* Returns { amount: 1 } on a valid redemption, or { error } if the code
+   looks like a test code but doesn't match a live one -- distinct from
+   "not a test code at all", which the caller treats as an ordinary
+   (possibly public) coupon lookup instead. */
+function redeemTestCode(code) {
+  db.prepare(`DELETE FROM test_checkout_codes WHERE expires_at < datetime('now')`).run();
+  const row = db.prepare(`SELECT * FROM test_checkout_codes WHERE code = ? AND used = 0 AND expires_at > datetime('now')`).get(code);
+  if (!row) return { error: 'This test code is invalid, expired, or already used. Generate a new one from the admin dashboard.' };
+  db.prepare('UPDATE test_checkout_codes SET used = 1 WHERE code = ?').run(code);
+  return { amount: MIN_AMOUNT };
 }
 
 /* ── Shared validators ── */
@@ -146,17 +155,16 @@ function computeUnitPrice(product, variantSelection) {
 /* Returns { amount, error }. error is set (and amount null) when the
    request can't be priced safely -- caller should respond 400.
 
-   isAdminTest unlocks exactly one thing: the SURABHI code below, which
-   forces the real, live Razorpay flow (order creation, checkout dialog,
-   HMAC verify, DB update, emails -- everything /initiate and /verify
-   actually do) to run end-to-end for MIN_AMOUNT instead of the product's
-   real price. It's for confirming the payment pipeline itself works
-   without spending a real order's worth of money on every test. It is
-   NOT in the public COUPONS table, so it does nothing at all unless
-   isAdminTest is true -- a guest (or a customer who's discovered the
-   string) sending coupon_code=SURABHI is treated as an unrecognized code,
-   full price, same as any other typo. */
-function computeAuthoritativeAmount(body, isAdminTest) {
+   A coupon_code starting with TEST- is never a real public coupon (see
+   redeemTestCode above) -- it forces the real, live Razorpay flow (order
+   creation, checkout dialog, HMAC verify, DB update, emails -- everything
+   /initiate and /verify actually do) to run end-to-end for MIN_AMOUNT
+   instead of the product's real price, so the payment pipeline itself can
+   be confirmed working without spending a real order's worth of money on
+   every test. An invalid/expired/reused TEST- code fails loudly here
+   rather than silently falling back to full price, so a test run doesn't
+   accidentally become a real charge without anyone noticing. */
+function computeAuthoritativeAmount(body) {
   const product = db.prepare('SELECT * FROM products WHERE id = ?').get(body.product_id);
   if (!product) return { amount: null, error: 'Product not found.' };
 
@@ -174,8 +182,9 @@ function computeAuthoritativeAmount(body, isAdminTest) {
   }
 
   const code = String(body.coupon_code || '').trim().toUpperCase();
-  if (isAdminTest && code === 'SURABHI') {
-    return { amount: MIN_AMOUNT, error: null };
+  if (code.startsWith(TEST_CODE_PREFIX)) {
+    const result = redeemTestCode(code);
+    return { amount: result.amount ?? null, error: result.error ?? null };
   }
 
   const coupon = COUPONS[code];
@@ -265,6 +274,21 @@ router.post('/', paymentLimiter, (_req, res) => {
 });
 
 /* ════════════════════════════════════════════════
+   POST /api/checkout/test-code  — admin-only
+   Mints a fresh TEST- code (see redeemTestCode above). Not rate-limited
+   with paymentLimiter -- requireAuth already means only a logged-in admin
+   can call this at all, and each code is one-time-use regardless of how
+   many are generated.
+   ════════════════════════════════════════════════ */
+router.post('/test-code', requireAuth, (req, res) => {
+  const code = generateTestCode();
+  const expiresInMinutes = 15;
+  const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000).toISOString();
+  db.prepare('INSERT INTO test_checkout_codes (code, expires_at) VALUES (?, ?)').run(code, expiresAt);
+  res.json({ code, expiresInMinutes });
+});
+
+/* ════════════════════════════════════════════════
    POST /api/checkout/initiate  — Razorpay order
    ════════════════════════════════════════════════ */
 router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, async (req, res) => {
@@ -287,7 +311,7 @@ router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, 
     });
   }
 
-  const { amount, error: priceError } = computeAuthoritativeAmount(req.body, isAdminTestRequest(req));
+  const { amount, error: priceError } = computeAuthoritativeAmount(req.body);
   if (priceError) return res.status(400).json({ error: priceError });
   req.body.amount = amount;
 

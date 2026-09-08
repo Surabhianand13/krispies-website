@@ -170,6 +170,27 @@
         </div>
       </div>
 
+      <div class="card" style="margin-top:20px;">
+        <div class="card__hd">
+          <h3>Test Checkout Code</h3>
+        </div>
+        <div style="padding:16px 20px;">
+          <p style="font-size:0.82rem;color:var(--text-2);margin-bottom:12px;">
+            Generates a one-time code that drops any order's payment to ₹1 when
+            applied at checkout — for confirming the real Razorpay flow works
+            without spending a full order's worth of money each time. Valid for
+            15 minutes, works once, then expires. No admin login needed at
+            checkout to use it — just the code itself, so it works from any
+            device or browser tab.
+          </p>
+          <button class="btn btn-primary btn-sm" id="genTestCodeBtn" onclick="generateTestCode()">Generate Code</button>
+          <div id="testCodeResult" style="margin-top:12px;display:none;">
+            <div style="font-family:monospace;font-size:1.1rem;font-weight:700;background:var(--bg-2,#f5f0ee);padding:10px 14px;border-radius:8px;display:inline-block;letter-spacing:0.05em;" id="testCodeValue"></div>
+            <div style="font-size:0.78rem;color:var(--text-2);margin-top:6px;" id="testCodeExpiry"></div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /page-body -->
   </main>
 </div>
@@ -212,6 +233,24 @@ async function loadDashboard() {
     const msgs = await apiFetch('/api/messages?limit=8');
     renderRecentEnquiries(Array.isArray(msgs) ? msgs : msgs.messages || []);
   } catch (e) {}
+}
+
+async function generateTestCode() {
+  const btn = document.getElementById('genTestCodeBtn');
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  try {
+    const data = await apiFetch('/api/checkout/test-code', 'POST');
+    document.getElementById('testCodeValue').textContent = data.code;
+    document.getElementById('testCodeExpiry').textContent =
+      `Valid for ${data.expiresInMinutes} minutes, single use. Apply it as a coupon code at checkout.`;
+    document.getElementById('testCodeResult').style.display = '';
+  } catch (e) {
+    showToast(e.message || 'Could not generate a code.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Code';
+  }
 }
 
 function renderKPIs(data) {
