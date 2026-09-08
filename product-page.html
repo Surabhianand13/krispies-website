@@ -49,13 +49,19 @@
     .pdp__rating-count { color:var(--text-muted-lt); font-size:0.85rem; text-decoration:none; }
     .pdp__rating-count:hover { text-decoration:underline; }
     .pdp__desc { color: var(--text-muted-lt); line-height: 1.7; margin-bottom: 20px; }
-    .pdp__ratings-list { display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:14px; }
-    .pdp__rating-item { background:#faf7f4; border:1px solid rgba(0,0,0,0.06); border-radius:12px; padding:14px 16px; }
+    .pdp__ratings-viewport { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
+    .pdp__ratings-track { display:flex; gap:14px; width: max-content; animation: pdpRatingsScroll linear infinite; }
+    .pdp__ratings-track.paused { animation-play-state: paused; }
+    @keyframes pdpRatingsScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .pdp__rating-item { background:#faf7f4; border:1px solid rgba(0,0,0,0.06); border-radius:12px; padding:14px 16px; width:280px; flex-shrink:0; }
     .pdp__rating-item-top { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
     .pdp__rating-item-name { font-weight:700; color:var(--text-on-light); font-size:0.9rem; }
     .pdp__rating-item-stars { color:#e8a94c; font-size:0.85rem; }
     .pdp__rating-item-meta { color:var(--text-muted-lt); font-size:0.78rem; }
-    .pdp__rating-item-text { color:var(--text-on-light); font-size:0.85rem; line-height:1.5; margin-top:8px; }
+    .pdp__rating-item-text { color:var(--text-on-light); font-size:0.85rem; line-height:1.5; margin-top:8px; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
+    @media (max-width: 600px) {
+      .pdp__rating-item { width:240px; }
+    }
     .pdp__price-row { display:flex; align-items:center; gap:12px; margin-bottom: 24px; flex-wrap: wrap; }
     .pdp__price { font-family: var(--font-body); font-size: 1.9rem; font-weight:800; color: var(--text-on-light); }
     .pdp__mrp { font-size: 1rem; color: var(--text-muted-lt); text-decoration: line-through; }
@@ -170,7 +176,7 @@
     <div class="container" id="pdpRatingsSection" style="display:none;margin-top:48px;">
       <span class="section-label">Customer Ratings</span>
       <h2 style="font-family:var(--font-display);font-size:1.6rem;margin:6px 0 24px;color:var(--text-on-light);">What Customers Say</h2>
-      <div id="pdpRatingsList" class="pdp__ratings-list"></div>
+      <div class="pdp__ratings-viewport"><div id="pdpRatingsList" class="pdp__ratings-track"></div></div>
     </div>
     <div class="container" id="pdpRelatedSection" style="display:none;margin-top:56px;">
       <span class="section-label">You Might Also Like</span>
@@ -344,7 +350,7 @@
 
   <script src="js/main.js?v=2"></script>
   <script src="js/shop.js?v=16"></script>
-  <script src="js/product-detail.js?v=6"></script>
+  <script src="js/product-detail.js?v=7"></script>
   <script src="js/track.js" defer></script>
 </body>
 </html>

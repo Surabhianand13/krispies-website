@@ -193,28 +193,56 @@ function _pdpRenderRelated() {
 // Fetches the individual real ratings for this product from the backend
 // (name, area, star rating, date, and review text where available --
 // older seeded ratings predate text and simply omit it, see reviews.js)
-// and lists them below the main product block.
+// and plays them below the main product block as a continuously-scrolling
+// carousel (paused on hover/touch). The aggregate rating shown in the
+// header above always reflects the true total (p.ratingAvg/ratingCount,
+// computed backend-side over every review) -- capping the carousel to the
+// most compelling ~24 cards here only affects which individual reviews
+// are on display, never the advertised average or count.
+const PDP_RATINGS_CAROUSEL_CAP = 24;
+
+function _pdpRatingItemHtml(r) {
+  const stars = Math.min(5, Math.max(0, Math.round(r.rating)));
+  return `
+  <div class="pdp__rating-item">
+    <div class="pdp__rating-item-top">
+      <span class="pdp__rating-item-name">${esc(r.name)}</span>
+      <span class="pdp__rating-item-stars">${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}</span>
+    </div>
+    <div class="pdp__rating-item-meta">${esc(r.area || '')}${r.date ? ` · ${esc(new Date(r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))}` : ''}</div>
+    ${r.text ? `<div class="pdp__rating-item-text">${esc(r.text)}</div>` : ''}
+  </div>`;
+}
+
 async function _pdpRenderRatings(slug) {
   const section = document.getElementById('pdpRatingsSection');
-  const list = document.getElementById('pdpRatingsList');
-  if (!section || !list) return;
+  const track = document.getElementById('pdpRatingsList');
+  if (!section || !track) return;
   try {
     const res = await fetch(`${BACKEND_URL}/api/reviews/${encodeURIComponent(slug)}`);
     if (!res.ok) return;
     const data = await res.json();
     if (!data.count) return;
-    list.innerHTML = data.reviews.map(r => {
-      const stars = Math.min(5, Math.max(0, Math.round(r.rating)));
-      return `
-      <div class="pdp__rating-item">
-        <div class="pdp__rating-item-top">
-          <span class="pdp__rating-item-name">${esc(r.name)}</span>
-          <span class="pdp__rating-item-stars">${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}</span>
-        </div>
-        <div class="pdp__rating-item-meta">${esc(r.area || '')}${r.date ? ` · ${esc(new Date(r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))}` : ''}</div>
-        ${r.text ? `<div class="pdp__rating-item-text">${esc(r.text)}</div>` : ''}
-      </div>`;
-    }).join('');
+
+    // Reviews with written text lead (most persuasive to shoppers), then
+    // star-only ratings -- each group keeps the backend's newest-first order.
+    const withText = data.reviews.filter(r => r.text);
+    const withoutText = data.reviews.filter(r => !r.text);
+    const picks = [...withText, ...withoutText].slice(0, PDP_RATINGS_CAROUSEL_CAP);
+
+    // Rendered twice back-to-back so the marquee animation (translateX 0 to
+    // -50%) loops seamlessly instead of jumping when it reaches the end.
+    const cardsHtml = picks.map(_pdpRatingItemHtml).join('');
+    track.innerHTML = cardsHtml + cardsHtml;
+    track.style.animationDuration = `${picks.length * 4}s`;
+
+    const pause = () => track.classList.add('paused');
+    const resume = () => track.classList.remove('paused');
+    track.addEventListener('pointerenter', pause);
+    track.addEventListener('pointerleave', resume);
+    track.addEventListener('pointerdown', pause);
+    track.addEventListener('pointerup', resume);
+
     section.style.display = '';
   } catch (_) {
     // Silently skip -- ratings are supplementary, not critical path.
