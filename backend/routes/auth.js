@@ -4,19 +4,21 @@ const express = require('express');
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const rateLimit = require('express-rate-limit');
 const db        = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
+const { dbRateLimit } = require('../middleware/dbRateLimit');
 
 const router = express.Router();
 
-// Limit login attempts to 10 per 15 minutes per IP
-const loginLimiter = rateLimit({
+// Limit login attempts to 10 per 15 minutes per IP. DB-backed -- this is the
+// admin login, so it especially can't rely on express-rate-limit's
+// in-memory store, which doesn't hold up across this app's multiple
+// instances (see middleware/dbRateLimit.js).
+const loginLimiter = dbRateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
+  keyGenerator: (req) => `adminLogin:${req.ip}`,
   message: { error: 'Too many login attempts. Try again in 15 minutes.' },
-  standardHeaders: true,
-  legacyHeaders: false,
 });
 
 // POST /api/auth/login

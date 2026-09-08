@@ -4,6 +4,22 @@ const nodemailer = require('nodemailer');
 
 let transporter = null;
 
+// User-supplied fields (contact form, checkout) get interpolated straight
+// into HTML email bodies below -- escape them so a malicious name/message
+// can't inject markup, links, or tracking content into the admin's inbox.
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Subject lines end up in a raw SMTP header -- strip CR/LF so a crafted name
+// can't inject additional headers (e.g. a forged Bcc) into the message.
+function safeSubject(str) {
+  return String(str).replace(/[\r\n]+/g, ' ');
+}
+
 function getTransporter() {
   if (!transporter) {
     transporter = nodemailer.createTransport({
@@ -53,7 +69,7 @@ const footerStyle = `
 function newMessageEmail(msg) {
   return sendEmail({
     to:      process.env.ADMIN_EMAIL,
-    subject: `📋 New Enquiry from ${msg.name} — Krispie's`,
+    subject: safeSubject(`📋 New Enquiry from ${msg.name} — Krispie's`),
     html: `
       <div style="${baseStyle}">
         <div style="${headerStyle}">
@@ -61,15 +77,15 @@ function newMessageEmail(msg) {
           <h2 style="color:#FAF7F0;margin:0;font-size:22px">New Enquiry Received</h2>
         </div>
         <div style="${bodyStyle}">
-          <p style="${labelStyle}">Name</p><p style="${valueStyle}">${msg.name}</p>
-          <p style="${labelStyle}">Phone</p><p style="${valueStyle}">${msg.phone || '—'}</p>
-          <p style="${labelStyle}">Email</p><p style="${valueStyle}">${msg.email || '—'}</p>
-          <p style="${labelStyle}">Event Type</p><p style="${valueStyle}">${msg.event_type || '—'}</p>
-          <p style="${labelStyle}">Event Date</p><p style="${valueStyle}">${msg.event_date || '—'}</p>
-          <p style="${labelStyle}">Outlet Preference</p><p style="${valueStyle}">${msg.outlet || '—'}</p>
-          <p style="${labelStyle}">Quantity / Guests</p><p style="${valueStyle}">${msg.quantity || '—'}</p>
-          <p style="${labelStyle}">Products Requested</p><p style="${valueStyle}">${msg.products || '—'}</p>
-          <p style="${labelStyle}">Message</p><p style="${valueStyle}">${msg.message || '—'}</p>
+          <p style="${labelStyle}">Name</p><p style="${valueStyle}">${esc(msg.name)}</p>
+          <p style="${labelStyle}">Phone</p><p style="${valueStyle}">${esc(msg.phone) || '—'}</p>
+          <p style="${labelStyle}">Email</p><p style="${valueStyle}">${esc(msg.email) || '—'}</p>
+          <p style="${labelStyle}">Event Type</p><p style="${valueStyle}">${esc(msg.event_type) || '—'}</p>
+          <p style="${labelStyle}">Event Date</p><p style="${valueStyle}">${esc(msg.event_date) || '—'}</p>
+          <p style="${labelStyle}">Outlet Preference</p><p style="${valueStyle}">${esc(msg.outlet) || '—'}</p>
+          <p style="${labelStyle}">Quantity / Guests</p><p style="${valueStyle}">${esc(msg.quantity) || '—'}</p>
+          <p style="${labelStyle}">Products Requested</p><p style="${valueStyle}">${esc(msg.products) || '—'}</p>
+          <p style="${labelStyle}">Message</p><p style="${valueStyle}">${esc(msg.message) || '—'}</p>
         </div>
         <div style="${footerStyle}">
           Reply directly to this email, or log in to your admin panel to respond.<br>
@@ -82,7 +98,7 @@ function newMessageEmail(msg) {
 function newOrderEmail(order) {
   return sendEmail({
     to:      process.env.ADMIN_EMAIL,
-    subject: `📦 New Order from ${order.customer_name} — Krispie's`,
+    subject: safeSubject(`📦 New Order from ${order.customer_name} — Krispie's`),
     html: `
       <div style="${baseStyle}">
         <div style="${headerStyle}">
@@ -90,17 +106,17 @@ function newOrderEmail(order) {
           <h2 style="color:#FAF7F0;margin:0;font-size:22px">New Order Logged</h2>
         </div>
         <div style="${bodyStyle}">
-          <p style="${labelStyle}">Customer</p><p style="${valueStyle}">${order.customer_name}</p>
-          <p style="${labelStyle}">Phone</p><p style="${valueStyle}">${order.customer_phone || '—'}</p>
-          <p style="${labelStyle}">Items</p><p style="${valueStyle}">${order.items}</p>
-          <p style="${labelStyle}">Quantity</p><p style="${valueStyle}">${order.quantity || '—'}</p>
-          <p style="${labelStyle}">Amount</p><p style="${valueStyle}">${order.amount ? '₹' + order.amount : '—'}</p>
-          <p style="${labelStyle}">Platform</p><p style="${valueStyle}">${order.platform || '—'}</p>
-          <p style="${labelStyle}">Outlet</p><p style="${valueStyle}">${order.outlet || '—'}</p>
-          <p style="${labelStyle}">Order Date</p><p style="${valueStyle}">${order.order_date || '—'}</p>
-          <p style="${labelStyle}">Delivery Date</p><p style="${valueStyle}">${order.delivery_date || '—'}</p>
-          <p style="${labelStyle}">Status</p><p style="${valueStyle}">${order.status}</p>
-          ${order.notes ? `<p style="${labelStyle}">Notes</p><p style="${valueStyle}">${order.notes}</p>` : ''}
+          <p style="${labelStyle}">Customer</p><p style="${valueStyle}">${esc(order.customer_name)}</p>
+          <p style="${labelStyle}">Phone</p><p style="${valueStyle}">${esc(order.customer_phone) || '—'}</p>
+          <p style="${labelStyle}">Items</p><p style="${valueStyle}">${esc(order.items)}</p>
+          <p style="${labelStyle}">Quantity</p><p style="${valueStyle}">${esc(order.quantity) || '—'}</p>
+          <p style="${labelStyle}">Amount</p><p style="${valueStyle}">${order.amount ? '₹' + esc(order.amount) : '—'}</p>
+          <p style="${labelStyle}">Platform</p><p style="${valueStyle}">${esc(order.platform) || '—'}</p>
+          <p style="${labelStyle}">Outlet</p><p style="${valueStyle}">${esc(order.outlet) || '—'}</p>
+          <p style="${labelStyle}">Order Date</p><p style="${valueStyle}">${esc(order.order_date) || '—'}</p>
+          <p style="${labelStyle}">Delivery Date</p><p style="${valueStyle}">${esc(order.delivery_date) || '—'}</p>
+          <p style="${labelStyle}">Status</p><p style="${valueStyle}">${esc(order.status)}</p>
+          ${order.notes ? `<p style="${labelStyle}">Notes</p><p style="${valueStyle}">${esc(order.notes)}</p>` : ''}
         </div>
         <div style="${footerStyle}">
           <a href="${process.env.FRONTEND_URL}/admin/orders.html" style="color:#C9A870">View Orders →</a>
@@ -109,4 +125,53 @@ function newOrderEmail(order) {
   });
 }
 
-module.exports = { sendEmail, newMessageEmail, newOrderEmail };
+function customerOrderConfirmationEmail(order) {
+  return sendEmail({
+    to:      order.customer_email,
+    subject: `Your Krispie's order is confirmed! 🎂`,
+    html: `
+      <div style="${baseStyle}">
+        <div style="${headerStyle}">
+          <p style="color:#C9A870;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0 0 4px">Krispie's</p>
+          <h2 style="color:#FAF7F0;margin:0;font-size:22px">Thank you, ${esc(order.customer_name)}!</h2>
+          <p style="color:#FAF7F0;margin:8px 0 0;font-size:14px;opacity:0.85">Your order has been received and is being prepared with love.</p>
+        </div>
+        <div style="${bodyStyle}">
+          <p style="${labelStyle}">Order ID</p><p style="${valueStyle}">${esc(order.id)}</p>
+          <p style="${labelStyle}">Items</p><p style="${valueStyle}">${esc(order.items)}</p>
+          <p style="${labelStyle}">Amount</p><p style="${valueStyle}">${order.amount != null ? '₹' + esc(order.amount) : '—'}</p>
+          <p style="${labelStyle}">Delivery Date</p><p style="${valueStyle}">${esc(order.delivery_date) || '—'}</p>
+          <p style="${labelStyle}">Outlet</p><p style="${valueStyle}">${esc(order.outlet) || '—'}</p>
+          <p style="${labelStyle}">Status</p><p style="${valueStyle}">${esc(order.status)}</p>
+        </div>
+        <div style="${footerStyle}">
+          Questions about your order? Call us at +91 79752 18850 or reply to this email.<br>
+          <a href="${process.env.FRONTEND_URL}" style="color:#C9A870">www.krispies.in</a>
+        </div>
+      </div>`,
+  });
+}
+
+function otpLoginEmail(email, otp) {
+  return sendEmail({
+    to:      email,
+    subject: `${otp} is your Krispie's login code`,
+    html: `
+      <div style="${baseStyle}">
+        <div style="${headerStyle}">
+          <p style="color:#C9A870;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0 0 4px">Krispie's</p>
+          <h2 style="color:#FAF7F0;margin:0;font-size:22px">Your login code</h2>
+        </div>
+        <div style="${bodyStyle}">
+          <p style="${valueStyle}margin-bottom:6px;">Enter this code to log in:</p>
+          <p style="font-family:Georgia,serif;font-size:36px;letter-spacing:0.2em;color:#C9A870;font-weight:700;margin:0 0 18px;">${esc(otp)}</p>
+          <p style="${valueStyle}font-size:13px;opacity:0.75;">This code expires in 10 minutes. If you didn't request it, you can safely ignore this email.</p>
+        </div>
+        <div style="${footerStyle}">
+          <a href="${process.env.FRONTEND_URL}" style="color:#C9A870">www.krispies.in</a>
+        </div>
+      </div>`,
+  });
+}
+
+module.exports = { sendEmail, newMessageEmail, newOrderEmail, customerOrderConfirmationEmail, otpLoginEmail };
