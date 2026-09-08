@@ -3742,6 +3742,27 @@ textarea.form-ctrl { resize: vertical; min-height: 88px; }
   padding: 1px 6px; border-radius: 4px; margin-left: 4px;
 }
 
+/* ── Cart-checkout item list (Step 1, when checking out from the cart
+   drawer instead of a single product's Buy Now) ── */
+.chk-cart-items-list {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 20px;
+}
+.chk-cart-items-list__row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  padding: 12px 13px;
+  background: rgba(154,74,58,0.06);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius);
+}
+.chk-cart-items-list__row .cart-item__variant,
+.chk-cart-items-list__row .cart-item__addons {
+  font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;
+}
+.chk-cart-items-list__row .cart-item__addon-tag {
+  display: inline-block; margin-right: 8px;
+}
+
 /* ── Field groups ── */
 .chk-field-group { margin-bottom: 15px; }
 .chk-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
