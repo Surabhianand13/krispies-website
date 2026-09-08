@@ -83,11 +83,22 @@ function redeemTestCode(code) {
 const MIN_AMOUNT = 1;          // ₹1 — absolute floor
 const MAX_AMOUNT = 500000;     // ₹5,00,000 — ceiling against inflated payloads
 
+const MAX_CART_ITEMS = 20; // sanity ceiling against a malformed/abusive payload
+
 const orderValidators = [
   body('customer_name').trim().notEmpty().withMessage('Name is required.'),
   body('customer_phone').trim().notEmpty().withMessage('Phone number is required.'),
   body('items').trim().notEmpty().withMessage('Items are required.'),
-  body('product_id').trim().notEmpty().withMessage('Product is required.'),
+  // A request is either a single-item order (product_id) or a multi-item
+  // cart order (cart_items, a non-empty array) -- computeAuthoritativeAmount
+  // treats both shapes identically by normalizing product_id into a
+  // one-element item list.
+  body().custom((_, { req }) => {
+    const b = req.body;
+    if (b.product_id && String(b.product_id).trim()) return true;
+    if (Array.isArray(b.cart_items) && b.cart_items.length > 0 && b.cart_items.length <= MAX_CART_ITEMS) return true;
+    throw new Error(`Product is required (or between 1 and ${MAX_CART_ITEMS} cart items).`);
+  }),
   body('outlet').optional({ checkFalsy: true }).isIn(VALID_OUTLETS).withMessage('Invalid outlet.'),
   body('delivery_mode').optional({ checkFalsy: true }).isIn(['pickup', 'delivery']).withMessage('Invalid delivery mode.'),
   body('amount')
@@ -152,8 +163,41 @@ function computeUnitPrice(product, variantSelection) {
   }, 0);
 }
 
+/* Prices one line item authoritatively: real product row, real variant
+   pricing, real add-on rows (never the client's own price/label for any of
+   these). An add-on id that doesn't exist or isn't active is skipped rather
+   than failing the whole order -- worst case the customer is undercharged
+   for a garnish that's gone stale in their browser's cache, which is far
+   better than blocking a real cake order over it. Returns null if the
+   product itself doesn't exist -- that one *does* fail the order, since an
+   order for a product that isn't real can't be priced at all. */
+function computeItemSubtotal(item) {
+  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(item && item.product_id);
+  if (!product) return null;
+
+  const qty = Math.max(1, Math.min(99, parseInt(item.quantity, 10) || 1));
+  let total = computeUnitPrice(product, item.variant_selection) * qty;
+
+  if (Array.isArray(item.addons)) {
+    for (const a of item.addons) {
+      const addon = db.prepare('SELECT * FROM addons WHERE id = ? AND active = 1').get(a && a.id);
+      if (!addon) continue;
+      const addonQty = Math.max(1, Math.min(99, parseInt(a.quantity, 10) || 1));
+      total += (Number(addon.price) || 0) * addonQty;
+    }
+  }
+  return total;
+}
+
 /* Returns { amount, error }. error is set (and amount null) when the
    request can't be priced safely -- caller should respond 400.
+
+   A single-item order (product_id/quantity/variant_selection/addons at the
+   top level) and a multi-item cart order (cart_items, an array of the same
+   shape) are priced through the same loop -- the former is just normalized
+   into a one-element list of the latter, so there's exactly one code path
+   that decides what a customer is actually charged regardless of which UI
+   flow (Buy Now vs. Add to Cart) produced the request.
 
    A coupon_code starting with TEST- is never a real public coupon (see
    redeemTestCode above) -- it forces the real, live Razorpay flow (order
@@ -165,12 +209,22 @@ function computeUnitPrice(product, variantSelection) {
    rather than silently falling back to full price, so a test run doesn't
    accidentally become a real charge without anyone noticing. */
 function computeAuthoritativeAmount(body) {
-  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(body.product_id);
-  if (!product) return { amount: null, error: 'Product not found.' };
+  const items = Array.isArray(body.cart_items) && body.cart_items.length
+    ? body.cart_items
+    : [{ product_id: body.product_id, quantity: body.quantity, variant_selection: body.variant_selection, addons: body.addons }];
 
-  const qty = Math.max(1, Math.min(99, parseInt(body.quantity, 10) || 1));
-  const unitPrice = computeUnitPrice(product, body.variant_selection);
-  const subtotal = unitPrice * qty;
+  if (items.length > MAX_CART_ITEMS) {
+    return { amount: null, error: `Orders are limited to ${MAX_CART_ITEMS} items — please split into more than one order or call us.` };
+  }
+
+  let subtotal = 0;
+  for (const item of items) {
+    const itemTotal = computeItemSubtotal(item);
+    if (itemTotal === null) {
+      return { amount: null, error: 'This item is no longer available — please refresh the page and try again.' };
+    }
+    subtotal += itemTotal;
+  }
 
   const mode = body.delivery_mode === 'pickup' ? 'pickup' : 'delivery';
   let fee = 0;
@@ -221,7 +275,11 @@ function buildOrderRow(body, extra = {}, req = null) {
     customer_phone: body.customer_phone.trim(),
     customer_email: body.customer_email ? String(body.customer_email).trim() : null,
     items:          body.items.trim(),
-    quantity:       body.quantity  || null,
+    // For a cart order, quantity is the total unit count across every item
+    // (there's no single "the" quantity once more than one product's involved).
+    quantity:       Array.isArray(body.cart_items) && body.cart_items.length
+                      ? String(body.cart_items.reduce((s, i) => s + (parseInt(i.quantity, 10) || 1), 0))
+                      : (body.quantity || null),
     amount:         parseFloat(body.amount),
     platform:       'website',
     outlet:         body.outlet    || null,

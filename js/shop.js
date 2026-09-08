@@ -701,18 +701,25 @@ function cartRemove(idx) {
   renderCartDrawer();
 }
 
+// Categories needing 24h advance notice -- also used by _chkStep1Next below,
+// checked against every cart item's own category (not just the first one).
+const CHK_ADVANCE_CATEGORIES = ['wedding-cakes', 'engagement-cakes'];
+
 function openCartCheckout() {
   if (_cartItems.length === 0) return;
   closeCartDrawer();
-  // Build a summary product for the checkout modal
+  // Build a summary "product" for the checkout modal -- id: 'cart' is never
+  // a real product id (checkout sends the real per-item ids via cart_items
+  // instead, see _chkOrderPayload), it's just a placeholder so the rest of
+  // the modal's plumbing (which expects _chkProduct to exist) has something
+  // to hold onto.
   const summary = {
     id: 'cart',
     name: _cartItems.length === 1 ? _cartItems[0].product.name : `${_cartItems.length} items`,
     category: _cartItems[0].product.category,
     images: _cartItems[0].product.images,
-    mrp: _cartItems.reduce((s, i) => s + i.subtotal * i.qty, 0),
-    discount: 0,
     prepHours: Math.max(0, ..._cartItems.map(i => i.product.prepHours || 0)),
+    needsAdvance: _cartItems.some(i => CHK_ADVANCE_CATEGORIES.includes(i.product.category)),
     _isCart: true,
     _cartItems: _cartItems.slice()
   };
@@ -1068,8 +1075,7 @@ function _chkRenderStep(step) {
    category that normally allows same-day. ── */
 function _chkMinDate() {
   const p = _chkProduct;
-  const advanceCategories = ['wedding-cakes', 'engagement-cakes'];
-  const needsAdvance = advanceCategories.includes(p.category);
+  const needsAdvance = p._isCart ? !!p.needsAdvance : CHK_ADVANCE_CATEGORIES.includes(p.category);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -1081,24 +1087,49 @@ function _chkMinDate() {
   return new Date(today.getTime() + leadDays * 24 * 60 * 60 * 1000);
 }
 
+// Cart mode's product block: a read-only list of every cart item (name,
+// variant, qty, line price) instead of the single-product image/price/
+// variant-picker block below -- editing quantities or variants for a cart
+// order happens in the cart drawer, not here.
+function _chkCartItemsBlockHTML() {
+  return `
+    <div class="chk-cart-items-list">
+      ${_chkProduct._cartItems.map(item => {
+        const variantHtml = item.variantLabel ? `<div class="cart-item__variant">${esc(item.variantLabel)}</div>` : '';
+        const addonsHtml = item.addons.length ? `
+          <div class="cart-item__addons">
+            ${item.addons.map(a => `<span class="cart-item__addon-tag">+ ${esc(a.name)} &#215;${a.qty}</span>`).join('')}
+          </div>` : '';
+        return `
+        <div class="chk-cart-items-list__row">
+          <div>
+            <div class="chk-product-name" style="font-size:0.92rem">${esc(item.product.name)} &#215; ${item.qty}</div>
+            ${variantHtml}
+            ${addonsHtml}
+          </div>
+          <strong style="color:var(--gold)">&#8377;${item.subtotal.toLocaleString('en-IN')}</strong>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
 /* ════ STEP 1: Product + Variants + Qty + Date ════ */
 function _chkStep1() {
   const p    = _chkProduct;
-  const hasVariants = (p.variantGroups || []).length > 0;
+  const hasVariants = !p._isCart && (p.variantGroups || []).length > 0;
   const selection = hasVariants ? (_chkCart.variantSelection || variantDefaultSelection(p)) : null;
   _chkCart.variantSelection = selection;
-  const fin  = productFinalPrice(p, selection);
+  const fin  = p._isCart ? null : productFinalPrice(p, selection);
   const mrp  = Number(p.mrp) || 0;
   const disc = Number(p.discount) || 0;
   const img  = (p.images || []).filter(Boolean)[0];
   const emoji = CAT_EMOJI[p.category] || CAT_EMOJI['birthday-cakes'];
 
-  const advanceCategories = ['wedding-cakes', 'engagement-cakes'];
-  const needsAdvance = advanceCategories.includes(p.category);
+  const needsAdvance = p._isCart ? !!p.needsAdvance : CHK_ADVANCE_CATEGORIES.includes(p.category);
   const isBirthday = p.category === 'birthday-cakes' || p.category === 'half-year-birthday-cakes';
 
   const minDate = _localDateStr(_chkMinDate());
-  const catLabel = p.category === 'wedding-cakes' ? 'wedding' : 'engagement';
+  const catLabel = p._isCart ? 'some' : (p.category === 'wedding-cakes' ? 'wedding' : 'engagement');
 
   const advanceNotice = needsAdvance ? `
     <div class="chk-info-note" style="margin-top:8px; border-color:rgba(201,168,112,0.4)">
@@ -1141,7 +1172,7 @@ function _chkStep1() {
       </select>
     </div>`).join('') : '';
 
-  return `
+  const productBlockHtml = p._isCart ? _chkCartItemsBlockHTML() : `
     <div class="chk-product-row">
       <div class="chk-product-img">
         ${img
@@ -1168,7 +1199,10 @@ function _chkStep1() {
         <button type="button" class="chk-qty-btn" onclick="_chkQty(1)">+</button>
         <span class="chk-qty-unit" id="chkQtyUnit">cake</span>
       </div>
-    </div>
+    </div>`;
+
+  return `
+    ${productBlockHtml}
 
     <div class="chk-field-group">
       <label class="chk-label">Delivery Date *</label>
@@ -1240,8 +1274,8 @@ function _chkStep1Next() {
     return;
   }
 
-  const advanceCategories = ['wedding-cakes', 'engagement-cakes'];
-  if (advanceCategories.includes(_chkProduct.category)) {
+  const needsAdvance = _chkProduct._isCart ? !!_chkProduct.needsAdvance : CHK_ADVANCE_CATEGORIES.includes(_chkProduct.category);
+  if (needsAdvance) {
     const timeEl = document.getElementById('chkTime');
     if (!timeEl || !timeEl.value) { _chkToast('Please select a preferred delivery time.'); return; }
     _chkCart.deliveryTime = timeEl.value;
@@ -1353,6 +1387,7 @@ function _chkRenderDelivSection() {
 
 function _chkSubtotal() {
   const p = _chkProduct;
+  if (p._isCart) return p._cartItems.reduce((s, i) => s + i.subtotal, 0);
   return productFinalPrice(p, _chkCart.variantSelection) * _chkCart.qty;
 }
 
@@ -1530,21 +1565,51 @@ function _chkOrderPayload(method) {
   const sub   = _chkSubtotal();
   const disc  = _chkCouponDiscount(sub, _chkDelivery.fee || 0);
   const total = sub + (_chkDelivery.fee || 0) - disc;
-  const variantLabel = (_chkProduct.variantGroups || []).length
-    ? variantSelectionLabel(_chkProduct, _chkCart.variantSelection) : '';
-  const itemLabel = variantLabel ? `${_chkProduct.name} (${variantLabel})` : _chkProduct.name;
+
+  // Single-item (Buy Now) sends product_id/quantity/variant_selection
+  // directly; a cart order sends cart_items instead, one entry per distinct
+  // product -- the backend prices both shapes through the same code path
+  // (see computeAuthoritativeAmount in routes/checkout.js), so the `amount`
+  // below is display-only either way and never trusted as what gets charged.
+  let items, quantity, productId, variantSelection, cartItems;
+  if (_chkProduct._isCart) {
+    items = _chkProduct._cartItems.map(i => {
+      const label = i.variantLabel ? `${i.product.name} (${i.variantLabel})` : i.product.name;
+      return `${label} × ${i.qty}`;
+    }).join(', ');
+    quantity = String(_chkProduct._cartItems.reduce((s, i) => s + i.qty, 0));
+    productId = null;
+    variantSelection = null;
+    cartItems = _chkProduct._cartItems.map(i => ({
+      product_id:        i.product.id,
+      quantity:          i.qty,
+      variant_selection: i.variantSelection || null,
+      addons:            i.addons.map(a => ({ id: a.id, quantity: a.qty })),
+    }));
+  } else {
+    const variantLabel = (_chkProduct.variantGroups || []).length
+      ? variantSelectionLabel(_chkProduct, _chkCart.variantSelection) : '';
+    const itemLabel = variantLabel ? `${_chkProduct.name} (${variantLabel})` : _chkProduct.name;
+    items = `${itemLabel} × ${_chkCart.qty}`;
+    quantity = String(_chkCart.qty);
+    productId = _chkProduct.id;
+    variantSelection = _chkCart.variantSelection || null;
+    cartItems = null;
+  }
+
   return {
     customer_name:    _chkCust.name,
     customer_phone:   _chkCust.phone,
     customer_email:   _chkCust.email || null,
-    items:            `${itemLabel} × ${_chkCart.qty}`,
-    quantity:         String(_chkCart.qty),
+    items,
+    quantity,
     amount:           total,
     // The fields below are for the backend to independently recompute the
     // authoritative price from -- the amount above is display-only and is
     // never trusted as-is for what gets charged (see routes/checkout.js).
-    product_id:       _chkProduct.id,
-    variant_selection: _chkCart.variantSelection || null,
+    product_id:       productId,
+    variant_selection: variantSelection,
+    cart_items:       cartItems,
     coupon_code:      _chkCoupon.code || null,
     coupon_discount:  disc,
     platform:         'website',
@@ -1698,7 +1763,10 @@ function _chkShowSuccess(orderId, total) {
           <span>Order ID</span><strong>${esc(String(orderId))}</strong>
         </div>
         <div class="chk-success__row">
-          <span>Item</span><strong>${esc(_chkProduct.name)} &#215; ${_chkCart.qty}</strong>
+          <span>${_chkProduct._isCart && _chkProduct._cartItems.length > 1 ? 'Items' : 'Item'}</span>
+          <strong>${_chkProduct._isCart
+            ? esc(_chkProduct._cartItems.map(i => `${i.product.name} × ${i.qty}`).join(', '))
+            : `${esc(_chkProduct.name)} × ${_chkCart.qty}`}</strong>
         </div>
         <div class="chk-success__row">
           <span>Total Amount</span><strong style="color:var(--gold)">&#8377;${Number(total).toLocaleString('en-IN')}</strong>
