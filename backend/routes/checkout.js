@@ -10,6 +10,7 @@
 
 const express   = require('express');
 const crypto    = require('crypto');
+const jwt       = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const db        = require('../db/database');
 const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
@@ -49,6 +50,24 @@ function getRazorpay() {
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+/* True only when the request carries a genuine, currently-valid admin JWT
+   in the X-Admin-Test header -- a completely separate channel from the
+   customer Authorization header above, and from anything a guest checkout
+   ever sends. This is what SURABHI (below) is gated on: the code itself
+   means nothing without it, so even a customer who discovers the string in
+   devtools/network traffic gets nowhere -- they'd need the actual admin
+   password to ever produce a token that passes this check. */
+function isAdminTestRequest(req) {
+  const header = req.headers['x-admin-test'];
+  if (!header) return false;
+  try {
+    const payload = jwt.verify(header, process.env.JWT_SECRET);
+    return payload.type !== 'customer';
+  } catch (_) {
+    return false;
+  }
 }
 
 /* ── Shared validators ── */
@@ -125,8 +144,19 @@ function computeUnitPrice(product, variantSelection) {
 }
 
 /* Returns { amount, error }. error is set (and amount null) when the
-   request can't be priced safely -- caller should respond 400. */
-function computeAuthoritativeAmount(body) {
+   request can't be priced safely -- caller should respond 400.
+
+   isAdminTest unlocks exactly one thing: the SURABHI code below, which
+   forces the real, live Razorpay flow (order creation, checkout dialog,
+   HMAC verify, DB update, emails -- everything /initiate and /verify
+   actually do) to run end-to-end for MIN_AMOUNT instead of the product's
+   real price. It's for confirming the payment pipeline itself works
+   without spending a real order's worth of money on every test. It is
+   NOT in the public COUPONS table, so it does nothing at all unless
+   isAdminTest is true -- a guest (or a customer who's discovered the
+   string) sending coupon_code=SURABHI is treated as an unrecognized code,
+   full price, same as any other typo. */
+function computeAuthoritativeAmount(body, isAdminTest) {
   const product = db.prepare('SELECT * FROM products WHERE id = ?').get(body.product_id);
   if (!product) return { amount: null, error: 'Product not found.' };
 
@@ -144,6 +174,10 @@ function computeAuthoritativeAmount(body) {
   }
 
   const code = String(body.coupon_code || '').trim().toUpperCase();
+  if (isAdminTest && code === 'SURABHI') {
+    return { amount: MIN_AMOUNT, error: null };
+  }
+
   const coupon = COUPONS[code];
   const discount = (coupon && subtotal >= coupon.minOrder) ? coupon.off : 0;
 
@@ -253,7 +287,7 @@ router.post('/initiate', paymentLimiter, optionalCustomerAuth, orderValidators, 
     });
   }
 
-  const { amount, error: priceError } = computeAuthoritativeAmount(req.body);
+  const { amount, error: priceError } = computeAuthoritativeAmount(req.body, isAdminTestRequest(req));
   if (priceError) return res.status(400).json({ error: priceError });
   req.body.amount = amount;
 

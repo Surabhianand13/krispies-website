@@ -963,12 +963,25 @@ function _chkCouponDiscount(subtotal, _fee) {
   return c.off;
 }
 
+// SURABHI isn't a real public coupon (it's never in the COUPONS table
+// above, and carries zero discount here) -- it's a marker the backend only
+// ever honors when the request also carries a valid admin session token
+// (see isAdminTestRequest in backend/routes/checkout.js), forcing the real
+// Razorpay flow to run for ₹1 so the payment pipeline itself can be
+// verified without spending a full order's worth of money each time. A
+// customer who somehow discovers the string gets nowhere without the
+// actual admin password -- accepting it here client-side changes nothing
+// about what gets charged, since the backend recomputes the total itself.
+const ADMIN_TEST_COUPON = 'SURABHI';
+
 function _chkApplyCoupon() {
   const input = document.getElementById('chkCouponInput');
   const code = (input?.value || '').trim().toUpperCase();
   const sub = _chkSubtotal();
   const c = COUPONS[code];
+  const isAdminTestCode = code === ADMIN_TEST_COUPON && !!sessionStorage.getItem('krispies_admin_token');
   if (!code) { _chkCoupon = { code: '', discount: 0, error: '' }; }
+  else if (isAdminTestCode) { _chkCoupon = { code, discount: 0, error: '' }; }
   else if (!c) { _chkCoupon = { code: '', discount: 0, error: 'Invalid coupon code.' }; }
   else if (sub < c.minOrder) { _chkCoupon = { code: '', discount: 0, error: `Add ₹${(c.minOrder - sub).toLocaleString('en-IN')} more to use ${code}.` }; }
   else { _chkCoupon = { code, discount: 0, error: '' }; }
@@ -977,9 +990,12 @@ function _chkApplyCoupon() {
 
 function _chkCouponHTML() {
   if (_chkCoupon.code) {
+    const label = _chkCoupon.code === ADMIN_TEST_COUPON
+      ? 'SURABHI applied — internal test order (₹1 at payment)'
+      : (COUPONS[_chkCoupon.code]?.label || _chkCoupon.code);
     return `
       <div class="chk-coupon-box chk-coupon-box--applied">
-        <span>&#10003; ${esc(COUPONS[_chkCoupon.code]?.label || _chkCoupon.code)}</span>
+        <span>&#10003; ${esc(label)}</span>
         <button type="button" onclick="_chkRemoveCoupon()">Remove</button>
       </div>`;
   }
@@ -1555,10 +1571,16 @@ async function _chkPlaceOrder(method) {
 }
 
 // Attaches the logged-in customer's session (if any) so the backend can
-// link this order to their account -- guests simply get no header.
+// link this order to their account -- guests simply get no header. Also
+// attaches the admin session token, if this browser tab happens to be
+// logged into /admin/, as a separate X-Admin-Test header -- this is what
+// lets the SURABHI code above actually take effect; it's never read by
+// any other endpoint and never substitutes for real customer auth.
 function _chkAuthHeaders() {
   const h = { 'Content-Type': 'application/json' };
   if (_custToken) h['Authorization'] = `Bearer ${_custToken}`;
+  const adminToken = sessionStorage.getItem('krispies_admin_token');
+  if (adminToken) h['X-Admin-Test'] = adminToken;
   return h;
 }
 
