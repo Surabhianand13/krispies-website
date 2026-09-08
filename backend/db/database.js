@@ -170,6 +170,20 @@ db.exec(`
     bucket     TEXT    NOT NULL,
     created_at TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  -- Admin-generated, single-use codes that force /api/checkout/initiate to
+  -- price an order at ₹1 -- for confirming the real Razorpay flow end-to-end
+  -- without spending a full order's worth of money each time. Minted only
+  -- via the admin-authenticated POST /api/checkout/test-code (see
+  -- routes/checkout.js); redeeming one at checkout needs no admin session at
+  -- all -- knowing a currently-valid, unused, unexpired code is proof enough
+  -- since they're random and short-lived.
+  CREATE TABLE IF NOT EXISTS test_checkout_codes (
+    code       TEXT    PRIMARY KEY,
+    expires_at TEXT    NOT NULL,
+    used       INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_reviews_product_slug ON reviews(product_slug)'); } catch (_) {}
