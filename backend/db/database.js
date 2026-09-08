@@ -188,6 +188,7 @@ safeAddColumn('products', 'slug',           'TEXT');
 safeAddColumn('products', 'flavour',        'TEXT');
 safeAddColumn('products', 'trending',       'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('products', 'sort_order',     'INTEGER NOT NULL DEFAULT 0');
+safeAddColumn('reviews',  'review_text',    'TEXT');
 safeAddColumn('orders',   'customer_email',     'TEXT');
 safeAddColumn('orders',   'payment_method',     'TEXT');
 safeAddColumn('orders',   'customer_id',        'TEXT');
@@ -430,6 +431,35 @@ if (!alreadySeededReviewsV2) {
     });
     migrateReviewsV2(reviewSeedV2);
     console.log(`✓ Seeded additional customer ratings (${reviewSeedV2.length}) — one-time migration complete`);
+  }
+}
+
+// ── One-time seed: third batch of customer ratings, this time including the
+//    actual review text (offline reviews collected in-store, covering the
+//    36 Birthday Cakes products), on top of the rating-only v1/v2 batches
+//    above. Guarded separately by 'reviews_seeded_v3' so it only ever runs
+//    once and won't re-run or collide with v1/v2's guards.
+const alreadySeededReviewsV3 = db.prepare('SELECT value FROM settings WHERE key = ?').get('reviews_seeded_v3');
+if (!alreadySeededReviewsV3) {
+  let reviewSeedV3 = [];
+  try {
+    reviewSeedV3 = require('./seed-reviews-3.json');
+  } catch (_) {
+    reviewSeedV3 = [];
+  }
+
+  if (reviewSeedV3.length) {
+    const insertReviewV3 = db.prepare(`
+      INSERT INTO reviews (id, product_slug, customer_name, area, geography, rating, review_date, review_text)
+      VALUES (@id, @productSlug, @customerName, @area, @geography, @rating, @date, @reviewText)
+    `);
+    const migrateReviewsV3 = db.transaction((items) => {
+      for (const item of items) insertReviewV3.run(item);
+      db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+        .run('reviews_seeded_v3', 'true');
+    });
+    migrateReviewsV3(reviewSeedV3);
+    console.log(`✓ Seeded customer reviews with text (${reviewSeedV3.length}) — one-time migration complete`);
   }
 }
 
