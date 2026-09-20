@@ -1,1 +1,12 @@
-/admin  /admin/  302
+# Product clean URLs → product-page.html (rewrite, URL stays clean)
+/products/:slug          /product-page.html?slug=:slug   200
+
+# Redirect .html → clean URLs (fixes "Alternate page with proper canonical" in Search Console)
+/admin/index.html        /admin/             301
+/admin/*.html            /admin/:splat       301
+/articles/*.html         /articles/:splat    301
+/index.html              /                   301
+/*.html                  /:splat             301
+
+# Admin trailing slash
+/admin                   /admin/             302
