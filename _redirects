@@ -1,3 +1,17 @@
+# Old deleted products → relevant category (fixes 4 "Not found 404" in Search Console)
+/products/coconut-cookies-200-grams          /biscuits           301
+/products/chocoholic-master-cake-2-kg        /birthday-cakes     301
+/products/pink-barbie-cake-2-kg              /birthday-cakes     301
+/products/1-year-blue-themed-cake-5-kgs      /birthday-cakes     301
+
+# Old Shopify URLs → equivalent pages
+/collections/customized-cakes                /customized-cakes   301
+/collections/cookies                         /biscuits           301
+/collections/:splat                          /menu               301
+/blogs/:splat                                /articles/          301
+/pages/corporate-bulk-orders                 /wholesale-bakery-orders 301
+/pages/:splat                                /                   301
+
 # Product clean URLs → product-page.html (rewrite, URL stays clean)
 /products/:slug          /product-page.html?slug=:slug   200
 
