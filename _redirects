@@ -19,6 +19,10 @@
 # Product clean URLs → product-page.html (rewrite, URL stays clean)
 /products/:slug          /product-page.html?slug=:slug   200
 
+# Store pages — trailing slash and .html redirects
+/stores                  /stores/            302
+/stores/*.html           /stores/:splat      301
+
 # Redirect .html → clean URLs (fixes "Alternate page with proper canonical" in Search Console)
 /admin/index.html        /admin/             301
 /admin/*.html            /admin/:splat       301
