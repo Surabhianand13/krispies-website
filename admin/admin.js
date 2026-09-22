@@ -92,6 +92,7 @@ const CATEGORY_LABELS = {
   'baby-shower-cakes':    'Baby Shower Cakes',
   'half-year-birthday-cakes': 'Half Year Birthday Cakes',
   'gender-reveal-cakes':      'Gender Reveal Cakes',
+  'bento-cakes':          'Bento Cakes',
   'customized-cakes':     'Customized Cakes',
   'floral-cakes':         'Floral Cakes',
   'love-cakes':           'Love Cakes (Him/Her)',
