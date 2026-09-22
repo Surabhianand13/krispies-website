@@ -3,74 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="canonical" href="https://www.krispies.in/menu">
-  <title>Our Menu | Krispie's | Birthday, Wedding & Engagement Cakes | Hyderabad</title>
-  <meta name="description" content="Explore Krispie's full menu, birthday cakes, wedding cakes, engagement cakes, baby shower cakes, half year birthday cakes. With prices and images. Order in Hyderabad.">
+  <title>Bento Cakes Hyderabad | Krispie's | Cute Mini Lunchbox Cakes</title>
+  <meta name="description" content="Order Bento cakes in Hyderabad — cute mini cakes in lunchboxes. Personalised messages, eggless, same-day delivery across Hyderabad.">
+  <meta name="keywords" content="bento cakes Hyderabad, mini cakes Hyderabad, bento cake delivery Hyderabad, lunch box cakes">
+  <link rel="canonical" href="https://www.krispies.in/bento-cakes">
+  <meta property="og:title" content="Bento Cakes Hyderabad | Krispie's Bakery">
+  <meta property="og:description" content="Order Bento cakes in Hyderabad — cute mini cakes in lunchboxes. Personalised messages, eggless, same-day delivery across Hyderabad.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1557925923-33b27f4a0254?w=1400&h=700&fit=crop&q=80">
+  <meta property="og:url" content="https://www.krispies.in/bento-cakes">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1557925923-33b27f4a0254?w=1400&h=700&fit=crop&q=80">
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="icon" href="assets/favicon-48.png" sizes="48x48" type="image/png">
   <link rel="icon" href="assets/favicon-512.png" sizes="512x512" type="image/png">
   <link rel="apple-touch-icon" href="assets/favicon-180.png">
+  <link rel="dns-prefetch" href="https://checkout.razorpay.com">
+  <link rel="preconnect" href="https://checkout.razorpay.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <!-- build:15 -->
   <link rel="stylesheet" href="css/styles.css?v=34">
-  <style>
-    /* ── Inline overrides — bypass CDN cache, define final card design ── */
-    .pcard-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 24px !important; }
-
-    /* Card: block layout — image stacks naturally on top of body */
-    .pcard { display: block !important; background: #ffffff !important; border-radius: 16px !important; overflow: hidden !important; box-shadow: 0 2px 12px rgba(0,0,0,0.07) !important; border: 1px solid rgba(0,0,0,0.06) !important; }
-    .pcard:hover { transform: translateY(-6px) !important; box-shadow: 0 12px 32px rgba(0,0,0,0.13) !important; }
-
-    /* Gallery — full-width image, 260px tall */
-    .pcard__gallery { display: block !important; width: 100% !important; height: 260px !important; overflow: hidden !important; position: relative !important; background: #f5f0ee !important; }
-    .pcard__gal-track { display: flex !important; width: 100% !important; height: 100% !important; }
-    .pcard__gal-slide { flex: 0 0 100% !important; width: 100% !important; height: 100% !important; }
-    .pcard__gal-slide img { width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: center !important; display: block !important; }
-
-    /* Body — below image */
-    .pcard__body { display: block !important; width: 100% !important; padding: 14px 16px 18px !important; }
-    .pcard__name { font-size: 0.97rem !important; font-weight: 700 !important; color: #1a1a1a !important; margin-bottom: 4px !important; line-height: 1.3 !important; }
-    .pcard__desc { font-size: 0.78rem !important; color: #777 !important; margin-bottom: 10px !important; overflow: hidden !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; }
-    .pcard__pricing { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; margin-bottom: 12px !important; }
-    .pcard__price { font-size: 1.2rem !important; font-weight: 800 !important; color: #1a1a1a !important; }
-    .pcard__mrp { font-size: 0.82rem !important; color: #aaa !important; text-decoration: line-through !important; }
-    .pcard__discount { background: #1a7a3c !important; color: #fff !important; padding: 3px 8px !important; border-radius: 5px !important; font-size: 0.65rem !important; font-weight: 700 !important; }
-    .pcard__btn { display: block !important; width: 100% !important; text-align: center !important; padding: 11px 16px !important; border-radius: 10px !important; background: #9A4A3A !important; color: #fff !important; font-weight: 700 !important; font-size: 0.8rem !important; letter-spacing: 0.08em !important; border: none !important; cursor: pointer !important; }
-
-    /* Badges — always visible */
-    .pcard__tag-badge { position: absolute !important; top: 12px !important; left: 12px !important; z-index: 10 !important; opacity: 1 !important; visibility: visible !important; pointer-events: none !important; padding: 4px 10px !important; border-radius: 6px !important; font-size: 0.62rem !important; font-weight: 700 !important; text-transform: uppercase !important; box-shadow: 0 2px 6px rgba(0,0,0,0.12) !important; }
-    .pcard__tag-badge.bestseller { background: #9A4A3A !important; color: #fff !important; }
-    .pcard__tag-badge.new        { background: #1a7a3c !important; color: #fff !important; }
-    .pcard__tag-badge.seasonal   { background: #1e5f85 !important; color: #fff !important; }
-    .pcard__tag-badge.custom     { background: #7b3f9e !important; color: #fff !important; }
-    .pcard__veg-badge { position: absolute !important; top: 12px !important; right: 12px !important; z-index: 10 !important; width: 24px !important; height: 24px !important; background: #fff !important; border: 2px solid #1a8a3c !important; border-radius: 4px !important; display: flex !important; align-items: center !important; justify-content: center !important; opacity: 1 !important; visibility: visible !important; pointer-events: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.10) !important; }
-    .pcard__veg-badge span { width: 10px !important; height: 10px !important; background: #1a8a3c !important; border-radius: 50% !important; display: block !important; }
-
-    @media (max-width: 1200px) { .pcard-grid { grid-template-columns: repeat(3, 1fr) !important; } }
-    @media (max-width: 768px)  { .pcard-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-    @media (max-width: 480px)  { .pcard-grid { grid-template-columns: 1fr !important; } }
-  </style>
-  <meta property="og:title" content="Our Menu | Krispie's | Birthday, Wedding & Engagement Cakes | Hyderabad">
-  <meta property="og:description" content="Explore Krispie">
-  <meta property="og:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&h=700&fit=crop&q=80">
-  <meta property="og:url" content="https://www.krispies.in/menu">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&h=700&fit=crop&q=80">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
     {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.krispies.in/"},
-    {"@type": "ListItem", "position": 2, "name": "Menu", "item": "https://www.krispies.in/menu"}
+    {"@type": "ListItem", "position": 2, "name": "Menu", "item": "https://www.krispies.in/menu"},
+    {"@type": "ListItem", "position": 3, "name": "Bento Cakes", "item": "https://www.krispies.in/bento-cakes"}
   ]
 }
 </script>
 </head>
-<body>
+<body class="cat-landing">
 
   <!-- PROMO BAR -->
   <div class="promo-bar" id="promoBar">
@@ -82,7 +48,9 @@
     <button class="promo-bar__close" aria-label="Close promo bar" onclick="this.closest('.promo-bar').style.display='none'">×</button>
   </div>
 
-  <!-- NAVIGATION -->
+
+
+
     <nav class="nav" role="navigation">
     <div class="container">
       <div class="nav__inner">
@@ -125,10 +93,14 @@
           <li><a href="contact#franchise">Franchise</a></li>
           <li><a href="contact">Contact</a></li>
         </ul>
-        <div class="nav__cta">
-          <a href="search" aria-label="Search" style="background:none;border:none;cursor:pointer;padding:6px 8px;color:var(--gold-dark);display:flex;align-items:center;">
+        <div class="nav__cta">          <a href="search" aria-label="Search" style="background:none;border:none;cursor:pointer;padding:6px 8px;color:var(--gold-dark);display:flex;align-items:center;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </a>
+
+          <button onclick="openCartDrawer()" aria-label="View cart" style="position:relative;background:none;border:none;cursor:pointer;padding:6px 8px;color:var(--gold-dark);display:flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span id="cartBadge" style="display:none;position:absolute;top:0;right:0;background:#9A4A3A;color:#fff;font-size:0.6rem;font-weight:700;min-width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1;">0</span>
+          </button>
           <a href="tel:+917975218850" class="nav__call-btn" aria-label="Call us"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>+91 79752 18850</a>
         </div>
         <button class="nav__hamburger" aria-label="Open menu" aria-expanded="false">
@@ -156,152 +128,92 @@
     </div>
   </nav>
 
-
-  <!-- CATEGORY HUB -->
-  <main class="menu-hub">
+  <!-- Sub-page hero -->
+  <header class="cat-page-hero" style="background: linear-gradient(135deg, var(--cream) 0%, var(--cream-2) 100%); padding: calc(110px + var(--promo-h)) 0 28px; text-align: center;">
     <div class="container">
-      <div class="menu-collections">
+      <span class="section-label" style="color:var(--gold-dark)">Cute. Personal. Delightful.</span>
+      <h1 class="page-hero__title" style="color:var(--text-on-light);font-size:clamp(1.8rem,4vw,3rem);margin-top:6px">Bento Cakes</h1>
+      <p style="color:var(--text-muted-lt);font-size:1rem;margin:10px auto 0;max-width:640px;line-height:1.6">Mini lunchbox cakes with big personalised messages — perfect for birthdays, anniversaries and every day surprises.</p>
+    </div>
+  </header>
 
-        <a href="birthday-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/birthday-cakes/redvelvet-cake.jpg" alt="Classic Birthday Cakes" loading="lazy"></div>
-          <div class="menu-collection__name">Birthday Cakes</div>
-          <div class="menu-collection__meta">Starts from ₹399</div>
-        </a>
+<!-- STICKY CATEGORY TABS -->
+  <div class="menu-tabs" id="menuTabs">
+    <div class="menu-tabs__scroll">
+      <a class="menu-tab active" href="bento-cakes" data-cat="bento-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 9v12"/></svg> Bento Cakes</a>
+      <a class="menu-tab" href="birthday-cakes" data-cat="birthday-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg> Birthday Cakes</a>
+      <a class="menu-tab" href="wedding-cakes" data-cat="wedding-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Wedding Cakes</a>
+      <a class="menu-tab" href="engagement-cakes" data-cat="engagement-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg> Engagement Cakes</a>
+      <a class="menu-tab" href="half-year-birthday-cakes" data-cat="half-year-birthday-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Half Year Birthday</a>
+      <a class="menu-tab" href="gender-reveal-cakes" data-cat="gender-reveal-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/><path d="M19 8V6a3 3 0 0 0-6 0 3 3 0 0 0-6 0v2"/></svg> Gender Reveal</a>
+      <a class="menu-tab" href="baby-shower-cakes" data-cat="baby-shower-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Kids Birthday Cakes</a>
+      <a class="menu-tab" href="customized-cakes" data-cat="customized-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Customized Cakes</a>
+      <a class="menu-tab" href="floral-cakes" data-cat="floral-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a3 3 0 0 1 0 6 3 3 0 0 1 0-6zM12 16a3 3 0 0 1 0 6 3 3 0 0 1 0-6zM2 12a3 3 0 0 1 6 0 3 3 0 0 1-6 0zM16 12a3 3 0 0 1 6 0 3 3 0 0 1-6 0z"/></svg> Floral Cakes</a>
+      <a class="menu-tab" href="love-cakes" data-cat="love-cakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Love Cakes</a>
+    </div>
+  </div>
 
-        <a href="wedding-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/wedding-cakes/double-heart-two-tier-anniversary-cake.jpg" alt="Wedding Cakes" loading="lazy"></div>
-          <div class="menu-collection__name">Wedding Cakes</div>
-          <div class="menu-collection__meta">Starts from ₹1,499</div>
-        </a>
+  <main class="menu-main">
+<section class="menu-cat-section" id="cat-bento-cakes">
+      <div class="container">
+        <div class="menu-cat-header fade-up">
+          <span class="section-label">Cute. Personal. Delightful.</span>
+          <h2>Bento Cakes</h2>
+          <p>Mini lunchbox cakes with big personalised messages — perfect for birthdays, anniversaries and every day surprises.</p>
+        </div>
 
-        <a href="engagement-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/engagement-cakes/royal-pink-ring-box-cake-two-tier.jpg" alt="Engagement Cakes" loading="lazy"></div>
-          <div class="menu-collection__name">Engagement Cakes</div>
-          <div class="menu-collection__meta">Starts from ₹1,499</div>
-        </a>
+        <!-- Sub-category circular thumbnails — populated by js/shop.js
+             (renderSubcatCircles) from each product's admin-set Flavour,
+             so it's never out of sync with what's actually for sale. -->
+        <div class="subcat-scroll"></div>
 
-        <a href="half-year-birthday-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/baby-shower-cakes/half-birthday-teddy-cake.jpg" alt="Half Year Birthday Cakes" loading="lazy"></div>
-          <div class="menu-collection__name">Half Year Birthday Cakes</div>
-          <div class="menu-collection__meta">Starts from ₹1,999</div>
-        </a>
+        <!-- Filter pills -->
+        <div class="filter-pills">
+          <button class="filter-pill active" data-pill="all">All</button>
+          <button class="filter-pill" data-pill="bestseller">Bestseller</button>
+          <button class="filter-pill" data-pill="new">New Arrivals</button>
+          <button class="filter-pill" data-price="under-500">Under ₹500</button>
+          <button class="filter-pill" data-price="under-1000">Under ₹1000</button>
+          <button class="filter-pill" data-price="under-1500">Under ₹1500</button>
+        </div>
 
-        <a href="gender-reveal-cakes" class="menu-collection">
-          <div class="menu-collection__img" style="background:var(--cream-2)"><img src="assets/images/categories/qcat-gender-reveal.jpg" alt="Gender Reveal Cakes" loading="lazy" onerror="this.style.display='none'"></div>
-          <div class="menu-collection__name">Gender Reveal Cakes</div>
-          <div class="menu-collection__meta">Coming soon</div>
-        </a>
+        <div class="pcard-grid" id="grid-bento-cakes"><div class="menu-empty">Loading cakes&hellip;</div></div>
+        <div class="whatsapp-cta" id="cta-bento-cakes" style="--wa-accent:#C94070">
+          <div class="whatsapp-cta__inner">
+            <div class="whatsapp-cta__left">
+              <div class="whatsapp-cta__badge">
+                <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                  <path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm0 29.2c-2.5 0-5-.7-7.1-2l-.5-.3-5 1.3 1.3-4.9-.3-.5A13.2 13.2 0 1 1 16 29.2Zm7.3-9.9c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/>
+                </svg>
+              </div>
+              <h3>Not finding what you're looking for?</h3>
+              <p class="whatsapp-cta__lead">Drop a text on WhatsApp with your reference image — our team will call back in a few minutes with pricing and confirmation.</p>
 
-        <a href="baby-shower-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/baby-shower-cakes/rainbow-unicorn-birthday-cake-for-girl.jpg" alt="Kids Birthday Cakes" loading="lazy"></div>
-          <div class="menu-collection__name">Kids Birthday Cakes</div>
-          <div class="menu-collection__meta">Starts from ₹999</div>
-        </a>
-
-        <a href="customized-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/categories/qcat-customized.jpg" alt="Customized Cakes" loading="lazy"></div>
-          <div class="menu-collection__name">Customized Cakes</div>
-          <div class="menu-collection__meta">Made to order</div>
-        </a>
-
-        <a href="bento-cakes" class="menu-collection">
-          <div class="menu-collection__img" style="background:var(--cream-2)"><img src="https://krispies-website.onrender.com/uploads/1787229156991-xv5gu.png" alt="Bento Cakes" loading="lazy" onerror="this.style.display='none'"></div>
-          <div class="menu-collection__name">Bento Cakes</div>
-          <div class="menu-collection__meta">From ₹599</div>
-        </a>
-
-        <a href="floral-cakes" class="menu-collection">
-          <div class="menu-collection__img" style="background:var(--cream-2)"><img src="https://krispies-website.onrender.com/uploads/1787126042357-rnv0a.png" alt="Floral Cakes" loading="lazy" onerror="this.style.display='none'"></div>
-          <div class="menu-collection__name">Floral Cakes</div>
-          <div class="menu-collection__meta">Coming soon</div>
-        </a>
-
-        <a href="love-cakes" class="menu-collection">
-          <div class="menu-collection__img" style="background:var(--cream-2)"><img src="https://krispies-website.onrender.com/uploads/1787229250694-nn0fq.png" alt="Love Cakes (Him/Her)" loading="lazy" onerror="this.style.display='none'"></div>
-          <div class="menu-collection__name">Love Cakes (Him/Her)</div>
-          <div class="menu-collection__meta">Coming soon</div>
-        </a>
-
-
-      </div>
-
-      <!-- B2B / Wholesale banner -->
-      <a href="wholesale-bakery-orders" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--gold-faint);border:1px solid var(--border-gold);border-radius:16px;padding:20px 24px;margin-top:28px;text-decoration:none;">
-        <span style="display:flex;align-items:center;gap:14px;">
-          <span style="width:44px;height:44px;flex-shrink:0;border-radius:10px;background:var(--gold);display:flex;align-items:center;justify-content:center;color:#fff;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          </span>
-          <span>
-            <strong style="display:block;color:var(--text-on-light);font-size:0.95rem;">Run a restaurant, hotel or cloud kitchen?</strong>
-            <span style="color:var(--text-muted-lt);font-size:0.82rem;">Wholesale bread, buns, pizza bases &amp; more — bulk supply across Hyderabad.</span>
-          </span>
-        </span>
-        <span class="btn btn-gold" style="white-space:nowrap;">Bulk Orders →</span>
-      </a>
-
-      <!-- Custom order — WhatsApp + Call CTA -->
-      <div class="custom-cta">
-        <div class="custom-cta__inner">
-
-          <div class="custom-cta__head">
-            <span class="custom-cta__eyebrow">Custom Cakes</span>
-            <h3>Have a different cake in mind?</h3>
-            <p>Send us a reference image and the team will reply in a few minutes — no forms, no waiting. We craft custom cakes for every celebration, available across all 5 Hyderabad outlets.</p>
-          </div>
-
-          <div class="custom-cta__actions">
-
-            <a href="https://wa.me/917975218850?text=Hi%20Krispie's%20team!%20I'd%20like%20to%20order%20a%20custom%20cake.%20Here's%20my%20reference%20image:" target="_blank" rel="noopener" class="custom-cta__btn custom-cta__btn--wa">
-              <span class="custom-cta__btn-icon">
-                <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/></svg>
-              </span>
-              <span class="custom-cta__btn-body">
-                <span class="custom-cta__btn-title">Chat on WhatsApp</span>
-                <span class="custom-cta__btn-sub">Avg reply: under 10 mins</span>
-              </span>
-            </a>
-
-            <a href="tel:+917975218850" class="custom-cta__btn custom-cta__btn--call">
-              <span class="custom-cta__btn-icon custom-cta__btn-icon--ring">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.1 19.79 19.79 0 0 1 1.15 3.47 2 2 0 0 1 3.12 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.19a16 16 0 0 0 5.72 5.72l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
-                <span class="ring-wave"></span>
-                <span class="ring-wave ring-wave--2"></span>
-              </span>
-              <span class="custom-cta__btn-body">
-                <span class="custom-cta__btn-title">+91 79752 18850</span>
-                <span class="custom-cta__btn-sub">8 AM – 10 PM, 7 days a week</span>
-              </span>
-            </a>
-
-          </div>
-
-          <div class="custom-cta__trust">
-            <div class="custom-cta__trust-item">
-              <strong>3000+</strong>
-              <small>Happy customers</small>
+              <ol class="whatsapp-cta__steps">
+                <li><strong>1.</strong> Send your reference image on WhatsApp</li>
+                <li><strong>2.</strong> Our team replies within minutes</li>
+                <li><strong>3.</strong> Custom cake delivered on time</li>
+              </ol>
             </div>
-            <span class="custom-cta__trust-divider"></span>
-            <div class="custom-cta__trust-item">
-              <strong>4.8★</strong>
-              <small>Average rating</small>
-            </div>
-            <span class="custom-cta__trust-divider"></span>
-            <div class="custom-cta__trust-item">
-              <strong>5</strong>
-              <small>Hyderabad outlets</small>
-            </div>
-            <span class="custom-cta__trust-divider"></span>
-            <div class="custom-cta__trust-item">
-              <strong>30 yrs</strong>
-              <small>Since 1996</small>
+
+            <div class="whatsapp-cta__right">
+              <a href="https://wa.me/917975218850?text=Hi%20Krispie%27s%20team%21%20I%20would%20like%20to%20order%20a%20birthday%20cake.%20Here%20is%20my%20reference%20image%3A" target="_blank" rel="noopener" class="whatsapp-cta__btn">
+                <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                  <path d="M16 0a16 16 0 0 0-13.7 24.2L0 32l8.1-2.1A16 16 0 1 0 16 0Zm7.3 20.3c-.4-.2-2.4-1.2-2.7-1.3s-.6-.2-.9.2-1 1.3-1.3 1.6-.5.3-.9.1c-2.4-1.2-3.9-2.1-5.5-4.7-.4-.7.4-.7 1.2-2.2.1-.3 0-.6 0-.8s-.9-2.2-1.2-3-.7-.7-.9-.7h-.8c-.3 0-.7.1-1.1.5s-1.5 1.4-1.5 3.4 1.5 4 1.7 4.3a17 17 0 0 0 6.6 5.8c2.4 1 3.3 1.1 4.5 1a4 4 0 0 0 2.6-1.9c.3-.6.3-1.2.2-1.3s-.4-.3-.8-.5Z"/>
+                </svg>
+                <span>Chat on WhatsApp</span>
+              </a>
+              <a href="tel:+917975218850" class="whatsapp-cta__call">or call <strong>+91 79752 18850</strong></a>
+              <div class="whatsapp-cta__assure">
+                <span>Avg reply time: under 10 minutes · 7 days a week</span>
+              </div>
             </div>
           </div>
-
         </div>
       </div>
-
-    </div>
+    </section>
   </main>
+
 
   <!-- FOOTER -->
   <footer class="footer">
@@ -407,6 +319,9 @@
     </div>
   </footer>
 
+
+
+
   <!-- CHECKOUT MODAL -->
   <div id="checkoutOverlay" class="checkout-overlay" onclick="if(event.target===this)closeCheckout()">
     <div class="checkout-modal">
@@ -426,13 +341,6 @@
       <div class="checkout-modal__body" id="checkoutBody"></div>
     </div>
   </div>
-
-  <!-- CART FLOAT BUTTON -->
-  <button class="cart-float" id="cartFloat" onclick="openCartDrawer()" aria-label="View Cart">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-    <span class="cart-float__label">Cart</span>
-    <span class="cart-float__badge" id="cartBadge" style="display:none">0</span>
-  </button>
 
   <!-- CART DRAWER -->
   <div class="cart-backdrop" id="cartBackdrop" onclick="closeCartDrawer()"></div>
@@ -479,8 +387,8 @@
     </div>
   </div>
 
-  <script src="js/main.js?v=2"></script>
+<script src="js/main.js?v=2"></script>
   <script src="js/shop.js?v=20"></script>
-  <script src="js/track.js" defer></script>
+<script src="js/track.js" defer></script>
 </body>
 </html>
