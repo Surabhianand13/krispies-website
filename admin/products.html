@@ -413,10 +413,14 @@ const BASE_CATEGORIES = [
   ['engagement-cakes','Engagement Cakes'],
   ['baby-shower-cakes','Kids Birthday Cakes'],['customized-cakes','Customized Cakes'],
   ['half-year-birthday-cakes','Half Year Birthday Cakes'],['gender-reveal-cakes','Gender Reveal Cakes'],
+  ['bento-cakes','Bento Cakes'],
   ['floral-cakes','Floral Cakes'],['love-cakes','Love Cakes (Him/Her)'],
   ['cheesecakes','Cheesecakes'],['donuts','Donuts'],['biscuits','Biscuits'],
   ['rakhi-hampers','Rakhi & Sweets Hampers'],
 ];
+// Lookup for display labels — built from BASE_CATEGORIES so it's always in sync.
+// Also used for extra/custom categories via the fallback `|| c` (raw slug).
+const CATEGORY_LABELS = Object.fromEntries(BASE_CATEGORIES);
 
 // Flavour drives the sub-category filter circles shown on category pages
 // (e.g. birthday-cakes.html) -- picking one here is what makes a product
