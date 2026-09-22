@@ -221,13 +221,15 @@ async function applyBulkOffer() {
 }
 
 async function loadProducts() {
+  document.getElementById('prod-count').textContent = 'Loading…';
   try {
     allProducts = await apiFetch('/api/products?all=1');
     document.getElementById('prod-count').textContent = `${allProducts.length} products total`;
     populateCategoryFilter();
     renderProducts(allProducts);
   } catch (e) {
-    showToast('Failed to load products', 'error');
+    document.getElementById('prod-count').innerHTML =
+      `Failed to load — backend may be waking up. <button onclick="loadProducts()" style="margin-left:8px;padding:2px 10px;border:1px solid #9A4A3A;border-radius:4px;background:#fff;color:#9A4A3A;cursor:pointer;font-size:0.78rem;">Retry</button>`;
   }
 }
 
