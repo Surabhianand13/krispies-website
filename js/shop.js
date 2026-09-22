@@ -1360,6 +1360,7 @@ function _chkStep2Next() {
 /* ════ STEP 3: Delivery & Payment ════ */
 function _chkStep3() {
   return `
+    <div class="chk-delivery-note">📍 We deliver to all Hyderabad pincodes &nbsp;·&nbsp; Same day delivery on orders placed before 2 PM</div>
     <div class="chk-mode-toggle">
       <button class="chk-mode-btn${_chkDelivery.mode !== 'pickup' ? ' active' : ''}"
         onclick="_chkSetMode('delivery')">Home Delivery</button>
