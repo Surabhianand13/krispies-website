@@ -199,6 +199,16 @@ h1, h2, h3, h4 {
   color: #FFFFFF;
 }
 .promo-bar__short { display: none; }
+.promo-bar__ticker {
+  display: flex; align-items: center; white-space: nowrap;
+  animation: promoTicker 28s linear infinite;
+}
+.promo-bar__ticker:hover { animation-play-state: paused; }
+@keyframes promoTicker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.promo-bar__sep { margin: 0 24px; opacity: 0.55; }
 .promo-bar__close {
   position: absolute; right: 16px;
   background: none; border: none;
@@ -3841,6 +3851,17 @@ textarea.chk-input { resize: vertical; min-height: 80px; }
 .chk-back-btn { color: var(--text-muted); border-color: rgba(154,74,58,0.22); }
 
 /* ── Delivery mode toggle ── */
+.chk-delivery-note {
+  background: rgba(201,168,112,0.10);
+  border: 1px solid rgba(201,168,112,0.30);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.80rem;
+  color: var(--text-on-dark);
+  text-align: center;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
 .chk-mode-toggle {
   display: flex;
   border: 1px solid var(--border-gold);
