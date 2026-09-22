@@ -178,12 +178,12 @@ h1, h2, h3, h4 {
   height: var(--promo-h);
   background: var(--gold);
   color: #FAF0E8;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center;
+  overflow: hidden;
   font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 500;
-  text-align: center;
-  padding: 0 48px;
+  padding: 0 40px 0 0;
   letter-spacing: 0.01em;
 }
 .promo-bar__text { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
@@ -200,15 +200,16 @@ h1, h2, h3, h4 {
 }
 .promo-bar__short { display: none; }
 .promo-bar__ticker {
-  display: flex; align-items: center; white-space: nowrap;
-  animation: promoTicker 28s linear infinite;
+  display: inline-flex; align-items: center; white-space: nowrap;
+  flex-shrink: 0; min-width: 100%;
+  animation: promoTicker 32s linear infinite;
 }
 .promo-bar__ticker:hover { animation-play-state: paused; }
 @keyframes promoTicker {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-.promo-bar__sep { margin: 0 24px; opacity: 0.55; }
+.promo-bar__sep { margin: 0 20px; opacity: 0.55; }
 .promo-bar__close {
   position: absolute; right: 16px;
   background: none; border: none;
