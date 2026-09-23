@@ -3036,8 +3036,9 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
 }
 
 @media (max-width: 640px) {
-  :root { --pad-lg: 24px; --pad-md: 20px; --promo-h: 0px; }
-  .promo-bar { display: none; }
+  :root { --pad-lg: 24px; --pad-md: 20px; --promo-h: 32px; }
+  .promo-bar { display: block; font-size: 0.73rem; }
+  .promo-bar__ticker { line-height: 32px; }
 
   /* Nav — tighter on small screens */
   .nav__logo img { height: 48px; }
@@ -3049,7 +3050,7 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
      letterbox compositions (1600x537, ~3:1) with text baked in, so cover-
      cropping into a near-square box was hiding most of the image width.
      A 3:2 ratio is a much closer match for any reasonably-shaped banner. */
-  .hero { min-height: 0; height: auto; aspect-ratio: 3 / 2; width: calc(100% - 20px); margin: calc(var(--nav-h) + 10px) auto 10px; border-radius: 14px; }
+  .hero { min-height: 0; height: auto; aspect-ratio: 3 / 2; width: calc(100% - 20px); margin: calc(var(--nav-h) + var(--promo-h) + 10px) auto 10px; border-radius: 14px; }
   .hero__slide { min-height: 0; }
   .hero__slide-inner { flex-direction: column; justify-content: center; padding: 60px 20px 52px; text-align: center; gap: 20px; }
   .hero__content { max-width: 100%; }
