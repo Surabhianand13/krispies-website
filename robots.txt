@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /animation-preview.html
+
+Sitemap: https://www.krispies.in/sitemap.xml
