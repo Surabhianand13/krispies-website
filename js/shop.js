@@ -196,12 +196,15 @@ function getProducts() {
 // localStorage forever, with no error visible anywhere and no way for the
 // page to recover short of a manual refresh -- this makes a cold start
 // just take a few extra seconds instead of silently showing no products.
-async function _fetchWithRetry(url, delays = [0, 4000, 8000, 12000]) {
+async function _fetchWithRetry(url, delays = [0, 4000, 8000]) {
   let lastErr;
   for (let i = 0; i < delays.length; i++) {
     if (delays[i]) await new Promise(r => setTimeout(r, delays[i]));
     try {
-      const res = await fetch(url);
+      const ctrl = new AbortController();
+      const tid  = setTimeout(() => ctrl.abort(), 8000);
+      const res  = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(tid);
       if (!res.ok) throw new Error('Bad response: ' + res.status);
       return await res.json();
     } catch (err) { lastErr = err; }
@@ -210,15 +213,29 @@ async function _fetchWithRetry(url, delays = [0, 4000, 8000, 12000]) {
 }
 
 async function loadProducts() {
+  // Show cached products immediately so users aren't staring at "Loading…"
+  // while we wait for the backend. The fresh fetch updates the view once done.
+  try {
+    const cached = JSON.parse(localStorage.getItem(PROD_KEY));
+    if (Array.isArray(cached) && cached.length) {
+      _productsCache = cached;
+      renderAll();
+    }
+  } catch (_) {}
+
   try {
     const data = await _fetchWithRetry(`${BACKEND_URL}/api/products`);
     if (!Array.isArray(data)) throw new Error('Unexpected response shape');
     _productsCache = data;
     try { localStorage.setItem(PROD_KEY, JSON.stringify(data)); } catch (_) {}
+    renderAll();
   } catch (err) {
     console.warn('[shop] Could not reach backend, using cached products:', err.message);
-    try { _productsCache = JSON.parse(localStorage.getItem(PROD_KEY)) || []; }
-    catch (_) { _productsCache = []; }
+    if (!_productsCache.length) {
+      try { _productsCache = JSON.parse(localStorage.getItem(PROD_KEY)) || []; }
+      catch (_) { _productsCache = []; }
+      renderAll();
+    }
   }
 }
 
