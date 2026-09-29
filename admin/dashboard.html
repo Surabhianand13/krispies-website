@@ -191,6 +191,24 @@
         </div>
       </div>
 
+      <div class="card" style="margin-top:20px;">
+        <div class="card__hd">
+          <h3>Optimize Product Images</h3>
+        </div>
+        <div style="padding:16px 20px;">
+          <p style="font-size:0.82rem;color:var(--text-2);margin-bottom:12px;">
+            Photos uploaded through the product form before this was added were saved at their
+            original size — often 2-5MB straight off a phone camera, which is why pages have been
+            slow and some images fail to load on slower connections. New uploads are now
+            automatically resized and compressed. Click below to fix every photo already on the
+            site — it's safe to run more than once (already-optimized photos are skipped) and
+            product photos keep working at the same URLs throughout.
+          </p>
+          <button class="btn btn-primary btn-sm" id="optimizeImagesBtn" onclick="optimizeExistingImages()">Run Optimization</button>
+          <div id="optimizeImagesResult" style="margin-top:12px;display:none;font-size:0.85rem;"></div>
+        </div>
+      </div>
+
     </div><!-- /page-body -->
   </main>
 </div>
@@ -250,6 +268,35 @@ async function generateTestCode() {
   } finally {
     btn.disabled = false;
     btn.textContent = 'Generate Code';
+  }
+}
+
+// Can take a little while server-side (every oversized image on disk gets
+// re-read, resized, and re-encoded) -- disabling the button and showing a
+// progress-style label is mostly to stop someone clicking it twice while
+// it's still running, since a second run mid-flight would just re-skip
+// everything the first run already shrank below the threshold.
+async function optimizeExistingImages() {
+  const btn = document.getElementById('optimizeImagesBtn');
+  const result = document.getElementById('optimizeImagesResult');
+  btn.disabled = true;
+  btn.textContent = 'Optimizing… this can take a minute';
+  result.style.display = 'none';
+  try {
+    const data = await apiFetch('/api/upload/optimize-existing', 'POST');
+    result.innerHTML = `
+      <strong>${data.processed}</strong> image${data.processed === 1 ? '' : 's'} optimized
+      (${data.bytesBeforeMB}MB → ${data.bytesAfterMB}MB, saved ${data.savedMB}MB)<br>
+      ${data.skipped} already small enough, skipped
+      ${data.failed ? `<br><span style="color:var(--red,#c0392b)">${data.failed} failed — check server logs</span>` : ''}
+    `;
+    result.style.display = '';
+    showToast(`Saved ${data.savedMB}MB across ${data.processed} image${data.processed === 1 ? '' : 's'}.`);
+  } catch (e) {
+    showToast(e.message || 'Could not optimize images.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Run Optimization';
   }
 }
 
