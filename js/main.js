@@ -4,6 +4,19 @@
 
 'use strict';
 
+/* ---- OPENAI ADS CONVERSION TRACKING ---- */
+const OPENAI_ADS_PIXEL_ID = 'UE92MjU4VxdrpAG2jEbmkF';
+(function () {
+  window.oaiq = window.oaiq || function () {
+    (window.oaiq.q = window.oaiq.q || []).push(arguments);
+  };
+  oaiq('init', { pixelId: OPENAI_ADS_PIXEL_ID });
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://bzrcdn.openai.com/sdk/oaiq.min.js';
+  document.head.appendChild(s);
+})();
+
 /* ---- META PIXEL + GOOGLE ADS CONVERSION TRACKING ----
    Meta Pixel ID: create one at business.facebook.com/events_manager2
    (Connect Data Sources → Web → Meta Pixel), then paste it below. Until this
@@ -94,6 +107,13 @@ function krTrackPurchase(orderId, total, items) {
       currency:       'INR',
       transaction_id: String(orderId),
     });
+  }
+  if (window.oaiq) {
+    window.oaiq('measure', 'order_created', {
+      type:     'contents',
+      amount:   Math.round(total * 100),
+      currency: 'INR',
+    }, { event_id: String(orderId) });
   }
 }
 
