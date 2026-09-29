@@ -154,12 +154,15 @@ function _loadTurnstileScript() {
 // its widget ID, needed to read back the token at submit time. Call this
 // every time the form's HTML is (re)rendered -- replacing a container's
 // innerHTML destroys any widget previously mounted inside it.
-async function renderTurnstile(containerEl) {
+async function renderTurnstile(containerEl, onToken) {
   if (!turnstileConfigured || !containerEl) return null;
   try {
     await _loadTurnstileScript();
     containerEl.innerHTML = '';
-    return window.turnstile.render(containerEl, { sitekey: TURNSTILE_SITE_KEY });
+    return window.turnstile.render(containerEl, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: token => { if (typeof onToken === 'function') onToken(token); },
+    });
   } catch (_) {
     return null; // network hiccup loading the widget -- treat as unconfigured, don't block the form
   }
@@ -1082,7 +1085,16 @@ function _chkRenderStep(step) {
   if (step === 3) {
     body.innerHTML = _chkStep3();
     const container = document.getElementById('chkTurnstileContainer');
-    if (container) renderTurnstile(container).then(id => { _chkTurnstileWidgetId = id; });
+    if (container) {
+      if (turnstileConfigured) {
+        const btn = document.getElementById('chkPayBtn');
+        if (btn) { btn.disabled = true; btn.textContent = '🔒 Verifying…'; }
+      }
+      renderTurnstile(container, () => {
+        const btn = document.getElementById('chkPayBtn');
+        if (btn) { btn.disabled = false; btn.textContent = 'Pay Online (Razorpay)'; }
+      }).then(id => { _chkTurnstileWidgetId = id; });
+    }
   }
 }
 
@@ -1400,7 +1412,16 @@ let _chkTurnstileWidgetId = null;
 function _chkRenderDelivSection() {
   document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
   const container = document.getElementById('chkTurnstileContainer');
-  if (container) renderTurnstile(container).then(id => { _chkTurnstileWidgetId = id; });
+  if (container) {
+    if (turnstileConfigured) {
+      const btn = document.getElementById('chkPayBtn');
+      if (btn) { btn.disabled = true; btn.textContent = '🔒 Verifying…'; }
+    }
+    renderTurnstile(container, () => {
+      const btn = document.getElementById('chkPayBtn');
+      if (btn) { btn.disabled = false; btn.textContent = 'Pay Online (Razorpay)'; }
+    }).then(id => { _chkTurnstileWidgetId = id; });
+  }
 }
 
 function _chkSubtotal() {
