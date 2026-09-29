@@ -461,7 +461,7 @@ function productForm(p = {}) {
       </div>
       <div class="form-row">
         <label>Category *</label>
-        <select id="f-cat" onchange="document.getElementById('f-cat-custom').style.display = this.value === '__other__' ? 'block' : 'none'">
+        <select id="f-cat" onchange="document.getElementById('f-cat-custom').style.display = this.value === '__other__' ? 'block' : 'none'; _onCatChange(this.value)">
           ${catOptions.map(([v,l]) => `<option value="${v}" ${p.category===v?'selected':''}>${l}</option>`).join('')}
           <option value="__other__">+ Add new category…</option>
         </select>
@@ -604,6 +604,35 @@ function removeVariantGroup(gi) {
 function addVariantOption(gi) {
   _editVariantGroups[gi].options.push({ label: '', price: 0, image: '' });
   renderVariantGroups();
+}
+
+// Cake categories that automatically get the Flavour variant group (birthday-cakes excluded)
+const CAKE_FLAVOUR_CATS = ['wedding-cakes','engagement-cakes','baby-shower-cakes',
+  'half-year-birthday-cakes','gender-reveal-cakes','customized-cakes','cheesecakes',
+  'birthday-theme-cakes'];
+
+// Canonical flavour list shared with the frontend PDP_FLAVOURS constant
+const ADMIN_FLAVOURS = [
+  'Chocolate Truffle','Belgium Chocolate','Black Forest',
+  'Red Velvet','Pineapple','Butterscotch',
+  'White Forest','Vanilla','Strawberry','Blueberry',
+  'Choco Vanilla Oreo','Rasmalai','Rabdi Pista',
+  'White Almond','Choco Almond',
+];
+
+function _onCatChange(catVal) {
+  if (!CAKE_FLAVOUR_CATS.includes(catVal)) return;
+  const alreadyHas = _editVariantGroups.some(g => /flavou?r/i.test(g.name));
+  if (alreadyHas) return;
+  const mrp = parseFloat(document.getElementById('f-mrp')?.value) || 0;
+  _editVariantGroups.push({
+    name: 'Flavour',
+    optional: false,
+    options: ADMIN_FLAVOURS.map(f => ({ label: f, price: mrp, image: '' })),
+  });
+  renderVariantGroups();
+  // Scroll to the new group so the admin sees it was added
+  setTimeout(() => document.getElementById('variant-groups')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
 
 function setVariantOptionImgPreview(gi, oi, value) {
