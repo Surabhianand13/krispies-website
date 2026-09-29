@@ -17,6 +17,9 @@
 # Product clean URLs → product-page.html (rewrite, URL stays clean)
 /products/:slug          /product-page.html?slug=:slug   200
 
+# Profile page clean URL
+/profile                 /profile.html                   200
+
 # Store pages — trailing slash and .html redirects
 /stores                  /stores/            302
 /stores/*.html           /stores/:splat      301
