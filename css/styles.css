@@ -2087,7 +2087,10 @@ body.rakhi-theme .section-label::before,
 body.rakhi-theme .section-label::after { background: var(--rk-pink); }
 
 /* ── PDP: Add to Cart primary button ── */
-.pdp__atc-btn { width: 100%; font-size: 1rem; padding: 14px 0; }
+.pdp__atc-btn {
+  width: 100%; font-size: 1rem; padding: 14px 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
 
 /* ── PDP: Pincode check widget ── */
 .pdp__pincode-check {
@@ -2119,15 +2122,8 @@ body.rakhi-theme .section-label::after { background: var(--rk-pink); }
   display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
   margin-top: 14px;
 }
-.pdp__pay-label { font-size: 0.72rem; color: var(--text-muted-lt); font-weight: 500; margin-right: 2px; }
-.pdp__pay-badge {
-  font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 4px;
-  letter-spacing: 0.04em; border: 1px solid;
-}
-.pdp__pay-badge--upi    { background: #e8f4ff; color: #1a56a0; border-color: #b3d4f5; }
-.pdp__pay-badge--card   { background: #fff3e0; color: #8a4a00; border-color: #f5d0a9; }
-.pdp__pay-badge--nb     { background: #e8ffe8; color: #1a7a3c; border-color: #a0d4a0; }
-.pdp__pay-badge--wallet { background: #f3e8ff; color: #5a2080; border-color: #c9a0f0; }
+.pdp__pay-label { font-size: 0.72rem; color: var(--text-muted-lt); font-weight: 500; margin-right: 4px; }
+.pdp__pay-logo { width: 52px; height: 32px; flex-shrink: 0; }
 
 /* ── PDP: Wishlist + Share ── */
 .pdp__social-row {
