@@ -13,8 +13,14 @@ let _pdpSelectedDate = null;
 // Birthday cakes are excluded because customers usually specify customisation via notes.
 const PDP_FLAVOUR_CATS = ['wedding-cakes','engagement-cakes','baby-shower-cakes',
   'half-year-birthday-cakes','gender-reveal-cakes','customized-cakes','cheesecakes'];
-const PDP_FLAVOURS = ['Chocolate','Pineapple','Vanilla','Butterscotch',
-  'Black Forest','Red Velvet','Strawberry'];
+// Canonical flavour list — ⭐ marks bestsellers shown first in the dropdown
+const PDP_FLAVOURS = [
+  'Chocolate Truffle ⭐','Belgium Chocolate ⭐','Black Forest ⭐',
+  'Red Velvet ⭐','Pineapple ⭐','Butterscotch ⭐',
+  'White Forest','Vanilla','Strawberry','Blueberry',
+  'Choco Vanilla Oreo','Rasmalai','Rabdi Pista',
+  'White Almond','Choco Almond',
+];
 
 function _pdpSlugFromUrl() {
   const pathMatch = window.location.pathname.match(/\/products?\/([^/?#]+)/);
@@ -88,7 +94,10 @@ function _pdpRender() {
       <label class="chk-label">Flavour</label>
       <select class="chk-input" id="pdpFlavourSelect" onchange="_pdpSetFlavour(this.value)">
         <option value="">Select Flavour</option>
-        ${PDP_FLAVOURS.map(f => `<option value="${esc(f)}">${esc(f)}</option>`).join('')}
+        ${PDP_FLAVOURS.map(f => {
+          const clean = f.replace(/\s*⭐/g, '').trim();
+          return `<option value="${esc(clean)}">${esc(f)}</option>`;
+        }).join('')}
       </select>
     </div>` : '';
 
