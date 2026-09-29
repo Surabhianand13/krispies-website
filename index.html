@@ -995,11 +995,12 @@
       setTimeout(() => loader.remove(), 600);
     }
     const minDelay = new Promise(r => setTimeout(r, 500));
-    const pageLoad = new Promise(r => {
-      if (document.readyState === 'complete') r();
-      else window.addEventListener('load', r, { once: true });
+    const domReady = new Promise(r => {
+      if (document.readyState !== 'loading') r();
+      else document.addEventListener('DOMContentLoaded', r, { once: true });
     });
-    Promise.all([minDelay, pageLoad]).then(hideLoader);
+    const safetyNet = new Promise(r => setTimeout(r, 2500));
+    Promise.all([minDelay, Promise.race([domReady, safetyNet])]).then(hideLoader);
   })();
 
   /* ── Duplicate qcat items for seamless infinite scroll ── */
