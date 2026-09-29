@@ -613,16 +613,18 @@ function _renderAddonPanel(tabIdx) {
     `<button class="cart-panel__tab${i === tabIdx ? ' active' : ''}" onclick="_renderAddonPanel(${i})">${t.emoji} ${esc(t.label)}</button>`
   ).join('');
   const tab = ADDON_TABS[tabIdx];
+  const fallbackEmoji = _tabDefaultEmoji(tab.key);
   grid.innerHTML = tab.items.map(item => {
     const q = _selectedAddons[item.id] || 0;
+    const imgHtml = item.image
+      ? `<img src="${esc(item.image)}" alt="${esc(item.name)}" onerror="this.parentNode.innerHTML='${fallbackEmoji}'">`
+      : (item.emoji || fallbackEmoji);
     return `
       <div class="cart-panel__item${q > 0 ? ' has-qty' : ''}" id="cpitem-${item.id}">
-        <div class="cart-panel__item-icon">${item.image ? `<img src="${esc(item.image)}" alt="" onerror="this.parentNode.textContent='${_tabDefaultEmoji(_activeAddonTab < ADDON_TABS.length ? ADDON_TABS[_activeAddonTab].key : '')}'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : (item.emoji || '🎁')}</div>
-        <div class="cart-panel__item-info">
+        <div class="cart-panel__item-img">${imgHtml}</div>
+        <div class="cart-panel__item-body">
           <p class="cart-panel__item-name">${esc(item.name)}</p>
           <p class="cart-panel__item-price">&#8377;${item.price}</p>
-        </div>
-        <div class="cart-panel__item-action">
           ${q > 0 ? `
             <div class="cart-panel__stepper">
               <button onclick="_addonPanelQty('${item.id}',${tabIdx},-1)">&#8722;</button>
