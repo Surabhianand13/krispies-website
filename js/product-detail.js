@@ -7,6 +7,14 @@
 let _pdpProduct = null;
 let _pdpSelection = null;
 let _pdpGalleryIndex = 0;
+let _pdpSelectedDate = null;
+
+// Categories that get the static flavour dropdown if no Flavour variant group is configured.
+// Birthday cakes are excluded because customers usually specify customisation via notes.
+const PDP_FLAVOUR_CATS = ['wedding-cakes','engagement-cakes','baby-shower-cakes',
+  'half-year-birthday-cakes','gender-reveal-cakes','customized-cakes','cheesecakes'];
+const PDP_FLAVOURS = ['Chocolate','Pineapple','Vanilla','Butterscotch',
+  'Black Forest','Red Velvet','Strawberry'];
 
 function _pdpSlugFromUrl() {
   const pathMatch = window.location.pathname.match(/\/products?\/([^/?#]+)/);
@@ -59,16 +67,67 @@ function _pdpRender() {
   `;
 
   const useVariantCards = CATEGORIES_WITH_VARIANT_CARDS.includes(p.category);
-  const variantHtml = hasVariants ? p.variantGroups.map((g, gi) => useVariantCards
-    ? renderVariantCards(g.name, g, _pdpSelection[g.name], '_pdpVariantCardClick', gi)
-    : `
+  const variantHtml = hasVariants ? p.variantGroups.map((g, gi) => {
+    const isFlavourGroup = /flavou?r/i.test(g.name);
+    if (useVariantCards) return renderVariantCards(g.name, g, _pdpSelection[g.name], '_pdpVariantCardClick', gi);
+    return `
     <div class="chk-field-group">
       <label class="chk-label">${esc(g.name)}</label>
       <select class="chk-input" onchange="_pdpVariantChange('${esc(g.name)}', this.value)">
         ${g.optional ? `<option value="-1" ${_pdpSelection[g.name] === -1 ? 'selected' : ''}>None</option>` : ''}
-        ${g.options.map((o, i) => `<option value="${i}" ${_pdpSelection[g.name] === i ? 'selected' : ''}>${esc(o.label)} — ₹${(Number(o.price) || 0).toLocaleString('en-IN')}</option>`).join('')}
+        ${g.options.map((o, i) => `<option value="${i}" ${_pdpSelection[g.name] === i ? 'selected' : ''}>${esc(o.label)}${isFlavourGroup ? '' : ` — ₹${(Number(o.price) || 0).toLocaleString('en-IN')}`}</option>`).join('')}
       </select>
-    </div>`).join('') : '';
+    </div>`;
+  }).join('') : '';
+
+  // Static flavour dropdown for cake categories that don't have a Flavour variant configured
+  const hasFlavourVariant = (p.variantGroups || []).some(g => /flavou?r/i.test(g.name));
+  const showStaticFlavour = !hasFlavourVariant && PDP_FLAVOUR_CATS.includes(p.category);
+  const flavourHtml = showStaticFlavour ? `
+    <div class="chk-field-group pdp__flavour-group">
+      <label class="chk-label">Flavour</label>
+      <select class="chk-input" id="pdpFlavourSelect" onchange="_pdpSetFlavour(this.value)">
+        <option value="">Select Flavour</option>
+        ${PDP_FLAVOURS.map(f => `<option value="${esc(f)}">${esc(f)}</option>`).join('')}
+      </select>
+    </div>` : '';
+
+  // Date tabs: Today / Tomorrow / Select Date
+  const _today = new Date(); _today.setHours(0,0,0,0);
+  const _tomorrow = new Date(_today); _tomorrow.setDate(_today.getDate() + 1);
+  const prepDays = Math.ceil((Number(p.prepHours) || 0) / 24);
+  const minDateObj = new Date(_today); minDateObj.setDate(_today.getDate() + Math.max(1, prepDays));
+  const fmtDateLabel = d => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  const fmtDateVal = d => d.toISOString().split('T')[0];
+  const todayVal = fmtDateVal(_today), tomorrowVal = fmtDateVal(_tomorrow);
+  const canToday = prepDays === 0;
+  const customActive = _pdpSelectedDate && _pdpSelectedDate !== todayVal && _pdpSelectedDate !== tomorrowVal;
+  const customLabel = customActive
+    ? new Date(_pdpSelectedDate + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    : 'Pick a date';
+  const dateTabsHtml = `
+    <div class="pdp__date-section">
+      <label class="chk-label">Delivery Date</label>
+      <div class="pdp__date-tabs">
+        <button class="pdp__date-tab${canToday ? (_pdpSelectedDate === todayVal ? ' pdp__date-tab--active' : '') : ' pdp__date-tab--disabled'}"
+          ${canToday ? `onclick="_pdpSetDate('${todayVal}')"` : 'disabled title="Needs advance notice"'}>
+          <span class="pdp__date-tab-main">Today</span>
+          <span class="pdp__date-tab-sub">${fmtDateLabel(_today)}</span>
+        </button>
+        <button class="pdp__date-tab${_pdpSelectedDate === tomorrowVal ? ' pdp__date-tab--active' : ''}"
+          onclick="_pdpSetDate('${tomorrowVal}')">
+          <span class="pdp__date-tab-main">Tomorrow</span>
+          <span class="pdp__date-tab-sub">${fmtDateLabel(_tomorrow)}</span>
+        </button>
+        <button class="pdp__date-tab${customActive ? ' pdp__date-tab--active' : ''}"
+          onclick="_pdpOpenDatePicker()" id="pdpCustomDateBtn">
+          <span class="pdp__date-tab-main">Select Date</span>
+          <span class="pdp__date-tab-sub" id="pdpCustomDateLabel">${customLabel}</span>
+        </button>
+      </div>
+      <input type="date" id="pdpDateHidden" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;"
+        min="${fmtDateVal(minDateObj)}" onchange="_pdpCustomDateChange(this.value)">
+    </div>`;
 
   const prepNote = (Number(p.prepHours) || 0) > 0
     ? `<div class="chk-info-note pdp__prep-note"><strong>This item needs ${p.prepHours} hour${p.prepHours == 1 ? '' : 's'} notice</strong> to prepare.</div>`
@@ -94,6 +153,7 @@ function _pdpRender() {
         <div class="pdp__price-row" id="pdpPriceRow"></div>
 
         ${variantHtml}
+        ${flavourHtml}
 
         <div class="chk-field-group">
           <label class="chk-label">Quantity</label>
@@ -105,6 +165,8 @@ function _pdpRender() {
           </div>
         </div>
         ${prepNote}
+
+        ${dateTabsHtml}
 
         <div class="pdp__actions">
           <button class="btn btn-gold pdp__atc-btn" onclick="_pdpAddToCart()">
@@ -227,8 +289,49 @@ function _pdpQty(delta) {
   _pdpUpdatePriceDisplay();
 }
 
+function _pdpSetFlavour(val) {
+  window.__pdpFlavour = val || null;
+}
+
+function _pdpSetDate(dateStr) {
+  _pdpSelectedDate = dateStr;
+  window.__pdpDate = dateStr || null;
+  // Sync the hidden date input (keeps it consistent with tab selection)
+  const hidden = document.getElementById('pdpDateHidden');
+  if (hidden) hidden.value = dateStr || '';
+  // Refresh just the tab active states without full re-render
+  document.querySelectorAll('.pdp__date-tab').forEach(btn => btn.classList.remove('pdp__date-tab--active'));
+  const now = new Date(); now.setHours(0,0,0,0);
+  const todayVal = now.toISOString().split('T')[0];
+  const tom = new Date(now); tom.setDate(now.getDate() + 1);
+  const tomorrowVal = tom.toISOString().split('T')[0];
+  if (dateStr === todayVal) document.querySelectorAll('.pdp__date-tab')[0]?.classList.add('pdp__date-tab--active');
+  else if (dateStr === tomorrowVal) document.querySelectorAll('.pdp__date-tab')[1]?.classList.add('pdp__date-tab--active');
+  else {
+    const customBtn = document.getElementById('pdpCustomDateBtn');
+    if (customBtn) {
+      customBtn.classList.add('pdp__date-tab--active');
+      const lbl = document.getElementById('pdpCustomDateLabel');
+      if (lbl && dateStr) lbl.textContent = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    }
+  }
+}
+
+function _pdpOpenDatePicker() {
+  const hidden = document.getElementById('pdpDateHidden');
+  if (hidden) hidden.showPicker ? hidden.showPicker() : hidden.click();
+}
+
+function _pdpCustomDateChange(val) {
+  if (!val) return;
+  _pdpSetDate(val);
+}
+
 function _pdpAddToCart() {
-  addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null, _pdpQtyValue);
+  // Pass selected date as a note hint so the checkout modal can pre-fill it
+  if (_pdpSelectedDate) window.__pdpDate = _pdpSelectedDate;
+  const flavour = window.__pdpFlavour;
+  addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null, _pdpQtyValue, flavour);
 }
 
 /* ── Pincode delivery check ── */
@@ -250,9 +353,9 @@ async function _pdpCheckPincode() {
       return { ...s, km, fee: deliveryFee(km) };
     }).sort((a, b) => a.km - b.km)[0];
     if (nearest.km > 30) {
-      if (result) result.innerHTML = `<span style="color:#c0392b">Outside our delivery range. Please call us to check.</span>`;
+      if (result) result.innerHTML = `<span class="pdp__pincode-no">✗ Outside our delivery range. Call us to check.</span>`;
     } else {
-      if (result) result.innerHTML = `<span class="pdp__pincode-ok">✓ Delivery available — <strong>₹${nearest.fee}</strong> from ${nearest.name} store (${nearest.km.toFixed(1)} km)</span>`;
+      if (result) result.innerHTML = `<span class="pdp__pincode-ok">✓ Delivery available to this pincode</span>`;
     }
   } catch (_) {
     if (result) result.textContent = 'Could not check. Try again or call us.';
