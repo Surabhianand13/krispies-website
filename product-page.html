@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=37">
+  <link rel="stylesheet" href="css/styles.css?v=38">
   <style>
     .pdp { padding: calc(110px + var(--promo-h)) 0 64px; }
     .pdp__breadcrumb { font-size: 0.78rem; color: var(--text-muted-lt); margin-bottom: 20px; }
@@ -321,25 +321,29 @@
   </div>
 
   <!-- ADD-ONS MODAL -->
-  <div class="addons-overlay" id="addonsOverlay"></div>
-  <div class="addons-modal" id="addonsModal">
-    <div class="addons-modal__hd">
-      <div>
-        <div class="addons-modal__check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:#fff"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <h3 class="addons-modal__title">Added to Cart!</h3>
-        <p class="addons-modal__sub">Enhance your celebration with these party essentials</p>
+  <div class="addons-overlay" id="addonsOverlay" onclick="closeAddons()"></div>
+  <div class="cart-panel" id="addonsModal">
+    <div class="cart-panel__hd">
+      <div class="cart-panel__hd-info">
+        <div class="cart-panel__check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div>
+          <h3 class="cart-panel__title">Added to Cart!</h3>
+          <p class="cart-panel__sub" id="cartPanelProductName"></p>
+        </div>
       </div>
-      <button class="addons-modal__close" onclick="closeAddons()">✕</button>
+      <button class="cart-panel__close" onclick="closeAddons()">&#10005;</button>
     </div>
-    <div class="addons-modal__grid" id="addonsGrid"></div>
-    <div class="addons-modal__ft">
-      <button class="btn btn-outline addons-modal__skip" onclick="skipAddons()">Skip</button>
-      <button class="btn btn-gold addons-modal__confirm" onclick="confirmAddons()">Add Selected &amp; View Cart</button>
+    <div class="cart-panel__upsell-hd">Make it extra special &#10024;</div>
+    <div class="cart-panel__tabs" id="cartPanelTabs"></div>
+    <div class="cart-panel__items" id="addonsGrid"></div>
+    <div class="cart-panel__ft">
+      <button class="btn btn-outline cart-panel__skip-btn" onclick="skipAddons()">Skip</button>
+      <button class="btn btn-gold cart-panel__confirm-btn" id="cartPanelConfirmBtn" onclick="confirmAddons()">View Cart &#8594;</button>
     </div>
   </div>
 
   <script src="js/main.js?v=2"></script>
-  <script src="js/shop.js?v=21"></script>
+  <script src="js/shop.js?v=23"></script>
   <script src="js/product-detail.js?v=7"></script>
   <script src="js/track.js" defer></script>
 </body>

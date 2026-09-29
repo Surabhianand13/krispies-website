@@ -20,12 +20,15 @@ function toAddon(row) {
     price:      row.price,
     unit:       row.unit,
     image:      row.image || '',
-    categories, // empty array = shows for every product category
+    tab:        row.tab || 'props',
+    categories, // kept for backward compat — no longer used by the frontend panel
     active:     row.active === 1,
     createdAt:  row.created_at,
     updatedAt:  row.updated_at,
   };
 }
+
+const VALID_TABS = ['flowers', 'toppers', 'candles', 'props', 'balloons', 'cupcakes'];
 
 function buildAddon(id, body) {
   let categories = [];
@@ -37,6 +40,7 @@ function buildAddon(id, body) {
     price:      parseFloat(body.price) || 0,
     unit:       String(body.unit || 'each').trim(),
     image:      String(body.image || '').trim(),
+    tab:        VALID_TABS.includes(body.tab) ? body.tab : 'props',
     categories: JSON.stringify(categories.filter(Boolean)),
     active:     body.active !== false && body.active !== 0 ? 1 : 0,
   };
@@ -69,8 +73,8 @@ router.post('/', requireAuth, addonValidators(), (req, res) => {
   const id = uid();
   const a = buildAddon(id, req.body);
   db.prepare(`
-    INSERT INTO addons (id, name, price, unit, image, categories, active)
-    VALUES (@id, @name, @price, @unit, @image, @categories, @active)
+    INSERT INTO addons (id, name, price, unit, image, tab, categories, active)
+    VALUES (@id, @name, @price, @unit, @image, @tab, @categories, @active)
   `).run(a);
 
   res.status(201).json(toAddon(db.prepare('SELECT * FROM addons WHERE id = ?').get(a.id)));
@@ -87,7 +91,7 @@ router.put('/:id', requireAuth, addonValidators(), (req, res) => {
   const a = buildAddon(req.params.id, req.body);
   db.prepare(`
     UPDATE addons
-    SET name=@name, price=@price, unit=@unit, image=@image,
+    SET name=@name, price=@price, unit=@unit, image=@image, tab=@tab,
         categories=@categories, active=@active, updated_at=datetime('now')
     WHERE id=@id
   `).run(a);

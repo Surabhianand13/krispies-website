@@ -525,21 +525,61 @@ async function loadAddons() {
     try { _addonsCache = JSON.parse(localStorage.getItem(ADDONS_KEY)) || []; }
     catch (_) { _addonsCache = []; }
   }
+  // Rebuild tab items from the loaded data so the panel reflects the admin's current catalog.
+  _rebuildAddonTabItems();
 }
 
-// An add-on with no categories set applies to every product; otherwise it
-// only shows for the categories the admin picked.
-function getAddonsForCategory(cat) {
-  return _addonsCache.filter(a => !a.categories || a.categories.length === 0 || a.categories.includes(cat));
+// Merge backend addon items into ADDON_TABS. If a tab has backend items, they
+// replace the static defaults; tabs with no backend items keep their defaults.
+function _rebuildAddonTabItems() {
+  for (const tab of ADDON_TABS) {
+    const backendItems = _addonsCache
+      .filter(a => a.tab === tab.key)
+      .map(a => ({ id: a.id, name: a.name, price: a.price, emoji: a.image ? null : _tabDefaultEmoji(tab.key), image: a.image || null }));
+    if (backendItems.length > 0) tab.items = backendItems;
+    // else keep the static defaults
+  }
 }
 
-// Default add-on icon (gift box) — used when no image is set, and as the
-// onerror fallback for a broken image URL.
-const ADDON_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>';
-function handleAddonImgError(imgEl) {
-  const icon = imgEl.closest('.addon-card__icon');
-  if (icon) icon.innerHTML = ADDON_ICON_SVG;
+function _tabDefaultEmoji(tabKey) {
+  const map = { flowers: '🌸', toppers: '🎂', candles: '🕯️', props: '🎉', balloons: '🎈', cupcakes: '🧁' };
+  return map[tabKey] || '🎁';
 }
+
+/* ── IGP-style add-on tabs ── */
+const ADDON_TABS = [
+  { key: 'flowers', label: 'Flowers', emoji: '🌸', items: [
+    { id: 'fl-1', name: 'Rose Bouquet',    price: 499, emoji: '🌹' },
+    { id: 'fl-2', name: 'Mixed Flowers',   price: 349, emoji: '💐' },
+    { id: 'fl-3', name: 'Sunflower Bunch', price: 299, emoji: '🌻' },
+  ]},
+  { key: 'toppers', label: 'Toppers', emoji: '🎂', items: [
+    { id: 'tp-1', name: 'Happy Birthday Topper', price: 99,  emoji: '🎂' },
+    { id: 'tp-2', name: 'Number Topper',         price: 149, emoji: '✨' },
+    { id: 'tp-3', name: 'Custom Name Topper',    price: 199, emoji: '🎀' },
+  ]},
+  { key: 'candles', label: 'Candles', emoji: '🕯️', items: [
+    { id: 'cn-1', name: 'Birthday Candles',  price: 49,  emoji: '🕯️' },
+    { id: 'cn-2', name: 'Number Candles',    price: 79,  emoji: '🔢' },
+    { id: 'cn-3', name: 'Sparkler Candles',  price: 129, emoji: '✨' },
+  ]},
+  { key: 'props', label: 'Celebration Props', emoji: '🎉', items: [
+    { id: 'pr-1', name: 'Party Poppers Set',  price: 149, emoji: '🎉' },
+    { id: 'pr-2', name: 'Photo Booth Props',  price: 199, emoji: '📸' },
+    { id: 'pr-3', name: 'Party Hats (6 pcs)', price: 99,  emoji: '🎩' },
+  ]},
+  { key: 'balloons', label: 'Balloons', emoji: '🎈', items: [
+    { id: 'bl-1', name: 'Balloon Bouquet',      price: 249, emoji: '🎈' },
+    { id: 'bl-2', name: 'Foil Number Balloon',  price: 149, emoji: '🎊' },
+    { id: 'bl-3', name: 'Arch Balloon Set',     price: 399, emoji: '🎀' },
+  ]},
+  { key: 'cupcakes', label: 'Cupcakes', emoji: '🧁', items: [
+    { id: 'cc-1', name: '6 Vanilla Cupcakes',    price: 349, emoji: '🧁' },
+    { id: 'cc-2', name: '6 Chocolate Cupcakes',  price: 349, emoji: '🍫' },
+    { id: 'cc-3', name: '12 Assorted Cupcakes',  price: 649, emoji: '🎊' },
+  ]},
+];
+let _activeAddonTab = 0;
 
 /* ── ADD TO CART FLOW ──
    variantSelection is optional — pass it from product-page.html once the user has
@@ -551,55 +591,64 @@ function addToCart(productId, variantSelection, qty) {
   _pendingVariant = variantSelection || null;
   _pendingQty = qty || 1;
   _selectedAddons = {};
+  _activeAddonTab = 0;
   const product = getProducts().find(p => p.id === productId);
   if (!product) return;
-  const addons = getAddonsForCategory(product.category);
-  const grid = document.getElementById('addonsGrid');
-  if (!grid) { _commitToCart([]); return; } // page has no addons modal (e.g. product-page.html) — commit straight away
-  grid.innerHTML = addons.map(a => `
-    <div class="addon-card" id="acard-${a.id}" onclick="toggleAddon('${a.id}')">
-      <div class="addon-card__icon">${a.image ? `<img src="${esc(a.image)}" alt="${esc(a.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="handleAddonImgError(this)">` : ADDON_ICON_SVG}</div>
-      <p class="addon-card__name">${esc(a.name)}</p>
-      <p class="addon-card__price">&#8377;${a.price} / ${esc(a.unit)}</p>
-      <div class="addon-card__qty" id="aqty-${a.id}" style="display:none">
-        <button onclick="event.stopPropagation();changeAddonQty('${a.id}',-1)">&#8722;</button>
-        <span id="aqtyval-${a.id}">1</span>
-        <button onclick="event.stopPropagation();changeAddonQty('${a.id}',1)">+</button>
-      </div>
-      <div class="addon-card__check" id="acheck-${a.id}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-    </div>`).join('');
-  document.getElementById('addonsOverlay').style.display = 'block';
-  document.getElementById('addonsModal').classList.add('open');
+  const panel = document.getElementById('addonsModal');
+  if (!panel) { _commitToCart([]); return; }
+  const nameEl = document.getElementById('cartPanelProductName');
+  if (nameEl) nameEl.textContent = product.name;
+  _renderAddonPanel(0);
+  document.getElementById('addonsOverlay').classList.add('open');
+  panel.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-function toggleAddon(id) {
-  const card  = document.getElementById('acard-'  + id);
-  const check = document.getElementById('acheck-' + id);
-  const qtyEl = document.getElementById('aqty-'   + id);
-  if (_selectedAddons[id]) {
-    delete _selectedAddons[id];
-    card.classList.remove('selected');
-    check.classList.remove('visible');
-    qtyEl.style.display = 'none';
-  } else {
-    _selectedAddons[id] = 1;
-    card.classList.add('selected');
-    check.classList.add('visible');
-    qtyEl.style.display = 'flex';
-  }
+function _renderAddonPanel(tabIdx) {
+  _activeAddonTab = tabIdx;
+  const tabsEl = document.getElementById('cartPanelTabs');
+  const grid   = document.getElementById('addonsGrid');
+  if (!tabsEl || !grid) return;
+  tabsEl.innerHTML = ADDON_TABS.map((t, i) =>
+    `<button class="cart-panel__tab${i === tabIdx ? ' active' : ''}" onclick="_renderAddonPanel(${i})">${t.emoji} ${esc(t.label)}</button>`
+  ).join('');
+  const tab = ADDON_TABS[tabIdx];
+  grid.innerHTML = tab.items.map(item => {
+    const q = _selectedAddons[item.id] || 0;
+    return `
+      <div class="cart-panel__item${q > 0 ? ' has-qty' : ''}" id="cpitem-${item.id}">
+        <div class="cart-panel__item-icon">${item.image ? `<img src="${esc(item.image)}" alt="" onerror="this.parentNode.textContent='${_tabDefaultEmoji(_activeAddonTab < ADDON_TABS.length ? ADDON_TABS[_activeAddonTab].key : '')}'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : (item.emoji || '🎁')}</div>
+        <div class="cart-panel__item-info">
+          <p class="cart-panel__item-name">${esc(item.name)}</p>
+          <p class="cart-panel__item-price">&#8377;${item.price}</p>
+        </div>
+        <div class="cart-panel__item-action">
+          ${q > 0 ? `
+            <div class="cart-panel__stepper">
+              <button onclick="_addonPanelQty('${item.id}',${tabIdx},-1)">&#8722;</button>
+              <span>${q}</span>
+              <button onclick="_addonPanelQty('${item.id}',${tabIdx},1)">+</button>
+            </div>` : `
+            <button class="cart-panel__add-btn" onclick="_addonPanelQty('${item.id}',${tabIdx},1)">+ ADD</button>`}
+        </div>
+      </div>`;
+  }).join('');
+  const total = Object.values(_selectedAddons).reduce((s, q) => s + q, 0);
+  const confirmBtn = document.getElementById('cartPanelConfirmBtn');
+  if (confirmBtn) confirmBtn.textContent = total > 0 ? `Add ${total} & View Cart` : 'View Cart →';
 }
 
-function changeAddonQty(id, delta) {
-  if (!_selectedAddons[id]) return;
-  _selectedAddons[id] = Math.max(1, (_selectedAddons[id] || 1) + delta);
-  document.getElementById('aqtyval-' + id).textContent = _selectedAddons[id];
+function _addonPanelQty(itemId, tabIdx, delta) {
+  const current = _selectedAddons[itemId] || 0;
+  const next = Math.max(0, current + delta);
+  if (next === 0) delete _selectedAddons[itemId]; else _selectedAddons[itemId] = next;
+  _renderAddonPanel(tabIdx);
 }
 
 function closeAddons() {
-  document.getElementById('addonsOverlay').style.display = 'none';
+  document.getElementById('addonsOverlay').classList.remove('open');
   document.getElementById('addonsModal').classList.remove('open');
+  document.body.style.overflow = '';
   _pendingProductId = null;
   _selectedAddons = {};
 }
@@ -611,10 +660,10 @@ function skipAddons() {
 }
 
 function confirmAddons() {
-  const allAddons = _addonsCache;
+  const allItems = ADDON_TABS.flatMap(t => t.items);
   const selected = Object.entries(_selectedAddons).map(([id, qty]) => {
-    const a = allAddons.find(x => x.id === id);
-    return a ? { ...a, qty } : null;
+    const item = allItems.find(i => i.id === id);
+    return item ? { id: item.id, name: item.name, price: item.price, qty, unit: 'piece' } : null;
   }).filter(Boolean);
   _commitToCart(selected);
   closeAddons();
