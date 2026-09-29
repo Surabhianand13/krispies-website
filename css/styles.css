@@ -3011,8 +3011,8 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .hero__slide-inner { padding: 56px 20px; gap: 20px; }
 
   /* Menu tabs */
-  .menu-tabs__scroll { padding: 0 16px; }
-  .menu-tab { padding: 14px 16px; font-size: 0.7rem; letter-spacing: 0.07em; }
+  .menu-tabs__grid { padding: 10px 16px; gap: 6px; }
+  .menu-tab { padding: 6px 13px; font-size: 0.68rem; }
 
   /* Subcat circles */
   .subcat-item__circle { width: 90px; height: 90px; }
@@ -3080,8 +3080,8 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .filter-pill { padding: 5px 12px; font-size: 0.72rem; }
 
   /* Menu tabs */
-  .menu-tab { padding: 12px 13px; font-size: 0.65rem; letter-spacing: 0.06em; }
-  .menu-tabs__scroll { padding: 0 12px; }
+  .menu-tabs__grid { padding: 8px 12px; gap: 6px; }
+  .menu-tab { padding: 6px 12px; font-size: 0.64rem; letter-spacing: 0.05em; }
 
   /* Product grid — single column on phones */
   .pcard-grid { grid-template-columns: 1fr; gap: 14px; }
@@ -3117,33 +3117,37 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   border-bottom: 1px solid var(--border-gold);
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
 }
-.menu-tabs__scroll {
+.menu-tabs__grid {
   display: flex;
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-wrap: wrap;
+  gap: 8px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 14px 28px;
 }
-.menu-tabs__scroll::-webkit-scrollbar { display: none; }
 .menu-tab {
-  flex: 0 0 auto;
-  padding: 18px 24px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.10em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #5A2E1A;
-  background: none;
-  border: none;
-  border-bottom: 2.5px solid transparent;
+  color: var(--text-on-dark);
+  background: var(--black-3);
+  border: 1px solid var(--border-gold);
   cursor: pointer;
-  transition: color 0.25s, border-color 0.25s;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
   white-space: nowrap;
   font-family: var(--font-body);
+  text-decoration: none;
 }
-.menu-tab:hover { color: var(--gold); }
-.menu-tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 800; }
+.menu-tab svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.7; }
+.menu-tab:hover { color: var(--gold); border-color: var(--gold); background: var(--gold-faint); }
+.menu-tab.active { color: var(--black); background: var(--gold); border-color: var(--gold); font-weight: 700; }
+.menu-tab.active svg { opacity: 1; }
 
 /* ---- MENU MAIN ---- */
 .menu-main { background: var(--black); }
