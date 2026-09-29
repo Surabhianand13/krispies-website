@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=40">
+  <link rel="stylesheet" href="css/styles.css?v=41">
   <style>
     .pdp { padding: calc(110px + var(--promo-h)) 0 64px; }
     .pdp__breadcrumb { font-size: 0.78rem; color: var(--text-muted-lt); margin-bottom: 20px; }
@@ -31,6 +31,20 @@
        entirely even though it loaded fine. */
     .pdp__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: flex-start; }
     .pdp__grid > * { min-width: 0; }
+    /* Sticky left column — image stays pinned while right column scrolls */
+    .pdp__gallery-col { position: sticky; top: calc(var(--nav-h, 90px) + 20px); }
+    .pdp__gallery-wrap { position: relative; }
+    /* Wishlist heart overlay — top-right of image like IGP */
+    .pdp__gallery-wish {
+      position: absolute; top: 14px; right: 14px; z-index: 10;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(4px);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; line-height: 1; color: #aaa;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12); transition: all 0.18s;
+    }
+    .pdp__gallery-wish:hover { transform: scale(1.12); }
+    .pdp__gallery-wish--active { color: #e74c3c; }
     .pdp__gallery { position: relative; border-radius: 16px; overflow: hidden; background: #f5f0ee; aspect-ratio: 1/1; }
     .pdp__gallery .pcard__gal-track { height: 100%; }
     .pdp__gallery .pcard__gal-slide { height: 100%; }
@@ -73,6 +87,7 @@
     .pdp__empty { padding: 120px 0; text-align: center; color: var(--text-muted-lt); }
     @media (max-width: 860px) {
       .pdp__grid { grid-template-columns: 1fr; gap: 28px; }
+      .pdp__gallery-col { position: static; } /* no sticky on mobile — single column */
     }
   </style>
 </head>
@@ -344,7 +359,7 @@
 
   <script src="js/main.js?v=2"></script>
   <script src="js/shop.js?v=25"></script>
-  <script src="js/product-detail.js?v=8"></script>
+  <script src="js/product-detail.js?v=9"></script>
   <script src="js/track.js" defer></script>
 </body>
 </html>

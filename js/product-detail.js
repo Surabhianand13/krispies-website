@@ -36,13 +36,18 @@ function _pdpRender() {
 
   const mainImg = hasImgs ? imgs[_pdpGalleryIndex] || imgs[0] : null;
   const galleryHtml = `
-    <div class="pdp__gallery">
-      ${mainImg
-        ? `<img src="${esc(mainImg)}" alt="${esc(p.name)}" style="width:100%;height:100%;object-fit:cover;display:block;">`
-        : `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdf0ec 0%,#f5e6e0 100%);">
-             <div style="width:64px;height:64px;color:var(--gold-dark)">${emoji}</div>
-             <div style="font-size:0.78rem;color:#b08070;margin-top:10px;font-weight:500;">Photo coming soon</div>
-           </div>`}
+    <div class="pdp__gallery-wrap">
+      <button class="pdp__gallery-wish${_pdpGetWishlist().includes(p.id) ? ' pdp__gallery-wish--active' : ''}" id="pdpWishlistBtn" onclick="_pdpToggleWishlist()" title="Save to wishlist" aria-label="Add to wishlist">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="${_pdpGetWishlist().includes(p.id) ? '#e74c3c' : 'none'}" stroke="${_pdpGetWishlist().includes(p.id) ? '#e74c3c' : '#888'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      </button>
+      <div class="pdp__gallery">
+        ${mainImg
+          ? `<img src="${esc(mainImg)}" alt="${esc(p.name)}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+          : `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdf0ec 0%,#f5e6e0 100%);">
+               <div style="width:64px;height:64px;color:var(--gold-dark)">${emoji}</div>
+               <div style="font-size:0.78rem;color:#b08070;margin-top:10px;font-weight:500;">Photo coming soon</div>
+             </div>`}
+      </div>
     </div>
     ${imgs.length > 1 ? `
       <div class="pdp__thumbs">
@@ -74,7 +79,7 @@ function _pdpRender() {
       <a href="menu">Menu</a> / <a href="${esc(p.category)}">${esc((p.category || '').replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase()))}</a> / ${esc(p.name)}
     </div>
     <div class="pdp__grid">
-      <div>${galleryHtml}</div>
+      <div class="pdp__gallery-col">${galleryHtml}</div>
       <div>
         ${badgeHtml}
         ${tagHtml}
@@ -102,7 +107,10 @@ function _pdpRender() {
         ${prepNote}
 
         <div class="pdp__actions">
-          <button class="btn btn-gold pdp__atc-btn" onclick="_pdpAddToCart()">🛒 Add to Cart</button>
+          <button class="btn btn-gold pdp__atc-btn" onclick="_pdpAddToCart()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:middle;flex-shrink:0"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
+            Add to Cart
+          </button>
         </div>
 
         <!-- Pincode delivery check -->
@@ -114,26 +122,51 @@ function _pdpRender() {
           <div id="pdpPincodeResult" class="pdp__pincode-result"></div>
         </div>
 
-        <!-- Payment modes -->
+        <!-- Payment modes — official brand logos -->
         <div class="pdp__pay-modes">
           <span class="pdp__pay-label">We accept:</span>
-          <span class="pdp__pay-badge pdp__pay-badge--upi">UPI</span>
-          <span class="pdp__pay-badge pdp__pay-badge--card">Visa / MC</span>
-          <span class="pdp__pay-badge pdp__pay-badge--nb">Net Banking</span>
-          <span class="pdp__pay-badge pdp__pay-badge--wallet">Wallets</span>
+          <!-- UPI -->
+          <svg class="pdp__pay-logo" viewBox="0 0 58 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="58" height="36" rx="5" fill="#fff" stroke="#dde"/>
+            <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="13" fill="#5C0099" letter-spacing="1">UPI</text>
+            <rect x="8" y="26" width="14" height="3" rx="1.5" fill="#097939"/>
+            <rect x="24" y="26" width="14" height="3" rx="1.5" fill="#FF6600"/>
+          </svg>
+          <!-- Visa -->
+          <svg class="pdp__pay-logo" viewBox="0 0 58 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="58" height="36" rx="5" fill="#fff" stroke="#dde"/>
+            <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="17" fill="#1A1F71" font-style="italic" letter-spacing="1">VISA</text>
+          </svg>
+          <!-- Mastercard -->
+          <svg class="pdp__pay-logo" viewBox="0 0 58 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="58" height="36" rx="5" fill="#fff" stroke="#dde"/>
+            <circle cx="23" cy="18" r="9" fill="#EB001B"/>
+            <circle cx="35" cy="18" r="9" fill="#F79E1B"/>
+            <path d="M29 10.9a9 9 0 010 14.2 9 9 0 010-14.2z" fill="#FF5F00"/>
+          </svg>
+          <!-- RuPay -->
+          <svg class="pdp__pay-logo" viewBox="0 0 58 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="58" height="36" rx="5" fill="#fff" stroke="#dde"/>
+            <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="11" fill="#007DC1">Ru</text>
+            <text x="50%" y="78%" dominant-baseline="middle" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="11" fill="#008C44">Pay</text>
+          </svg>
+          <!-- Razorpay -->
+          <svg class="pdp__pay-logo" viewBox="0 0 58 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="58" height="36" rx="5" fill="#fff" stroke="#dde"/>
+            <polygon points="22,26 29,10 36,26 31,26 29,20 27,26" fill="#2C85ED"/>
+            <polygon points="29,20 31,26 27,26" fill="#3395FF" opacity="0.5"/>
+          </svg>
         </div>
 
-        <!-- Wishlist + Share -->
+        <!-- Share buttons -->
         <div class="pdp__social-row">
-          <button class="pdp__wishlist-btn" id="pdpWishlistBtn" onclick="_pdpToggleWishlist()" title="Save to wishlist">
-            <span id="pdpHeartIcon">♡</span> Wishlist
-          </button>
           <button class="pdp__share-btn" onclick="_pdpShareWA()" title="Share on WhatsApp">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.122 1.522 5.855L.057 23.885l6.177-1.438A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.986 0-3.848-.574-5.42-1.565l-.388-.231-4.022.937.989-3.925-.253-.4A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.122 1.522 5.855L.057 23.885l6.177-1.438A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.986 0-3.848-.574-5.42-1.565l-.388-.231-4.022.937.989-3.925-.253-.4A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
             Share
           </button>
           <button class="pdp__share-btn" onclick="_pdpCopyLink()" title="Copy link">
-            🔗 Copy Link
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            Copy Link
           </button>
         </div>
       </div>
@@ -243,9 +276,13 @@ function _pdpUpdateWishlist() {
   if (!id) return;
   const wishlisted = _pdpGetWishlist().includes(id);
   const btn = document.getElementById('pdpWishlistBtn');
-  const icon = document.getElementById('pdpHeartIcon');
-  if (icon) icon.textContent = wishlisted ? '♥' : '♡';
-  if (btn) btn.classList.toggle('pdp__wishlist-btn--active', wishlisted);
+  if (!btn) return;
+  btn.classList.toggle('pdp__gallery-wish--active', wishlisted);
+  const svg = btn.querySelector('svg');
+  if (svg) {
+    svg.setAttribute('fill', wishlisted ? '#e74c3c' : 'none');
+    svg.setAttribute('stroke', wishlisted ? '#e74c3c' : '#888');
+  }
 }
 
 /* ── Share ── */
