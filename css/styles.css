@@ -4039,10 +4039,25 @@ textarea.chk-input { resize: vertical; min-height: 80px; }
 }
 /* ── Pincode + location method selector (checkout step 3) ── */
 .chk-loc-methods { margin-bottom: 16px; }
-.chk-pincode-row {
-  display: flex; gap: 8px; margin-bottom: 10px;
+
+/* Address autocomplete search */
+.chk-addr-search-wrap { position: relative; margin-bottom: 10px; }
+.chk-addr-search-wrap .chk-input { margin-bottom: 0; width: 100%; box-sizing: border-box; }
+.chk-loc-suggestions {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 200;
+  background: #fff; border: 1.5px solid var(--border-gold); border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14); max-height: 210px; overflow-y: auto;
 }
-.chk-pincode-row .chk-input { flex: 1; margin-bottom: 0; }
+.chk-loc-suggest-item {
+  padding: 10px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
+  border-bottom: 1px solid rgba(0,0,0,0.06); transition: background 0.12s;
+}
+.chk-loc-suggest-item:last-child { border-bottom: none; }
+.chk-loc-suggest-item:hover { background: var(--gold-faint); }
+.chk-loc-suggest-loading { cursor: default; }
+.chk-loc-suggest-main { font-size: 0.86rem; font-weight: 600; color: var(--text-on-light); }
+.chk-loc-suggest-sub { font-size: 0.73rem; color: var(--text-muted-lt); }
+
 .chk-loc-or {
   text-align: center; font-size: 0.75rem; color: var(--text-muted);
   margin-bottom: 10px; position: relative;

@@ -1504,9 +1504,10 @@ function _chkDeliveryHTML() {
   } else {
     storesHTML = `
       <div class="chk-loc-methods">
-        <div class="chk-pincode-row">
-          <input id="chkPincodeInput" class="chk-input" placeholder="Enter your pincode" maxlength="6" style="flex:1">
-          <button class="btn btn-outline" onclick="_chkPincodeCheck()" style="white-space:nowrap;padding:8px 14px;">Check</button>
+        <div class="chk-addr-search-wrap">
+          <input id="chkLocSearch" class="chk-input" placeholder="Search area, e.g. Jubilee Hills, Kondapur…"
+            oninput="_chkLocSearchInput(this.value)" autocomplete="off" type="text">
+          <div id="chkLocSuggestions" class="chk-loc-suggestions" style="display:none"></div>
         </div>
         <div class="chk-loc-or">or</div>
         <button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()">📍 Use My Location</button>
@@ -1584,7 +1585,21 @@ function _chkSetMode(mode) {
   _chkRenderDelivSection();
 }
 
-/* ── Location detection ── */
+/* ── Shared: resolve lat/lng → nearest store → re-render ── */
+function _chkResolveLocation(lat, lng) {
+  _chkDelivery.lat = lat;
+  _chkDelivery.lng = lng;
+  const nearest = STORES.map(s => {
+    const km = haversine(lat, lng, s.lat, s.lng);
+    return { ...s, km, fee: deliveryFee(km) };
+  }).sort((a, b) => a.km - b.km)[0];
+  _chkDelivery.store = nearest.name;
+  _chkDelivery.km    = nearest.km;
+  _chkDelivery.fee   = nearest.fee;
+  _chkRenderDelivSection();
+}
+
+/* ── GPS location detection ── */
 function _chkDetectLoc() {
   const statusEl = document.getElementById('chkLocStatus');
   const btn      = document.getElementById('chkLocBtn') || document.querySelector('.chk-loc-btn');
@@ -1593,64 +1608,67 @@ function _chkDetectLoc() {
 
   if (!navigator.geolocation) {
     if (statusEl) statusEl.textContent = 'Geolocation not supported by your browser.';
-    if (btn) { btn.textContent = 'Detect My Location'; btn.disabled = false; }
+    if (btn) { btn.textContent = '📍 Use My Location'; btn.disabled = false; }
     return;
   }
 
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      _chkDelivery.lat = pos.coords.latitude;
-      _chkDelivery.lng = pos.coords.longitude;
-      /* auto-select nearest store */
-      const nearest = STORES.map(s => {
-        const km = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
-        return { ...s, km, fee: deliveryFee(km) };
-      }).sort((a, b) => a.km - b.km)[0];
-      _chkDelivery.store = nearest.name;
-      _chkDelivery.km    = nearest.km;
-      _chkDelivery.fee   = nearest.fee;
-      _chkRenderDelivSection();
-    },
+    pos => _chkResolveLocation(pos.coords.latitude, pos.coords.longitude),
     err => {
       const msgs = {
-        1: 'Location access denied. Please allow location or pick a store manually.',
-        2: 'Location unavailable. Please pick a store manually.',
-        3: 'Location request timed out. Please pick a store manually.',
+        1: 'Location access denied. Try searching your area above.',
+        2: 'Location unavailable. Try searching your area above.',
+        3: 'Location timed out. Try searching your area above.',
       };
       if (statusEl) statusEl.textContent = msgs[err.code] || 'Could not detect location.';
-      if (btn) { btn.textContent = 'Retry Location'; btn.disabled = false; }
+      if (btn) { btn.textContent = '📍 Use My Location'; btn.disabled = false; }
     },
     { timeout: 8000, maximumAge: 60000 }
   );
 }
 
-/* ── Pincode geocoding (Nominatim) ── */
-async function _chkPincodeCheck() {
-  const input = document.getElementById('chkPincodeInput');
-  const statusEl = document.getElementById('chkLocStatus');
-  const pin = (input?.value || '').trim().replace(/\D/g, '');
-  if (pin.length !== 6) { if (statusEl) statusEl.textContent = 'Please enter a valid 6-digit pincode.'; return; }
-  if (statusEl) statusEl.textContent = 'Checking…';
+/* ── Address / locality autocomplete (Nominatim) ── */
+let _chkLocSearchTimer = null;
+
+function _chkLocSearchInput(val) {
+  clearTimeout(_chkLocSearchTimer);
+  const box = document.getElementById('chkLocSuggestions');
+  if (!val || val.trim().length < 3) { if (box) box.style.display = 'none'; return; }
+  _chkLocSearchTimer = setTimeout(() => _chkFetchSuggestions(val.trim()), 350);
+}
+
+async function _chkFetchSuggestions(val) {
+  const box = document.getElementById('chkLocSuggestions');
+  if (!box) return;
+  box.innerHTML = '<div class="chk-loc-suggest-item chk-loc-suggest-loading">Searching…</div>';
+  box.style.display = 'block';
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${pin}&country=India&format=json&limit=1`, {
-      headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' }
-    });
+    // Append Hyderabad for precision if not already in query
+    const q = /hyderabad/i.test(val) ? val : `${val}, Hyderabad`;
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=IN&format=json&limit=6&addressdetails=1`,
+      { headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' } }
+    );
     const data = await res.json();
-    if (!data.length) { if (statusEl) statusEl.textContent = 'Pincode not found. Try using location instead.'; return; }
-    const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
-    _chkDelivery.lat = lat;
-    _chkDelivery.lng = lng;
-    const nearest = STORES.map(s => {
-      const km = haversine(lat, lng, s.lat, s.lng);
-      return { ...s, km, fee: deliveryFee(km) };
-    }).sort((a, b) => a.km - b.km)[0];
-    _chkDelivery.store = nearest.name;
-    _chkDelivery.km    = nearest.km;
-    _chkDelivery.fee   = nearest.fee;
-    _chkRenderDelivSection();
+    if (!data.length) { box.innerHTML = '<div class="chk-loc-suggest-item">No results. Try a nearby area name.</div>'; return; }
+    box.innerHTML = data.map(d => {
+      const addr = d.address || {};
+      const main = addr.suburb || addr.neighbourhood || addr.quarter || addr.road || addr.village || d.name || d.display_name.split(',')[0];
+      const sub  = [addr.city || addr.county, addr.state].filter(Boolean).join(', ');
+      return `<div class="chk-loc-suggest-item" onclick="_chkPickSuggestion(${d.lat},${d.lon})">
+        <span class="chk-loc-suggest-main">${esc(main)}</span>
+        ${sub ? `<span class="chk-loc-suggest-sub">${esc(sub)}</span>` : ''}
+      </div>`;
+    }).join('');
   } catch (_) {
-    if (statusEl) statusEl.textContent = 'Could not check pincode. Try using location instead.';
+    box.innerHTML = '<div class="chk-loc-suggest-item">Search failed. Try again or use GPS.</div>';
   }
+}
+
+function _chkPickSuggestion(lat, lng) {
+  const box = document.getElementById('chkLocSuggestions');
+  if (box) box.style.display = 'none';
+  _chkResolveLocation(parseFloat(lat), parseFloat(lng));
 }
 
 /* ── Store selection ── */
