@@ -1296,7 +1296,7 @@ function _chkStep1() {
     <div class="chk-field-group">
       <label class="chk-label">Delivery Date *</label>
       <input type="date" class="chk-input" id="chkDate"
-        min="${minDate}" value="${_chkCart.deliveryDate}">
+        min="${minDate}" value="${_chkCart.deliveryDate || (window.__pdpDate || '')}">
       ${advanceNotice}
       ${prepNotice}
       ${birthdayNote}
@@ -1306,7 +1306,7 @@ function _chkStep1() {
     <div class="chk-field-group">
       <label class="chk-label">Special Instructions <span style="font-weight:400;text-transform:none">(optional)</span></label>
       <textarea class="chk-input" id="chkNotes" rows="3"
-        placeholder="Flavour, design, message on cake, allergens…">${esc(_chkCart.notes)}</textarea>
+        placeholder="Flavour, design, message on cake, allergens…">${esc(_chkCart.notes || (window.__pdpFlavour ? `Flavour: ${window.__pdpFlavour}` : ''))}</textarea>
     </div>
 
     <div class="chk-footer">

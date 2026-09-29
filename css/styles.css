@@ -2116,6 +2116,39 @@ body.rakhi-theme .section-label::after { background: var(--rk-pink); }
   margin-top: 8px; font-size: 0.82rem; color: var(--text-on-light); min-height: 18px;
 }
 .pdp__pincode-ok { color: #1a7a3c; font-weight: 500; }
+.pdp__pincode-no { color: #c0392b; font-weight: 500; }
+
+/* ── PDP: Flavour dropdown ── */
+.pdp__flavour-group { margin-top: 12px; }
+
+/* ── PDP: Date tabs ── */
+.pdp__date-section { margin: 16px 0 4px; }
+.pdp__date-tabs {
+  display: flex; gap: 8px; margin-top: 8px; flex-wrap: nowrap;
+}
+.pdp__date-tab {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; padding: 10px 6px;
+  border: 1.5px solid var(--border-gold); border-radius: 10px;
+  background: #fff; cursor: pointer; transition: all 0.18s;
+  font-family: var(--font-body);
+}
+.pdp__date-tab--active {
+  border-color: var(--gold); background: var(--gold-faint);
+}
+.pdp__date-tab--disabled {
+  opacity: 0.4; cursor: not-allowed;
+}
+.pdp__date-tab:not(.pdp__date-tab--disabled):hover { border-color: var(--gold-dark); }
+.pdp__date-tab-main {
+  font-size: 0.82rem; font-weight: 600; color: var(--text-on-light);
+}
+.pdp__date-tab--active .pdp__date-tab-main { color: var(--gold-dark); }
+.pdp__date-tab-sub {
+  font-size: 0.72rem; color: var(--text-muted-lt); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; max-width: 100%;
+}
 
 /* ── PDP: Payment modes ── */
 .pdp__pay-modes {
