@@ -433,6 +433,10 @@ function renderAll() {
     const grid = document.getElementById(`grid-${cat}`);
     if (!grid) return;
     const items = getProducts().filter(p => p.category === cat && p.active !== false);
+    // data-ssr: the server already rendered this category's products into
+    // the grid (functions/_middleware.js). If our own fetch came back empty
+    // (backend asleep, no cache), keep those rather than "coming soon".
+    if (!items.length && grid.dataset.ssr) return;
     grid.innerHTML = items.length
       ? items.map(renderCard).join('')
       : `<div class="menu-empty">
