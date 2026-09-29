@@ -2129,17 +2129,54 @@ async function _acctRenderLoggedIn() {
       _custProfile = await meRes.json();
     }
     await loadSavedAddresses();
+
+    // Fetch orders once upfront so we can show stats in the header
+    let _cachedOrders = null;
+    try {
+      const ordRes = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
+      _cachedOrders = ordRes.ok ? await ordRes.json() : [];
+    } catch (_) { _cachedOrders = []; }
+
+    const initials = (_custProfile.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const totalOrders = _cachedOrders.length;
+    const totalSpend  = _cachedOrders.reduce((s, o) => s + (Number(o.amount) || 0), 0);
+
     body.innerHTML = `
-      <div class="acct-profile-hd">
-        <div><strong>${esc(_custProfile.name)}</strong><br><span style="color:var(--text-muted);font-size:0.8rem">${esc(_custProfile.phone || _custProfile.email || '')}</span></div>
-        <button class="btn btn-outline btn-sm" onclick="_acctLogout()">Log Out</button>
+      <!-- Profile header -->
+      <div class="acct-profile-section">
+        <div class="acct-avatar">${esc(initials)}</div>
+        <div class="acct-profile-info">
+          <div class="acct-profile-name">${esc(_custProfile.name)}</div>
+          <div class="acct-profile-contact">${esc(_custProfile.phone || '')}${_custProfile.phone && _custProfile.email ? ' · ' : ''}${esc(_custProfile.email || '')}</div>
+        </div>
+        <button class="btn btn-outline btn-sm acct-logout-btn" onclick="_acctLogout()">Log Out</button>
       </div>
-      <div class="acct-tabs" style="margin-top:16px">
+
+      <!-- Stats -->
+      <div class="acct-stats-row">
+        <div class="acct-stat">
+          <span class="acct-stat-value">${totalOrders}</span>
+          <span class="acct-stat-label">Order${totalOrders === 1 ? '' : 's'}</span>
+        </div>
+        <div class="acct-stat-divider"></div>
+        <div class="acct-stat">
+          <span class="acct-stat-value">₹${totalSpend.toLocaleString('en-IN')}</span>
+          <span class="acct-stat-label">Total Spent</span>
+        </div>
+        <div class="acct-stat-divider"></div>
+        <div class="acct-stat">
+          <span class="acct-stat-value">${_savedAddresses.length}</span>
+          <span class="acct-stat-label">Saved Address${_savedAddresses.length === 1 ? '' : 'es'}</span>
+        </div>
+      </div>
+
+      <div class="acct-tabs">
         <button class="acct-tab${_acctTab === 'orders' ? ' active' : ''}" onclick="_acctSwitchTab(this,'orders')">My Orders</button>
         <button class="acct-tab${_acctTab === 'addresses' ? ' active' : ''}" onclick="_acctSwitchTab(this,'addresses')">Address Book</button>
       </div>
       <div id="acctTabBody"></div>`;
-    _acctRenderTabBody();
+
+    _acctRenderTabBody(_cachedOrders);
   } catch (e) {
     _acctLogout();
   }
@@ -2152,22 +2189,60 @@ function _acctSwitchTab(btn, tab) {
   _acctRenderTabBody();
 }
 
-async function _acctRenderTabBody() {
+async function _acctRenderTabBody(preloadedOrders) {
   const el = document.getElementById('acctTabBody');
   if (!el) return;
   if (_acctTab === 'addresses') { _acctRenderAddresses(); return; }
 
-  el.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:16px 0;">Loading…</p>`;
-  const ordersRes = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
-  const orders = ordersRes.ok ? await ordersRes.json() : [];
-  el.innerHTML = orders.length ? orders.map(o => `
+  let orders = preloadedOrders;
+  if (!orders) {
+    el.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:16px 0;">Loading…</p>`;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
+      orders = res.ok ? await res.json() : [];
+    } catch (_) { orders = []; }
+  }
+
+  if (!orders.length) {
+    el.innerHTML = `
+      <div class="acct-empty-orders">
+        <div class="acct-empty-icon">🎂</div>
+        <p>No orders yet</p>
+        <a href="menu" class="btn btn-gold btn-sm" style="display:inline-block;margin-top:8px;">Browse Menu →</a>
+      </div>`;
+    return;
+  }
+
+  const statusBadge = (s) => {
+    const cfg = {
+      confirmed:  { bg: '#e8f5e9', color: '#2e7d32', label: '✓ Confirmed' },
+      pending:    { bg: '#fff8e1', color: '#f57f17', label: '⏳ Pending' },
+      ready:      { bg: '#e3f2fd', color: '#1565c0', label: '✓ Ready' },
+      delivered:  { bg: '#f3e5f5', color: '#6a1b9a', label: '✓ Delivered' },
+      cancelled:  { bg: '#ffebee', color: '#c62828', label: '✗ Cancelled' },
+    };
+    const c = cfg[s] || { bg: '#f5f5f5', color: '#555', label: s };
+    return `<span class="acct-status-badge" style="background:${c.bg};color:${c.color};">${c.label}</span>`;
+  };
+
+  el.innerHTML = orders.map(o => {
+    const delDate = o.delivery_date
+      ? new Date(o.delivery_date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      : null;
+    return `
     <div class="acct-order-card">
-      <div class="acct-order-card__row">
-        <strong>${esc(o.items)}</strong>
-        <span class="acct-order-status" style="color:${ORDER_STATUS_COLOR[o.status] || '#9A7A48'}">${esc(o.status)}</span>
+      <div class="acct-order-card__top">
+        <div class="acct-order-card__items">${esc(o.items)}</div>
+        ${statusBadge(o.status)}
       </div>
-      <div class="acct-order-card__meta">Order #${esc(o.id)} · ₹${o.amount != null ? Number(o.amount).toLocaleString('en-IN') : '—'} · ${esc(o.order_date || '')}</div>
-    </div>`).join('') : `<p style="color:var(--text-muted);font-size:0.85rem">No orders yet — your order history will show up here.</p>`;
+      <div class="acct-order-card__details">
+        <span>₹${o.amount != null ? Number(o.amount).toLocaleString('en-IN') : '—'}</span>
+        ${o.outlet ? `<span class="acct-dot">·</span><span>${esc(o.outlet)}</span>` : ''}
+        ${delDate ? `<span class="acct-dot">·</span><span>Delivery ${delDate}</span>` : ''}
+      </div>
+      <div class="acct-order-card__id">Order ID: ${esc(o.id)}</div>
+    </div>`;
+  }).join('');
 }
 
 function _acctRenderAddresses(editId) {
