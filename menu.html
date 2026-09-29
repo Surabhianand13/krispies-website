@@ -12,7 +12,8 @@
   <link rel="apple-touch-icon" href="assets/favicon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap"></noscript>
   <!-- build:15 -->
   <link rel="stylesheet" href="css/styles.css?v=41">
   <style>
@@ -159,43 +160,43 @@
       <div class="menu-collections">
 
         <a href="birthday-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/birthday-cakes/redvelvet-cake.jpg" alt="Classic Birthday Cakes" loading="lazy"></div>
+          <div class="menu-collection__img"><picture><source srcset="assets/images/products/birthday-cakes/redvelvet-cake.webp" type="image/webp"><img src="assets/images/products/birthday-cakes/redvelvet-cake.jpg" alt="Classic Birthday Cakes" loading="lazy"></picture></div>
           <div class="menu-collection__name">Birthday Cakes</div>
           <div class="menu-collection__meta">Starts from ₹399</div>
         </a>
 
         <a href="wedding-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/wedding-cakes/double-heart-two-tier-anniversary-cake.jpg" alt="Wedding Cakes" loading="lazy"></div>
+          <div class="menu-collection__img"><picture><source srcset="assets/images/products/wedding-cakes/double-heart-two-tier-anniversary-cake.webp" type="image/webp"><img src="assets/images/products/wedding-cakes/double-heart-two-tier-anniversary-cake.jpg" alt="Wedding Cakes" loading="lazy"></picture></div>
           <div class="menu-collection__name">Wedding Cakes</div>
           <div class="menu-collection__meta">Starts from ₹1,499</div>
         </a>
 
         <a href="engagement-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/engagement-cakes/royal-pink-ring-box-cake-two-tier.jpg" alt="Engagement Cakes" loading="lazy"></div>
+          <div class="menu-collection__img"><picture><source srcset="assets/images/products/engagement-cakes/royal-pink-ring-box-cake-two-tier.webp" type="image/webp"><img src="assets/images/products/engagement-cakes/royal-pink-ring-box-cake-two-tier.jpg" alt="Engagement Cakes" loading="lazy"></picture></div>
           <div class="menu-collection__name">Engagement Cakes</div>
           <div class="menu-collection__meta">Starts from ₹1,499</div>
         </a>
 
         <a href="half-year-birthday-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/baby-shower-cakes/half-birthday-teddy-cake.jpg" alt="Half Year Birthday Cakes" loading="lazy"></div>
+          <div class="menu-collection__img"><picture><source srcset="assets/images/products/baby-shower-cakes/half-birthday-teddy-cake.webp" type="image/webp"><img src="assets/images/products/baby-shower-cakes/half-birthday-teddy-cake.jpg" alt="Half Year Birthday Cakes" loading="lazy"></picture></div>
           <div class="menu-collection__name">Half Year Birthday Cakes</div>
           <div class="menu-collection__meta">Starts from ₹1,999</div>
         </a>
 
         <a href="gender-reveal-cakes" class="menu-collection">
-          <div class="menu-collection__img" style="background:var(--cream-2)"><img src="assets/images/categories/qcat-gender-reveal.jpg" alt="Gender Reveal Cakes" loading="lazy" onerror="this.style.display='none'"></div>
+          <div class="menu-collection__img" style="background:var(--cream-2)"><picture><source srcset="assets/images/categories/qcat-gender-reveal.webp" type="image/webp"><img src="assets/images/categories/qcat-gender-reveal.jpg" alt="Gender Reveal Cakes" loading="lazy" onerror="this.style.display='none'"></picture></div>
           <div class="menu-collection__name">Gender Reveal Cakes</div>
           <div class="menu-collection__meta">Coming soon</div>
         </a>
 
         <a href="baby-shower-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/products/baby-shower-cakes/rainbow-unicorn-birthday-cake-for-girl.jpg" alt="Kids Birthday Cakes" loading="lazy"></div>
+          <div class="menu-collection__img"><picture><source srcset="assets/images/products/baby-shower-cakes/rainbow-unicorn-birthday-cake-for-girl.webp" type="image/webp"><img src="assets/images/products/baby-shower-cakes/rainbow-unicorn-birthday-cake-for-girl.jpg" alt="Kids Birthday Cakes" loading="lazy"></picture></div>
           <div class="menu-collection__name">Kids Birthday Cakes</div>
           <div class="menu-collection__meta">Starts from ₹999</div>
         </a>
 
         <a href="customized-cakes" class="menu-collection">
-          <div class="menu-collection__img"><img src="assets/images/categories/qcat-customized.jpg" alt="Customized Cakes" loading="lazy"></div>
+          <div class="menu-collection__img"><picture><source srcset="assets/images/categories/qcat-customized.webp" type="image/webp"><img src="assets/images/categories/qcat-customized.jpg" alt="Customized Cakes" loading="lazy"></picture></div>
           <div class="menu-collection__name">Customized Cakes</div>
           <div class="menu-collection__meta">Made to order</div>
         </a>
@@ -480,7 +481,7 @@
   </div>
 
   <script src="js/main.js?v=2"></script>
-  <script src="js/shop.js?v=26"></script>
+  <script src="js/shop.js?v=27"></script>
   <script src="js/track.js" defer></script>
 </body>
 </html>

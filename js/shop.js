@@ -345,7 +345,13 @@ function renderCard(p) {
   const tagBadge = p.tag ? `<div class="pcard__tag-badge ${p.tag}">${esc(TAG_LABELS[p.tag] || p.tag)}</div>` : '';
   const vegBadge = `<div class="pcard__veg-badge" title="Pure Vegetarian"><span></span></div>`;
 
-  const slideHTML = url => `<div class="pcard__gal-slide"><img src="${esc(url)}" alt="${esc(p.name)}" loading="lazy" onerror="handleCardImgError(this,'${p.category}')"></div>`;
+  const slideHTML = url => {
+    const webpUrl = /^https?:\/\//.test(url) ? null : url.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+    const srcHtml = webpUrl
+      ? `<picture><source srcset="${esc(webpUrl)}" type="image/webp"><img src="${esc(url)}" alt="${esc(p.name)}" loading="lazy" onerror="handleCardImgError(this,'${p.category}')"></picture>`
+      : `<img src="${esc(url)}" alt="${esc(p.name)}" loading="lazy" onerror="handleCardImgError(this,'${p.category}')">`;
+    return `<div class="pcard__gal-slide">${srcHtml}</div>`;
+  };
   const placeholderSlide = `<div class="pcard__gal-slide"><div class="pcard__gal-placeholder">${placeholderIcon}</div></div>`;
   const slides = hasImgs ? imgs.map(slideHTML).join('') : placeholderSlide;
 
