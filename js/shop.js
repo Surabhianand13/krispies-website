@@ -1510,8 +1510,6 @@ function _chkDeliveryHTML() {
   const canPay = !!_chkDelivery.store;
 
   return `
-    ${locBtn}
-    <div class="chk-loc-status" id="chkLocStatus"></div>
     ${storesHTML}
     ${canPay ? `
       ${_chkCouponHTML()}
