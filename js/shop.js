@@ -1937,6 +1937,10 @@ function _acctInjectUI() {
 }
 
 function openAccountModal() {
+  if (_custToken && !window.location.pathname.includes('profile')) {
+    window.location.href = '/profile';
+    return;
+  }
   _acctInjectUI();
   closeCheckout();
   closeCartDrawer();
@@ -2025,7 +2029,7 @@ async function _acctSubmitSignup() {
     if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Signup failed.');
     _custToken = data.token; _custProfile = data.customer;
     localStorage.setItem('krispies_customer_token', _custToken);
-    _acctRenderLoggedIn();
+    window.location.href = '/profile';
   } catch (e) {
     errEl.textContent = e.message;
     resetTurnstile(_acctTurnstileWidgetId);
@@ -2047,7 +2051,7 @@ async function _acctSubmitLogin() {
     if (!res.ok) throw new Error(data.error || 'Login failed.');
     _custToken = data.token; _custProfile = data.customer;
     localStorage.setItem('krispies_customer_token', _custToken);
-    _acctRenderLoggedIn();
+    window.location.href = '/profile';
   } catch (e) {
     errEl.textContent = e.message;
     resetTurnstile(_acctTurnstileWidgetId);
@@ -2094,7 +2098,7 @@ async function _acctSubmitOtpVerify() {
     if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Verification failed.');
     _custToken = data.token; _custProfile = data.customer;
     localStorage.setItem('krispies_customer_token', _custToken);
-    _acctRenderLoggedIn();
+    window.location.href = '/profile';
   } catch (e) {
     errEl.textContent = e.message;
     if (btn) { btn.textContent = 'Verify & Log In'; btn.disabled = false; }
