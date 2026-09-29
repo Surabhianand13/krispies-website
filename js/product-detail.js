@@ -102,12 +102,44 @@ function _pdpRender() {
         ${prepNote}
 
         <div class="pdp__actions">
-          <button class="btn btn-outline" onclick="_pdpAddToCart()">Add to Cart</button>
-          <button class="btn btn-gold" onclick="_pdpBuyNow()">Buy Now →</button>
+          <button class="btn btn-gold pdp__atc-btn" onclick="_pdpAddToCart()">🛒 Add to Cart</button>
+        </div>
+
+        <!-- Pincode delivery check -->
+        <div class="pdp__pincode-check">
+          <div class="pdp__pincode-row">
+            <input id="pdpPincodeInput" class="pdp__pincode-input" placeholder="Enter pincode to check delivery" maxlength="6" inputmode="numeric" onkeydown="if(event.key==='Enter')_pdpCheckPincode()">
+            <button class="pdp__pincode-btn" onclick="_pdpCheckPincode()">Check</button>
+          </div>
+          <div id="pdpPincodeResult" class="pdp__pincode-result"></div>
+        </div>
+
+        <!-- Payment modes -->
+        <div class="pdp__pay-modes">
+          <span class="pdp__pay-label">We accept:</span>
+          <span class="pdp__pay-badge pdp__pay-badge--upi">UPI</span>
+          <span class="pdp__pay-badge pdp__pay-badge--card">Visa / MC</span>
+          <span class="pdp__pay-badge pdp__pay-badge--nb">Net Banking</span>
+          <span class="pdp__pay-badge pdp__pay-badge--wallet">Wallets</span>
+        </div>
+
+        <!-- Wishlist + Share -->
+        <div class="pdp__social-row">
+          <button class="pdp__wishlist-btn" id="pdpWishlistBtn" onclick="_pdpToggleWishlist()" title="Save to wishlist">
+            <span id="pdpHeartIcon">♡</span> Wishlist
+          </button>
+          <button class="pdp__share-btn" onclick="_pdpShareWA()" title="Share on WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.122 1.522 5.855L.057 23.885l6.177-1.438A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.986 0-3.848-.574-5.42-1.565l-.388-.231-4.022.937.989-3.925-.253-.4A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            Share
+          </button>
+          <button class="pdp__share-btn" onclick="_pdpCopyLink()" title="Copy link">
+            🔗 Copy Link
+          </button>
         </div>
       </div>
     </div>`;
   _pdpUpdatePriceDisplay();
+  _pdpUpdateWishlist();
 }
 
 let _pdpQtyValue = 1;
@@ -166,11 +198,70 @@ function _pdpAddToCart() {
   addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null, _pdpQtyValue);
 }
 
-function _pdpBuyNow() {
-  openCheckout(_pdpProduct.id);
-  _chkCart.qty = _pdpQtyValue;
-  if (_pdpProduct.variantGroups?.length) _chkCart.variantSelection = { ..._pdpSelection };
-  _chkRenderStep(1);
+/* ── Pincode delivery check ── */
+async function _pdpCheckPincode() {
+  const input = document.getElementById('pdpPincodeInput');
+  const result = document.getElementById('pdpPincodeResult');
+  const pin = (input?.value || '').trim().replace(/\D/g, '');
+  if (pin.length !== 6) { if (result) result.textContent = 'Enter a valid 6-digit pincode.'; return; }
+  if (result) result.innerHTML = '<span style="color:#888">Checking…</span>';
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${pin}&country=India&format=json&limit=1`, {
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' }
+    });
+    const data = await res.json();
+    if (!data.length) { if (result) result.textContent = 'Pincode not found. Try a nearby pincode.'; return; }
+    const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+    const nearest = STORES.map(s => {
+      const km = haversine(lat, lng, s.lat, s.lng);
+      return { ...s, km, fee: deliveryFee(km) };
+    }).sort((a, b) => a.km - b.km)[0];
+    if (nearest.km > 30) {
+      if (result) result.innerHTML = `<span style="color:#c0392b">Outside our delivery range. Please call us to check.</span>`;
+    } else {
+      if (result) result.innerHTML = `<span class="pdp__pincode-ok">✓ Delivery available — <strong>₹${nearest.fee}</strong> from ${nearest.name} store (${nearest.km.toFixed(1)} km)</span>`;
+    }
+  } catch (_) {
+    if (result) result.textContent = 'Could not check. Try again or call us.';
+  }
+}
+
+/* ── Wishlist ── */
+function _pdpGetWishlist() {
+  try { return JSON.parse(localStorage.getItem('krispies_wishlist') || '[]'); } catch (_) { return []; }
+}
+function _pdpToggleWishlist() {
+  const id = _pdpProduct?.id;
+  if (!id) return;
+  let list = _pdpGetWishlist();
+  if (list.includes(id)) { list = list.filter(x => x !== id); } else { list.push(id); }
+  try { localStorage.setItem('krispies_wishlist', JSON.stringify(list)); } catch (_) {}
+  _pdpUpdateWishlist();
+}
+function _pdpUpdateWishlist() {
+  const id = _pdpProduct?.id;
+  if (!id) return;
+  const wishlisted = _pdpGetWishlist().includes(id);
+  const btn = document.getElementById('pdpWishlistBtn');
+  const icon = document.getElementById('pdpHeartIcon');
+  if (icon) icon.textContent = wishlisted ? '♥' : '♡';
+  if (btn) btn.classList.toggle('pdp__wishlist-btn--active', wishlisted);
+}
+
+/* ── Share ── */
+function _pdpShareWA() {
+  const url = window.location.href;
+  const text = `Check out this cake from Krispie's: ${_pdpProduct?.name || ''} — ${url}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+function _pdpCopyLink() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('.pdp__share-btn[onclick*="CopyLink"]');
+    if (btn) { const orig = btn.textContent; btn.textContent = '✓ Copied!'; setTimeout(() => { btn.textContent = orig; }, 2000); }
+  }).catch(() => {
+    prompt('Copy this link:', url);
+  });
 }
 
 // Shows up to 4 other products below the main listing -- same category

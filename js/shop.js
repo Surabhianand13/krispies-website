@@ -1009,12 +1009,11 @@ function haversine(lat1, lng1, lat2, lng2) {
 
 /* ── Delivery fee tiers ── */
 function deliveryFee(km) {
-  if (km <= 3)  return 30;
-  if (km <= 6)  return 60;
-  if (km <= 10) return 100;
-  if (km <= 15) return 150;
-  if (km <= 20) return 200;
-  return 250;
+  if (km <= 5)  return 100;
+  if (km <= 10) return 150;
+  if (km <= 15) return 200;
+  if (km <= 25) return 300;
+  return 350;
 }
 
 /* ── State ── */
@@ -1441,27 +1440,15 @@ function _chkStep2Next() {
 function _chkStep3() {
   return `
     <div class="chk-delivery-note">📍 We deliver to all Hyderabad pincodes &nbsp;·&nbsp; Same day delivery on orders placed before 2 PM</div>
-    <div class="chk-mode-toggle">
-      <button class="chk-mode-btn${_chkDelivery.mode !== 'pickup' ? ' active' : ''}"
-        onclick="_chkSetMode('delivery')">Home Delivery</button>
-      <button class="chk-mode-btn${_chkDelivery.mode === 'pickup' ? ' active' : ''}"
-        onclick="_chkSetMode('pickup')">Store Pickup</button>
-    </div>
-    <div id="chkDelivSection">${_chkDelivSection()}</div>`;
+    <div id="chkDelivSection">${_chkDeliveryHTML()}</div>`;
 }
 
-function _chkDelivSection() {
-  return _chkDelivery.mode === 'pickup' ? _chkPickupHTML() : _chkDeliveryHTML();
-}
-
-// The delivery/pickup section re-renders on every mode switch, store pick,
-// location detect, and coupon apply/remove -- each of those replaces
-// #chkDelivSection's innerHTML, which destroys any Turnstile widget
-// mounted inside it. Centralizing "re-render then re-mount" here instead of
-// repeating it at every call site.
+// The delivery section re-renders on every store pick, location detect,
+// and coupon apply/remove -- each of those replaces #chkDelivSection's
+// innerHTML, which destroys any Turnstile widget mounted inside it.
 let _chkTurnstileWidgetId = null;
 function _chkRenderDelivSection() {
-  document.getElementById('chkDelivSection').innerHTML = _chkDelivSection();
+  document.getElementById('chkDelivSection').innerHTML = _chkDeliveryHTML();
   const container = document.getElementById('chkTurnstileContainer');
   if (container) {
     if (turnstileConfigured) {
@@ -1484,9 +1471,6 @@ function _chkSubtotal() {
 /* ── Delivery sub-section ── */
 function _chkDeliveryHTML() {
   const hasLoc = _chkDelivery.lat !== null;
-  const locBtn = hasLoc
-    ? `<button class="chk-loc-btn chk-loc-btn--done" onclick="_chkDetectLoc()">Location detected — Re-detect</button>`
-    : `<button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()">Detect My Location</button>`;
 
   let storesHTML = '';
   if (hasLoc) {
@@ -1508,17 +1492,16 @@ function _chkDeliveryHTML() {
           </div>`).join('')}
       </div>`;
   } else {
-    storesHTML = `<div class="chk-loc-hint">Tap "Detect My Location" to see delivery distance &amp; fees from each of our 5 stores, or select a store manually below.</div>
-      <div class="chk-stores-label">Or choose a store manually:</div>
-      <div class="chk-store-list">
-        ${STORES.map(s => `
-          <div class="chk-store-card${_chkDelivery.store===s.name?' selected':''}"
-            onclick="_chkSelectStore('${s.name}', 0, 60)">
-            <div class="chk-store-card__name"><strong>${s.name}</strong></div>
-            <div class="chk-store-card__dist">Hyderabad</div>
-            <div class="chk-store-card__fee">From &#8377;30</div>
-          </div>`).join('')}
-      </div>`;
+    storesHTML = `
+      <div class="chk-loc-methods">
+        <div class="chk-pincode-row">
+          <input id="chkPincodeInput" class="chk-input" placeholder="Enter your pincode" maxlength="6" style="flex:1">
+          <button class="btn btn-outline" onclick="_chkPincodeCheck()" style="white-space:nowrap;padding:8px 14px;">Check</button>
+        </div>
+        <div class="chk-loc-or">or</div>
+        <button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()">📍 Use My Location</button>
+      </div>
+      <div class="chk-loc-status" id="chkLocStatus"></div>`;
   }
 
   const sub = _chkSubtotal();
@@ -1633,21 +1616,41 @@ function _chkDetectLoc() {
   );
 }
 
+/* ── Pincode geocoding (Nominatim) ── */
+async function _chkPincodeCheck() {
+  const input = document.getElementById('chkPincodeInput');
+  const statusEl = document.getElementById('chkLocStatus');
+  const pin = (input?.value || '').trim().replace(/\D/g, '');
+  if (pin.length !== 6) { if (statusEl) statusEl.textContent = 'Please enter a valid 6-digit pincode.'; return; }
+  if (statusEl) statusEl.textContent = 'Checking…';
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${pin}&country=India&format=json&limit=1`, {
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' }
+    });
+    const data = await res.json();
+    if (!data.length) { if (statusEl) statusEl.textContent = 'Pincode not found. Try using location instead.'; return; }
+    const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+    _chkDelivery.lat = lat;
+    _chkDelivery.lng = lng;
+    const nearest = STORES.map(s => {
+      const km = haversine(lat, lng, s.lat, s.lng);
+      return { ...s, km, fee: deliveryFee(km) };
+    }).sort((a, b) => a.km - b.km)[0];
+    _chkDelivery.store = nearest.name;
+    _chkDelivery.km    = nearest.km;
+    _chkDelivery.fee   = nearest.fee;
+    _chkRenderDelivSection();
+  } catch (_) {
+    if (statusEl) statusEl.textContent = 'Could not check pincode. Try using location instead.';
+  }
+}
+
 /* ── Store selection ── */
 function _chkSelectStore(name, km, fee) {
   _chkDelivery.store = name;
   _chkDelivery.km    = parseFloat(km);
   _chkDelivery.fee   = fee;
   _chkRenderDelivSection();
-}
-
-function _chkSelectPickup(name) {
-  _chkDelivery.store = name;
-  _chkDelivery.km    = 0;
-  _chkDelivery.fee   = 0;
-  _chkRenderDelivSection();
-  /* keep pickup toggle highlighted */
-  document.querySelectorAll('.chk-mode-btn').forEach((b, i) => b.classList.toggle('active', i === 1));
 }
 
 /* ════ ORDER PLACEMENT ════ */
