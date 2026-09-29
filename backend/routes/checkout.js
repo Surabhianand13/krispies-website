@@ -504,6 +504,24 @@ router.post('/verify',
 
   const confirmedOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(internal_order_id);
   if (confirmedOrder) {
+    // Try to attach the first product image so the customer email can show it.
+    // items is text like "Chocolate Truffle × 2" — strip the trailing "× N".
+    try {
+      const itemName = (confirmedOrder.items || '').replace(/\s*[×x]\s*\d+\s*$/i, '').trim();
+      const prod = itemName
+        ? db.prepare(`SELECT images FROM products WHERE name = ? LIMIT 1`).get(itemName)
+        : null;
+      if (prod) {
+        const imgs = JSON.parse(prod.images || '[]');
+        if (imgs.length) {
+          const frontendUrl = process.env.FRONTEND_URL || 'https://www.krispies.in';
+          // Absolute URL for email clients — prepend domain if not already absolute
+          confirmedOrder.product_image_url = /^https?:\/\//.test(imgs[0])
+            ? imgs[0]
+            : `${frontendUrl}/${imgs[0].replace(/^\//, '')}`;
+        }
+      }
+    } catch (_) {}
     notifyOrder(confirmedOrder);
     sendPurchaseEvent(confirmedOrder, req).catch(() => {});
   }

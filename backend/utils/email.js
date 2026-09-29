@@ -126,27 +126,108 @@ function newOrderEmail(order) {
 }
 
 function customerOrderConfirmationEmail(order) {
+  const frontendUrl = process.env.FRONTEND_URL || 'https://www.krispies.in';
+
+  // Extract delivery address from notes (stored as "Mode: delivery | Address: … | …")
+  const addrMatch = (order.notes || '').match(/Address:\s*([^|]+)/);
+  const deliveryAddress = addrMatch ? addrMatch[1].trim() : null;
+
+  // Humanise delivery date
+  let deliveryDateDisplay = order.delivery_date || null;
+  if (deliveryDateDisplay) {
+    try {
+      deliveryDateDisplay = new Date(deliveryDateDisplay + 'T00:00:00').toLocaleDateString('en-IN', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      });
+    } catch (_) {}
+  }
+
+  const imgBlock = order.product_image_url
+    ? `<div style="text-align:center;margin:0 0 24px;">
+        <img src="${esc(order.product_image_url)}" alt="${esc(order.items)}"
+          style="width:220px;height:220px;object-fit:cover;border-radius:12px;border:3px solid #C9A870;">
+       </div>`
+    : '';
+
+  const rowStyle = `display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(201,168,112,0.15);font-size:14px;`;
+  const labelCol = `color:#C9A870;`;
+  const valueCol = `color:#FAF7F0;text-align:right;font-weight:500;`;
+
   return sendEmail({
     to:      order.customer_email,
-    subject: `Your Krispie's order is confirmed! 🎂`,
+    subject: safeSubject(`Order Confirmed 🎂 Your Krispie's cake is on its way!`),
     html: `
       <div style="${baseStyle}">
+
+        <!-- Header -->
         <div style="${headerStyle}">
-          <p style="color:#C9A870;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0 0 4px">Krispie's</p>
-          <h2 style="color:#FAF7F0;margin:0;font-size:22px">Thank you, ${esc(order.customer_name)}!</h2>
-          <p style="color:#FAF7F0;margin:8px 0 0;font-size:14px;opacity:0.85">Your order has been received and is being prepared with love.</p>
+          <p style="color:#C9A870;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;margin:0 0 6px">Krispie's — Since 1996</p>
+          <h2 style="color:#FAF7F0;margin:0 0 6px;font-size:24px;font-family:Georgia,serif">
+            Order Confirmed! 🎂
+          </h2>
+          <p style="color:rgba(250,247,240,0.82);margin:0;font-size:14px;line-height:1.6;">
+            Hi ${esc(order.customer_name)}, your order has been received and is being crafted with love.<br>
+            We'll send you more details shortly.
+          </p>
         </div>
-        <div style="${bodyStyle}">
-          <p style="${labelStyle}">Order ID</p><p style="${valueStyle}">${esc(order.id)}</p>
-          <p style="${labelStyle}">Items</p><p style="${valueStyle}">${esc(order.items)}</p>
-          <p style="${labelStyle}">Amount</p><p style="${valueStyle}">${order.amount != null ? '₹' + esc(order.amount) : '—'}</p>
-          <p style="${labelStyle}">Delivery Date</p><p style="${valueStyle}">${esc(order.delivery_date) || '—'}</p>
-          <p style="${labelStyle}">Outlet</p><p style="${valueStyle}">${esc(order.outlet) || '—'}</p>
-          <p style="${labelStyle}">Status</p><p style="${valueStyle}">${esc(order.status)}</p>
+
+        <!-- Cake image -->
+        <div style="${bodyStyle}padding-bottom:4px;">
+          ${imgBlock}
+
+          <!-- Invoice table -->
+          <div style="background:#1A1A1A;border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+            <p style="color:#C9A870;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 12px;">Order Summary</p>
+            <div style="${rowStyle}">
+              <span style="${labelCol}">Order ID</span>
+              <span style="${valueCol}">#${esc(order.id)}</span>
+            </div>
+            <div style="${rowStyle}">
+              <span style="${labelCol}">Item</span>
+              <span style="${valueCol}">${esc(order.items)}</span>
+            </div>
+            ${order.amount != null ? `
+            <div style="${rowStyle}">
+              <span style="${labelCol}">Amount Paid</span>
+              <span style="${valueCol};color:#4CAF50;font-size:16px;">₹${Number(order.amount).toLocaleString('en-IN')}</span>
+            </div>` : ''}
+            ${deliveryDateDisplay ? `
+            <div style="${rowStyle}">
+              <span style="${labelCol}">Delivery Date</span>
+              <span style="${valueCol}">${esc(deliveryDateDisplay)}</span>
+            </div>` : ''}
+            ${order.outlet ? `
+            <div style="${rowStyle}">
+              <span style="${labelCol}">Store / Outlet</span>
+              <span style="${valueCol}">${esc(order.outlet)}</span>
+            </div>` : ''}
+            ${deliveryAddress ? `
+            <div style="padding:10px 0;font-size:14px;border-bottom:1px solid rgba(201,168,112,0.15);">
+              <span style="${labelCol}display:block;margin-bottom:4px;">Delivery Address</span>
+              <span style="${valueCol}text-align:left;">${esc(deliveryAddress)}</span>
+            </div>` : ''}
+            <div style="padding:10px 0;font-size:14px;">
+              <span style="${labelCol}">Status</span>
+              <span style="color:#4CAF50;font-weight:700;text-transform:uppercase;font-size:12px;float:right;">✓ Confirmed</span>
+            </div>
+          </div>
+
+          <!-- What's next -->
+          <div style="background:#111;border-radius:10px;padding:16px 20px;margin-bottom:4px;">
+            <p style="color:#C9A870;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 10px;">What happens next?</p>
+            <p style="color:rgba(250,247,240,0.78);font-size:13px;line-height:1.7;margin:0;">
+              Our team will reach out on <strong style="color:#FAF7F0;">${esc(order.customer_phone || 'your phone')}</strong> to confirm customisation details and delivery time.
+              Your cake will be freshly baked and delivered with care. 🎂
+            </p>
+          </div>
         </div>
+
+        <!-- Footer -->
         <div style="${footerStyle}">
-          Questions about your order? Call us at +91 79752 18850 or reply to this email.<br>
-          <a href="${process.env.FRONTEND_URL}" style="color:#C9A870">www.krispies.in</a>
+          Questions? Call us at <strong>+91 79752 18850</strong> or reply to this email.<br>
+          <a href="${frontendUrl}" style="color:#C9A870;text-decoration:none;">www.krispies.in</a>
+          &nbsp;·&nbsp;
+          <a href="https://www.instagram.com/krispies.in" style="color:#C9A870;text-decoration:none;">@krispies.in</a>
         </div>
       </div>`,
   });

@@ -3684,7 +3684,7 @@ textarea.form-ctrl { resize: vertical; min-height: 88px; }
   background: #fff;
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-lg);
-  width: 92%; max-width: 420px;
+  width: 92%; max-width: 540px;
   max-height: 88vh; overflow-y: auto;
   padding: 32px 28px;
   z-index: 1251;
@@ -3707,13 +3707,57 @@ textarea.form-ctrl { resize: vertical; min-height: 88px; }
 .acct-tab.active { background: var(--gold); color: #fff; border-color: var(--gold); }
 .acct-error { color: #c0392b; font-size: 0.8rem; margin-bottom: 10px; min-height: 1em; }
 .acct-profile-hd { display: flex; justify-content: space-between; align-items: center; }
+/* Profile header */
+.acct-profile-section {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 18px; margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-gold);
+}
+.acct-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--gold); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; font-weight: 700; flex-shrink: 0;
+  font-family: var(--font-display);
+}
+.acct-profile-info { flex: 1; min-width: 0; }
+.acct-profile-name { font-weight: 700; font-size: 1rem; color: var(--text-on-light); }
+.acct-profile-contact { font-size: 0.78rem; color: var(--text-muted-lt); margin-top: 2px; }
+.acct-logout-btn { white-space: nowrap; flex-shrink: 0; }
+
+/* Stats row */
+.acct-stats-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin-bottom: 20px;
+  background: #faf7f0; border-radius: 12px; padding: 12px 0;
+}
+.acct-stat { text-align: center; flex: 1; }
+.acct-stat-value { display: block; font-size: 1.3rem; font-weight: 700; color: var(--gold-dark); font-family: var(--font-display); }
+.acct-stat-label { display: block; font-size: 0.72rem; color: var(--text-muted-lt); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+.acct-stat-divider { width: 1px; height: 36px; background: var(--border-gold); flex-shrink: 0; }
+
+/* Order cards */
 .acct-order-card {
   border: 1px solid var(--border-gold); border-radius: 10px;
   padding: 12px 14px; margin-bottom: 10px; font-size: 0.85rem;
 }
+.acct-order-card__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.acct-order-card__items { font-weight: 600; color: var(--text-on-light); flex: 1; }
+.acct-status-badge {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+}
+.acct-order-card__details { font-size: 0.78rem; color: var(--text-muted-lt); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.acct-dot { opacity: 0.5; }
+.acct-order-card__id { font-size: 0.68rem; color: var(--text-muted-lt); margin-top: 5px; opacity: 0.7; }
 .acct-order-card__row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .acct-order-status { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
 .acct-order-card__meta { color: var(--text-muted-lt); font-size: 0.75rem; margin-top: 4px; }
+
+/* Empty orders state */
+.acct-empty-orders { text-align: center; padding: 24px 0; color: var(--text-muted-lt); }
+.acct-empty-icon { font-size: 2rem; margin-bottom: 8px; }
+.acct-empty-orders p { font-size: 0.88rem; margin: 0; }
 
 .acct-address-card {
   border: 1px solid var(--border-gold); border-radius: 10px;
