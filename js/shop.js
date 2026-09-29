@@ -525,12 +525,25 @@ async function loadAddons() {
     try { _addonsCache = JSON.parse(localStorage.getItem(ADDONS_KEY)) || []; }
     catch (_) { _addonsCache = []; }
   }
+  // Rebuild tab items from the loaded data so the panel reflects the admin's current catalog.
+  _rebuildAddonTabItems();
 }
 
-// An add-on with no categories set applies to every product; otherwise it
-// only shows for the categories the admin picked.
-function getAddonsForCategory(cat) {
-  return _addonsCache.filter(a => !a.categories || a.categories.length === 0 || a.categories.includes(cat));
+// Merge backend addon items into ADDON_TABS. If a tab has backend items, they
+// replace the static defaults; tabs with no backend items keep their defaults.
+function _rebuildAddonTabItems() {
+  for (const tab of ADDON_TABS) {
+    const backendItems = _addonsCache
+      .filter(a => a.tab === tab.key)
+      .map(a => ({ id: a.id, name: a.name, price: a.price, emoji: a.image ? null : _tabDefaultEmoji(tab.key), image: a.image || null }));
+    if (backendItems.length > 0) tab.items = backendItems;
+    // else keep the static defaults
+  }
+}
+
+function _tabDefaultEmoji(tabKey) {
+  const map = { flowers: '🌸', toppers: '🎂', candles: '🕯️', props: '🎉', balloons: '🎈', cupcakes: '🧁' };
+  return map[tabKey] || '🎁';
 }
 
 /* ── IGP-style add-on tabs ── */
@@ -604,7 +617,7 @@ function _renderAddonPanel(tabIdx) {
     const q = _selectedAddons[item.id] || 0;
     return `
       <div class="cart-panel__item${q > 0 ? ' has-qty' : ''}" id="cpitem-${item.id}">
-        <div class="cart-panel__item-icon">${item.emoji}</div>
+        <div class="cart-panel__item-icon">${item.image ? `<img src="${esc(item.image)}" alt="" onerror="this.parentNode.textContent='${_tabDefaultEmoji(_activeAddonTab < ADDON_TABS.length ? ADDON_TABS[_activeAddonTab].key : '')}'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : (item.emoji || '🎁')}</div>
         <div class="cart-panel__item-info">
           <p class="cart-panel__item-name">${esc(item.name)}</p>
           <p class="cart-panel__item-price">&#8377;${item.price}</p>

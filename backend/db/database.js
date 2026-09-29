@@ -203,6 +203,7 @@ safeAddColumn('products', 'flavour',        'TEXT');
 safeAddColumn('products', 'trending',       'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('products', 'sort_order',     'INTEGER NOT NULL DEFAULT 0');
 safeAddColumn('reviews',  'review_text',    'TEXT');
+safeAddColumn('addons',   'tab',            "TEXT NOT NULL DEFAULT 'props'");
 safeAddColumn('orders',   'customer_email',     'TEXT');
 safeAddColumn('orders',   'payment_method',     'TEXT');
 safeAddColumn('orders',   'customer_id',        'TEXT');
@@ -356,6 +357,34 @@ if (!alreadySeeded) {
 //    js/shop.js (icons only, no admin control). Seeded once so the team can
 //    take over managing them (photos, price, which categories they show
 //    for, active/inactive) from admin instead of a code change.
+// One-time migration: assign tab values to the original seeded addons that
+// predate the tab column (guarded by a settings flag so it only runs once).
+const tabMigrationDone = db.prepare("SELECT value FROM settings WHERE key = ?").get('addons_tab_migration_v1');
+if (!tabMigrationDone) {
+  const tabMap = {
+    'num-candles':    'candles',
+    'themed-candles': 'candles',
+    'balloons':       'balloons',
+    'pastel-balloons':'balloons',
+    'flower-ring':    'flowers',
+    'name-topper':    'toppers',
+    'bday-caps':      'props',
+    'bday-banner':    'props',
+    'horn-blowers':   'props',
+    'cake-knife':     'props',
+    'ribbon-deco':    'props',
+    'baby-banner':    'props',
+  };
+  const updateTab = db.prepare('UPDATE addons SET tab = ? WHERE id = ?');
+  const migrate = db.transaction(() => {
+    for (const [id, tab] of Object.entries(tabMap)) updateTab.run(tab, id);
+    db.prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value")
+      .run('addons_tab_migration_v1', 'true');
+  });
+  migrate();
+  console.log('✓ Migrated addons: assigned tab values to seeded items');
+}
+
 const alreadySeededAddons = db.prepare('SELECT value FROM settings WHERE key = ?').get('addons_seeded_v1');
 if (!alreadySeededAddons) {
   const mkAddon = (id, name, price, unit, categories) => ({

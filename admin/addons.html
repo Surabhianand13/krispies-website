@@ -34,19 +34,22 @@
     </div>
 
     <div class="page-body">
-      <p class="hint" style="margin-bottom:16px;max-width:640px;">
-        These are the upsell items customers see in the "Added to Cart!" popup (candles, banners, balloons, etc).
-        Leave <strong>Categories</strong> empty to show an add-on for every product, or pick specific categories to
-        only show it there — e.g. a "Fresh Flower Ring" only for Wedding/Engagement cakes.
+      <p class="hint" style="margin-bottom:16px;max-width:680px;">
+        These items appear in the "Make it extra special" panel when a customer adds a product to cart.
+        Assign each add-on to one of the 6 tabs — customers can add <strong>multiple items</strong> from any tab.
       </p>
+
+      <!-- Tab filter bar -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;" id="tabFilterBar"></div>
+
       <div class="card full-col">
         <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
                 <th>Add-on</th>
+                <th>Tab</th>
                 <th>Price</th>
-                <th>Categories</th>
                 <th>Active</th>
                 <th>Actions</th>
               </tr>
@@ -80,24 +83,42 @@
 if (!checkAuth()) throw new Error('Not authenticated');
 
 let allAddons = [];
+let activeFilter = 'all';
 
-const ADDON_CATEGORIES = [
-  ['birthday-cakes',       'Birthday Cakes'],
-  ['wedding-cakes',        'Wedding Cakes'],
-  ['engagement-cakes',     'Engagement Cakes'],
-  ['baby-shower-cakes',    'Kids Birthday Cakes'],
-  ['half-year-birthday-cakes', 'Half Year Birthday Cakes'],
-  ['gender-reveal-cakes',      'Gender Reveal Cakes'],
-  ['customized-cakes',     'Customized Cakes'],
-  ['cheesecakes',          'Cheesecakes'],
-  ['donuts',               'Donuts'],
-  ['biscuits',             'Biscuits'],
+const ADDON_TABS = [
+  { key: 'flowers',  label: 'Flowers',          emoji: '🌸' },
+  { key: 'toppers',  label: 'Toppers',           emoji: '🎂' },
+  { key: 'candles',  label: 'Candles',           emoji: '🕯️' },
+  { key: 'props',    label: 'Celebration Props', emoji: '🎉' },
+  { key: 'balloons', label: 'Balloons',          emoji: '🎈' },
+  { key: 'cupcakes', label: 'Cupcakes',          emoji: '🧁' },
 ];
+
+function tabLabel(key) {
+  const t = ADDON_TABS.find(x => x.key === key);
+  return t ? `${t.emoji} ${t.label}` : key;
+}
+
+function renderTabFilter() {
+  const bar = document.getElementById('tabFilterBar');
+  const all = [{ key: 'all', label: 'All', emoji: '📋' }, ...ADDON_TABS];
+  bar.innerHTML = all.map(t =>
+    `<button class="btn btn-sm ${activeFilter === t.key ? 'btn-primary' : 'btn-outline'}"
+      onclick="setFilter('${t.key}')">${t.emoji} ${t.label}</button>`
+  ).join('');
+}
+
+function setFilter(key) {
+  activeFilter = key;
+  renderTabFilter();
+  renderAddons();
+}
 
 async function loadAddons() {
   try {
     allAddons = await apiFetch('/api/addons?all=1');
-    document.getElementById('addon-count').textContent = `${allAddons.length} add-ons total`;
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-on${allAddons.length !== 1 ? 's' : ''} total`;
+    renderTabFilter();
     renderAddons();
   } catch (e) {
     showToast('Failed to load add-ons', 'error');
@@ -106,18 +127,20 @@ async function loadAddons() {
 
 function renderAddons() {
   const tb = document.getElementById('addons-tbody');
-  if (!allAddons.length) {
-    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">🎈</div>No add-ons yet</div></td></tr>`;
+  const items = activeFilter === 'all' ? allAddons : allAddons.filter(a => a.tab === activeFilter);
+  if (!items.length) {
+    const msg = activeFilter === 'all' ? 'No add-ons yet' : `No add-ons in ${tabLabel(activeFilter)} yet`;
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">🎈</div>${msg}<br><button class="btn btn-primary" style="margin-top:12px" onclick="openAddAddon('${activeFilter === 'all' ? 'props' : activeFilter}')">+ Add one</button></div></td></tr>`;
     return;
   }
-  tb.innerHTML = allAddons.map(a => `
+  tb.innerHTML = items.map(a => `
     <tr id="row-${a.id}">
       <td>
         <div class="td-name">${esc(a.name)}</div>
-        ${a.image ? `<img src="${esc(a.image)}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;margin-top:4px;" onerror="this.style.display='none'">` : ''}
+        ${a.image ? `<img src="${esc(a.image)}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;margin-top:4px;" onerror="this.style.display='none'">` : ''}
       </td>
+      <td><span style="font-size:0.85rem;">${tabLabel(a.tab || 'props')}</span></td>
       <td>${fmtPrice(a.price)} <span class="td-muted">/ ${esc(a.unit)}</span></td>
-      <td><span class="td-muted" style="font-size:0.75rem;">${a.categories.length ? a.categories.map(c => (ADDON_CATEGORIES.find(x=>x[0]===c)||[c,c])[1]).join(', ') : 'All products'}</span></td>
       <td>
         <label class="toggle" title="${a.active ? 'Click to deactivate' : 'Click to activate'}">
           <input type="checkbox" ${a.active ? 'checked' : ''} onchange="toggleAddonActive('${a.id}', this)">
@@ -137,7 +160,7 @@ async function toggleAddonActive(id, checkbox) {
   const a = allAddons.find(x => x.id === id);
   if (!a) return;
   try {
-    const updated = await apiFetch(`/api/addons/${id}`, 'PUT', { ...addonToBody(a), active: checkbox.checked });
+    const updated = await apiFetch(`/api/addons/${id}`, 'PUT', addonToBody({ ...a, active: checkbox.checked }));
     const idx = allAddons.findIndex(x => x.id === id);
     allAddons[idx] = updated;
     showToast(checkbox.checked ? 'Add-on activated' : 'Add-on deactivated');
@@ -148,49 +171,43 @@ async function toggleAddonActive(id, checkbox) {
 }
 
 function addonToBody(a) {
-  return {
-    name: a.name, price: a.price, unit: a.unit, image: a.image,
-    categories: JSON.stringify(a.categories), active: a.active,
-  };
+  return { name: a.name, price: a.price, unit: a.unit, image: a.image, tab: a.tab || 'props', active: a.active };
 }
 
 function addonForm(a = {}) {
-  const cats = a.categories || [];
+  const defaultTab = a.tab || (activeFilter !== 'all' ? activeFilter : 'props');
   return `
     <div class="form-row">
       <label>Name *</label>
-      <input id="f-name" value="${esc(a.name || '')}" placeholder="e.g. Metallic Balloons">
+      <input id="f-name" value="${esc(a.name || '')}" placeholder="e.g. Rose Bouquet">
+    </div>
+    <div class="form-row">
+      <label>Tab *<span class="hint-inline"> — which section of the cart panel this appears in</span></label>
+      <select id="f-tab">
+        ${ADDON_TABS.map(t => `<option value="${t.key}" ${defaultTab === t.key ? 'selected' : ''}>${t.emoji} ${t.label}</option>`).join('')}
+      </select>
     </div>
     <div class="form-grid-2">
       <div class="form-row">
         <label>Price (₹) *</label>
-        <input id="f-price" type="number" min="0" value="${a.price ?? ''}" placeholder="49">
+        <input id="f-price" type="number" min="0" value="${a.price ?? ''}" placeholder="299">
       </div>
       <div class="form-row">
-        <label>Unit</label>
-        <input id="f-unit" value="${esc(a.unit || 'each')}" placeholder="each, per cap, set of 10...">
+        <label>Unit <span class="hint-inline">(shown next to price)</span></label>
+        <input id="f-unit" value="${esc(a.unit || 'each')}" placeholder="each, bouquet, set of 6…">
       </div>
     </div>
     <div class="form-row">
-      <label>Photo <span class="hint-inline">(optional — falls back to a 🎈 icon if left blank)</span></label>
-      <div class="hint" style="margin-bottom:6px;">Paste a URL, or reference a local file dropped into
-        <code>assets/images/addons/&lt;filename&gt;.jpg</code></div>
-      <input id="f-image" value="${esc(a.image || '')}" placeholder="assets/images/addons/balloons.jpg">
+      <label>Photo <span class="hint-inline">(optional — uses an emoji if left blank)</span></label>
+      <input id="f-image" value="${esc(a.image || '')}" placeholder="https://… or assets/images/addons/rose.jpg">
       <div class="img-preview" id="img-preview">${a.image ? `<img src="${esc(a.image)}" onerror="this.style.display='none'">` : ''}</div>
-    </div>
-    <div class="form-row" style="grid-column:1/-1;">
-      <label>Categories <span class="hint-inline">(leave all unchecked to show for every product)</span></label>
-      <div class="checkbox-grid">
-        ${ADDON_CATEGORIES.map(([v,l]) => `
-          <label class="form-check"><input type="checkbox" class="f-cat-check" value="${v}" ${cats.includes(v)?'checked':''}> ${l}</label>`).join('')}
-      </div>
     </div>
     <div class="form-row">
       <label class="form-check"><input type="checkbox" id="f-active" ${a.active !== false ? 'checked' : ''}> Active (visible to customers)</label>
     </div>`;
 }
 
-function setupAddonImagePreview() {
+function setupImagePreview() {
   setTimeout(() => {
     const input = document.getElementById('f-image');
     const preview = document.getElementById('img-preview');
@@ -200,10 +217,11 @@ function setupAddonImagePreview() {
   }, 50);
 }
 
-function openAddAddon() {
+function openAddAddon(presetTab) {
+  const effectivePreset = presetTab || (activeFilter !== 'all' ? activeFilter : 'props');
   document.getElementById('modalTitle').textContent = 'Add Add-on';
-  document.getElementById('modalBody').innerHTML = addonForm();
-  setupAddonImagePreview();
+  document.getElementById('modalBody').innerHTML = addonForm({ tab: effectivePreset });
+  setupImagePreview();
   document.getElementById('modalSaveBtn').onclick = () => saveAddon();
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -213,24 +231,23 @@ function openEditAddon(id) {
   if (!a) return;
   document.getElementById('modalTitle').textContent = 'Edit Add-on';
   document.getElementById('modalBody').innerHTML = addonForm(a);
-  setupAddonImagePreview();
+  setupImagePreview();
   document.getElementById('modalSaveBtn').onclick = () => saveAddon(id);
   document.getElementById('modalOverlay').classList.add('open');
 }
 
 async function saveAddon(editId) {
-  const name = document.getElementById('f-name').value.trim();
+  const name  = document.getElementById('f-name').value.trim();
   const price = parseFloat(document.getElementById('f-price').value);
-  if (!name) { showToast('Name is required', 'error'); return; }
-  if (!(price >= 0)) { showToast('Enter a valid price', 'error'); return; }
+  if (!name)          { showToast('Name is required', 'error'); return; }
+  if (!(price >= 0))  { showToast('Enter a valid price', 'error'); return; }
 
-  const categories = [...document.querySelectorAll('.f-cat-check:checked')].map(el => el.value);
   const body = {
     name,
     price,
-    unit: document.getElementById('f-unit').value.trim() || 'each',
-    image: document.getElementById('f-image').value.trim(),
-    categories: JSON.stringify(categories),
+    unit:   document.getElementById('f-unit').value.trim() || 'each',
+    image:  document.getElementById('f-image').value.trim(),
+    tab:    document.getElementById('f-tab').value,
     active: document.getElementById('f-active').checked,
   };
 
@@ -249,7 +266,7 @@ async function saveAddon(editId) {
       showToast('Add-on added — live on the website ✓');
     }
     closeModal();
-    document.getElementById('addon-count').textContent = `${allAddons.length} add-ons total`;
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-on${allAddons.length !== 1 ? 's' : ''} total`;
     renderAddons();
   } catch (e) {
     showToast(e.message || 'Failed to save', 'error');
@@ -263,7 +280,7 @@ async function deleteAddon(id, name) {
   try {
     await apiFetch(`/api/addons/${id}`, 'DELETE');
     allAddons = allAddons.filter(a => a.id !== id);
-    document.getElementById('addon-count').textContent = `${allAddons.length} add-ons total`;
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-on${allAddons.length !== 1 ? 's' : ''} total`;
     renderAddons();
     showToast('Add-on deleted');
   } catch (e) {
