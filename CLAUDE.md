@@ -778,6 +778,30 @@ git push origin main
 # Cloudflare Pages auto-deploys in ~30-60 seconds
 ```
 
+### Server-rendered product data for crawlers (Pages Functions)
+
+AI crawlers (GPTBot, ClaudeBot, PerplexityBot…) don't run JavaScript, so a purely `shop.js`-rendered
+page looks empty to them. `functions/` fills that gap at the edge, all using the cached catalog in
+`functions/_shared/catalog.js` (fetched from `/api/products`, refreshed in the background every
+10 min, never blocks a page on a sleeping Render backend — if nothing is cached the page is served
+unchanged):
+
+- `functions/_middleware.js` — fills every `<div id="grid-<category>">` with that category's products
+  (marked `data-ssr="1"`) + an `ItemList` JSON-LD. `shop.js` re-renders over it as before, but keeps it
+  if its own fetch comes back empty.
+- `functions/products/[slug].js` — per-product `<title>`, description, canonical, OG tags, `Product` +
+  `BreadcrumbList` JSON-LD and visible name/price/description. Unknown slugs return a real **404**.
+  This Function takes precedence over `_redirects`, so legacy `/products/*` redirects live in its
+  `LEGACY_REDIRECTS` map, not in `_redirects`.
+- `functions/sitemap.xml.js` — serves `sitemap.xml` with its `/products/` entries replaced by the live
+  catalog. Edit non-product URLs in `sitemap.xml` by hand as before.
+- `functions/llms.txt.js` — `/llms.txt`, a plain-text business summary for AI assistants, built from the
+  live catalog. Business facts in it mirror `index.html`'s Bakery JSON-LD — keep them in sync.
+
+Test locally with `npx wrangler pages dev . --port 8788` (the `krispies-pages` config in
+`.claude/launch.json`). Note: Cloudflare's **Security → Bots → "Block AI bots"** setting 403s GPTBot/
+ClaudeBot/CCBot regardless of `robots.txt` — keep it off, or none of this is ever read.
+
 ### Backend — Render
 
 - Deployed as a Node.js web service

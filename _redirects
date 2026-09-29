@@ -2,11 +2,9 @@
 /rakhi-hampers               /menu               302
 /rakhi-hampers.html          /menu               302
 
-# Old deleted products → relevant category (fixes 4 "Not found 404" in Search Console)
-/products/coconut-cookies-200-grams          /biscuits           301
-/products/chocoholic-master-cake-2-kg        /birthday-cakes     301
-/products/pink-barbie-cake-2-kg              /birthday-cakes     301
-/products/1-year-blue-themed-cake-5-kgs      /birthday-cakes     301
+# Old deleted products → category redirects live in functions/products/[slug].js
+# (LEGACY_REDIRECTS): that Function takes precedence over this file for
+# /products/*, so rules for those paths here never run.
 
 # Old Shopify URLs → equivalent pages
 /collections/customized-cakes                /customized-cakes   301

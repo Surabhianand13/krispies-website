@@ -378,7 +378,10 @@ async function _pdpRenderRatings(slug) {
 }
 
 function _pdpInjectJsonLd(p) {
-  const images = (p.images || []).filter(Boolean).map(img => `https://www.krispies.in/${img}`);
+  // Uploaded images are already absolute (Render /uploads URLs); only
+  // repo-relative asset paths need the site prefix.
+  const images = (p.images || []).filter(Boolean)
+    .map(img => /^https?:\/\//i.test(img) ? img : `https://www.krispies.in/${img.replace(/^\/+/, '')}`);
   const url = `https://www.krispies.in/products/${p.slug}`;
   const ld = {
     '@context': 'https://schema.org/',
@@ -429,7 +432,9 @@ document.addEventListener('shop:ready', () => {
   const slug = _pdpSlugFromUrl();
   const products = getProducts();
   const p = products.find(x => x.slug === slug || x.id === slug);
-  if (!p) { _pdpNotFound(); return; }
+  // #pdpSsr means the server found this product (functions/products/[slug].js)
+  // -- a miss here is our own product fetch failing, not a missing product.
+  if (!p) { if (!document.getElementById('pdpSsr')) _pdpNotFound(); return; }
   _pdpProduct = p;
   // Scopes the pink/festive CTA theming (see css/styles.css's
   // body.rakhi-theme rules) to just this product's page -- doesn't touch

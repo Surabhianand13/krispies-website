@@ -21,6 +21,8 @@
 // Root directory) to only deploy the frontend's files, so backend/ is never
 // uploaded in the first place. Until that's set, this middleware is the
 // only thing standing between the internet and the backend's source code.
+import { getCatalog, productCardHtml, productUrl, jsonForScript } from './_shared/catalog.js';
+
 const BLOCKED_PATTERNS = [
   /^\/backend(\/|$)/i,
   /^\/render\.ya?ml$/i,
@@ -33,7 +35,8 @@ const BLOCKED_PATTERNS = [
   /\.(db|sqlite3?|sql)(-wal|-shm)?$/i,
 ];
 
-export async function onRequest({ request, next }) {
+export async function onRequest(context) {
+  const { request, next } = context;
   const { pathname } = new URL(request.url);
   if (BLOCKED_PATTERNS.some((re) => re.test(pathname))) {
     return new Response('Not Found', {
@@ -41,5 +44,51 @@ export async function onRequest({ request, next }) {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
   }
-  return next();
+  const res = await next();
+  if (request.method !== 'GET' || res.status !== 200 || pathname.startsWith('/admin')
+      || !(res.headers.get('content-type') || '').includes('text/html')) {
+    return res;
+  }
+  return renderProductGrids(context, res);
+}
+
+// Fills every <div id="grid-<category>"> (category landing pages, menu)
+// with that category's products server-side, plus an ItemList for
+// structured data -- so the products are in the HTML for crawlers that
+// don't run JavaScript. shop.js's renderAll() replaces this with the
+// interactive cards as before. The catalog is only fetched if the page
+// actually has a grid. See functions/_shared/catalog.js.
+const NON_CATEGORY_GRID_IDS = ['featured', 'trending'];
+
+function renderProductGrids(context, res) {
+  const listed = [];
+  return new HTMLRewriter()
+    .on('[id^="grid-"]', {
+      async element(el) {
+        const cat = el.getAttribute('id').replace(/^grid-/, '');
+        if (NON_CATEGORY_GRID_IDS.includes(cat)) return;
+        const catalog = await getCatalog(context);
+        const items = (catalog || []).filter((p) => p.category === cat);
+        if (!items.length) return;
+        listed.push(...items);
+        el.setAttribute('data-ssr', '1');
+        el.setInnerContent(items.map(productCardHtml).join(''), { html: true });
+      },
+    })
+    .on('body', {
+      element(el) {
+        el.onEndTag((end) => {
+          if (!listed.length) return;
+          const ld = {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            itemListElement: listed.map((p, i) => ({
+              '@type': 'ListItem', position: i + 1, url: productUrl(p), name: p.name,
+            })),
+          };
+          end.before(`<script type="application/ld+json">${jsonForScript(ld)}</script>`, { html: true });
+        });
+      },
+    })
+    .transform(res);
 }
