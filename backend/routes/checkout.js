@@ -120,7 +120,7 @@ const COUPONS = {
 // (handled by the separate mode branch below), never for real delivery.
 // Including it here would let a delivery-mode order pass validation with
 // no delivery fee at all.
-const DELIVERY_FEE_TIERS = [30, 60, 100, 150, 200, 250];
+const DELIVERY_FEE_TIERS = [100, 150, 200, 300, 350];
 
 function computeUnitPrice(product, variantSelection) {
   const disc = Number(product.discount) || 0;
