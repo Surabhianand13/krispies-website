@@ -1496,8 +1496,16 @@ function _chkDeliveryHTML() {
     : STORES.map(s => ({ ...s, km: null, fee: 60 })); // ₹60 default until location known
 
   const storesHTML = `
+    <div class="chk-loc-search-wrap">
+      <div class="chk-loc-search-row">
+        <input id="chkLocSearchInput" class="chk-input" placeholder="Search your area (e.g. Banjara Hills)"
+          autocomplete="off" oninput="_chkLocSearchType(this.value)" style="flex:1">
+      </div>
+      <div id="chkLocSearchDrop" class="chk-loc-dropdown"></div>
+    </div>
+    <div class="chk-loc-or">or</div>
     <button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()" style="margin-bottom:12px;">
-      📍 ${hasLoc ? 'Re-detect My Location' : 'Use My Location for accurate fee'}
+      📍 ${hasLoc ? 'Re-detect My Location' : 'Use My Current Location'}
     </button>
     <div class="chk-loc-status" id="chkLocStatus" style="margin-bottom:${hasLoc?'0':'8'}px;"></div>
     <div class="chk-stores-label">${hasLoc ? 'Nearest stores to you:' : 'Select your delivery store:'}</div>
@@ -1655,6 +1663,54 @@ async function _chkPincodeCheck() {
   } catch (_) {
     if (statusEl) statusEl.textContent = 'Could not check pincode. Try using location instead.';
   }
+}
+
+/* ── Location text search (Nominatim) ── */
+let _chkLocSearchTimer = null;
+function _chkLocSearchType(val) {
+  clearTimeout(_chkLocSearchTimer);
+  const drop = document.getElementById('chkLocSearchDrop');
+  if (!val || val.trim().length < 3) { if (drop) drop.innerHTML = ''; return; }
+  _chkLocSearchTimer = setTimeout(() => _chkLocSearchFetch(val.trim()), 350);
+}
+
+async function _chkLocSearchFetch(q) {
+  const drop = document.getElementById('chkLocSearchDrop');
+  if (!drop) return;
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ', Hyderabad')}&countrycodes=in&format=json&limit=5&addressdetails=0`;
+    const data = await (await fetch(url, { headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' } })).json();
+    const hyd = data.filter(d => {
+      const dn = (d.display_name || '').toLowerCase();
+      return dn.includes('telangana') || dn.includes('hyderabad');
+    });
+    if (!hyd.length) {
+      drop.innerHTML = `<div class="chk-loc-drop-empty">No results in Hyderabad — try a different area name</div>`;
+      return;
+    }
+    drop.innerHTML = hyd.map(d => {
+      const parts = (d.display_name || '').split(',').slice(0, 3).join(', ');
+      return `<div class="chk-loc-drop-item" onclick="_chkLocSearchSelect(${d.lat}, ${d.lon}, this)">${esc(parts)}</div>`;
+    }).join('');
+  } catch (_) { drop.innerHTML = ''; }
+}
+
+function _chkLocSearchSelect(lat, lng, el) {
+  const drop = document.getElementById('chkLocSearchDrop');
+  const input = document.getElementById('chkLocSearchInput');
+  if (input) input.value = el ? el.textContent : '';
+  if (drop) drop.innerHTML = '';
+  const latN = parseFloat(lat), lngN = parseFloat(lng);
+  _chkDelivery.lat = latN;
+  _chkDelivery.lng = lngN;
+  const nearest = STORES.map(s => {
+    const km = haversine(latN, lngN, s.lat, s.lng);
+    return { ...s, km, fee: deliveryFee(km) };
+  }).sort((a, b) => a.km - b.km)[0];
+  _chkDelivery.store = nearest.name;
+  _chkDelivery.km    = nearest.km;
+  _chkDelivery.fee   = nearest.fee;
+  _chkRenderDelivSection();
 }
 
 /* ── Store selection ── */

@@ -4087,6 +4087,23 @@ textarea.chk-input { resize: vertical; min-height: 80px; }
   display: flex; gap: 8px; margin-bottom: 10px;
 }
 .chk-pincode-row .chk-input { flex: 1; margin-bottom: 0; }
+/* Location search field */
+.chk-loc-search-wrap { position: relative; margin-bottom: 6px; }
+.chk-loc-search-row { display: flex; gap: 8px; }
+.chk-loc-search-row .chk-input { flex: 1; margin-bottom: 0; }
+.chk-loc-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #1e1109; border: 1px solid var(--border-gold);
+  border-radius: 8px; z-index: 200; overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+}
+.chk-loc-drop-item {
+  padding: 10px 14px; font-size: 0.82rem; color: var(--text-on-dark);
+  cursor: pointer; border-bottom: 1px solid rgba(201,168,112,0.08);
+}
+.chk-loc-drop-item:last-child { border-bottom: none; }
+.chk-loc-drop-item:hover { background: rgba(201,168,112,0.12); }
+.chk-loc-drop-empty { padding: 10px 14px; font-size: 0.8rem; color: var(--text-muted); }
 .chk-loc-or {
   text-align: center; font-size: 0.75rem; color: var(--text-muted);
   margin-bottom: 10px; position: relative;
