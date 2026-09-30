@@ -498,9 +498,11 @@ router.post('/verify',
     return res.status(400).json({ error: 'Payment could not be verified.' });
   }
 
-  // Mark the order as confirmed
-  db.prepare(`UPDATE orders SET status = 'confirmed', updated_at = datetime('now') WHERE id = ?`)
-    .run(internal_order_id);
+  // Mark the order as confirmed and append the Razorpay payment ID to notes
+  // so admin can cross-reference the payment in the Razorpay dashboard.
+  db.prepare(`UPDATE orders SET status = 'confirmed', payment_method = 'online',
+    notes = COALESCE(notes,'') || ' [Paid:' || ? || ']', updated_at = datetime('now') WHERE id = ?`)
+    .run(razorpay_payment_id, internal_order_id);
 
   const confirmedOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(internal_order_id);
   if (confirmedOrder) {

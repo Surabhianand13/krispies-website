@@ -96,30 +96,43 @@ function newMessageEmail(msg) {
 }
 
 function newOrderEmail(order) {
+  // Extract delivery address and mode from notes
+  const notes = order.notes || '';
+  const addrMatch = notes.match(/Address:\s*([^|[\]]+)/i);
+  const deliveryAddress = addrMatch ? addrMatch[1].trim() : null;
+  const modeMatch = notes.match(/Mode:\s*([^|[\]]+)/i);
+  const deliveryMode = modeMatch ? modeMatch[1].trim() : null;
+
+  // Payment status — once /verify succeeds status becomes 'confirmed'
+  const isPaid = order.status === 'confirmed' || order.status === 'ready' || order.status === 'delivered';
+  const paymentBadge = isPaid
+    ? `<span style="background:#1a3a25;color:#3aac6e;border:1px solid #2d6043;padding:3px 10px;border-radius:4px;font-size:13px;font-weight:700;">✓ PAID via Razorpay</span>`
+    : `<span style="background:#2d1f06;color:#d97706;border:1px solid #7c4a0c;padding:3px 10px;border-radius:4px;font-size:13px;font-weight:700;">⏳ Payment Pending</span>`;
+
   return sendEmail({
     to:      process.env.ADMIN_EMAIL,
-    subject: safeSubject(`📦 New Order from ${order.customer_name} — Krispie's`),
+    subject: safeSubject(`${isPaid ? '✅ PAID' : '⏳ PENDING'} — New Order from ${order.customer_name} | Krispie's`),
     html: `
       <div style="${baseStyle}">
         <div style="${headerStyle}">
           <p style="color:#C9A870;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0 0 4px">Krispie's Admin</p>
-          <h2 style="color:#FAF7F0;margin:0;font-size:22px">New Order Logged</h2>
+          <h2 style="color:#FAF7F0;margin:0 0 10px;font-size:22px">New Order</h2>
+          ${paymentBadge}
         </div>
         <div style="${bodyStyle}">
           <p style="${labelStyle}">Customer</p><p style="${valueStyle}">${esc(order.customer_name)}</p>
           <p style="${labelStyle}">Phone</p><p style="${valueStyle}">${esc(order.customer_phone) || '—'}</p>
+          ${order.customer_email ? `<p style="${labelStyle}">Email</p><p style="${valueStyle}">${esc(order.customer_email)}</p>` : ''}
           <p style="${labelStyle}">Items</p><p style="${valueStyle}">${esc(order.items)}</p>
-          <p style="${labelStyle}">Quantity</p><p style="${valueStyle}">${esc(order.quantity) || '—'}</p>
-          <p style="${labelStyle}">Amount</p><p style="${valueStyle}">${order.amount ? '₹' + esc(order.amount) : '—'}</p>
-          <p style="${labelStyle}">Platform</p><p style="${valueStyle}">${esc(order.platform) || '—'}</p>
+          <p style="${labelStyle}">Amount</p><p style="${valueStyle}" style="font-weight:700;font-size:18px;">${order.amount ? '₹' + esc(String(order.amount)) : '—'}</p>
           <p style="${labelStyle}">Outlet</p><p style="${valueStyle}">${esc(order.outlet) || '—'}</p>
-          <p style="${labelStyle}">Order Date</p><p style="${valueStyle}">${esc(order.order_date) || '—'}</p>
           <p style="${labelStyle}">Delivery Date</p><p style="${valueStyle}">${esc(order.delivery_date) || '—'}</p>
-          <p style="${labelStyle}">Status</p><p style="${valueStyle}">${esc(order.status)}</p>
-          ${order.notes ? `<p style="${labelStyle}">Notes</p><p style="${valueStyle}">${esc(order.notes)}</p>` : ''}
+          ${deliveryMode ? `<p style="${labelStyle}">Mode</p><p style="${valueStyle}">${esc(deliveryMode)}</p>` : ''}
+          ${deliveryAddress ? `<p style="${labelStyle}">Delivery Address</p><p style="${valueStyle};color:#E8D9C0;">${esc(deliveryAddress)}</p>` : ''}
+          ${order.notes ? `<p style="${labelStyle}">Full Notes</p><p style="${valueStyle};font-size:12px;color:#aaa;">${esc(order.notes)}</p>` : ''}
         </div>
         <div style="${footerStyle}">
-          <a href="${process.env.FRONTEND_URL}/admin/orders.html" style="color:#C9A870">View Orders →</a>
+          <a href="${process.env.FRONTEND_URL}/admin/orders.html" style="color:#C9A870">View in Admin Panel →</a>
         </div>
       </div>`,
   });
