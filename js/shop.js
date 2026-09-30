@@ -1485,37 +1485,31 @@ function _chkSubtotal() {
 function _chkDeliveryHTML() {
   const hasLoc = _chkDelivery.lat !== null;
 
-  let storesHTML = '';
-  if (hasLoc) {
-    const sorted = STORES.map(s => {
-      const km  = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
-      const fee = deliveryFee(km);
-      return { ...s, km, fee };
-    }).sort((a, b) => a.km - b.km);
+  // Always show stores — sorted by distance if location is known, otherwise
+  // in default order with an estimated fee. Location detection is optional.
+  const storeList = hasLoc
+    ? STORES.map(s => {
+        const km  = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
+        const fee = deliveryFee(km);
+        return { ...s, km, fee };
+      }).sort((a, b) => a.km - b.km)
+    : STORES.map(s => ({ ...s, km: null, fee: 60 })); // ₹60 default until location known
 
-    storesHTML = `
-      <div class="chk-stores-label">Nearest stores to you:</div>
-      <div class="chk-store-list">
-        ${sorted.map((s, i) => `
-          <div class="chk-store-card${i===0?' best':''}${_chkDelivery.store===s.name?' selected':''}"
-            onclick="_chkSelectStore('${s.name}', ${s.km.toFixed(3)}, ${s.fee})">
-            <div class="chk-store-card__name">${i===0?'&#9733; ':''}<strong>${s.name}</strong></div>
-            <div class="chk-store-card__dist">${s.km.toFixed(1)} km away</div>
-            <div class="chk-store-card__fee">&#8377;${s.fee} delivery</div>
-          </div>`).join('')}
-      </div>`;
-  } else {
-    storesHTML = `
-      <div class="chk-loc-methods">
-        <div class="chk-pincode-row">
-          <input id="chkPincodeInput" class="chk-input" placeholder="Enter your pincode" maxlength="6" style="flex:1">
-          <button class="btn btn-outline" onclick="_chkPincodeCheck()" style="white-space:nowrap;padding:8px 14px;">Check</button>
-        </div>
-        <div class="chk-loc-or">or</div>
-        <button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()">📍 Use My Location</button>
-      </div>
-      <div class="chk-loc-status" id="chkLocStatus"></div>`;
-  }
+  const storesHTML = `
+    <button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()" style="margin-bottom:12px;">
+      📍 ${hasLoc ? 'Re-detect My Location' : 'Use My Location for accurate fee'}
+    </button>
+    <div class="chk-loc-status" id="chkLocStatus" style="margin-bottom:${hasLoc?'0':'8'}px;"></div>
+    <div class="chk-stores-label">${hasLoc ? 'Nearest stores to you:' : 'Select your delivery store:'}</div>
+    <div class="chk-store-list">
+      ${storeList.map((s, i) => `
+        <div class="chk-store-card${hasLoc && i===0?' best':''}${_chkDelivery.store===s.name?' selected':''}"
+          onclick="_chkSelectStore('${s.name}', ${s.km !== null ? s.km.toFixed(3) : 5}, ${s.fee})">
+          <div class="chk-store-card__name">${hasLoc && i===0?'&#9733; ':''}<strong>${s.name}</strong></div>
+          <div class="chk-store-card__dist">${s.km !== null ? s.km.toFixed(1)+' km away' : 'Hyderabad'}</div>
+          <div class="chk-store-card__fee">${hasLoc ? '&#8377;'+s.fee+' delivery' : 'from &#8377;30'}</div>
+        </div>`).join('')}
+    </div>`;
 
   const sub = _chkSubtotal();
   const fee = _chkDelivery.fee || 0;
@@ -1528,9 +1522,10 @@ function _chkDeliveryHTML() {
       ${_chkCouponHTML()}
       <div class="chk-total-box">
         <div class="chk-total-row"><span>Subtotal (&#215;${_chkCart.qty})</span><span>&#8377;${sub.toLocaleString('en-IN')}</span></div>
-        <div class="chk-total-row"><span>Delivery to ${_chkDelivery.store}</span><span>&#8377;${fee}</span></div>
+        <div class="chk-total-row"><span>Delivery to ${_chkDelivery.store}</span><span>&#8377;${fee}${!hasLoc?' <span style="font-size:0.7em;color:#888">(est.)</span>':''}</span></div>
         ${disc > 0 ? `<div class="chk-total-row" style="color:#1a7a3c"><span>Coupon (${_chkCoupon.code})</span><span>&#8722;&#8377;${disc.toLocaleString('en-IN')}</span></div>` : ''}
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub + fee - disc).toLocaleString('en-IN')}</span></div>
+        ${!hasLoc ? `<div style="font-size:0.72rem;color:#888;margin-top:4px;">Delivery fee adjusted to your exact distance at fulfilment. Use My Location above for accurate fee.</div>` : ''}
       </div>
       <div id="chkTurnstileContainer" style="margin:12px 0;"></div>
       <div class="chk-pay-btns">
