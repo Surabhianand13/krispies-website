@@ -104,12 +104,17 @@ function _pdpRender() {
   // Date tabs: Today / Tomorrow / Select Date
   const _today = new Date(); _today.setHours(0,0,0,0);
   const _tomorrow = new Date(_today); _tomorrow.setDate(_today.getDate() + 1);
-  const prepDays = Math.ceil((Number(p.prepHours) || 0) / 24);
-  const minDateObj = new Date(_today); minDateObj.setDate(_today.getDate() + Math.max(1, prepDays));
+  // Products with < 24 h notice are same-day capable; only those needing 24h+
+  // round up to whole days.
+  const _prepHoursNum = Number(p.prepHours) || 0;
+  const prepDays = _prepHoursNum >= 24 ? Math.ceil(_prepHoursNum / 24) : 0;
+  // Allow today only if prep time < 24 h AND it's before the 2 PM cutoff
+  const _nowHour = new Date().getHours();
+  const canToday = prepDays === 0 && _nowHour < 14;
+  const minDateObj = new Date(_today); minDateObj.setDate(_today.getDate() + prepDays);
   const fmtDateLabel = d => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
   const fmtDateVal = d => d.toISOString().split('T')[0];
   const todayVal = fmtDateVal(_today), tomorrowVal = fmtDateVal(_tomorrow);
-  const canToday = prepDays === 0;
   const customActive = _pdpSelectedDate && _pdpSelectedDate !== todayVal && _pdpSelectedDate !== tomorrowVal;
   const customLabel = customActive
     ? new Date(_pdpSelectedDate + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
