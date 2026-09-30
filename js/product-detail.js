@@ -189,11 +189,13 @@ function _pdpRender() {
           </button>
         </div>
 
-        <!-- Pincode delivery check -->
+        <!-- Delivery area check -->
         <div class="pdp__pincode-check">
-          <div class="pdp__pincode-row">
-            <input id="pdpPincodeInput" class="pdp__pincode-input" placeholder="Enter pincode to check delivery" maxlength="6" inputmode="numeric" onkeydown="if(event.key==='Enter')_pdpCheckPincode()">
-            <button class="pdp__pincode-btn" onclick="_pdpCheckPincode()">Check</button>
+          <div class="pdp__pincode-row" style="position:relative;">
+            <input id="pdpAreaInput" class="pdp__pincode-input" placeholder="Enter your area to check delivery"
+              autocomplete="off" oninput="_pdpAreaType(this.value)"
+              onkeydown="if(event.key==='Enter')_pdpAreaSearch(this.value)">
+            <div id="pdpAreaDrop" class="pdp__area-dropdown"></div>
           </div>
           <div id="pdpPincodeResult" class="pdp__pincode-result"></div>
         </div>
@@ -348,31 +350,56 @@ function _pdpAddToCart() {
   addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null, _pdpQtyValue, flavour);
 }
 
-/* ── Pincode delivery check ── */
-async function _pdpCheckPincode() {
-  const input = document.getElementById('pdpPincodeInput');
-  const result = document.getElementById('pdpPincodeResult');
-  const pin = (input?.value || '').trim().replace(/\D/g, '');
-  if (pin.length !== 6) { if (result) result.textContent = 'Enter a valid 6-digit pincode.'; return; }
-  if (result) result.innerHTML = '<span style="color:#888">Checking…</span>';
+/* ── Delivery area search ── */
+let _pdpAreaTimer = null;
+function _pdpAreaType(val) {
+  clearTimeout(_pdpAreaTimer);
+  const drop = document.getElementById('pdpAreaDrop');
+  if (!val || val.trim().length < 3) { if (drop) drop.innerHTML = ''; return; }
+  _pdpAreaTimer = setTimeout(() => _pdpAreaFetch(val.trim()), 350);
+}
+
+async function _pdpAreaFetch(q) {
+  const drop = document.getElementById('pdpAreaDrop');
+  if (!drop) return;
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${pin}&country=India&format=json&limit=1`, {
-      headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' }
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ', Hyderabad')}&countrycodes=in&format=json&limit=5`;
+    const data = await (await fetch(url, { headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' } })).json();
+    const hyd = data.filter(d => {
+      const dn = (d.display_name || '').toLowerCase();
+      return dn.includes('telangana') || dn.includes('hyderabad');
     });
-    const data = await res.json();
-    if (!data.length) { if (result) result.textContent = 'Pincode not found. Try a nearby pincode.'; return; }
-    const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
-    const nearest = STORES.map(s => {
-      const km = haversine(lat, lng, s.lat, s.lng);
-      return { ...s, km, fee: deliveryFee(km) };
-    }).sort((a, b) => a.km - b.km)[0];
-    if (nearest.km > 30) {
-      if (result) result.innerHTML = `<span class="pdp__pincode-no">✗ Outside our delivery range. Call us to check.</span>`;
-    } else {
-      if (result) result.innerHTML = `<span class="pdp__pincode-ok">✓ Delivery available to this pincode</span>`;
+    if (!hyd.length) {
+      drop.innerHTML = `<div class="pdp__area-drop-empty">No results in Hyderabad — try a different area name</div>`;
+      return;
     }
-  } catch (_) {
-    if (result) result.textContent = 'Could not check. Try again or call us.';
+    drop.innerHTML = hyd.map(d => {
+      const label = d.display_name.split(',').slice(0, 3).join(', ');
+      return `<div class="pdp__area-drop-item" onclick="_pdpAreaSelect(${d.lat}, ${d.lon}, this)">${label}</div>`;
+    }).join('');
+  } catch (_) { drop.innerHTML = ''; }
+}
+
+async function _pdpAreaSearch(q) {
+  if (!q || q.trim().length < 3) return;
+  await _pdpAreaFetch(q.trim());
+}
+
+function _pdpAreaSelect(lat, lng, el) {
+  const drop = document.getElementById('pdpAreaDrop');
+  const input = document.getElementById('pdpAreaInput');
+  const result = document.getElementById('pdpPincodeResult');
+  if (drop) drop.innerHTML = '';
+  if (input && el) input.value = el.textContent;
+  const latN = parseFloat(lat), lngN = parseFloat(lng);
+  const nearest = STORES.map(s => {
+    const km = haversine(latN, lngN, s.lat, s.lng);
+    return { ...s, km, fee: deliveryFee(km) };
+  }).sort((a, b) => a.km - b.km)[0];
+  if (nearest.km > 30) {
+    if (result) result.innerHTML = `<span class="pdp__pincode-no">✗ Outside our delivery range. Call us to arrange delivery.</span>`;
+  } else {
+    if (result) result.innerHTML = `<span class="pdp__pincode-ok">✓ Delivery available · Nearest store: ${nearest.name} (${nearest.km.toFixed(1)} km) · ₹${nearest.fee} delivery fee</span>`;
   }
 }
 
