@@ -1169,7 +1169,10 @@ function _chkMinDate() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const prepDays = Math.ceil((Number(p.prepHours) || 0) / 24);
+  // Products with < 24 h notice are same-day capable (prepDays = 0);
+  // only those needing 24 h+ round up to whole days.
+  const _prepHoursNum = Number(p.prepHours) || 0;
+  const prepDays = _prepHoursNum >= 24 ? Math.ceil(_prepHoursNum / 24) : 0;
   const categoryDays = needsAdvance ? 1 : 0;
   const leadDays = Math.max(prepDays, categoryDays);
 
@@ -1636,7 +1639,12 @@ async function _chkPincodeCheck() {
       headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' }
     });
     const data = await res.json();
-    if (!data.length) { if (statusEl) statusEl.textContent = 'Pincode not found. Try using location instead.'; return; }
+    if (!data.length) { if (statusEl) statusEl.textContent = 'Pincode not found. Try your full address or use location instead.'; return; }
+    const displayName = (data[0].display_name || '').toLowerCase();
+    if (!displayName.includes('telangana') && !displayName.includes('hyderabad')) {
+      if (statusEl) statusEl.textContent = 'Sorry, this pincode is outside Hyderabad. We currently only deliver within Hyderabad.';
+      return;
+    }
     const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
     _chkDelivery.lat = lat;
     _chkDelivery.lng = lng;
@@ -1647,6 +1655,7 @@ async function _chkPincodeCheck() {
     _chkDelivery.store = nearest.name;
     _chkDelivery.km    = nearest.km;
     _chkDelivery.fee   = nearest.fee;
+    if (statusEl) statusEl.textContent = '';
     _chkRenderDelivSection();
   } catch (_) {
     if (statusEl) statusEl.textContent = 'Could not check pincode. Try using location instead.';
