@@ -184,16 +184,38 @@ function renderOrders(list) {
     const isToday  = delivery === new Date().toISOString().slice(0,10);
     const isTomr   = delivery === new Date(Date.now()+86400000).toISOString().slice(0,10);
     const delBadge = isToday ? '🔴 Today' : isTomr ? '🟡 Tomorrow' : fmtDate(delivery);
+    // Extract delivery address from notes ("Mode: delivery | Address: … | …")
+    const notes    = o.notes || '';
+    const addrM    = notes.match(/Address:\s*([^|[\]]+)/i);
+    const addrLine = addrM ? addrM[1].trim() : '';
+    // Payment badge: for online orders show whether payment was actually completed
+    const method   = (o.payment_method || o.paymentMethod || '').toLowerCase();
+    const st       = o.status;
+    let payCell;
+    if (method === 'online') {
+      if (st === 'confirmed' || st === 'ready' || st === 'delivered') {
+        payCell = `<span style="display:inline-flex;align-items:center;gap:3px;background:#1a3a25;color:#3aac6e;border:1px solid #2d6043;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:600;white-space:nowrap;">✓ Paid</span>`;
+      } else if (st === 'pending') {
+        payCell = `<span style="display:inline-flex;align-items:center;gap:3px;background:#2d1f06;color:#d97706;border:1px solid #7c4a0c;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:600;white-space:nowrap;">⏳ Unpaid</span>`;
+      } else if (st === 'cancelled') {
+        payCell = `<span style="color:#888;font-size:0.72rem;">—</span>`;
+      } else {
+        payCell = `<span style="color:#888;font-size:0.72rem;">${esc(method)}</span>`;
+      }
+    } else {
+      payCell = `<span class="td-muted" style="font-size:0.72rem;">${esc(method || '—')}</span>`;
+    }
     return `<tr>
       <td>
         <div class="td-name">${name}</div>
         ${phone ? `<div class="td-muted" style="font-size:0.7rem;">${esc(phone)}</div>` : ''}
+        ${addrLine ? `<div class="td-muted" style="font-size:0.67rem;margin-top:2px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(addrLine)}">📍 ${esc(addrLine)}</div>` : ''}
       </td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" class="td-muted">${esc(o.items || '—')}</td>
       <td><strong>${fmtPrice(o.amount)}</strong></td>
       <td class="td-muted">${esc(OUTLET_LABELS[o.outlet] || o.outlet || '—')}</td>
       <td style="white-space:nowrap;">${delBadge}</td>
-      <td class="td-muted" style="font-size:0.72rem;">${esc(o.payment_method || o.paymentMethod || '—')}</td>
+      <td>${payCell}</td>
       <td>
         <select class="status-select" onchange="updateStatus('${o.id}', this.value, this)">
           ${['pending','confirmed','ready','delivered','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
