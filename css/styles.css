@@ -2130,6 +2130,30 @@ body.rakhi-theme .section-label::after { background: var(--rk-pink); }
 .pdp__area-drop-item:hover { background: #faf0e0; }
 .pdp__area-drop-empty { padding: 10px 14px; font-size: 0.8rem; color: #888; }
 
+/* ── PDP: Variant chips ── */
+.pdp__variant-group { margin-bottom: 16px; }
+.pdp__variant-chips {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+}
+.pdp__variant-chip {
+  padding: 8px 16px; border-radius: 24px; cursor: pointer; font-size: 0.88rem; font-weight: 500;
+  border: 1.5px solid #ddd; background: #fff; color: #333; transition: all 0.15s;
+  white-space: nowrap;
+}
+.pdp__variant-chip:hover { border-color: var(--gold); color: var(--gold-dark); }
+.pdp__variant-chip--active {
+  border-color: #e57373; background: #fce8e8; color: #c62828; font-weight: 600;
+}
+.pdp__serving-info {
+  margin-top: 8px; font-size: 0.82rem; color: #666; font-weight: 400;
+}
+
+/* ── PDP: Cake message ── */
+.pdp__cake-msg-group { margin-bottom: 16px; }
+.pdp__cake-msg-hd { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.pdp__cake-msg-counter { font-size: 0.78rem; color: #999; }
+.pdp__cake-msg-input { width: 100%; box-sizing: border-box; }
+
 /* ── PDP: Flavour dropdown ── */
 .pdp__flavour-group { margin-top: 12px; }
 
