@@ -1309,7 +1309,12 @@ function _chkStep1() {
     <div class="chk-field-group">
       <label class="chk-label">Special Instructions <span style="font-weight:400;text-transform:none">(optional)</span></label>
       <textarea class="chk-input" id="chkNotes" rows="3"
-        placeholder="Flavour, design, message on cake, allergens…">${esc(_chkCart.notes || (window.__pdpFlavour ? `Flavour: ${window.__pdpFlavour}` : ''))}</textarea>
+        placeholder="Flavour, design, message on cake, allergens…">${esc(_chkCart.notes || (() => {
+          const parts = [];
+          if (window.__pdpCakeMessage) parts.push(`Message on cake: ${window.__pdpCakeMessage}`);
+          if (window.__pdpFlavour) parts.push(`Flavour: ${window.__pdpFlavour}`);
+          return parts.join(' | ');
+        })())}</textarea>
     </div>
 
     <div class="chk-footer">
