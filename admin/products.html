@@ -578,6 +578,9 @@ function renderVariantGroups() {
               oninput="_editVariantGroups[${gi}].options[${oi}].label = this.value">
             <input type="number" placeholder="Final price, e.g. 699" value="${o.price || 0}"
               oninput="_editVariantGroups[${gi}].options[${oi}].price = parseFloat(this.value) || 0">
+            <input placeholder="Serving info, e.g. 8–12 people" value="${esc(o.serving || '')}"
+              oninput="_editVariantGroups[${gi}].options[${oi}].serving = this.value.trim()"
+              style="max-width:170px">
             <button class="img-pill__rm" onclick="removeVariantOption(${gi}, ${oi})" type="button" title="Remove option">✕</button>
             <div class="variant-option-img">
               <button class="btn btn-outline btn-sm" onclick="document.getElementById('vo-file-${gi}-${oi}').click()" type="button" id="vo-upload-btn-${gi}-${oi}">Upload</button>
@@ -594,7 +597,7 @@ function renderVariantGroups() {
 }
 
 function addVariantGroup() {
-  _editVariantGroups.push({ name: '', optional: false, options: [{ label: '', price: 0, image: '' }] });
+  _editVariantGroups.push({ name: '', optional: false, options: [{ label: '', price: 0, image: '', serving: '' }] });
   renderVariantGroups();
 }
 function removeVariantGroup(gi) {
@@ -602,7 +605,7 @@ function removeVariantGroup(gi) {
   renderVariantGroups();
 }
 function addVariantOption(gi) {
-  _editVariantGroups[gi].options.push({ label: '', price: 0, image: '' });
+  _editVariantGroups[gi].options.push({ label: '', price: 0, image: '', serving: '' });
   renderVariantGroups();
 }
 
@@ -755,7 +758,7 @@ function openEditProduct(id) {
   _editVariantGroups = (p.variantGroups || []).map(g => ({
     name: g.name,
     optional: !!g.optional,
-    options: g.options.map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0), image: o.image || '' })),
+    options: g.options.map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0), image: o.image || '', serving: o.serving || '' })),
   }));
   document.getElementById('modalTitle').textContent = 'Edit Product';
   document.getElementById('modalBody').innerHTML = productForm(p);

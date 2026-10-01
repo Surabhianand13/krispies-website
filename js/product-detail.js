@@ -8,6 +8,7 @@ let _pdpProduct = null;
 let _pdpSelection = null;
 let _pdpGalleryIndex = 0;
 let _pdpSelectedDate = null;
+let _pdpCakeMessage = '';
 
 // Categories that get the static flavour dropdown if no Flavour variant group is configured.
 // Birthday cakes are excluded because customers usually specify customisation via notes.
@@ -76,12 +77,30 @@ function _pdpRender() {
   const variantHtml = hasVariants ? p.variantGroups.map((g, gi) => {
     const isFlavourGroup = /flavou?r/i.test(g.name);
     if (useVariantCards) return renderVariantCards(g.name, g, _pdpSelection[g.name], '_pdpVariantCardClick', gi);
+    // Pill-chip picker for weight/size/non-flavour groups
+    const selectedIdx = _pdpSelection[g.name];
+    const selectedOpt = selectedIdx >= 0 && selectedIdx < g.options.length ? g.options[selectedIdx] : null;
+    const servingInfo = selectedOpt && selectedOpt.serving ? selectedOpt.serving : '';
+    if (!isFlavourGroup) {
+      return `
+      <div class="pdp__variant-group">
+        <label class="chk-label">${esc(g.name)}</label>
+        <div class="pdp__variant-chips">
+          ${g.optional ? `<button class="pdp__variant-chip${selectedIdx === -1 ? ' pdp__variant-chip--active' : ''}"
+            onclick="_pdpVariantChipClick('${esc(g.name)}', -1)">None</button>` : ''}
+          ${g.options.map((o, i) => `<button class="pdp__variant-chip${selectedIdx === i ? ' pdp__variant-chip--active' : ''}"
+            onclick="_pdpVariantChipClick('${esc(g.name)}', ${i})">${esc(o.label)}</button>`).join('')}
+        </div>
+        ${servingInfo ? `<div class="pdp__serving-info">${esc(servingInfo)}</div>` : ''}
+      </div>`;
+    }
+    // Flavour: keep dropdown
     return `
     <div class="chk-field-group">
       <label class="chk-label">${esc(g.name)}</label>
       <select class="chk-input" onchange="_pdpVariantChange('${esc(g.name)}', this.value)">
-        ${g.optional ? `<option value="-1" ${_pdpSelection[g.name] === -1 ? 'selected' : ''}>None</option>` : ''}
-        ${g.options.map((o, i) => `<option value="${i}" ${_pdpSelection[g.name] === i ? 'selected' : ''}>${esc(o.label)}${isFlavourGroup ? '' : ` — ₹${(Number(o.price) || 0).toLocaleString('en-IN')}`}</option>`).join('')}
+        ${g.optional ? `<option value="-1" ${selectedIdx === -1 ? 'selected' : ''}>None</option>` : ''}
+        ${g.options.map((o, i) => `<option value="${i}" ${selectedIdx === i ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}
       </select>
     </div>`;
   }).join('') : '';
@@ -168,6 +187,17 @@ function _pdpRender() {
 
         ${variantHtml}
         ${flavourHtml}
+
+        <div class="pdp__cake-msg-group">
+          <div class="pdp__cake-msg-hd">
+            <label class="chk-label">Cake Message <span style="font-weight:400;color:var(--text-muted);text-transform:none">(optional)</span></label>
+            <span class="pdp__cake-msg-counter"><span id="pdpMsgCount">${_pdpCakeMessage.length}</span>/25</span>
+          </div>
+          <input type="text" id="pdpCakeMessage" class="chk-input pdp__cake-msg-input"
+            placeholder="Write A Sweet Wish!" maxlength="25"
+            value="${esc(_pdpCakeMessage)}"
+            oninput="_pdpMsgType(this.value)">
+        </div>
 
         <div class="chk-field-group">
           <label class="chk-label">Quantity</label>
@@ -289,6 +319,13 @@ function _pdpVariantChange(groupName, optionIndex) {
   _pdpUpdatePriceDisplay();
 }
 
+// Chip picker click — full re-render so chip state and serving info update.
+// Safe: qty, date, cake message and selection all live in module-level vars.
+function _pdpVariantChipClick(groupName, optionIndex) {
+  _pdpSelection[groupName] = Number(optionIndex);
+  _pdpRender();
+}
+
 // Card-picker equivalent -- a full _pdpRender() (not just a price update)
 // so the clicked card's "selected" border shows immediately. Safe to
 // re-render the whole panel here: quantity lives in the module-level
@@ -296,6 +333,12 @@ function _pdpVariantChange(groupName, optionIndex) {
 function _pdpVariantCardClick(groupName, optionIndex) {
   _pdpSelection[groupName] = Number(optionIndex);
   _pdpRender();
+}
+
+function _pdpMsgType(val) {
+  _pdpCakeMessage = (val || '').substring(0, 25);
+  const counter = document.getElementById('pdpMsgCount');
+  if (counter) counter.textContent = _pdpCakeMessage.length;
 }
 
 function _pdpQty(delta) {
@@ -344,8 +387,10 @@ function _pdpCustomDateChange(val) {
 }
 
 function _pdpAddToCart() {
-  // Pass selected date as a note hint so the checkout modal can pre-fill it
+  // Pass selected date and cake message as hints so the checkout modal can pre-fill
   if (_pdpSelectedDate) window.__pdpDate = _pdpSelectedDate;
+  if (_pdpCakeMessage) window.__pdpCakeMessage = _pdpCakeMessage;
+  else delete window.__pdpCakeMessage;
   const flavour = window.__pdpFlavour;
   addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null, _pdpQtyValue, flavour);
 }
