@@ -45,10 +45,12 @@ app.set('trust proxy', 1);
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// ── Serve uploaded product images ──────────────────────────────────────────────
-// UPLOAD_DIR lets Render's persistent disk (mounted outside the ephemeral
-// container filesystem) hold uploads so they survive redeploys — see
-// routes/upload.js and render.yaml.
+// ── Serve uploaded product images (legacy fallback) ───────────────────────────
+// New uploads go to Cloudflare R2 (see routes/upload.js) and are served from
+// the CDN edge with zero Render egress.  This express.static line stays as a
+// fallback for any images uploaded before R2 was configured, and for local dev.
+// Once POST /api/upload/migrate-to-r2 has been run and all DB URLs point to R2,
+// this line can safely be removed along with the persistent disk mount.
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 app.use('/uploads', express.static(UPLOAD_DIR));
 

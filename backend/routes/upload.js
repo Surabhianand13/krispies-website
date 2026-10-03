@@ -8,7 +8,28 @@ const sharp   = require('sharp');
 const db      = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
 
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+
 const router = express.Router();
+
+// ── R2 (Cloudflare) — S3-compatible object storage, served via Cloudflare CDN ─
+// When all four env vars are set, new uploads go straight to R2 and DB URLs
+// point there; otherwise falls back to local disk (dev / unconfigured).
+const R2_BUCKET     = process.env.R2_BUCKET_NAME;
+const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
+
+let r2Client = null;
+if (process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID &&
+    process.env.R2_SECRET_ACCESS_KEY && R2_BUCKET && R2_PUBLIC_URL) {
+  r2Client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId:     process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    },
+  });
+}
 
 // UPLOAD_DIR lets Render's persistent disk hold uploads so they survive
 // redeploys (see server.js and render.yaml) — falls back to a local folder
@@ -77,12 +98,119 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
   // Every upload is re-encoded to JPEG above, so the saved file is always
   // .jpg regardless of what format was uploaded.
   const filename = Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
-  fs.writeFileSync(path.join(UPLOAD_DIR, filename), outputBuffer);
 
-  // Build the public URL using forwarded headers (Render terminates TLS before Node)
+  if (r2Client) {
+    // Upload to R2: served from Cloudflare's CDN edge — faster than Render,
+    // zero egress fees, and doesn't count against Render's bandwidth quota.
+    try {
+      await r2Client.send(new PutObjectCommand({
+        Bucket:      R2_BUCKET,
+        Key:         filename,
+        Body:        outputBuffer,
+        ContentType: 'image/jpeg',
+      }));
+      return res.json({ url: `${R2_PUBLIC_URL}/${filename}` });
+    } catch (err) {
+      // Fall through to local disk so admin uploads aren't blocked during
+      // a temporary R2 outage or misconfiguration.
+      console.error('[upload] R2 upload failed, falling back to local disk:', err.message);
+    }
+  }
+
+  // Fallback: write to local disk (dev mode, or R2 not configured / temporarily down).
+  fs.writeFileSync(path.join(UPLOAD_DIR, filename), outputBuffer);
   const proto   = (req.headers['x-forwarded-proto'] || req.protocol).split(',')[0].trim();
   const baseUrl = `${proto}://${req.get('host')}`;
   res.json({ url: `${baseUrl}/uploads/${filename}` });
+});
+
+// Rewrites full URL matches in product/addon image fields -- used when migrating
+// existing uploads from one host to another (e.g. Render disk → R2).
+// Each key is a URL substring to match (e.g. "/uploads/file.jpg") and the
+// value is the full replacement URL.
+function rewriteUrlReferences(urlRewrites) {
+  if (!Object.keys(urlRewrites).length) return;
+
+  const products = db.prepare('SELECT id, images FROM products').all();
+  const updateProduct = db.prepare('UPDATE products SET images = ? WHERE id = ?');
+  for (const row of products) {
+    let arr;
+    try { arr = JSON.parse(row.images || '[]'); } catch (_) { arr = []; }
+    if (!Array.isArray(arr) || !arr.length) continue;
+    let changed = false;
+    const next = arr.map(url => {
+      if (typeof url !== 'string') return url;
+      for (const [suffix, newUrl] of Object.entries(urlRewrites)) {
+        if (url.includes(suffix)) { changed = true; return newUrl; }
+      }
+      return url;
+    });
+    if (changed) updateProduct.run(JSON.stringify(next), row.id);
+  }
+
+  const addons = db.prepare('SELECT id, image FROM addons').all();
+  const updateAddon = db.prepare('UPDATE addons SET image = ? WHERE id = ?');
+  for (const row of addons) {
+    if (!row.image) continue;
+    let next = row.image;
+    let changed = false;
+    for (const [suffix, newUrl] of Object.entries(urlRewrites)) {
+      if (next.includes(suffix)) { changed = true; next = newUrl; break; }
+    }
+    if (changed) updateAddon.run(next, row.id);
+  }
+}
+
+// Copies every file in UPLOAD_DIR to R2 and rewrites all DB image URLs to
+// point to R2.  Safe to run multiple times -- uploading the same key to R2
+// just overwrites it, and a URL already pointing to R2 won't match the
+// /uploads/ suffix pattern so it won't be double-rewritten.
+router.post('/migrate-to-r2', requireAuth, async (req, res) => {
+  if (!r2Client) {
+    return res.status(400).json({
+      error: 'R2 is not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, and R2_PUBLIC_URL on the server.',
+    });
+  }
+
+  let files;
+  try {
+    files = fs.readdirSync(UPLOAD_DIR).filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f));
+  } catch (_) {
+    return res.status(500).json({ error: 'Could not read uploads directory.' });
+  }
+
+  let uploaded = 0, failed = 0, bytes = 0;
+  const urlRewrites = {};
+
+  for (const file of files) {
+    let buf;
+    try { buf = fs.readFileSync(path.join(UPLOAD_DIR, file)); } catch (_) { failed++; continue; }
+    try {
+      await r2Client.send(new PutObjectCommand({
+        Bucket:      R2_BUCKET,
+        Key:         file,
+        Body:        buf,
+        ContentType: 'image/jpeg',
+      }));
+      urlRewrites[`/uploads/${file}`] = `${R2_PUBLIC_URL}/${file}`;
+      bytes += buf.length;
+      uploaded++;
+    } catch (err) {
+      console.error('[migrate-to-r2] failed for', file, err.message);
+      failed++;
+    }
+  }
+
+  rewriteUrlReferences(urlRewrites);
+
+  res.json({
+    uploaded,
+    failed,
+    totalMB:  Math.round(bytes / 1024 / 1024 * 10) / 10,
+    message: failed
+      ? `${failed} file(s) failed — check server logs. ${uploaded} migrated successfully.`
+      : `Migration complete — ${uploaded} image(s) now served from R2.`,
+  });
 });
 
 // One-time (repeatable/idempotent) backfill for images uploaded before the
