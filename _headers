@@ -1,0 +1,52 @@
+# Cloudflare Pages headers configuration
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=(self)
+
+# HTML — always fresh so content changes show instantly
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# CSS/JS with query-string versioning — revalidate so v= changes are picked up
+/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/js/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# WebP images — long-lived cache (committed to repo, won't change without a deploy)
+/assets/images/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/images/banners/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/images/categories/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/images/hero/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/images/products/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/images/subcategories/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# JPG fallbacks — revalidate (WebP is served first; browsers only hit these if WebP unsupported)
+/assets/images/*
+  Cache-Control: public, max-age=86400
+
+# Fonts and SVG logos — long cache
+/assets/*.svg
+  Cache-Control: public, max-age=604800
+
+/assets/*.png
+  Cache-Control: public, max-age=604800
+
+/assets/videos/*
+  Cache-Control: public, max-age=86400
