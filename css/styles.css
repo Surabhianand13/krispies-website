@@ -471,7 +471,7 @@ h1, h2, h3, h4 {
 
 /* ── Category Nav Bar ── */
 .cat-nav {
-  background: #7C3A2A;
+  background: #9A4A3A;
   overflow: visible;
 }
 .cat-nav__inner {
@@ -542,7 +542,7 @@ h1, h2, h3, h4 {
   min-width: 200px;
   background: #fff;
   border: 1px solid rgba(201,168,112,0.3);
-  border-top: 2px solid #7C3A2A;
+  border-top: 2px solid #9A4A3A;
   border-radius: 0 0 10px 10px;
   box-shadow: 0 10px 32px rgba(0,0,0,0.15);
   padding: 6px 0;
