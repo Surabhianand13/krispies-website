@@ -2426,4 +2426,21 @@ async function _acctPrefillCheckout() {
   initSharedPageUI();
   _acctInjectUI();
   document.dispatchEvent(new CustomEvent('shop:ready'));
+
+  // Render free-tier cold starts can take 30-60s; our three 8s-timeout
+  // attempts above give up at ~36s. On a first visit with no localStorage
+  // cache this races the backend wake — if everything timed out we schedule
+  // one late recovery attempt so pages like product-page.html don't stay
+  // stuck on "Product not found" after a backend cold start.
+  if (!_productsCache.length) {
+    await new Promise(r => setTimeout(r, 30000));
+    await loadProducts();
+    if (_productsCache.length) {
+      renderAll();
+      renderFeatured();
+      renderTrending();
+      renderSubcatCircles();
+      document.dispatchEvent(new CustomEvent('shop:ready'));
+    }
+  }
 })();
