@@ -4,4 +4,35 @@ Allow: /
 Disallow: /admin/
 Disallow: /animation-preview.html
 
+# AI search crawlers — explicitly allowed (already covered by * above,
+# but listed here so intent is unambiguous and for any tool that only
+# reads named bot entries)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
 Sitemap: https://www.krispies.in/sitemap.xml
+
+# Plain-text business summary for AI assistants
+# https://llmstxt.org
+LLMs: https://www.krispies.in/llms.txt
