@@ -495,7 +495,7 @@ h1, h2, h3, h4 {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #2A0E08;
+  color: #fff;
   white-space: nowrap;
   transition: color 0.2s, border-bottom-color 0.2s;
   border-bottom: 2px solid transparent;
@@ -504,10 +504,10 @@ h1, h2, h3, h4 {
 .cat-nav__link:hover,
 .cat-nav__item.active .cat-nav__link {
   color: #fff;
-  border-bottom-color: rgba(255,255,255,0.8);
+  border-bottom-color: rgba(255,255,255,0.9);
 }
 .cat-nav__item.trend .cat-nav__link {
-  color: #5A1A08;
+  color: #fff;
   font-weight: 800;
 }
 .cat-nav__item.trend .cat-nav__link::after {
@@ -524,7 +524,7 @@ h1, h2, h3, h4 {
   line-height: 1.6;
 }
 .cat-nav__item.trend:hover .cat-nav__link {
-  color: #fff;
+  opacity: 0.85;
 }
 .cat-nav__caret {
   width: 10px; height: 10px; flex-shrink: 0;
