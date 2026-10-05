@@ -161,6 +161,50 @@ function rewriteUrlReferences(urlRewrites) {
   }
 }
 
+// Replaces a URL base prefix across all product/addon image fields in the DB.
+// Used to fix bulk-migrated URLs that were written with the wrong base
+// (e.g. the placeholder https://pub-xxxx.r2.dev instead of the real one).
+// Body: { from: 'https://old-base', to: 'https://new-base' }
+router.post('/repair-urls', requireAuth, (req, res) => {
+  const { from, to } = req.body || {};
+  if (!from || !to || typeof from !== 'string' || typeof to !== 'string') {
+    return res.status(400).json({ error: 'Body must have { from, to } strings.' });
+  }
+  const fromBase = from.replace(/\/$/, '');
+  const toBase   = to.replace(/\/$/, '');
+
+  let fixed = 0;
+
+  const products = db.prepare('SELECT id, images FROM products').all();
+  const updateProduct = db.prepare('UPDATE products SET images = ? WHERE id = ?');
+  for (const row of products) {
+    let arr;
+    try { arr = JSON.parse(row.images || '[]'); } catch (_) { arr = []; }
+    if (!Array.isArray(arr) || !arr.length) continue;
+    let changed = false;
+    const next = arr.map(url => {
+      if (typeof url === 'string' && url.startsWith(fromBase)) {
+        changed = true;
+        fixed++;
+        return toBase + url.slice(fromBase.length);
+      }
+      return url;
+    });
+    if (changed) updateProduct.run(JSON.stringify(next), row.id);
+  }
+
+  const addons = db.prepare('SELECT id, image FROM addons').all();
+  const updateAddon = db.prepare('UPDATE addons SET image = ? WHERE id = ?');
+  for (const row of addons) {
+    if (typeof row.image === 'string' && row.image.startsWith(fromBase)) {
+      updateAddon.run(toBase + row.image.slice(fromBase.length), row.id);
+      fixed++;
+    }
+  }
+
+  res.json({ fixed, message: `Replaced ${fixed} URL(s) from "${fromBase}" → "${toBase}".` });
+});
+
 // Copies every file in UPLOAD_DIR to R2 and rewrites all DB image URLs to
 // point to R2.  Safe to run multiple times -- uploading the same key to R2
 // just overwrites it, and a URL already pointing to R2 won't match the
