@@ -3141,7 +3141,7 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .hero__slide-inner { padding: 56px 20px; gap: 20px; }
 
   /* Menu tabs — scrollable row on tablet too */
-  .menu-tabs__grid { padding: 10px 16px; gap: 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .menu-tabs__grid { padding: 10px 16px; gap: 6px; flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .menu-tabs__grid::-webkit-scrollbar { display: none; }
   .menu-tab { padding: 6px 13px; font-size: 0.68rem; flex-shrink: 0; }
 
@@ -3149,9 +3149,6 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .subcat-item__circle { width: 90px; height: 90px; }
   .subcat-item span { font-size: 0.75rem; }
   .subcat-scroll { gap: 14px; }
-
-  /* Product grid */
-  .pcard-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
   /* Category sections */
   .menu-cat-section { padding: 48px 0 56px; }
@@ -3208,15 +3205,14 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .filter-pill { padding: 5px 12px; font-size: 0.72rem; }
 
   /* Menu tabs — single scrollable row instead of stacked list on phones */
-  .menu-tabs__grid { padding: 8px 12px; gap: 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .menu-tabs__grid { padding: 8px 12px; gap: 6px; flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .menu-tabs__grid::-webkit-scrollbar { display: none; }
   .menu-tab { padding: 6px 12px; font-size: 0.64rem; letter-spacing: 0.05em; flex-shrink: 0; }
 
-  /* Product grid — 2 columns on phones, compact card body */
-  .pcard-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  /* Product card — compact body on phones */
   .pcard__body { padding: 10px 10px 12px; }
   .pcard__name { font-size: 0.82rem; }
-  .pcard__desc { display: none; }
+  .pcard__desc { display: none !important; }
   .pcard__price { font-size: 1rem; }
   .pcard__btn { padding: 9px 8px; font-size: 0.72rem; letter-spacing: 0.05em; }
   .menu-cat-section { padding: 36px 0 44px; }
@@ -3701,10 +3697,7 @@ textarea.form-ctrl { resize: vertical; min-height: 88px; }
   .menu-cat-section { padding: 52px 0 60px; }
 }
 @media (max-width: 640px) {
-  /* This block loads after the single-column rule further up the file, so
-     without this override the 860px rule above would win the cascade and
-     force cramped 2-column cards even on phones. */
-  .pcard-grid { grid-template-columns: 1fr; gap: 14px; }
+  .pcard-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
 }
 
 /* ════════════════════════════════════════════
