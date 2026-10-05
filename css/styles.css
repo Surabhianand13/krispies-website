@@ -3140,9 +3140,10 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .hero { min-height: 0; height: auto; width: calc(100% - 24px); margin: calc(var(--nav-h) + var(--promo-h) + 12px) auto 12px; border-radius: 16px; }
   .hero__slide-inner { padding: 56px 20px; gap: 20px; }
 
-  /* Menu tabs */
-  .menu-tabs__grid { padding: 10px 16px; gap: 6px; }
-  .menu-tab { padding: 6px 13px; font-size: 0.68rem; }
+  /* Menu tabs — scrollable row on tablet too */
+  .menu-tabs__grid { padding: 10px 16px; gap: 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .menu-tabs__grid::-webkit-scrollbar { display: none; }
+  .menu-tab { padding: 6px 13px; font-size: 0.68rem; flex-shrink: 0; }
 
   /* Subcat circles */
   .subcat-item__circle { width: 90px; height: 90px; }
@@ -3175,17 +3176,14 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .nav__brand-name { font-size: 1rem; margin-right: 8px; }
   .nav { gap: 0; padding: 0 16px; }
 
-  /* Hero — was min-height:50svh, which forces a near-square box on phones
-     (e.g. ~406px tall for a 355px-wide screen). The banner images are wide
-     letterbox compositions (1600x537, ~3:1) with text baked in, so cover-
-     cropping into a near-square box was hiding most of the image width.
-     A 3:2 ratio is a much closer match for any reasonably-shaped banner. */
-  .hero { min-height: 0; height: auto; aspect-ratio: 3 / 2; width: calc(100% - 20px); margin: calc(var(--nav-h) + var(--promo-h) + 10px) auto 10px; border-radius: 14px; }
+  /* Hero — 3:4 portrait on phones (tall enough to showcase the cake art
+     and feel like a modern app banner; 3:2 was too short/cramped). */
+  .hero { min-height: 0; height: auto; aspect-ratio: 3 / 4; width: calc(100% - 20px); margin: calc(var(--nav-h) + var(--promo-h) + 10px) auto 10px; border-radius: 14px; }
   .hero__slide { min-height: 0; }
-  .hero__slide-inner { flex-direction: column; justify-content: center; padding: 60px 20px 52px; text-align: center; gap: 20px; }
+  .hero__slide-inner { flex-direction: column; justify-content: center; padding: 40px 20px; text-align: center; gap: 24px; }
   .hero__content { max-width: 100%; }
-  .hero__eyebrow { margin-bottom: 12px; font-size: 0.6rem; }
-  .hero__art { width: clamp(100px, 42vw, 180px); height: clamp(100px, 42vw, 180px); font-size: clamp(3rem, 13vw, 5.5rem); }
+  .hero__eyebrow { margin-bottom: 10px; font-size: 0.6rem; }
+  .hero__art { width: clamp(140px, 52vw, 220px); height: clamp(140px, 52vw, 220px); font-size: clamp(4rem, 15vw, 6rem); }
   .hero__actions { flex-direction: column; align-items: center; gap: 10px; }
   .hero__actions .btn { width: 100%; max-width: 280px; text-align: center; }
   .hero__arrow { display: none; }
@@ -3209,12 +3207,18 @@ body.articles-listing .gold-line { margin: 4px auto 8px; }
   .filter-pills { gap: 6px; margin-bottom: 20px; }
   .filter-pill { padding: 5px 12px; font-size: 0.72rem; }
 
-  /* Menu tabs */
-  .menu-tabs__grid { padding: 8px 12px; gap: 6px; }
-  .menu-tab { padding: 6px 12px; font-size: 0.64rem; letter-spacing: 0.05em; }
+  /* Menu tabs — single scrollable row instead of stacked list on phones */
+  .menu-tabs__grid { padding: 8px 12px; gap: 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .menu-tabs__grid::-webkit-scrollbar { display: none; }
+  .menu-tab { padding: 6px 12px; font-size: 0.64rem; letter-spacing: 0.05em; flex-shrink: 0; }
 
-  /* Product grid — single column on phones */
-  .pcard-grid { grid-template-columns: 1fr; gap: 14px; }
+  /* Product grid — 2 columns on phones, compact card body */
+  .pcard-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pcard__body { padding: 10px 10px 12px; }
+  .pcard__name { font-size: 0.82rem; }
+  .pcard__desc { display: none; }
+  .pcard__price { font-size: 1rem; }
+  .pcard__btn { padding: 9px 8px; font-size: 0.72rem; letter-spacing: 0.05em; }
   .menu-cat-section { padding: 36px 0 44px; }
   .menu-cat-header { margin-bottom: 20px; }
   .menu-cat-header h2 { font-size: 1.5rem; }
