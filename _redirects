@@ -13,6 +13,8 @@
 /blogs/:splat                                /articles/          301
 /pages/corporate-bulk-orders                 /wholesale-bakery-orders 301
 /pages/:splat                                /                   301
+# Shopify CDN file paths that may be indexed from old backlinks or cached crawls
+/cdn/*                                       /                   301
 
 # Product clean URLs → product-page.html (rewrite, URL stays clean)
 /products/:slug          /product-page.html?slug=:slug   200
