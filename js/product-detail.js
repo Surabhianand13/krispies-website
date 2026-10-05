@@ -13,7 +13,7 @@ let _pdpCakeMessage = '';
 // Categories that get the static flavour dropdown if no Flavour variant group is configured.
 // Birthday cakes are excluded because customers usually specify customisation via notes.
 const PDP_FLAVOUR_CATS = ['wedding-cakes','engagement-cakes','baby-shower-cakes',
-  'half-year-birthday-cakes','gender-reveal-cakes','customized-cakes','cheesecakes'];
+  'half-year-birthday-cakes','gender-reveal-cakes','customized-cakes'];
 // Canonical flavour list — ⭐ marks bestsellers shown first in the dropdown
 const PDP_FLAVOURS = [
   'Chocolate Truffle ⭐','Belgium Chocolate ⭐','Black Forest ⭐',
