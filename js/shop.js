@@ -1025,6 +1025,7 @@ function deliveryFee(km) {
   if (km <= 25) return 300;
   return 350;
 }
+const MAX_DELIVERY_KM = 30;
 
 /* ── State ── */
 let _chkProduct  = null;
@@ -1500,6 +1501,7 @@ function _chkDeliveryHTML() {
       }).sort((a, b) => a.km - b.km)
     : STORES.map(s => ({ ...s, km: null, fee: 60 })); // ₹60 default until location known
 
+  const allOutOfRange = hasLoc && storeList.every(s => s.km !== null && s.km > MAX_DELIVERY_KM);
   const storesHTML = `
     <div class="chk-loc-search-wrap">
       <div class="chk-loc-search-row">
@@ -1513,15 +1515,20 @@ function _chkDeliveryHTML() {
       📍 ${hasLoc ? 'Re-detect My Location' : 'Use My Current Location'}
     </button>
     <div class="chk-loc-status" id="chkLocStatus" style="margin-bottom:${hasLoc?'0':'8'}px;"></div>
+    ${allOutOfRange ? `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;color:#b91c1c;font-size:0.85rem;margin-bottom:12px;">
+      Sorry, we only deliver within 30 km of our stores. Your location is outside our delivery area — please select <strong>Store Pickup</strong> instead, or contact us to arrange.
+    </div>` : ''}
     <div class="chk-stores-label">${hasLoc ? 'Nearest stores to you:' : 'Select your delivery store:'}</div>
     <div class="chk-store-list">
-      ${storeList.map((s, i) => `
-        <div class="chk-store-card${hasLoc && i===0?' best':''}${_chkDelivery.store===s.name?' selected':''}"
-          onclick="_chkSelectStore('${s.name}', ${s.km !== null ? s.km.toFixed(3) : 5}, ${s.fee})">
-          <div class="chk-store-card__name">${hasLoc && i===0?'&#9733; ':''}<strong>${s.name}</strong></div>
+      ${storeList.map((s, i) => {
+        const oob = hasLoc && s.km !== null && s.km > MAX_DELIVERY_KM;
+        return `<div class="chk-store-card${hasLoc && i===0 && !oob?' best':''}${_chkDelivery.store===s.name?' selected':''}"
+          ${oob ? 'style="opacity:0.4;cursor:not-allowed;"' : `onclick="_chkSelectStore('${s.name}', ${s.km !== null ? s.km.toFixed(3) : 5}, ${s.fee})"`}>
+          <div class="chk-store-card__name">${hasLoc && i===0 && !oob?'&#9733; ':''}<strong>${s.name}</strong></div>
           <div class="chk-store-card__dist">${s.km !== null ? s.km.toFixed(1)+' km away' : 'Hyderabad'}</div>
-          <div class="chk-store-card__fee">${hasLoc ? '&#8377;'+s.fee+' delivery' : 'from &#8377;30'}</div>
-        </div>`).join('')}
+          <div class="chk-store-card__fee">${oob ? '<span style="color:#b91c1c;font-size:0.8em;">Outside 30 km range</span>' : hasLoc ? '&#8377;'+s.fee+' delivery' : 'from &#8377;30'}</div>
+        </div>`;
+      }).join('')}
     </div>`;
 
   const sub = _chkSubtotal();
@@ -1612,14 +1619,20 @@ function _chkDetectLoc() {
     pos => {
       _chkDelivery.lat = pos.coords.latitude;
       _chkDelivery.lng = pos.coords.longitude;
-      /* auto-select nearest store */
+      /* auto-select nearest store only if within delivery range */
       const nearest = STORES.map(s => {
         const km = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
         return { ...s, km, fee: deliveryFee(km) };
       }).sort((a, b) => a.km - b.km)[0];
-      _chkDelivery.store = nearest.name;
-      _chkDelivery.km    = nearest.km;
-      _chkDelivery.fee   = nearest.fee;
+      if (nearest.km <= MAX_DELIVERY_KM) {
+        _chkDelivery.store = nearest.name;
+        _chkDelivery.km    = nearest.km;
+        _chkDelivery.fee   = nearest.fee;
+      } else {
+        _chkDelivery.store = null;
+        _chkDelivery.km    = nearest.km;
+        _chkDelivery.fee   = 0;
+      }
       _chkRenderDelivSection();
     },
     err => {
@@ -1660,10 +1673,17 @@ async function _chkPincodeCheck() {
       const km = haversine(lat, lng, s.lat, s.lng);
       return { ...s, km, fee: deliveryFee(km) };
     }).sort((a, b) => a.km - b.km)[0];
-    _chkDelivery.store = nearest.name;
-    _chkDelivery.km    = nearest.km;
-    _chkDelivery.fee   = nearest.fee;
-    if (statusEl) statusEl.textContent = '';
+    if (nearest.km <= MAX_DELIVERY_KM) {
+      _chkDelivery.store = nearest.name;
+      _chkDelivery.km    = nearest.km;
+      _chkDelivery.fee   = nearest.fee;
+      if (statusEl) statusEl.textContent = '';
+    } else {
+      _chkDelivery.store = null;
+      _chkDelivery.km    = nearest.km;
+      _chkDelivery.fee   = 0;
+      if (statusEl) statusEl.textContent = `Your pincode is ${nearest.km.toFixed(1)} km from our nearest store. We only deliver within 30 km.`;
+    }
     _chkRenderDelivSection();
   } catch (_) {
     if (statusEl) statusEl.textContent = 'Could not check pincode. Try using location instead.';
@@ -1712,14 +1732,21 @@ function _chkLocSearchSelect(lat, lng, el) {
     const km = haversine(latN, lngN, s.lat, s.lng);
     return { ...s, km, fee: deliveryFee(km) };
   }).sort((a, b) => a.km - b.km)[0];
-  _chkDelivery.store = nearest.name;
-  _chkDelivery.km    = nearest.km;
-  _chkDelivery.fee   = nearest.fee;
+  if (nearest.km <= MAX_DELIVERY_KM) {
+    _chkDelivery.store = nearest.name;
+    _chkDelivery.km    = nearest.km;
+    _chkDelivery.fee   = nearest.fee;
+  } else {
+    _chkDelivery.store = null;
+    _chkDelivery.km    = nearest.km;
+    _chkDelivery.fee   = 0;
+  }
   _chkRenderDelivSection();
 }
 
 /* ── Store selection ── */
 function _chkSelectStore(name, km, fee) {
+  if (parseFloat(km) > MAX_DELIVERY_KM) return;
   _chkDelivery.store = name;
   _chkDelivery.km    = parseFloat(km);
   _chkDelivery.fee   = fee;
