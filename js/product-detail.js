@@ -623,7 +623,10 @@ document.addEventListener('shop:ready', () => {
   const p = products.find(x => x.slug === slug || x.id === slug);
   // #pdpSsr means the server found this product (functions/products/[slug].js)
   // -- a miss here is our own product fetch failing, not a missing product.
-  if (!p) { if (!document.getElementById('pdpSsr')) _pdpNotFound(); return; }
+  // _pdpProduct set means we already rendered from localStorage cache below;
+  // don't replace a working page with "not found" just because the fresh fetch
+  // came back empty (Render cold start, all retries exhausted).
+  if (!p) { if (!_pdpProduct && !document.getElementById('pdpSsr')) _pdpNotFound(); return; }
   _pdpProduct = p;
   // Scopes the pink/festive CTA theming (see css/styles.css's
   // body.rakhi-theme rules) to just this product's page -- doesn't touch
@@ -640,3 +643,22 @@ document.addEventListener('shop:ready', () => {
   _pdpRenderRelated();
   _pdpRenderRatings(p.slug);
 });
+
+// For returning visitors who have a localStorage cache: render the interactive
+// product page immediately when this script loads, without waiting up to 36 s
+// for shop:ready to fire. The shop:ready handler above will re-render with
+// fresh backend data once it arrives.
+;(function _pdpTryCache() {
+  try {
+    const slug = _pdpSlugFromUrl();
+    if (!slug) return;
+    const cached = JSON.parse(localStorage.getItem('krispies_products') || '[]');
+    if (!Array.isArray(cached) || !cached.length) return;
+    const p = cached.find(x => x.slug === slug || x.id === slug);
+    if (!p) return;
+    _pdpProduct = p;
+    _pdpRender();
+    _pdpRenderRelated();
+    _pdpRenderRatings(slug);
+  } catch (_) {}
+})();
