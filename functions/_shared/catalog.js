@@ -25,16 +25,24 @@ const REFRESH_TIMEOUT_MS = 25000;
 
 // Category keys that have their own landing page at /<key>.
 export const CATEGORY_PAGES = {
-  'birthday-cakes': 'Birthday Cakes',
-  'wedding-cakes': 'Wedding Cakes',
-  'engagement-cakes': 'Engagement Cakes',
-  'baby-shower-cakes': 'Kids Birthday & Baby Shower Cakes',
+  'birthday-cakes':           'Birthday Cakes',
+  'wedding-cakes':            'Wedding Cakes',
+  'engagement-cakes':         'Engagement Cakes',
+  'baby-shower-cakes':        'Kids Birthday & Baby Shower Cakes',
   'half-year-birthday-cakes': 'Half Year Birthday Cakes',
-  'gender-reveal-cakes': 'Gender Reveal Cakes',
-  'customized-cakes': 'Customized Cakes',
-  'love-cakes': 'Love Cakes (Him/Her)',
-  'floral-cakes': 'Floral Cakes',
-  'bento-cakes': 'Bento Cakes',
+  'gender-reveal-cakes':      'Gender Reveal Cakes',
+  'customized-cakes':         'Customized Cakes',
+  'love-cakes':               'Love Cakes (Him/Her)',
+  'floral-cakes':             'Floral Cakes',
+  'bento-cakes':              'Bento Cakes',
+  'super-hero-cakes':         'Super Hero Cakes',
+  'anime-cakes':              'Anime Cakes',
+  'number-alphabet-cakes':    'Number & Alphabet Cakes',
+  'bon-voyage-cakes':         'Bon Voyage Cakes',
+  'trending-cakes':           'Trending Cakes',
+  'cheesecakes':              'Cheesecakes',
+  'donuts':                   'Donuts',
+  'flowers-bouquets':         'Flowers & Bouquets',
 };
 
 export const OUTLETS = ['Lalbazar', 'Suchitra', 'Boduppal', 'Ramanthapur', 'Tukkuguda'];
