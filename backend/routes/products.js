@@ -29,14 +29,6 @@ function uniqueSlug(base, excludeId) {
   return slug;
 }
 
-const VALID_CATEGORIES = [
-  'birthday-cakes', 'customized-cakes', 'wedding-cakes',
-  'engagement-cakes', 'baby-shower-cakes',
-  'half-year-birthday-cakes', 'gender-reveal-cakes',
-  'bento-cakes',
-  'cheesecakes', 'donuts', 'biscuits', 'floral-cakes', 'love-cakes',
-  'rakhi-hampers',
-];
 const VALID_TAGS = ['bestseller', 'new', 'seasonal', 'custom'];
 
 // GET /api/products — public active only; ?all=1 needs JWT
@@ -165,7 +157,7 @@ router.patch('/bulk-discount',
   [
     body('discount').isFloat({ min: 0, max: 100 }).withMessage('Discount must be 0-100.'),
     body('scope').isIn(['all', 'category', 'selected']).withMessage('Invalid scope.'),
-    body('category').if(body('scope').equals('category')).isIn(VALID_CATEGORIES).withMessage('Invalid category.'),
+    body('category').if(body('scope').equals('category')).trim().notEmpty().withMessage('Category is required.'),
     body('productIds').if(body('scope').equals('selected')).isArray({ min: 1 }).withMessage('Select at least one product.'),
   ],
   (req, res) => {
@@ -334,7 +326,7 @@ function toProduct(row, ratingsMap, opts = {}) {
 function productValidators() {
   return [
     body('name').trim().notEmpty().withMessage('Name is required.'),
-    body('category').isIn(VALID_CATEGORIES).withMessage('Invalid category.'),
+    body('category').trim().notEmpty().withMessage('Category is required.'),
     body('tag').optional({ nullable: true }).isIn([...VALID_TAGS, null, '']).withMessage('Invalid tag.'),
     body('description').trim().notEmpty().withMessage('Description is required.'),
     body('mrp').optional().isFloat({ min: 0 }).withMessage('MRP must be a positive number.'),
