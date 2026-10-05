@@ -471,8 +471,7 @@ h1, h2, h3, h4 {
 
 /* ── Category Nav Bar ── */
 .cat-nav {
-  background: rgba(255,255,255,0.97);
-  border-top: 1px solid rgba(201,168,112,0.2);
+  background: linear-gradient(90deg, #BF9450 0%, #D4A96A 40%, #C49555 100%);
   overflow: visible;
 }
 .cat-nav__inner {
@@ -489,14 +488,14 @@ h1, h2, h3, h4 {
 .cat-nav__link {
   display: flex;
   align-items: center;
-  gap: 3px;
-  padding: 0 13px;
-  height: 48px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  gap: 4px;
+  padding: 0 15px;
+  height: 46px;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #3A1A10;
+  color: #2A0E08;
   white-space: nowrap;
   transition: color 0.2s, border-bottom-color 0.2s;
   border-bottom: 2px solid transparent;
@@ -504,11 +503,31 @@ h1, h2, h3, h4 {
 }
 .cat-nav__link:hover,
 .cat-nav__item.active .cat-nav__link {
-  color: var(--gold-dark);
-  border-bottom-color: var(--gold);
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,0.8);
+}
+.cat-nav__item.trend .cat-nav__link {
+  color: #5A1A08;
+  font-weight: 800;
+}
+.cat-nav__item.trend .cat-nav__link::after {
+  content: 'NEW';
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  background: #C0392B;
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 5px;
+  vertical-align: middle;
+  line-height: 1.6;
+}
+.cat-nav__item.trend:hover .cat-nav__link {
+  color: #fff;
 }
 .cat-nav__caret {
-  width: 11px; height: 11px; flex-shrink: 0;
+  width: 10px; height: 10px; flex-shrink: 0;
   transition: transform 0.2s;
 }
 .cat-nav__item:hover .cat-nav__caret {
@@ -517,14 +536,15 @@ h1, h2, h3, h4 {
 .cat-nav__dropdown {
   display: none;
   position: absolute;
-  top: calc(100% + 2px);
+  top: calc(100% + 1px);
   left: 50%;
   transform: translateX(-50%);
   min-width: 200px;
   background: #fff;
-  border: 1px solid rgba(201,168,112,0.25);
-  border-radius: 8px;
-  box-shadow: 0 8px 28px rgba(61,28,2,0.12);
+  border: 1px solid rgba(201,168,112,0.3);
+  border-top: 2px solid var(--gold-dark);
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.15);
   padding: 6px 0;
   z-index: 1001;
   white-space: nowrap;
