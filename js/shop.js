@@ -385,7 +385,7 @@ function renderCard(p) {
   // modal that follows a quick add (candles/balloons/banners) doesn't apply
   // to a rakhi hamper -- other categories keep the quick add-to-cart flow.
   const cta = (mrp > 0 || hasVariants)
-    ? `<a class="pcard__btn" href="${url}" style="text-decoration:none;">Add to Cart</a>`
+    ? `<button class="pcard__btn" onclick="window.location.href='${url}'">Add to Cart</button>`
     : `<a class="pcard__btn" href="contact" style="text-decoration:none;">Get a Quote →</a>`;
 
   const ratingHTML = p.ratingCount > 0 ? `
