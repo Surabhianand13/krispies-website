@@ -63,11 +63,10 @@ button { cursor: pointer; font-family: var(--font-body); }
   position: fixed; inset: 0; z-index: 99999;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(160deg, #9A4A3A 0%, #5C2A1E 100%);
-  transition: opacity 0.55s ease, visibility 0.55s ease;
-  /* Auto-dismiss after 2.2s via CSS so it never blocks Core Web Vitals
-     even on slow connections where JS hasn't executed yet. JS still
-     removes it early on fast connections via the .is-hidden class. */
-  animation: loaderAutoDismiss 0.55s ease-out 2.2s both;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  /* Auto-dismiss after 0.3s via CSS — short delay so the brand shows briefly
+     without blocking Core Web Vitals. JS removes it even earlier (DOMContentLoaded). */
+  animation: loaderAutoDismiss 0.3s ease-out 0.3s both;
 }
 @keyframes loaderAutoDismiss {
   to { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -696,6 +695,21 @@ h1, h2, h3, h4 {
 .hero__slide-overlay {
   position: absolute; inset: 0;
   background: rgba(255, 255, 255, 0.18);
+}
+
+/* LCP image for slide 1 — positioned to fill the slide, acts as the real LCP element
+   so the preload scanner discovers it directly rather than via a CSS custom property */
+.hero__slide-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+@media (max-width: 640px) {
+  .hero__slide-img { object-position: center top; }
 }
 
 /* Layout: content left, art right */
