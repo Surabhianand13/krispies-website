@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — Krispie's</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css?v=52">
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+</head>
+<body>
+
+<!-- ── Nav ─────────────────────────────────────────────────────────────── -->
+<nav class="nav" id="mainNav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <img src="assets/logo.png" alt="Krispie's" height="48">
+    </a>
+    <div class="nav__links" id="navLinks">
+      <a href="menu.html">Menu</a>
+      <a href="story.html">Our Story</a>
+      <a href="articles/index.html">Articles</a>
+      <a href="wholesale-bakery-orders.html">Bulk Orders</a>
+      <a href="franchise.html">Franchise</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav__actions">
+      <button class="nav__icon-btn" id="searchBtn" aria-label="Search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <a href="profile.html" class="nav__icon-btn nav__account-btn" aria-label="My Account" style="color:var(--gold)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+      <button class="nav__icon-btn nav__cart-btn" id="cartBtn" aria-label="Cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="nav__cart-count" id="cartCount" style="display:none">0</span>
+      </button>
+      <a href="tel:+917975218850" class="btn btn-gold btn-sm nav__cta">+91 79752 18850</a>
+      <button class="nav__hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Guest state ────────────────────────────────────────────────────── -->
+<div id="profileGuest" class="pf-guest" style="display:none">
+  <div class="pf-guest__inner">
+    <div class="pf-guest__icon">👤</div>
+    <h2>Sign in to view your profile</h2>
+    <p>Track orders, manage addresses, and more.</p>
+    <button class="btn btn-gold" onclick="openAccountModal()">Sign In / Create Account</button>
+  </div>
+</div>
+
+<!-- ── Logged-in state ────────────────────────────────────────────────── -->
+<div id="profileMain" style="display:none">
+
+  <!-- Header -->
+  <div class="pf-hero">
+    <div class="pf-hero__inner">
+      <div class="pf-avatar" id="pfAvatar"></div>
+      <div class="pf-hero__info">
+        <h1 class="pf-name" id="pfName">—</h1>
+        <p class="pf-contact" id="pfContact">—</p>
+        <p class="pf-since" id="pfSince"></p>
+      </div>
+      <button class="btn btn-outline btn-sm pf-logout-btn" onclick="_pfLogout()">Log Out</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="pf-stats-bar">
+    <div class="pf-stats-inner">
+      <div class="pf-stat">
+        <span class="pf-stat__val" id="pfStatOrders">—</span>
+        <span class="pf-stat__lbl">Orders</span>
+      </div>
+      <div class="pf-stat-sep"></div>
+      <div class="pf-stat">
+        <span class="pf-stat__val" id="pfStatSpend">—</span>
+        <span class="pf-stat__lbl">Total Spent</span>
+      </div>
+      <div class="pf-stat-sep"></div>
+      <div class="pf-stat">
+        <span class="pf-stat__val" id="pfStatAddr">—</span>
+        <span class="pf-stat__lbl">Saved Addresses</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="pf-tabs-wrap">
+    <div class="pf-tabs">
+      <button class="pf-tab active" id="tabOrders" onclick="_pfTab('orders')">My Orders</button>
+      <button class="pf-tab" id="tabAddresses" onclick="_pfTab('addresses')">Address Book</button>
+    </div>
+  </div>
+
+  <!-- Tab body -->
+  <div class="pf-body">
+    <div class="pf-body__inner" id="pfTabBody">
+      <div class="pf-loading">Loading…</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Standard footer/scripts -->
+<script src="js/main.js"></script>
+<script src="js/shop.js?v=37" defer></script>
+
+<script>
+(function () {
+  const TOKEN_KEY = 'krispies_customer_token';
+  let _token = localStorage.getItem(TOKEN_KEY);
+  let _profile = null;
+  let _orders  = [];
+  let _addrs   = [];
+  let _tab     = 'orders';
+
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function authHdr() {
+    return { Authorization: `Bearer ${_token}`, 'Content-Type': 'application/json' };
+  }
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  async function boot() {
+    if (!_token) {
+      document.getElementById('profileGuest').style.display = '';
+      return;
+    }
+    document.getElementById('profileMain').style.display = '';
+    await Promise.all([loadProfile(), loadOrders(), loadAddresses()]);
+    renderHeader();
+    renderStats();
+    renderTab();
+  }
+
+  async function loadProfile() {
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/customers/me`, { headers: authHdr() });
+      if (r.status === 401) { _pfLogout(); return; }
+      if (r.ok) _profile = await r.json();
+    } catch (_) {}
+  }
+
+  async function loadOrders() {
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: authHdr() });
+      if (r.ok) _orders = await r.json();
+    } catch (_) { _orders = []; }
+  }
+
+  async function loadAddresses() {
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/customers/addresses`, { headers: authHdr() });
+      if (r.ok) _addrs = await r.json();
+    } catch (_) { _addrs = []; }
+  }
+
+  // ── Header ─────────────────────────────────────────────────────────────────
+  function renderHeader() {
+    if (!_profile) return;
+    const initials = (_profile.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    document.getElementById('pfAvatar').textContent = initials;
+    document.getElementById('pfName').textContent   = _profile.name || '';
+    const contacts = [_profile.phone, _profile.email].filter(Boolean).join(' · ');
+    document.getElementById('pfContact').textContent = contacts || '';
+    if (_profile.created_at) {
+      const since = new Date(_profile.created_at).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+      document.getElementById('pfSince').textContent = `Member since ${since}`;
+    }
+  }
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
+  function renderStats() {
+    const totalSpend = _orders.reduce((s, o) => s + (Number(o.amount) || 0), 0);
+    document.getElementById('pfStatOrders').textContent = _orders.length;
+    document.getElementById('pfStatSpend').textContent  = '₹' + totalSpend.toLocaleString('en-IN');
+    document.getElementById('pfStatAddr').textContent   = _addrs.length;
+  }
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+  window._pfTab = function(tab) {
+    _tab = tab;
+    document.querySelectorAll('.pf-tab').forEach(b => b.classList.toggle('active', b.id === 'tab' + tab.charAt(0).toUpperCase() + tab.slice(1)));
+    renderTab();
+  };
+
+  function renderTab() {
+    if (_tab === 'orders')    renderOrders();
+    else                      renderAddresses();
+  }
+
+  // ── Orders ─────────────────────────────────────────────────────────────────
+  const STEPS = ['Placed', 'Confirmed', 'Ready', 'Delivered'];
+  function statusStep(s) {
+    if (s === 'cancelled') return -1;
+    return { pending: 1, confirmed: 2, ready: 3, delivered: 4 }[s] || 1;
+  }
+
+  function orderCard(o) {
+    const isCancelled = o.status === 'cancelled';
+    const step = statusStep(o.status);
+    const delDate = o.delivery_date
+      ? new Date(o.delivery_date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      : null;
+    const ordDate = o.order_date
+      ? new Date(o.order_date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+      : null;
+    const amount = o.amount != null ? '₹' + Number(o.amount).toLocaleString('en-IN') : '—';
+
+    const trackingHtml = isCancelled
+      ? `<div class="pf-order-cancelled">✗ Order Cancelled</div>`
+      : `
+        <div class="pf-track">
+          ${STEPS.map((label, i) => {
+            const done = (i + 1) <= step;
+            const active = (i + 1) === step;
+            return `
+              <div class="pf-track__step ${done ? 'done' : ''} ${active ? 'current' : ''}">
+                <div class="pf-track__dot"></div>
+                <div class="pf-track__label">${label}</div>
+              </div>
+              ${i < STEPS.length - 1 ? `<div class="pf-track__line ${(i + 1) < step ? 'done' : ''}"></div>` : ''}
+            `;
+          }).join('')}
+        </div>`;
+
+    return `
+      <div class="pf-order-card ${isCancelled ? 'pf-order-card--cancelled' : ''}">
+        <div class="pf-order-card__top">
+          <div class="pf-order-card__name">${esc(o.items)}</div>
+          <div class="pf-order-card__amount">${esc(amount)}</div>
+        </div>
+        <div class="pf-order-card__meta">
+          ${ordDate ? `<span>Ordered ${esc(ordDate)}</span>` : ''}
+          ${o.outlet ? `<span class="pf-dot">·</span><span>${esc(o.outlet)}</span>` : ''}
+          ${delDate && !isCancelled ? `<span class="pf-dot">·</span><span>Delivery ${esc(delDate)}</span>` : ''}
+        </div>
+        ${trackingHtml}
+        <div class="pf-order-card__id">Order ID: ${esc(o.id)}</div>
+      </div>`;
+  }
+
+  function renderOrders() {
+    const el = document.getElementById('pfTabBody');
+    if (!_orders.length) {
+      el.innerHTML = `
+        <div class="pf-empty">
+          <div class="pf-empty__icon">🎂</div>
+          <p>No orders yet</p>
+          <a href="menu.html" class="btn btn-gold" style="margin-top:12px;display:inline-block">Browse Menu →</a>
+        </div>`;
+      return;
+    }
+    el.innerHTML = `<div class="pf-orders-list">${_orders.map(orderCard).join('')}</div>`;
+  }
+
+  // ── Addresses ──────────────────────────────────────────────────────────────
+  function addrCard(a) {
+    return `
+      <div class="pf-addr-card ${a.is_default ? 'pf-addr-card--default' : ''}">
+        <div class="pf-addr-card__top">
+          <span class="pf-addr-label">${esc(a.label || 'Home')}</span>
+          ${a.is_default ? '<span class="pf-addr-badge">Default</span>' : ''}
+        </div>
+        <div class="pf-addr-card__name">${esc(a.name)}</div>
+        <div class="pf-addr-card__line">${esc(a.line)}${a.city ? ', ' + esc(a.city) : ''}${a.pincode ? ' — ' + esc(a.pincode) : ''}</div>
+        <div class="pf-addr-card__phone">${esc(a.phone)}</div>
+        <div class="pf-addr-card__actions">
+          ${!a.is_default ? `<button class="btn-link" onclick="_pfSetDefault('${esc(a.id)}')">Set as Default</button>` : ''}
+          <button class="btn-link pf-del-btn" onclick="_pfDelAddr('${esc(a.id)}')">Remove</button>
+        </div>
+      </div>`;
+  }
+
+  function renderAddresses() {
+    const el = document.getElementById('pfTabBody');
+    el.innerHTML = `
+      <div class="pf-addrs">
+        ${_addrs.length
+          ? _addrs.map(addrCard).join('')
+          : `<div class="pf-empty"><div class="pf-empty__icon">📍</div><p>No saved addresses yet.</p></div>`
+        }
+        <button class="pf-add-addr-btn" onclick="_pfShowAddrForm()">+ Add New Address</button>
+        <div id="pfAddrForm" style="display:none" class="pf-addr-form">
+          <h3 class="pf-addr-form__title">New Address</h3>
+          <div class="pf-form-grid">
+            <div class="chk-field-group"><label class="chk-label">Label (Home / Work…)</label><input class="chk-input" id="afLabel" value="Home"></div>
+            <div class="chk-field-group"><label class="chk-label">Name <span class="req">*</span></label><input class="chk-input" id="afName" placeholder="Full name"></div>
+            <div class="chk-field-group"><label class="chk-label">Phone <span class="req">*</span></label><input class="chk-input" id="afPhone" type="tel" placeholder="+91 …"></div>
+            <div class="chk-field-group pf-col-2"><label class="chk-label">Address <span class="req">*</span></label><input class="chk-input" id="afLine" placeholder="Flat, building, street…"></div>
+            <div class="chk-field-group"><label class="chk-label">City</label><input class="chk-input" id="afCity" value="Hyderabad"></div>
+            <div class="chk-field-group"><label class="chk-label">Pincode</label><input class="chk-input" id="afPin" placeholder="500001"></div>
+          </div>
+          <div class="pf-addr-form__actions">
+            <button class="btn btn-gold" onclick="_pfSaveAddr()">Save Address</button>
+            <button class="btn btn-outline" onclick="document.getElementById('pfAddrForm').style.display='none'">Cancel</button>
+          </div>
+          <p class="pf-addr-err" id="pfAddrErr"></p>
+        </div>
+      </div>`;
+  }
+
+  window._pfShowAddrForm = function() {
+    document.getElementById('pfAddrForm').style.display = '';
+    document.getElementById('pfAddrForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  window._pfSaveAddr = async function() {
+    const err = document.getElementById('pfAddrErr');
+    err.textContent = '';
+    const body = {
+      label:  document.getElementById('afLabel').value.trim() || 'Home',
+      name:   document.getElementById('afName').value.trim(),
+      phone:  document.getElementById('afPhone').value.trim(),
+      line:   document.getElementById('afLine').value.trim(),
+      city:   document.getElementById('afCity').value.trim() || 'Hyderabad',
+      pincode:document.getElementById('afPin').value.trim(),
+    };
+    if (!body.name || !body.phone || !body.line) { err.textContent = 'Name, phone and address are required.'; return; }
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/customers/addresses`, { method: 'POST', headers: authHdr(), body: JSON.stringify(body) });
+      if (!r.ok) throw new Error();
+      await loadAddresses();
+      renderStats();
+      renderAddresses();
+    } catch (_) { err.textContent = 'Could not save address. Please try again.'; }
+  };
+
+  window._pfSetDefault = async function(id) {
+    try {
+      await fetch(`${BACKEND_URL}/api/customers/addresses/${id}`, { method: 'PUT', headers: authHdr(), body: JSON.stringify({ is_default: 1 }) });
+      await loadAddresses();
+      renderAddresses();
+    } catch (_) {}
+  };
+
+  window._pfDelAddr = async function(id) {
+    if (!confirm('Remove this address?')) return;
+    try {
+      await fetch(`${BACKEND_URL}/api/customers/addresses/${id}`, { method: 'DELETE', headers: authHdr() });
+      await loadAddresses();
+      renderStats();
+      renderAddresses();
+    } catch (_) {}
+  };
+
+  // ── Logout ─────────────────────────────────────────────────────────────────
+  window._pfLogout = function() {
+    localStorage.removeItem(TOKEN_KEY);
+    window.location.href = 'index.html';
+  };
+
+  // ── Start ──────────────────────────────────────────────────────────────────
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body>
+</html>
