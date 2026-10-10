@@ -21,12 +21,13 @@
   <link rel="icon" href="assets/favicon-48.png" sizes="48x48" type="image/png">
   <link rel="icon" href="assets/favicon-512.png" sizes="512x512" type="image/png">
   <link rel="apple-touch-icon" href="assets/favicon-180.png">
-  <link rel="preload" as="image" href="/assets/images/banners/banner-birthday-full.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="/assets/images/banners/banner-birthday-mobile.webp" fetchpriority="high" media="(max-width: 768px)">
+  <link rel="preload" as="image" href="/assets/images/banners/banner-birthday-full.webp" fetchpriority="high" media="(min-width: 769px)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap"></noscript>
-  <link rel="stylesheet" href="css/styles.css?v=56">
+  <link rel="stylesheet" href="css/styles.css?v=57">
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -295,6 +296,8 @@
     </div>
   </nav>
 
+  <main id="main-content">
+
   <!-- ========== HERO BANNER CAROUSEL ========== -->
   <!--
     HOW TO ADD REAL PHOTOS:
@@ -304,7 +307,8 @@
       background-image: url('../assets/banner-bg-1.jpg');
     Recommended image size: 1400×900px or wider. Use WebP for best performance.
   -->
-  <section class="hero" aria-label="Welcome to Krispie's">
+  <section class="hero" aria-labelledby="hero-h1">
+    <h1 id="hero-h1" class="sr-only">Krispie's — Birthday Cakes, Customized Cakes &amp; Celebrations in Hyderabad</h1>
 
     <!-- Slides track -->
     <div class="hero__track" id="heroTrack">
@@ -583,10 +587,10 @@
       <div class="videos__grid videos__grid--reels">
         <div class="reel-card fade-up">
           <iframe class="reel-card__video" data-video-id="yMeLAAS2SVM"
-            src="https://www.youtube-nocookie.com/embed/yMeLAAS2SVM?autoplay=1&mute=1&loop=1&playlist=yMeLAAS2SVM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+            data-src="https://www.youtube-nocookie.com/embed/yMeLAAS2SVM?autoplay=1&mute=1&loop=1&playlist=yMeLAAS2SVM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
             title="In-store celebrations at Krispie's" frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen loading="lazy"></iframe>
+            allowfullscreen></iframe>
           <div class="reel-card__overlay">
             <button class="reel-card__sound" aria-label="Toggle sound" type="button">
               <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -601,10 +605,10 @@
 
         <div class="reel-card fade-up">
           <iframe class="reel-card__video" data-video-id="hWeAyXSu9UM"
-            src="https://www.youtube-nocookie.com/embed/hWeAyXSu9UM?autoplay=1&mute=1&loop=1&playlist=hWeAyXSu9UM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+            data-src="https://www.youtube-nocookie.com/embed/hWeAyXSu9UM?autoplay=1&mute=1&loop=1&playlist=hWeAyXSu9UM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
             title="Suchitra outlet ambience at Krispie's" frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen loading="lazy"></iframe>
+            allowfullscreen></iframe>
           <div class="reel-card__overlay">
             <button class="reel-card__sound" aria-label="Toggle sound" type="button">
               <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -619,10 +623,10 @@
 
         <div class="reel-card fade-up">
           <iframe class="reel-card__video" data-video-id="CTyd6tifAQM"
-            src="https://www.youtube-nocookie.com/embed/CTyd6tifAQM?autoplay=1&mute=1&loop=1&playlist=CTyd6tifAQM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+            data-src="https://www.youtube-nocookie.com/embed/CTyd6tifAQM?autoplay=1&mute=1&loop=1&playlist=CTyd6tifAQM&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
             title="Rasmalai cake showcase at Krispie's" frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen loading="lazy"></iframe>
+            allowfullscreen></iframe>
           <div class="reel-card__overlay">
             <button class="reel-card__sound" aria-label="Toggle sound" type="button">
               <svg class="reel-mute"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -833,6 +837,8 @@
       </svg>
     </div>
   </section>
+
+  </main><!-- /#main-content -->
 
   <!-- ========== FOOTER ========== -->
   <footer class="footer">
@@ -1106,13 +1112,13 @@
       loader.classList.add('is-hidden');
       setTimeout(() => loader.remove(), 600);
     }
-    const minDelay = new Promise(r => setTimeout(r, 500));
+    // Hide as soon as DOM is ready — CSS animation already caps the loader
+    // at 2.2s, so JS removing it early gives a faster experience on good connections.
     const domReady = new Promise(r => {
       if (document.readyState !== 'loading') r();
       else document.addEventListener('DOMContentLoaded', r, { once: true });
     });
-    const safetyNet = new Promise(r => setTimeout(r, 2500));
-    Promise.all([minDelay, Promise.race([domReady, safetyNet])]).then(hideLoader);
+    domReady.then(hideLoader);
   })();
 
   /* ── Duplicate qcat items for seamless infinite scroll ── */
@@ -1244,6 +1250,21 @@
       // duplicate once so a -50% translateY loops seamlessly
       col.innerHTML = single + single;
     });
+  })();
+
+  /* ── YouTube deferred loading: swap data-src → src when reel section scrolls in ── */
+  (function () {
+    const lazyFrames = document.querySelectorAll('iframe[data-src]');
+    if (!lazyFrames.length) return;
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const f = e.target;
+        f.src = f.dataset.src;
+        obs.unobserve(f);
+      });
+    }, { rootMargin: '300px' });
+    lazyFrames.forEach(f => obs.observe(f));
   })();
 
   /* ── Reel videos (YouTube embeds): sound toggle + play when in view ── */

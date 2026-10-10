@@ -55,14 +55,24 @@ a { text-decoration: none; color: inherit; }
 ul { list-style: none; }
 button { cursor: pointer; font-family: var(--font-body); }
 
+/* ---- SCREEN-READER ONLY ---- */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
 /* ---- PAGE LOADER ---- */
 .page-loader {
   position: fixed; inset: 0; z-index: 99999;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(160deg, #9A4A3A 0%, #5C2A1E 100%);
   transition: opacity 0.55s ease, visibility 0.55s ease;
+  /* Auto-dismiss after 2.2s via CSS so it never blocks Core Web Vitals
+     even on slow connections where JS hasn't executed yet. JS still
+     removes it early on fast connections via the .is-hidden class. */
+  animation: loaderAutoDismiss 0.55s ease-out 2.2s both;
 }
-.page-loader.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+@keyframes loaderAutoDismiss {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+.page-loader.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; animation: none; }
 .page-loader__inner { text-align: center; }
 .page-loader__logo {
   width: 56px; height: 56px; margin: 0 auto 22px;
