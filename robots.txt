@@ -33,6 +33,4 @@ Allow: /
 
 Sitemap: https://www.krispies.in/sitemap.xml
 
-# Plain-text business summary for AI assistants
-# https://llmstxt.org
-LLMs: https://www.krispies.in/llms.txt
+# Plain-text business summary for AI assistants: https://www.krispies.in/llms.txt
