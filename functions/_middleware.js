@@ -58,7 +58,17 @@ export async function onRequest(context) {
 // don't run JavaScript. shop.js's renderAll() replaces this with the
 // interactive cards as before. The catalog is only fetched if the page
 // actually has a grid. See functions/_shared/catalog.js.
-const NON_CATEGORY_GRID_IDS = ['featured', 'trending'];
+//
+// grid-trending and grid-featured (homepage) are handled specially: they
+// filter by the trending/featured boolean flag, not by category name.
+// Injecting these grids server-side puts product images into the HTML so
+// the browser can start loading them without waiting for the shop.js API
+// call — this is the LCP fix for the homepage.
+function getGridItems(catalog, cat) {
+  if (cat === 'trending') return (catalog || []).filter((p) => p.trending).slice(0, 8);
+  if (cat === 'featured') return (catalog || []).filter((p) => p.featured).slice(0, 8);
+  return (catalog || []).filter((p) => p.category === cat);
+}
 
 function renderProductGrids(context, res) {
   const listed = [];
@@ -66,13 +76,17 @@ function renderProductGrids(context, res) {
     .on('[id^="grid-"]', {
       async element(el) {
         const cat = el.getAttribute('id').replace(/^grid-/, '');
-        if (NON_CATEGORY_GRID_IDS.includes(cat)) return;
         const catalog = await getCatalog(context);
-        const items = (catalog || []).filter((p) => p.category === cat);
+        const items = getGridItems(catalog, cat);
         if (!items.length) return;
         listed.push(...items);
         el.setAttribute('data-ssr', '1');
-        el.setInnerContent(items.map(productCardHtml).join(''), { html: true });
+        // First 4 cards: eager+high-priority so above-fold images load as LCP candidates.
+        // Remaining cards: lazy (off-screen on initial viewport).
+        el.setInnerContent(
+          items.map((p, i) => productCardHtml(p, { eager: i < 4 })).join(''),
+          { html: true },
+        );
       },
     })
     .on('body', {

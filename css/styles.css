@@ -848,7 +848,10 @@ h1, h2, h3, h4 {
   background: transparent;
   cursor: pointer;
   transition: all 0.25s ease;
-  padding: 0;
+  /* 44×44 touch target (WCAG 2.5.5) around the 8×8 visual dot */
+  padding: 18px;
+  margin: -18px;
+  box-sizing: content-box;
 }
 .hero__dot.active {
   background: var(--gold-dark);
