@@ -256,6 +256,7 @@ function buildOrderRow(body, extra = {}, req = null) {
   const noteParts = [
     body.delivery_mode    ? `Mode: ${body.delivery_mode}`           : '',
     body.delivery_address ? `Address: ${body.delivery_address}`     : '',
+    body.delivery_time    ? `Time: ${body.delivery_time}`           : '',
     body.payment_method   ? `Payment: ${body.payment_method}`       : '',
     body.notes            ? body.notes                               : '',
   ].filter(Boolean);
