@@ -488,6 +488,8 @@ function renderFeatured() {
   const grid = document.getElementById('grid-featured');
   if (!grid) return;
   const items = getProducts().filter(p => p.featured && p.active !== false).slice(0, 8);
+  // Keep SSR-injected cards (from functions/_middleware.js) while API is loading.
+  if (!items.length && grid.dataset.ssr) return;
   grid.innerHTML = items.length
     ? items.map(renderCard).join('')
     : `<div class="menu-empty">No featured products yet.</div>`;
@@ -503,6 +505,11 @@ function renderTrending() {
   if (!grid) return;
   const section = document.getElementById('trending-section');
   const items = getProducts().filter(p => p.trending && p.active !== false).slice(0, 8);
+  // Keep SSR-injected cards (from functions/_middleware.js) while API is loading.
+  if (!items.length && grid.dataset.ssr) {
+    if (section) section.style.display = ''; // SSR cards present — keep section visible
+    return;
+  }
   if (section) section.style.display = items.length ? '' : 'none';
   grid.innerHTML = items.map(renderCard).join('');
   initGalleries();

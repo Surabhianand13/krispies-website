@@ -20,7 +20,7 @@
 export const SITE = 'https://www.krispies.in';
 const API_URL = 'https://krispies-website.onrender.com/api/products';
 const FRESH_MS = 10 * 60 * 1000;
-const FIRST_WAIT_MS = 4000;
+const FIRST_WAIT_MS = 800; // was 4000 — long TTFB hurt FCP; serve uncached page in <1s
 const REFRESH_TIMEOUT_MS = 25000;
 
 // Category keys that have their own landing page at /<key>.
@@ -185,15 +185,18 @@ export function productJsonLd(p) {
 // Lightweight card using shop.js's .pcard classes so the server-rendered
 // grid looks close to the real one for the moment before shop.js replaces it
 // (and stays usable if JS never runs).
-export function productCardHtml(p) {
+export function productCardHtml(p, { eager = false } = {}) {
   const url = `/products/${encodeURIComponent(p.slug)}`;
   const img = productImages(p)[0];
   const rating = p.ratingCount > 0
     ? `<div class="pcard__rating"><span class="pcard__rating-star">★</span><span class="pcard__rating-value">${esc(p.ratingAvg)}</span><span class="pcard__rating-count">(${esc(p.ratingCount)})</span></div>`
     : '';
+  const imgAttrs = eager
+    ? `loading="eager" fetchpriority="high"`
+    : `loading="lazy"`;
   return `<div class="pcard">`
     + `<a class="pcard__gallery" href="${url}"><div class="pcard__gal-track"><div class="pcard__gal-slide">`
-    + (img ? `<img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy">` : '')
+    + (img ? `<img src="${esc(img)}" alt="${esc(p.name)}" ${imgAttrs}>` : '')
     + `</div></div></a>`
     + `<div class="pcard__body">`
     + `<h3 class="pcard__name"><a href="${url}" style="text-decoration:none;color:inherit;">${esc(p.name)}</a></h3>`

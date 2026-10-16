@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap"></noscript>
-  <link rel="stylesheet" href="css/styles.css?v=58">
+  <link rel="stylesheet" href="css/styles.css?v=59">
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -545,6 +545,12 @@
     </div>
     <div class="pcard-grid" id="grid-trending"></div>
   </section>
+
+  <!-- Make trending section visible immediately when SSR cards are present
+       (functions/_middleware.js injects them + sets data-ssr). Without this,
+       display:none hides the images from the browser and they never load as
+       LCP candidates. shop.js later hides/shows the section based on live data. -->
+  <script>(function(){var g=document.getElementById('grid-trending');var s=document.getElementById('trending-section');if(g&&g.dataset.ssr&&g.children.length&&s)s.style.display='';}());</script>
 
   <!-- ========== BESTSELLERS ========== -->
   <section class="best-strip" aria-labelledby="bestsellers-heading">
@@ -1111,7 +1117,7 @@
   </div>
 
   <script src="js/main.js?v=2" defer></script>
-  <script src="js/shop.js?v=37" defer></script>
+  <script src="js/shop.js?v=38" defer></script>
   <script>
   /* ── Page loader: fade out once everything is ready ── */
   (function () {
@@ -1121,13 +1127,11 @@
       loader.classList.add('is-hidden');
       setTimeout(() => loader.remove(), 600);
     }
-    // Hide as soon as DOM is ready — CSS animation already caps the loader
-    // at 2.2s, so JS removing it early gives a faster experience on good connections.
-    const domReady = new Promise(r => {
-      if (document.readyState !== 'loading') r();
-      else document.addEventListener('DOMContentLoaded', r, { once: true });
-    });
-    domReady.then(hideLoader);
+    // Dismiss on the second animation frame — fires as soon as the browser
+    // has painted the first frame after CSS loads, which is far earlier than
+    // DOMContentLoaded (which waits for all deferred scripts to execute).
+    // This makes FCP happen right after CSS is ready, not after shop.js runs.
+    requestAnimationFrame(() => requestAnimationFrame(hideLoader));
   })();
 
   /* ── Duplicate qcat items for seamless infinite scroll ── */
