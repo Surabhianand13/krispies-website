@@ -3687,6 +3687,22 @@ body.cat-landing .filter-pills { margin-bottom: 18px; }
   display: block;
 }
 
+/* Category page eggless trust pill */
+.cat-eggless-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(26, 138, 60, 0.10);
+  border: 1px solid rgba(26, 138, 60, 0.30);
+  color: #1a7a3c;
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 14px;
+  letter-spacing: 0.02em;
+}
+
 /* Card body */
 .pcard__body {
   display: block;
