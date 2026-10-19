@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════════════
    Krispie's — shared product / cart / checkout logic
    Loaded by menu.html and every category landing page (birthday-cakes.html,
-   wedding-cakes.html, engagement-cakes.html, baby-shower-cakes.html,
+   wedding-cakes.html, engagement-cakes.html, kids-birthday-cakes.html,
    half-year-birthday-cakes.html, gender-reveal-cakes.html) and
    product-page.html. Requires BACKEND_URL from
    js/main.js to already be loaded on the page.
