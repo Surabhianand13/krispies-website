@@ -14,6 +14,7 @@ const { body, validationResult } = require('express-validator');
 const db        = require('../db/database');
 const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
 const { sendPurchaseEvent } = require('../utils/metaCapi');
+const { sendOrderPush }     = require('../utils/push');
 const { optionalCustomerAuth, requireAuth } = require('../middleware/auth');
 const { VALID_OUTLETS } = require('../utils/constants');
 const { dbRateLimit } = require('../middleware/dbRateLimit');
@@ -526,6 +527,7 @@ router.post('/verify',
       }
     } catch (_) {}
     notifyOrder(confirmedOrder);
+    sendOrderPush(confirmedOrder).catch(() => {});
     sendPurchaseEvent(confirmedOrder, req).catch(() => {});
   }
 

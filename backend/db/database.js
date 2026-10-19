@@ -165,6 +165,13 @@ db.exec(`
   -- memory (see that file for why) -- this table is on the same shared
   -- SQLite file every instance reads/writes, so a hit counted by one
   -- instance is visible to all of them.
+  CREATE TABLE IF NOT EXISTS push_subscriptions (
+    endpoint   TEXT    PRIMARY KEY,
+    auth       TEXT    NOT NULL,
+    p256dh     TEXT    NOT NULL,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS rate_limit_hits (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     bucket     TEXT    NOT NULL,
