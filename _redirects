@@ -1,3 +1,6 @@
+# Kids birthday cakes URL rename
+/baby-shower-cakes           /kids-birthday-cakes        301
+
 # Rakhi page deactivated (seasonal) — redirect to menu
 /rakhi-hampers               /menu               302
 /rakhi-hampers.html          /menu               302
