@@ -3700,6 +3700,22 @@ body.cat-landing .filter-pills { margin-bottom: 18px; }
 .apx-card__price { font-size:0.9rem; font-weight:700; color:var(--gold); white-space:nowrap; }
 .apx-card__cta { background:var(--gold); color:#0a0a0a; font-size:0.75rem; font-weight:700; padding:5px 12px; border-radius:6px; white-space:nowrap; flex-shrink:0; }
 @media (max-width:640px) { .apx-grid { grid-template-columns:1fr; } }
+
+/* Category page eggless trust pill */
+.cat-eggless-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(26, 138, 60, 0.10);
+  border: 1px solid rgba(26, 138, 60, 0.30);
+  color: #1a7a3c;
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 14px;
+  letter-spacing: 0.02em;
+}
 /* Card body */
 .pcard__body {
   display: block;
