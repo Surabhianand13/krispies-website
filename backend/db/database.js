@@ -215,6 +215,7 @@ safeAddColumn('orders',   'customer_email',     'TEXT');
 safeAddColumn('orders',   'payment_method',     'TEXT');
 safeAddColumn('orders',   'customer_id',        'TEXT');
 safeAddColumn('orders',   'razorpay_order_id',  'TEXT');
+safeAddColumn('products', 'also_in',           "TEXT NOT NULL DEFAULT '[]'");
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products(slug)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)'); } catch (_) {}

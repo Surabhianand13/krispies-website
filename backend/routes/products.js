@@ -83,8 +83,8 @@ router.post('/', requireAuth, productValidators(), (req, res) => {
   const p = buildProduct(id, req.body);
   p.slug = uniqueSlug(slugify(req.body.slug || req.body.name), id);
   db.prepare(`
-    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, trending, active, sort_order)
-    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @trending, @active, @sort_order)
+    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, trending, active, sort_order, also_in)
+    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @trending, @active, @sort_order, @also_in)
   `).run(p);
 
   res.status(201).json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(p.id), null, { raw: true }));
@@ -106,7 +106,7 @@ router.put('/:id', requireAuth, productValidators(), (req, res) => {
         mrp=@mrp, discount=@discount, images=@images,
         variant_groups=@variant_groups, prep_hours=@prep_hours, slug=@slug,
         featured=@featured, trending=@trending, active=@active, sort_order=@sort_order,
-        updated_at=datetime('now')
+        also_in=@also_in, updated_at=datetime('now')
     WHERE id=@id
   `).run(p);
 
@@ -225,11 +225,12 @@ function buildProduct(id, body) {
     featured:       body.featured ? 1 : 0,
     trending:       body.trending ? 1 : 0,
     active:         body.active !== false && body.active !== 0 ? 1 : 0,
-    // Lower shows first within a category (ties break by newest first, the
-    // old default). Left at 0, a product just falls back to that recency
-    // order; an admin only needs to set this to pin something earlier or
-    // push it later.
     sort_order:     parseInt(body.sortOrder, 10) || 0,
+    also_in:        JSON.stringify(
+      Array.isArray(body.alsoIn)
+        ? body.alsoIn.map(c => String(c).trim()).filter(Boolean)
+        : []
+    ),
   };
 }
 
@@ -296,11 +297,15 @@ function toProduct(row, ratingsMap, opts = {}) {
     }
   }
 
+  let alsoIn = [];
+  try { alsoIn = JSON.parse(row.also_in || '[]'); } catch (_) {}
+
   return {
     id:            row.id,
     name:          row.name,
     slug:          row.slug,
     category:      row.category,
+    alsoIn,
     tag:           row.tag,
     flavour:       row.flavour || null,
     description:   row.description,

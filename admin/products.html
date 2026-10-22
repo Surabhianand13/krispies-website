@@ -538,6 +538,16 @@ function productForm(p = {}) {
         <div id="variant-groups"></div>
         <button class="btn btn-outline btn-sm" onclick="addVariantGroup()" type="button" style="margin-top:8px;">+ Add Option Group</button>
       </div>
+      <div class="form-row" style="grid-column:1/-1;">
+        <label>Also appears in <span class="hint-inline">(product shows in these categories too — upload once, appear everywhere relevant)</span></label>
+        <div id="f-also-in" style="display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px;">
+          ${catOptions.filter(([v]) => v !== p.category && v !== '__other__').map(([v, l]) => `
+            <label class="form-check" style="font-size:0.84rem;">
+              <input type="checkbox" name="also-in" value="${v}" ${(p.alsoIn||[]).includes(v)?'checked':''}>
+              ${l}
+            </label>`).join('')}
+        </div>
+      </div>
       <div class="form-row">
         <label class="form-check"><input type="checkbox" id="f-active" ${p.active!==false?'checked':''}> Active (visible on website)</label>
       </div>
@@ -824,6 +834,7 @@ async function saveProduct(editId) {
     discount:      parseFloat(document.getElementById('f-disc').value) || 0,
     images:        JSON.stringify(_editImages),
     variantGroups: JSON.stringify(_editVariantGroups.filter(g => g.name.trim() && g.options.some(o => o.label.trim()))),
+    alsoIn:        [...document.querySelectorAll('#f-also-in input[name="also-in"]:checked')].map(cb => cb.value),
     active:        document.getElementById('f-active').checked,
     featured:      document.getElementById('f-featured').checked,
     trending:      document.getElementById('f-trending').checked,
