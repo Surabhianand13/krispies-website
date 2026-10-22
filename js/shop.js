@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════════════
    Krispie's — shared product / cart / checkout logic
    Loaded by menu.html and every category landing page (birthday-cakes.html,
-   wedding-cakes.html, engagement-cakes.html, baby-shower-cakes.html,
+   wedding-cakes.html, engagement-cakes.html, kids-birthday-cakes.html,
    half-year-birthday-cakes.html, gender-reveal-cakes.html) and
    product-page.html. Requires BACKEND_URL from
    js/main.js to already be loaded on the page.
@@ -218,6 +218,18 @@ async function _fetchWithRetry(url, delays = [0, 4000, 8000]) {
 async function loadProducts() {
   // Show cached products immediately so users aren't staring at "Loading…"
   // while we wait for the backend. The fresh fetch updates the view once done.
+
+  // 1. SSR-embedded preload (Cloudflare Function / middleware sets this on every
+  //    page load via window.__shopCatalogPreload). Used first so first-time
+  //    visitors on any browser see interactive cards without a backend call.
+  try {
+    if (Array.isArray(window.__shopCatalogPreload) && window.__shopCatalogPreload.length) {
+      _productsCache = window.__shopCatalogPreload;
+      renderAll();
+    }
+  } catch (_) {}
+
+  // 2. localStorage cache (returning visitor, fast path)
   try {
     const cached = JSON.parse(localStorage.getItem(PROD_KEY));
     if (Array.isArray(cached) && cached.length) {
@@ -384,11 +396,9 @@ function renderCard(p) {
   // decision a customer needs to make, and the generic party-addon upsell
   // modal that follows a quick add (candles/balloons/banners) doesn't apply
   // to a rakhi hamper -- other categories keep the quick add-to-cart flow.
-  const cta = p.category === 'rakhi-hampers'
-    ? `<a class="pcard__btn" href="${url}" style="text-decoration:none;">Select Options</a>`
-    : (mrp > 0 || hasVariants)
-      ? `<button class="pcard__btn" onclick="addToCart('${p.id}')">Add to Cart</button>`
-      : `<a class="pcard__btn" href="contact" style="text-decoration:none;">Get a Quote →</a>`;
+  const cta = (mrp > 0 || hasVariants)
+    ? `<button class="pcard__btn" onclick="window.location.href='${url}'">Add to Cart</button>`
+    : `<a class="pcard__btn" href="contact" style="text-decoration:none;">Get a Quote →</a>`;
 
   const ratingHTML = p.ratingCount > 0 ? `
     <div class="pcard__rating">
@@ -424,7 +434,7 @@ function renderAll() {
   // already on the page (e.g. a brand-new category page with zero products
   // yet) -- otherwise a category with no products yet never gets visited and
   // its grid is stuck on the initial "Loading cakes…" placeholder forever.
-  const fromProducts = getProducts().map(p => p.category);
+  const fromProducts = getProducts().flatMap(p => [p.category, ...(p.alsoIn || [])]);
   const fromPage = [...document.querySelectorAll('[id^="grid-"]')]
     .map(el => el.id.replace(/^grid-/, ''))
     .filter(id => !NON_CATEGORY_GRID_IDS.includes(id));
@@ -432,7 +442,11 @@ function renderAll() {
   categories.forEach(cat => {
     const grid = document.getElementById(`grid-${cat}`);
     if (!grid) return;
-    const items = getProducts().filter(p => p.category === cat && p.active !== false);
+    const items = getProducts().filter(p => p.active !== false && (p.category === cat || (p.alsoIn || []).includes(cat)));
+    // data-ssr: the server already rendered this category's products into
+    // the grid (functions/_middleware.js). If our own fetch came back empty
+    // (backend asleep, no cache), keep those rather than "coming soon".
+    if (!items.length && grid.dataset.ssr) return;
     grid.innerHTML = items.length
       ? items.map(renderCard).join('')
       : `<div class="menu-empty">
@@ -486,6 +500,8 @@ function renderFeatured() {
   const grid = document.getElementById('grid-featured');
   if (!grid) return;
   const items = getProducts().filter(p => p.featured && p.active !== false).slice(0, 8);
+  // Keep SSR-injected cards (from functions/_middleware.js) while API is loading.
+  if (!items.length && grid.dataset.ssr) return;
   grid.innerHTML = items.length
     ? items.map(renderCard).join('')
     : `<div class="menu-empty">No featured products yet.</div>`;
@@ -501,6 +517,11 @@ function renderTrending() {
   if (!grid) return;
   const section = document.getElementById('trending-section');
   const items = getProducts().filter(p => p.trending && p.active !== false).slice(0, 8);
+  // Keep SSR-injected cards (from functions/_middleware.js) while API is loading.
+  if (!items.length && grid.dataset.ssr) {
+    if (section) section.style.display = ''; // SSR cards present — keep section visible
+    return;
+  }
   if (section) section.style.display = items.length ? '' : 'none';
   grid.innerHTML = items.map(renderCard).join('');
   initGalleries();
@@ -1021,6 +1042,7 @@ function deliveryFee(km) {
   if (km <= 25) return 300;
   return 350;
 }
+const MAX_DELIVERY_KM = 30;
 
 /* ── State ── */
 let _chkProduct  = null;
@@ -1165,7 +1187,10 @@ function _chkMinDate() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const prepDays = Math.ceil((Number(p.prepHours) || 0) / 24);
+  // Products with < 24 h notice are same-day capable (prepDays = 0);
+  // only those needing 24 h+ round up to whole days.
+  const _prepHoursNum = Number(p.prepHours) || 0;
+  const prepDays = _prepHoursNum >= 24 ? Math.ceil(_prepHoursNum / 24) : 0;
   const categoryDays = needsAdvance ? 1 : 0;
   const leadDays = Math.max(prepDays, categoryDays);
 
@@ -1292,7 +1317,7 @@ function _chkStep1() {
     <div class="chk-field-group">
       <label class="chk-label">Delivery Date *</label>
       <input type="date" class="chk-input" id="chkDate"
-        min="${minDate}" value="${_chkCart.deliveryDate}">
+        min="${minDate}" value="${_chkCart.deliveryDate || (window.__pdpDate || '')}">
       ${advanceNotice}
       ${prepNotice}
       ${birthdayNote}
@@ -1302,7 +1327,12 @@ function _chkStep1() {
     <div class="chk-field-group">
       <label class="chk-label">Special Instructions <span style="font-weight:400;text-transform:none">(optional)</span></label>
       <textarea class="chk-input" id="chkNotes" rows="3"
-        placeholder="Flavour, design, message on cake, allergens…">${esc(_chkCart.notes)}</textarea>
+        placeholder="Flavour, design, message on cake, allergens…">${esc(_chkCart.notes || (() => {
+          const parts = [];
+          if (window.__pdpCakeMessage) parts.push(`Message on cake: ${window.__pdpCakeMessage}`);
+          if (window.__pdpFlavour) parts.push(`Flavour: ${window.__pdpFlavour}`);
+          return parts.join(' | ');
+        })())}</textarea>
     </div>
 
     <div class="chk-footer">
@@ -1478,37 +1508,45 @@ function _chkSubtotal() {
 function _chkDeliveryHTML() {
   const hasLoc = _chkDelivery.lat !== null;
 
-  let storesHTML = '';
-  if (hasLoc) {
-    const sorted = STORES.map(s => {
-      const km  = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
-      const fee = deliveryFee(km);
-      return { ...s, km, fee };
-    }).sort((a, b) => a.km - b.km);
+  // Always show stores — sorted by distance if location is known, otherwise
+  // in default order with an estimated fee. Location detection is optional.
+  const storeList = hasLoc
+    ? STORES.map(s => {
+        const km  = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
+        const fee = deliveryFee(km);
+        return { ...s, km, fee };
+      }).sort((a, b) => a.km - b.km)
+    : STORES.map(s => ({ ...s, km: null, fee: 60 })); // ₹60 default until location known
 
-    storesHTML = `
-      <div class="chk-stores-label">Nearest stores to you:</div>
-      <div class="chk-store-list">
-        ${sorted.map((s, i) => `
-          <div class="chk-store-card${i===0?' best':''}${_chkDelivery.store===s.name?' selected':''}"
-            onclick="_chkSelectStore('${s.name}', ${s.km.toFixed(3)}, ${s.fee})">
-            <div class="chk-store-card__name">${i===0?'&#9733; ':''}<strong>${s.name}</strong></div>
-            <div class="chk-store-card__dist">${s.km.toFixed(1)} km away</div>
-            <div class="chk-store-card__fee">&#8377;${s.fee} delivery</div>
-          </div>`).join('')}
-      </div>`;
-  } else {
-    storesHTML = `
-      <div class="chk-loc-methods">
-        <div class="chk-pincode-row">
-          <input id="chkPincodeInput" class="chk-input" placeholder="Enter your pincode" maxlength="6" style="flex:1">
-          <button class="btn btn-outline" onclick="_chkPincodeCheck()" style="white-space:nowrap;padding:8px 14px;">Check</button>
-        </div>
-        <div class="chk-loc-or">or</div>
-        <button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()">📍 Use My Location</button>
+  const allOutOfRange = hasLoc && storeList.every(s => s.km !== null && s.km > MAX_DELIVERY_KM);
+  const storesHTML = `
+    <div class="chk-loc-search-wrap">
+      <div class="chk-loc-search-row">
+        <input id="chkLocSearchInput" class="chk-input" placeholder="Search your area (e.g. Banjara Hills)"
+          autocomplete="off" oninput="_chkLocSearchType(this.value)" style="flex:1">
       </div>
-      <div class="chk-loc-status" id="chkLocStatus"></div>`;
-  }
+      <div id="chkLocSearchDrop" class="chk-loc-dropdown"></div>
+    </div>
+    <div class="chk-loc-or">or</div>
+    <button class="chk-loc-btn" id="chkLocBtn" onclick="_chkDetectLoc()" style="margin-bottom:12px;">
+      📍 ${hasLoc ? 'Re-detect My Location' : 'Use My Current Location'}
+    </button>
+    <div class="chk-loc-status" id="chkLocStatus" style="margin-bottom:${hasLoc?'0':'8'}px;"></div>
+    ${allOutOfRange ? `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;color:#b91c1c;font-size:0.85rem;margin-bottom:12px;">
+      Sorry, we only deliver within 30 km of our stores. Your location is outside our delivery area — please select <strong>Store Pickup</strong> instead, or contact us to arrange.
+    </div>` : ''}
+    <div class="chk-stores-label">${hasLoc ? 'Nearest stores to you:' : 'Select your delivery store:'}</div>
+    <div class="chk-store-list">
+      ${storeList.map((s, i) => {
+        const oob = hasLoc && s.km !== null && s.km > MAX_DELIVERY_KM;
+        return `<div class="chk-store-card${hasLoc && i===0 && !oob?' best':''}${_chkDelivery.store===s.name?' selected':''}"
+          ${oob ? 'style="opacity:0.4;cursor:not-allowed;"' : `onclick="_chkSelectStore('${s.name}', ${s.km !== null ? s.km.toFixed(3) : 5}, ${s.fee})"`}>
+          <div class="chk-store-card__name">${hasLoc && i===0 && !oob?'&#9733; ':''}<strong>${s.name}</strong></div>
+          <div class="chk-store-card__dist">${s.km !== null ? s.km.toFixed(1)+' km away' : 'Hyderabad'}</div>
+          <div class="chk-store-card__fee">${oob ? '<span style="color:#b91c1c;font-size:0.8em;">Outside 30 km range</span>' : hasLoc ? '&#8377;'+s.fee+' delivery' : 'from &#8377;30'}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
 
   const sub = _chkSubtotal();
   const fee = _chkDelivery.fee || 0;
@@ -1521,9 +1559,10 @@ function _chkDeliveryHTML() {
       ${_chkCouponHTML()}
       <div class="chk-total-box">
         <div class="chk-total-row"><span>Subtotal (&#215;${_chkCart.qty})</span><span>&#8377;${sub.toLocaleString('en-IN')}</span></div>
-        <div class="chk-total-row"><span>Delivery to ${_chkDelivery.store}</span><span>&#8377;${fee}</span></div>
+        <div class="chk-total-row"><span>Delivery to ${_chkDelivery.store}</span><span>&#8377;${fee}${!hasLoc?' <span style="font-size:0.7em;color:#888">(est.)</span>':''}</span></div>
         ${disc > 0 ? `<div class="chk-total-row" style="color:#1a7a3c"><span>Coupon (${_chkCoupon.code})</span><span>&#8722;&#8377;${disc.toLocaleString('en-IN')}</span></div>` : ''}
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub + fee - disc).toLocaleString('en-IN')}</span></div>
+        ${!hasLoc ? `<div style="font-size:0.72rem;color:#888;margin-top:4px;">Delivery fee adjusted to your exact distance at fulfilment. Use My Location above for accurate fee.</div>` : ''}
       </div>
       <div id="chkTurnstileContainer" style="margin:12px 0;"></div>
       <div class="chk-pay-btns">
@@ -1597,14 +1636,20 @@ function _chkDetectLoc() {
     pos => {
       _chkDelivery.lat = pos.coords.latitude;
       _chkDelivery.lng = pos.coords.longitude;
-      /* auto-select nearest store */
+      /* auto-select nearest store only if within delivery range */
       const nearest = STORES.map(s => {
         const km = haversine(_chkDelivery.lat, _chkDelivery.lng, s.lat, s.lng);
         return { ...s, km, fee: deliveryFee(km) };
       }).sort((a, b) => a.km - b.km)[0];
-      _chkDelivery.store = nearest.name;
-      _chkDelivery.km    = nearest.km;
-      _chkDelivery.fee   = nearest.fee;
+      if (nearest.km <= MAX_DELIVERY_KM) {
+        _chkDelivery.store = nearest.name;
+        _chkDelivery.km    = nearest.km;
+        _chkDelivery.fee   = nearest.fee;
+      } else {
+        _chkDelivery.store = null;
+        _chkDelivery.km    = nearest.km;
+        _chkDelivery.fee   = 0;
+      }
       _chkRenderDelivSection();
     },
     err => {
@@ -1632,7 +1677,12 @@ async function _chkPincodeCheck() {
       headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' }
     });
     const data = await res.json();
-    if (!data.length) { if (statusEl) statusEl.textContent = 'Pincode not found. Try using location instead.'; return; }
+    if (!data.length) { if (statusEl) statusEl.textContent = 'Pincode not found. Try your full address or use location instead.'; return; }
+    const displayName = (data[0].display_name || '').toLowerCase();
+    if (!displayName.includes('telangana') && !displayName.includes('hyderabad')) {
+      if (statusEl) statusEl.textContent = 'Sorry, this pincode is outside Hyderabad. We currently only deliver within Hyderabad.';
+      return;
+    }
     const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
     _chkDelivery.lat = lat;
     _chkDelivery.lng = lng;
@@ -1640,17 +1690,80 @@ async function _chkPincodeCheck() {
       const km = haversine(lat, lng, s.lat, s.lng);
       return { ...s, km, fee: deliveryFee(km) };
     }).sort((a, b) => a.km - b.km)[0];
-    _chkDelivery.store = nearest.name;
-    _chkDelivery.km    = nearest.km;
-    _chkDelivery.fee   = nearest.fee;
+    if (nearest.km <= MAX_DELIVERY_KM) {
+      _chkDelivery.store = nearest.name;
+      _chkDelivery.km    = nearest.km;
+      _chkDelivery.fee   = nearest.fee;
+      if (statusEl) statusEl.textContent = '';
+    } else {
+      _chkDelivery.store = null;
+      _chkDelivery.km    = nearest.km;
+      _chkDelivery.fee   = 0;
+      if (statusEl) statusEl.textContent = `Your pincode is ${nearest.km.toFixed(1)} km from our nearest store. We only deliver within 30 km.`;
+    }
     _chkRenderDelivSection();
   } catch (_) {
     if (statusEl) statusEl.textContent = 'Could not check pincode. Try using location instead.';
   }
 }
 
+/* ── Location text search (Nominatim) ── */
+let _chkLocSearchTimer = null;
+function _chkLocSearchType(val) {
+  clearTimeout(_chkLocSearchTimer);
+  const drop = document.getElementById('chkLocSearchDrop');
+  if (!val || val.trim().length < 3) { if (drop) drop.innerHTML = ''; return; }
+  _chkLocSearchTimer = setTimeout(() => _chkLocSearchFetch(val.trim()), 350);
+}
+
+async function _chkLocSearchFetch(q) {
+  const drop = document.getElementById('chkLocSearchDrop');
+  if (!drop) return;
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ', Hyderabad')}&countrycodes=in&format=json&limit=5&addressdetails=0`;
+    const data = await (await fetch(url, { headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' } })).json();
+    const hyd = data.filter(d => {
+      const dn = (d.display_name || '').toLowerCase();
+      return dn.includes('telangana') || dn.includes('hyderabad');
+    });
+    if (!hyd.length) {
+      drop.innerHTML = `<div class="chk-loc-drop-empty">No results in Hyderabad — try a different area name</div>`;
+      return;
+    }
+    drop.innerHTML = hyd.map(d => {
+      const parts = (d.display_name || '').split(',').slice(0, 3).join(', ');
+      return `<div class="chk-loc-drop-item" onclick="_chkLocSearchSelect(${d.lat}, ${d.lon}, this)">${esc(parts)}</div>`;
+    }).join('');
+  } catch (_) { drop.innerHTML = ''; }
+}
+
+function _chkLocSearchSelect(lat, lng, el) {
+  const drop = document.getElementById('chkLocSearchDrop');
+  const input = document.getElementById('chkLocSearchInput');
+  if (input) input.value = el ? el.textContent : '';
+  if (drop) drop.innerHTML = '';
+  const latN = parseFloat(lat), lngN = parseFloat(lng);
+  _chkDelivery.lat = latN;
+  _chkDelivery.lng = lngN;
+  const nearest = STORES.map(s => {
+    const km = haversine(latN, lngN, s.lat, s.lng);
+    return { ...s, km, fee: deliveryFee(km) };
+  }).sort((a, b) => a.km - b.km)[0];
+  if (nearest.km <= MAX_DELIVERY_KM) {
+    _chkDelivery.store = nearest.name;
+    _chkDelivery.km    = nearest.km;
+    _chkDelivery.fee   = nearest.fee;
+  } else {
+    _chkDelivery.store = null;
+    _chkDelivery.km    = nearest.km;
+    _chkDelivery.fee   = 0;
+  }
+  _chkRenderDelivSection();
+}
+
 /* ── Store selection ── */
 function _chkSelectStore(name, km, fee) {
+  if (parseFloat(km) > MAX_DELIVERY_KM) return;
   _chkDelivery.store = name;
   _chkDelivery.km    = parseFloat(km);
   _chkDelivery.fee   = fee;
@@ -1933,6 +2046,10 @@ function _acctInjectUI() {
 }
 
 function openAccountModal() {
+  if (_custToken && !window.location.pathname.includes('profile')) {
+    window.location.href = '/profile';
+    return;
+  }
   _acctInjectUI();
   closeCheckout();
   closeCartDrawer();
@@ -2021,7 +2138,7 @@ async function _acctSubmitSignup() {
     if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Signup failed.');
     _custToken = data.token; _custProfile = data.customer;
     localStorage.setItem('krispies_customer_token', _custToken);
-    _acctRenderLoggedIn();
+    window.location.href = '/profile';
   } catch (e) {
     errEl.textContent = e.message;
     resetTurnstile(_acctTurnstileWidgetId);
@@ -2043,7 +2160,7 @@ async function _acctSubmitLogin() {
     if (!res.ok) throw new Error(data.error || 'Login failed.');
     _custToken = data.token; _custProfile = data.customer;
     localStorage.setItem('krispies_customer_token', _custToken);
-    _acctRenderLoggedIn();
+    window.location.href = '/profile';
   } catch (e) {
     errEl.textContent = e.message;
     resetTurnstile(_acctTurnstileWidgetId);
@@ -2090,7 +2207,7 @@ async function _acctSubmitOtpVerify() {
     if (!res.ok) throw new Error(data.error || (data.errors && data.errors[0]?.msg) || 'Verification failed.');
     _custToken = data.token; _custProfile = data.customer;
     localStorage.setItem('krispies_customer_token', _custToken);
-    _acctRenderLoggedIn();
+    window.location.href = '/profile';
   } catch (e) {
     errEl.textContent = e.message;
     if (btn) { btn.textContent = 'Verify & Log In'; btn.disabled = false; }
@@ -2125,17 +2242,54 @@ async function _acctRenderLoggedIn() {
       _custProfile = await meRes.json();
     }
     await loadSavedAddresses();
+
+    // Fetch orders once upfront so we can show stats in the header
+    let _cachedOrders = null;
+    try {
+      const ordRes = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
+      _cachedOrders = ordRes.ok ? await ordRes.json() : [];
+    } catch (_) { _cachedOrders = []; }
+
+    const initials = (_custProfile.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const totalOrders = _cachedOrders.length;
+    const totalSpend  = _cachedOrders.reduce((s, o) => s + (Number(o.amount) || 0), 0);
+
     body.innerHTML = `
-      <div class="acct-profile-hd">
-        <div><strong>${esc(_custProfile.name)}</strong><br><span style="color:var(--text-muted);font-size:0.8rem">${esc(_custProfile.phone || _custProfile.email || '')}</span></div>
-        <button class="btn btn-outline btn-sm" onclick="_acctLogout()">Log Out</button>
+      <!-- Profile header -->
+      <div class="acct-profile-section">
+        <div class="acct-avatar">${esc(initials)}</div>
+        <div class="acct-profile-info">
+          <div class="acct-profile-name">${esc(_custProfile.name)}</div>
+          <div class="acct-profile-contact">${esc(_custProfile.phone || '')}${_custProfile.phone && _custProfile.email ? ' · ' : ''}${esc(_custProfile.email || '')}</div>
+        </div>
+        <button class="btn btn-outline btn-sm acct-logout-btn" onclick="_acctLogout()">Log Out</button>
       </div>
-      <div class="acct-tabs" style="margin-top:16px">
+
+      <!-- Stats -->
+      <div class="acct-stats-row">
+        <div class="acct-stat">
+          <span class="acct-stat-value">${totalOrders}</span>
+          <span class="acct-stat-label">Order${totalOrders === 1 ? '' : 's'}</span>
+        </div>
+        <div class="acct-stat-divider"></div>
+        <div class="acct-stat">
+          <span class="acct-stat-value">₹${totalSpend.toLocaleString('en-IN')}</span>
+          <span class="acct-stat-label">Total Spent</span>
+        </div>
+        <div class="acct-stat-divider"></div>
+        <div class="acct-stat">
+          <span class="acct-stat-value">${_savedAddresses.length}</span>
+          <span class="acct-stat-label">Saved Address${_savedAddresses.length === 1 ? '' : 'es'}</span>
+        </div>
+      </div>
+
+      <div class="acct-tabs">
         <button class="acct-tab${_acctTab === 'orders' ? ' active' : ''}" onclick="_acctSwitchTab(this,'orders')">My Orders</button>
         <button class="acct-tab${_acctTab === 'addresses' ? ' active' : ''}" onclick="_acctSwitchTab(this,'addresses')">Address Book</button>
       </div>
       <div id="acctTabBody"></div>`;
-    _acctRenderTabBody();
+
+    _acctRenderTabBody(_cachedOrders);
   } catch (e) {
     _acctLogout();
   }
@@ -2148,22 +2302,60 @@ function _acctSwitchTab(btn, tab) {
   _acctRenderTabBody();
 }
 
-async function _acctRenderTabBody() {
+async function _acctRenderTabBody(preloadedOrders) {
   const el = document.getElementById('acctTabBody');
   if (!el) return;
   if (_acctTab === 'addresses') { _acctRenderAddresses(); return; }
 
-  el.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:16px 0;">Loading…</p>`;
-  const ordersRes = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
-  const orders = ordersRes.ok ? await ordersRes.json() : [];
-  el.innerHTML = orders.length ? orders.map(o => `
+  let orders = preloadedOrders;
+  if (!orders) {
+    el.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:16px 0;">Loading…</p>`;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/customers/orders`, { headers: { Authorization: `Bearer ${_custToken}` } });
+      orders = res.ok ? await res.json() : [];
+    } catch (_) { orders = []; }
+  }
+
+  if (!orders.length) {
+    el.innerHTML = `
+      <div class="acct-empty-orders">
+        <div class="acct-empty-icon">🎂</div>
+        <p>No orders yet</p>
+        <a href="menu" class="btn btn-gold btn-sm" style="display:inline-block;margin-top:8px;">Browse Menu →</a>
+      </div>`;
+    return;
+  }
+
+  const statusBadge = (s) => {
+    const cfg = {
+      confirmed:  { bg: '#e8f5e9', color: '#2e7d32', label: '✓ Confirmed' },
+      pending:    { bg: '#fff8e1', color: '#f57f17', label: '⏳ Pending' },
+      ready:      { bg: '#e3f2fd', color: '#1565c0', label: '✓ Ready' },
+      delivered:  { bg: '#f3e5f5', color: '#6a1b9a', label: '✓ Delivered' },
+      cancelled:  { bg: '#ffebee', color: '#c62828', label: '✗ Cancelled' },
+    };
+    const c = cfg[s] || { bg: '#f5f5f5', color: '#555', label: s };
+    return `<span class="acct-status-badge" style="background:${c.bg};color:${c.color};">${c.label}</span>`;
+  };
+
+  el.innerHTML = orders.map(o => {
+    const delDate = o.delivery_date
+      ? new Date(o.delivery_date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      : null;
+    return `
     <div class="acct-order-card">
-      <div class="acct-order-card__row">
-        <strong>${esc(o.items)}</strong>
-        <span class="acct-order-status" style="color:${ORDER_STATUS_COLOR[o.status] || '#9A7A48'}">${esc(o.status)}</span>
+      <div class="acct-order-card__top">
+        <div class="acct-order-card__items">${esc(o.items)}</div>
+        ${statusBadge(o.status)}
       </div>
-      <div class="acct-order-card__meta">Order #${esc(o.id)} · ₹${o.amount != null ? Number(o.amount).toLocaleString('en-IN') : '—'} · ${esc(o.order_date || '')}</div>
-    </div>`).join('') : `<p style="color:var(--text-muted);font-size:0.85rem">No orders yet — your order history will show up here.</p>`;
+      <div class="acct-order-card__details">
+        <span>₹${o.amount != null ? Number(o.amount).toLocaleString('en-IN') : '—'}</span>
+        ${o.outlet ? `<span class="acct-dot">·</span><span>${esc(o.outlet)}</span>` : ''}
+        ${delDate ? `<span class="acct-dot">·</span><span>Delivery ${delDate}</span>` : ''}
+      </div>
+      <div class="acct-order-card__id">Order ID: ${esc(o.id)}</div>
+    </div>`;
+  }).join('');
 }
 
 function _acctRenderAddresses(editId) {
@@ -2278,4 +2470,21 @@ async function _acctPrefillCheckout() {
   initSharedPageUI();
   _acctInjectUI();
   document.dispatchEvent(new CustomEvent('shop:ready'));
+
+  // Render free-tier cold starts can take 30-60s; our three 8s-timeout
+  // attempts above give up at ~36s. On a first visit with no localStorage
+  // cache this races the backend wake — if everything timed out we schedule
+  // one late recovery attempt so pages like product-page.html don't stay
+  // stuck on "Product not found" after a backend cold start.
+  if (!_productsCache.length) {
+    await new Promise(r => setTimeout(r, 30000));
+    await loadProducts();
+    if (_productsCache.length) {
+      renderAll();
+      renderFeatured();
+      renderTrending();
+      renderSubcatCircles();
+      document.dispatchEvent(new CustomEvent('shop:ready'));
+    }
+  }
 })();

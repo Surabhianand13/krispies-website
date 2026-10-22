@@ -7,6 +7,21 @@
 let _pdpProduct = null;
 let _pdpSelection = null;
 let _pdpGalleryIndex = 0;
+let _pdpSelectedDate = null;
+let _pdpCakeMessage = '';
+
+// Categories that get the static flavour dropdown if no Flavour variant group is configured.
+// Birthday cakes are excluded because customers usually specify customisation via notes.
+const PDP_FLAVOUR_CATS = ['wedding-cakes','engagement-cakes','baby-shower-cakes',
+  'half-year-birthday-cakes','gender-reveal-cakes','customized-cakes'];
+// Canonical flavour list — ⭐ marks bestsellers shown first in the dropdown
+const PDP_FLAVOURS = [
+  'Chocolate Truffle ⭐','Belgium Chocolate ⭐','Black Forest ⭐',
+  'Red Velvet ⭐','Pineapple ⭐','Butterscotch ⭐',
+  'White Forest','Vanilla','Strawberry','Blueberry',
+  'Choco Vanilla Oreo','Rasmalai','Rabdi Pista',
+  'White Almond','Choco Almond',
+];
 
 function _pdpSlugFromUrl() {
   const pathMatch = window.location.pathname.match(/\/products?\/([^/?#]+)/);
@@ -59,16 +74,93 @@ function _pdpRender() {
   `;
 
   const useVariantCards = CATEGORIES_WITH_VARIANT_CARDS.includes(p.category);
-  const variantHtml = hasVariants ? p.variantGroups.map((g, gi) => useVariantCards
-    ? renderVariantCards(g.name, g, _pdpSelection[g.name], '_pdpVariantCardClick', gi)
-    : `
+  const variantHtml = hasVariants ? p.variantGroups.map((g, gi) => {
+    const isFlavourGroup = /flavou?r/i.test(g.name);
+    if (useVariantCards) return renderVariantCards(g.name, g, _pdpSelection[g.name], '_pdpVariantCardClick', gi);
+    // Pill-chip picker for weight/size/non-flavour groups
+    const selectedIdx = _pdpSelection[g.name];
+    const selectedOpt = selectedIdx >= 0 && selectedIdx < g.options.length ? g.options[selectedIdx] : null;
+    const servingInfo = selectedOpt && selectedOpt.serving ? selectedOpt.serving : '';
+    if (!isFlavourGroup) {
+      return `
+      <div class="pdp__variant-group">
+        <label class="chk-label">${esc(g.name)}</label>
+        <div class="pdp__variant-chips">
+          ${g.optional ? `<button class="pdp__variant-chip${selectedIdx === -1 ? ' pdp__variant-chip--active' : ''}"
+            onclick="_pdpVariantChipClick('${esc(g.name)}', -1)">None</button>` : ''}
+          ${g.options.map((o, i) => `<button class="pdp__variant-chip${selectedIdx === i ? ' pdp__variant-chip--active' : ''}"
+            onclick="_pdpVariantChipClick('${esc(g.name)}', ${i})">${esc(o.label)}</button>`).join('')}
+        </div>
+        ${servingInfo ? `<div class="pdp__serving-info">${esc(servingInfo)}</div>` : ''}
+      </div>`;
+    }
+    // Flavour: keep dropdown
+    return `
     <div class="chk-field-group">
       <label class="chk-label">${esc(g.name)}</label>
       <select class="chk-input" onchange="_pdpVariantChange('${esc(g.name)}', this.value)">
-        ${g.optional ? `<option value="-1" ${_pdpSelection[g.name] === -1 ? 'selected' : ''}>None</option>` : ''}
-        ${g.options.map((o, i) => `<option value="${i}" ${_pdpSelection[g.name] === i ? 'selected' : ''}>${esc(o.label)} — ₹${(Number(o.price) || 0).toLocaleString('en-IN')}</option>`).join('')}
+        ${g.optional ? `<option value="-1" ${selectedIdx === -1 ? 'selected' : ''}>None</option>` : ''}
+        ${g.options.map((o, i) => `<option value="${i}" ${selectedIdx === i ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}
       </select>
-    </div>`).join('') : '';
+    </div>`;
+  }).join('') : '';
+
+  // Static flavour dropdown for cake categories that don't have a Flavour variant configured
+  const hasFlavourVariant = (p.variantGroups || []).some(g => /flavou?r/i.test(g.name));
+  const showStaticFlavour = !hasFlavourVariant && PDP_FLAVOUR_CATS.includes(p.category);
+  const flavourHtml = showStaticFlavour ? `
+    <div class="chk-field-group pdp__flavour-group">
+      <label class="chk-label">Flavour</label>
+      <select class="chk-input" id="pdpFlavourSelect" onchange="_pdpSetFlavour(this.value)">
+        <option value="">Select Flavour</option>
+        ${PDP_FLAVOURS.map(f => {
+          const clean = f.replace(/\s*⭐/g, '').trim();
+          return `<option value="${esc(clean)}">${esc(f)}</option>`;
+        }).join('')}
+      </select>
+    </div>` : '';
+
+  // Date tabs: Today / Tomorrow / Select Date
+  const _today = new Date(); _today.setHours(0,0,0,0);
+  const _tomorrow = new Date(_today); _tomorrow.setDate(_today.getDate() + 1);
+  // Products with < 24 h notice are same-day capable; only those needing 24h+
+  // round up to whole days.
+  const _prepHoursNum = Number(p.prepHours) || 0;
+  const prepDays = _prepHoursNum >= 24 ? Math.ceil(_prepHoursNum / 24) : 0;
+  // Allow today only if prep time < 24 h AND it's before the 2 PM cutoff
+  const _nowHour = new Date().getHours();
+  const canToday = prepDays === 0 && _nowHour < 14;
+  const minDateObj = new Date(_today); minDateObj.setDate(_today.getDate() + prepDays);
+  const fmtDateLabel = d => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  const fmtDateVal = d => d.toISOString().split('T')[0];
+  const todayVal = fmtDateVal(_today), tomorrowVal = fmtDateVal(_tomorrow);
+  const customActive = _pdpSelectedDate && _pdpSelectedDate !== todayVal && _pdpSelectedDate !== tomorrowVal;
+  const customLabel = customActive
+    ? new Date(_pdpSelectedDate + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    : 'Pick a date';
+  const dateTabsHtml = `
+    <div class="pdp__date-section">
+      <label class="chk-label">Delivery Date</label>
+      <div class="pdp__date-tabs">
+        <button class="pdp__date-tab${canToday ? (_pdpSelectedDate === todayVal ? ' pdp__date-tab--active' : '') : ' pdp__date-tab--disabled'}"
+          ${canToday ? `onclick="_pdpSetDate('${todayVal}')"` : 'disabled title="Needs advance notice"'}>
+          <span class="pdp__date-tab-main">Today</span>
+          <span class="pdp__date-tab-sub">${fmtDateLabel(_today)}</span>
+        </button>
+        <button class="pdp__date-tab${_pdpSelectedDate === tomorrowVal ? ' pdp__date-tab--active' : ''}"
+          onclick="_pdpSetDate('${tomorrowVal}')">
+          <span class="pdp__date-tab-main">Tomorrow</span>
+          <span class="pdp__date-tab-sub">${fmtDateLabel(_tomorrow)}</span>
+        </button>
+        <button class="pdp__date-tab${customActive ? ' pdp__date-tab--active' : ''}"
+          onclick="_pdpOpenDatePicker()" id="pdpCustomDateBtn">
+          <span class="pdp__date-tab-main">Select Date</span>
+          <span class="pdp__date-tab-sub" id="pdpCustomDateLabel">${customLabel}</span>
+        </button>
+      </div>
+      <input type="date" id="pdpDateHidden" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;"
+        min="${fmtDateVal(minDateObj)}" onchange="_pdpCustomDateChange(this.value)">
+    </div>`;
 
   const prepNote = (Number(p.prepHours) || 0) > 0
     ? `<div class="chk-info-note pdp__prep-note"><strong>This item needs ${p.prepHours} hour${p.prepHours == 1 ? '' : 's'} notice</strong> to prepare.</div>`
@@ -94,6 +186,18 @@ function _pdpRender() {
         <div class="pdp__price-row" id="pdpPriceRow"></div>
 
         ${variantHtml}
+        ${flavourHtml}
+
+        <div class="pdp__cake-msg-group">
+          <div class="pdp__cake-msg-hd">
+            <label class="chk-label">Cake Message <span style="font-weight:400;color:var(--text-muted);text-transform:none">(optional)</span></label>
+            <span class="pdp__cake-msg-counter"><span id="pdpMsgCount">${_pdpCakeMessage.length}</span>/25</span>
+          </div>
+          <input type="text" id="pdpCakeMessage" class="chk-input pdp__cake-msg-input"
+            placeholder="Write A Sweet Wish!" maxlength="25"
+            value="${esc(_pdpCakeMessage)}"
+            oninput="_pdpMsgType(this.value)">
+        </div>
 
         <div class="chk-field-group">
           <label class="chk-label">Quantity</label>
@@ -106,6 +210,8 @@ function _pdpRender() {
         </div>
         ${prepNote}
 
+        ${dateTabsHtml}
+
         <div class="pdp__actions">
           <button class="btn btn-gold pdp__atc-btn" onclick="_pdpAddToCart()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:middle;flex-shrink:0"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
@@ -113,11 +219,13 @@ function _pdpRender() {
           </button>
         </div>
 
-        <!-- Pincode delivery check -->
+        <!-- Delivery area check -->
         <div class="pdp__pincode-check">
-          <div class="pdp__pincode-row">
-            <input id="pdpPincodeInput" class="pdp__pincode-input" placeholder="Enter pincode to check delivery" maxlength="6" inputmode="numeric" onkeydown="if(event.key==='Enter')_pdpCheckPincode()">
-            <button class="pdp__pincode-btn" onclick="_pdpCheckPincode()">Check</button>
+          <div class="pdp__pincode-row" style="position:relative;">
+            <input id="pdpAreaInput" class="pdp__pincode-input" placeholder="Enter your area to check delivery"
+              autocomplete="off" oninput="_pdpAreaType(this.value)"
+              onkeydown="if(event.key==='Enter')_pdpAreaSearch(this.value)">
+            <div id="pdpAreaDrop" class="pdp__area-dropdown"></div>
           </div>
           <div id="pdpPincodeResult" class="pdp__pincode-result"></div>
         </div>
@@ -211,6 +319,13 @@ function _pdpVariantChange(groupName, optionIndex) {
   _pdpUpdatePriceDisplay();
 }
 
+// Chip picker click — full re-render so chip state and serving info update.
+// Safe: qty, date, cake message and selection all live in module-level vars.
+function _pdpVariantChipClick(groupName, optionIndex) {
+  _pdpSelection[groupName] = Number(optionIndex);
+  _pdpRender();
+}
+
 // Card-picker equivalent -- a full _pdpRender() (not just a price update)
 // so the clicked card's "selected" border shows immediately. Safe to
 // re-render the whole panel here: quantity lives in the module-level
@@ -220,6 +335,12 @@ function _pdpVariantCardClick(groupName, optionIndex) {
   _pdpRender();
 }
 
+function _pdpMsgType(val) {
+  _pdpCakeMessage = (val || '').substring(0, 25);
+  const counter = document.getElementById('pdpMsgCount');
+  if (counter) counter.textContent = _pdpCakeMessage.length;
+}
+
 function _pdpQty(delta) {
   _pdpQtyValue = Math.max(1, Math.min(99, _pdpQtyValue + delta));
   const el = document.getElementById('pdpQtyVal');
@@ -227,35 +348,103 @@ function _pdpQty(delta) {
   _pdpUpdatePriceDisplay();
 }
 
-function _pdpAddToCart() {
-  addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null, _pdpQtyValue);
+function _pdpSetFlavour(val) {
+  window.__pdpFlavour = val || null;
 }
 
-/* ── Pincode delivery check ── */
-async function _pdpCheckPincode() {
-  const input = document.getElementById('pdpPincodeInput');
-  const result = document.getElementById('pdpPincodeResult');
-  const pin = (input?.value || '').trim().replace(/\D/g, '');
-  if (pin.length !== 6) { if (result) result.textContent = 'Enter a valid 6-digit pincode.'; return; }
-  if (result) result.innerHTML = '<span style="color:#888">Checking…</span>';
-  try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${pin}&country=India&format=json&limit=1`, {
-      headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' }
-    });
-    const data = await res.json();
-    if (!data.length) { if (result) result.textContent = 'Pincode not found. Try a nearby pincode.'; return; }
-    const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
-    const nearest = STORES.map(s => {
-      const km = haversine(lat, lng, s.lat, s.lng);
-      return { ...s, km, fee: deliveryFee(km) };
-    }).sort((a, b) => a.km - b.km)[0];
-    if (nearest.km > 30) {
-      if (result) result.innerHTML = `<span style="color:#c0392b">Outside our delivery range. Please call us to check.</span>`;
-    } else {
-      if (result) result.innerHTML = `<span class="pdp__pincode-ok">✓ Delivery available — <strong>₹${nearest.fee}</strong> from ${nearest.name} store (${nearest.km.toFixed(1)} km)</span>`;
+function _pdpSetDate(dateStr) {
+  _pdpSelectedDate = dateStr;
+  window.__pdpDate = dateStr || null;
+  // Sync the hidden date input (keeps it consistent with tab selection)
+  const hidden = document.getElementById('pdpDateHidden');
+  if (hidden) hidden.value = dateStr || '';
+  // Refresh just the tab active states without full re-render
+  document.querySelectorAll('.pdp__date-tab').forEach(btn => btn.classList.remove('pdp__date-tab--active'));
+  const now = new Date(); now.setHours(0,0,0,0);
+  const todayVal = now.toISOString().split('T')[0];
+  const tom = new Date(now); tom.setDate(now.getDate() + 1);
+  const tomorrowVal = tom.toISOString().split('T')[0];
+  if (dateStr === todayVal) document.querySelectorAll('.pdp__date-tab')[0]?.classList.add('pdp__date-tab--active');
+  else if (dateStr === tomorrowVal) document.querySelectorAll('.pdp__date-tab')[1]?.classList.add('pdp__date-tab--active');
+  else {
+    const customBtn = document.getElementById('pdpCustomDateBtn');
+    if (customBtn) {
+      customBtn.classList.add('pdp__date-tab--active');
+      const lbl = document.getElementById('pdpCustomDateLabel');
+      if (lbl && dateStr) lbl.textContent = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
     }
-  } catch (_) {
-    if (result) result.textContent = 'Could not check. Try again or call us.';
+  }
+}
+
+function _pdpOpenDatePicker() {
+  const hidden = document.getElementById('pdpDateHidden');
+  if (hidden) hidden.showPicker ? hidden.showPicker() : hidden.click();
+}
+
+function _pdpCustomDateChange(val) {
+  if (!val) return;
+  _pdpSetDate(val);
+}
+
+function _pdpAddToCart() {
+  // Pass selected date and cake message as hints so the checkout modal can pre-fill
+  if (_pdpSelectedDate) window.__pdpDate = _pdpSelectedDate;
+  if (_pdpCakeMessage) window.__pdpCakeMessage = _pdpCakeMessage;
+  else delete window.__pdpCakeMessage;
+  const flavour = window.__pdpFlavour;
+  addToCart(_pdpProduct.id, _pdpProduct.variantGroups?.length ? _pdpSelection : null, _pdpQtyValue, flavour);
+}
+
+/* ── Delivery area search ── */
+let _pdpAreaTimer = null;
+function _pdpAreaType(val) {
+  clearTimeout(_pdpAreaTimer);
+  const drop = document.getElementById('pdpAreaDrop');
+  if (!val || val.trim().length < 3) { if (drop) drop.innerHTML = ''; return; }
+  _pdpAreaTimer = setTimeout(() => _pdpAreaFetch(val.trim()), 350);
+}
+
+async function _pdpAreaFetch(q) {
+  const drop = document.getElementById('pdpAreaDrop');
+  if (!drop) return;
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ', Hyderabad')}&countrycodes=in&format=json&limit=5`;
+    const data = await (await fetch(url, { headers: { 'Accept-Language': 'en', 'User-Agent': 'KrispiesWebsite/1.0' } })).json();
+    const hyd = data.filter(d => {
+      const dn = (d.display_name || '').toLowerCase();
+      return dn.includes('telangana') || dn.includes('hyderabad');
+    });
+    if (!hyd.length) {
+      drop.innerHTML = `<div class="pdp__area-drop-empty">No results in Hyderabad — try a different area name</div>`;
+      return;
+    }
+    drop.innerHTML = hyd.map(d => {
+      const label = d.display_name.split(',').slice(0, 3).join(', ');
+      return `<div class="pdp__area-drop-item" onclick="_pdpAreaSelect(${d.lat}, ${d.lon}, this)">${label}</div>`;
+    }).join('');
+  } catch (_) { drop.innerHTML = ''; }
+}
+
+async function _pdpAreaSearch(q) {
+  if (!q || q.trim().length < 3) return;
+  await _pdpAreaFetch(q.trim());
+}
+
+function _pdpAreaSelect(lat, lng, el) {
+  const drop = document.getElementById('pdpAreaDrop');
+  const input = document.getElementById('pdpAreaInput');
+  const result = document.getElementById('pdpPincodeResult');
+  if (drop) drop.innerHTML = '';
+  if (input && el) input.value = el.textContent;
+  const latN = parseFloat(lat), lngN = parseFloat(lng);
+  const nearest = STORES.map(s => {
+    const km = haversine(latN, lngN, s.lat, s.lng);
+    return { ...s, km, fee: deliveryFee(km) };
+  }).sort((a, b) => a.km - b.km)[0];
+  if (nearest.km > 30) {
+    if (result) result.innerHTML = `<span class="pdp__pincode-no">✗ Outside our delivery range. Call us to arrange delivery.</span>`;
+  } else {
+    if (result) result.innerHTML = `<span class="pdp__pincode-ok">✓ Delivery available · Nearest store: ${nearest.name} (${nearest.km.toFixed(1)} km) · ₹${nearest.fee} delivery fee</span>`;
   }
 }
 
@@ -378,7 +567,10 @@ async function _pdpRenderRatings(slug) {
 }
 
 function _pdpInjectJsonLd(p) {
-  const images = (p.images || []).filter(Boolean).map(img => `https://www.krispies.in/${img}`);
+  // Uploaded images are already absolute (Render /uploads URLs); only
+  // repo-relative asset paths need the site prefix.
+  const images = (p.images || []).filter(Boolean)
+    .map(img => /^https?:\/\//i.test(img) ? img : `https://www.krispies.in/${img.replace(/^\/+/, '')}`);
   const url = `https://www.krispies.in/products/${p.slug}`;
   const ld = {
     '@context': 'https://schema.org/',
@@ -429,7 +621,12 @@ document.addEventListener('shop:ready', () => {
   const slug = _pdpSlugFromUrl();
   const products = getProducts();
   const p = products.find(x => x.slug === slug || x.id === slug);
-  if (!p) { _pdpNotFound(); return; }
+  // #pdpSsr means the server found this product (functions/products/[slug].js)
+  // -- a miss here is our own product fetch failing, not a missing product.
+  // _pdpProduct set means we already rendered from localStorage cache below;
+  // don't replace a working page with "not found" just because the fresh fetch
+  // came back empty (Render cold start, all retries exhausted).
+  if (!p) { if (!_pdpProduct && !document.getElementById('pdpSsr')) _pdpNotFound(); return; }
   _pdpProduct = p;
   // Scopes the pink/festive CTA theming (see css/styles.css's
   // body.rakhi-theme rules) to just this product's page -- doesn't touch
@@ -446,3 +643,32 @@ document.addEventListener('shop:ready', () => {
   _pdpRenderRelated();
   _pdpRenderRatings(p.slug);
 });
+
+// For returning visitors (localStorage cache) AND first-time visitors
+// (window.__pdpPreload embedded by the Cloudflare Function): render the
+// interactive page immediately, without waiting up to 36s for shop:ready.
+// The shop:ready handler above will re-render with fresh backend data once
+// it arrives. __pdpPreload is checked first so first-time visits on Windows
+// (or any browser with no localStorage) don't get stuck on the static SSR view.
+;(function _pdpTryCache() {
+  try {
+    const slug = _pdpSlugFromUrl();
+    if (!slug) return;
+    let p = null;
+    // 1. SSR-embedded preload (Cloudflare Function sets this on every page load)
+    if (window.__pdpPreload) {
+      const pre = window.__pdpPreload;
+      if (pre.slug === slug || pre.id === slug) p = pre;
+    }
+    // 2. localStorage cache (returning visitor)
+    if (!p) {
+      const cached = JSON.parse(localStorage.getItem('krispies_products') || '[]');
+      if (Array.isArray(cached)) p = cached.find(x => x.slug === slug || x.id === slug) || null;
+    }
+    if (!p) return;
+    _pdpProduct = p;
+    _pdpRender();
+    _pdpRenderRelated();
+    _pdpRenderRatings(slug);
+  } catch (_) {}
+})();

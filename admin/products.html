@@ -417,8 +417,11 @@ const BASE_CATEGORIES = [
   ['half-year-birthday-cakes','Half Year Birthday Cakes'],['gender-reveal-cakes','Gender Reveal Cakes'],
   ['bento-cakes','Bento Cakes'],
   ['floral-cakes','Floral Cakes'],['love-cakes','Love Cakes (Him/Her)'],
-  ['cheesecakes','Cheesecakes'],['donuts','Donuts'],['biscuits','Biscuits'],
-  ['rakhi-hampers','Rakhi & Sweets Hampers'],
+  ['super-hero-cakes','Super Hero Cakes'],['anime-cakes','Anime Cakes'],
+  ['number-alphabet-cakes','Number & Alphabet Cakes'],['bon-voyage-cakes','Bon Voyage Cakes'],
+  ['trending-cakes','Trending Cakes'],
+  ['cheesecakes','Cheesecakes'],['donuts','Donuts'],['flowers-bouquets','Flowers & Bouquets'],
+  ['biscuits','Biscuits'],['rakhi-hampers','Rakhi & Sweets Hampers'],
 ];
 
 // Flavour drives the sub-category filter circles shown on category pages
@@ -461,7 +464,7 @@ function productForm(p = {}) {
       </div>
       <div class="form-row">
         <label>Category *</label>
-        <select id="f-cat" onchange="document.getElementById('f-cat-custom').style.display = this.value === '__other__' ? 'block' : 'none'">
+        <select id="f-cat" onchange="document.getElementById('f-cat-custom').style.display = this.value === '__other__' ? 'block' : 'none'; _onCatChange(this.value)">
           ${catOptions.map(([v,l]) => `<option value="${v}" ${p.category===v?'selected':''}>${l}</option>`).join('')}
           <option value="__other__">+ Add new category…</option>
         </select>
@@ -535,6 +538,16 @@ function productForm(p = {}) {
         <div id="variant-groups"></div>
         <button class="btn btn-outline btn-sm" onclick="addVariantGroup()" type="button" style="margin-top:8px;">+ Add Option Group</button>
       </div>
+      <div class="form-row" style="grid-column:1/-1;">
+        <label>Also appears in <span class="hint-inline">(product shows in these categories too — upload once, appear everywhere relevant)</span></label>
+        <div id="f-also-in" style="display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px;">
+          ${catOptions.filter(([v]) => v !== p.category && v !== '__other__').map(([v, l]) => `
+            <label class="form-check" style="font-size:0.84rem;">
+              <input type="checkbox" name="also-in" value="${v}" ${(p.alsoIn||[]).includes(v)?'checked':''}>
+              ${l}
+            </label>`).join('')}
+        </div>
+      </div>
       <div class="form-row">
         <label class="form-check"><input type="checkbox" id="f-active" ${p.active!==false?'checked':''}> Active (visible on website)</label>
       </div>
@@ -578,6 +591,9 @@ function renderVariantGroups() {
               oninput="_editVariantGroups[${gi}].options[${oi}].label = this.value">
             <input type="number" placeholder="Final price, e.g. 699" value="${o.price || 0}"
               oninput="_editVariantGroups[${gi}].options[${oi}].price = parseFloat(this.value) || 0">
+            <input placeholder="Serving info, e.g. 8–12 people" value="${esc(o.serving || '')}"
+              oninput="_editVariantGroups[${gi}].options[${oi}].serving = this.value.trim()"
+              style="max-width:170px">
             <button class="img-pill__rm" onclick="removeVariantOption(${gi}, ${oi})" type="button" title="Remove option">✕</button>
             <div class="variant-option-img">
               <button class="btn btn-outline btn-sm" onclick="document.getElementById('vo-file-${gi}-${oi}').click()" type="button" id="vo-upload-btn-${gi}-${oi}">Upload</button>
@@ -594,7 +610,7 @@ function renderVariantGroups() {
 }
 
 function addVariantGroup() {
-  _editVariantGroups.push({ name: '', optional: false, options: [{ label: '', price: 0, image: '' }] });
+  _editVariantGroups.push({ name: '', optional: false, options: [{ label: '', price: 0, image: '', serving: '' }] });
   renderVariantGroups();
 }
 function removeVariantGroup(gi) {
@@ -602,8 +618,37 @@ function removeVariantGroup(gi) {
   renderVariantGroups();
 }
 function addVariantOption(gi) {
-  _editVariantGroups[gi].options.push({ label: '', price: 0, image: '' });
+  _editVariantGroups[gi].options.push({ label: '', price: 0, image: '', serving: '' });
   renderVariantGroups();
+}
+
+// Cake categories that automatically get the Flavour variant group (birthday-cakes excluded)
+const CAKE_FLAVOUR_CATS = ['wedding-cakes','engagement-cakes','baby-shower-cakes',
+  'half-year-birthday-cakes','gender-reveal-cakes','customized-cakes','cheesecakes',
+  'birthday-theme-cakes'];
+
+// Canonical flavour list shared with the frontend PDP_FLAVOURS constant
+const ADMIN_FLAVOURS = [
+  'Chocolate Truffle','Belgium Chocolate','Black Forest',
+  'Red Velvet','Pineapple','Butterscotch',
+  'White Forest','Vanilla','Strawberry','Blueberry',
+  'Choco Vanilla Oreo','Rasmalai','Rabdi Pista',
+  'White Almond','Choco Almond',
+];
+
+function _onCatChange(catVal) {
+  if (!CAKE_FLAVOUR_CATS.includes(catVal)) return;
+  const alreadyHas = _editVariantGroups.some(g => /flavou?r/i.test(g.name));
+  if (alreadyHas) return;
+  const mrp = parseFloat(document.getElementById('f-mrp')?.value) || 0;
+  _editVariantGroups.push({
+    name: 'Flavour',
+    optional: false,
+    options: ADMIN_FLAVOURS.map(f => ({ label: f, price: mrp, image: '' })),
+  });
+  renderVariantGroups();
+  // Scroll to the new group so the admin sees it was added
+  setTimeout(() => document.getElementById('variant-groups')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
 
 function setVariantOptionImgPreview(gi, oi, value) {
@@ -726,7 +771,7 @@ function openEditProduct(id) {
   _editVariantGroups = (p.variantGroups || []).map(g => ({
     name: g.name,
     optional: !!g.optional,
-    options: g.options.map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0), image: o.image || '' })),
+    options: g.options.map(o => ({ label: o.label, price: o.price != null ? o.price : (o.priceDelta || 0), image: o.image || '', serving: o.serving || '' })),
   }));
   document.getElementById('modalTitle').textContent = 'Edit Product';
   document.getElementById('modalBody').innerHTML = productForm(p);
@@ -789,6 +834,7 @@ async function saveProduct(editId) {
     discount:      parseFloat(document.getElementById('f-disc').value) || 0,
     images:        JSON.stringify(_editImages),
     variantGroups: JSON.stringify(_editVariantGroups.filter(g => g.name.trim() && g.options.some(o => o.label.trim()))),
+    alsoIn:        [...document.querySelectorAll('#f-also-in input[name="also-in"]:checked')].map(cb => cb.value),
     active:        document.getElementById('f-active').checked,
     featured:      document.getElementById('f-featured').checked,
     trending:      document.getElementById('f-trending').checked,

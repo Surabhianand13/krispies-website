@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap"></noscript>
-  <link rel="stylesheet" href="../css/styles.css?v=34">
+  <link rel="stylesheet" href="../css/styles.css?v=61">
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -94,36 +94,6 @@
         <a href="../index" class="nav__logo"><img src="../assets/logo.svg" alt="Krispie's"><span class="nav__brand-name">Krispie's</span></a>
         <ul class="nav__links">
           <li><a href="../index">Home</a></li>
-          <li class="nav__dropdown">
-            <a href="../menu" class="nav__dropdown-toggle">Menu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav__dropdown-caret"><polyline points="6 9 12 15 18 9"/></svg></a>
-            <div class="nav__dropdown-menu">
-              <a href="../birthday-cakes" class="nav__dropdown-item">
-                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg></span>
-                <span><strong>Classic Birthday Cakes</strong><small>Black Forest, Truffle, Butterscotch</small></span>
-              </a>
-              <a href="../wedding-cakes" class="nav__dropdown-item">
-                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
-                <span><strong>Wedding Cakes</strong><small>Multi-tier fondant &amp; sugar flowers</small></span>
-              </a>
-              <a href="../engagement-cakes" class="nav__dropdown-item">
-                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M9 4l3 4 3-4"/></svg></span>
-                <span><strong>Engagement Cakes</strong><small>Ring box, heart &amp; roses, gold drip</small></span>
-              </a>
-              <a href="../half-year-birthday-cakes" class="nav__dropdown-item">
-                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
-                <span><strong>Half Year Birthday</strong><small>6-month milestone cakes</small></span>
-              </a>
-              <a href="../gender-reveal-cakes" class="nav__dropdown-item">
-                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/><path d="M19 8V6a3 3 0 0 0-6 0 3 3 0 0 0-6 0v2"/></svg></span>
-                <span><strong>Gender Reveal</strong><small>Pink or blue reveal cakes</small></span>
-              </a>
-              <a href="../baby-shower-cakes" class="nav__dropdown-item">
-                <span class="nav__dropdown-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a3 3 0 1 0 6 0c0-1-.5-2-2-3l-1-1-1 1c-1.5 1-2 2-2 3z"/><path d="M5 18c0-3 3-5 7-5s7 2 7 5"/></svg></span>
-                <span><strong>Baby Shower &amp; Naming</strong><small>Seemantham, gender reveal, naming</small></span>
-              </a>
-              <div class="nav__dropdown-foot"><a href="../menu">View Full Menu →</a></div>
-            </div>
-          </li>
           <li><a href="../story">Our Story</a></li>
           <li><a href="./">Articles</a></li>
           <li><a href="../wholesale-bakery-orders">Bulk Orders</a></li>
@@ -138,17 +108,86 @@
         </button>
       </div>
     </div>
+    <div class="cat-nav">
+      <div class="cat-nav__inner">
+        <div class="cat-nav__item trend has-dropdown">
+          <a href="../trending-cakes" class="cat-nav__link">Trending Cakes <svg class="cat-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <div class="cat-nav__dropdown">
+            <a href="../trending-cakes" class="cat-nav__dd-item">All Trending</a>
+            <a href="../floral-cakes" class="cat-nav__dd-item">Floral Cakes</a>
+            <a href="../bento-cakes" class="cat-nav__dd-item">Bento Cakes</a>
+          </div>
+        </div>
+                <div class="cat-nav__item has-dropdown">
+          <a href="../birthday-cakes" class="cat-nav__link">Birthday Cakes <svg class="cat-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <div class="cat-nav__dropdown">
+            <a href="../birthday-cakes" class="cat-nav__dd-item">All Birthday Cakes</a>
+            <a href="../birthday-cakes" class="cat-nav__dd-item">Chocolate</a>
+            <a href="../birthday-cakes" class="cat-nav__dd-item">Black Forest</a>
+            <a href="../birthday-cakes" class="cat-nav__dd-item">Butterscotch</a>
+            <a href="../birthday-cakes" class="cat-nav__dd-item">Red Velvet</a>
+            <a href="../birthday-cakes" class="cat-nav__dd-item">Rasmalai</a>
+            <a href="../birthday-cakes" class="cat-nav__dd-item">Truffle</a>
+            <a href="../birthday-cakes" class="cat-nav__dd-item">Pineapple</a>
+          </div>
+        </div>
+        <div class="cat-nav__item has-dropdown">
+          <a href="../kids-birthday-cakes" class="cat-nav__link">Kids Theme Cakes <svg class="cat-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <div class="cat-nav__dropdown">
+            <a href="../kids-birthday-cakes" class="cat-nav__dd-item">Kids Birthday Cakes</a>
+            <a href="../super-hero-cakes" class="cat-nav__dd-item">Super Hero Cakes</a>
+            <a href="../anime-cakes" class="cat-nav__dd-item">Anime Cakes</a>
+            <a href="../number-alphabet-cakes" class="cat-nav__dd-item">Number &amp; Alphabet Cakes</a>
+            <a href="../half-year-birthday-cakes" class="cat-nav__dd-item">Half Year Birthday Cakes</a>
+            <a href="../kids-birthday-cakes" class="cat-nav__dd-item">Baby Shower Cakes</a>
+            <a href="../gender-reveal-cakes" class="cat-nav__dd-item">Gender Reveal Cakes</a>
+          </div>
+        </div>
+        <div class="cat-nav__item has-dropdown">
+          <a href="../engagement-cakes" class="cat-nav__link">Engagement Cakes <svg class="cat-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <div class="cat-nav__dropdown">
+            <a href="../engagement-cakes" class="cat-nav__dd-item">Engagement Cakes</a>
+            <a href="../wedding-cakes" class="cat-nav__dd-item">Wedding Cakes</a>
+            <a href="../engagement-cakes" class="cat-nav__dd-item">Anniversary Cakes</a>
+            <a href="../love-cakes" class="cat-nav__dd-item">Love Cakes (Him/Her)</a>
+          </div>
+        </div>
+        <div class="cat-nav__item has-dropdown">
+          <a href="../cheesecakes" class="cat-nav__link">Cheesecakes <svg class="cat-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <div class="cat-nav__dropdown">
+            <a href="../cheesecakes" class="cat-nav__dd-item">All Cheesecakes</a>
+            <a href="../cheesecakes" class="cat-nav__dd-item">Blueberry Cheesecake</a>
+            <a href="../cheesecakes" class="cat-nav__dd-item">New York Cheesecake</a>
+            <a href="../cheesecakes" class="cat-nav__dd-item">Lotus Biscoff Cheesecake</a>
+            <a href="../cheesecakes" class="cat-nav__dd-item">Chocolate Biscoff Cake</a>
+          </div>
+        </div>
+        <div class="cat-nav__item">
+          <a href="../donuts" class="cat-nav__link">Donuts</a>
+        </div>
+        <div class="cat-nav__item has-dropdown">
+          <a href="../flowers-bouquets" class="cat-nav__link">Flowers &amp; Bouquets <svg class="cat-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <div class="cat-nav__dropdown">
+            <a href="../flowers-bouquets" class="cat-nav__dd-item">Under &#8377;500</a>
+            <a href="../flowers-bouquets" class="cat-nav__dd-item">Under &#8377;1,000</a>
+            <a href="../flowers-bouquets" class="cat-nav__dd-item">Under &#8377;2,000</a>
+            <a href="../flowers-bouquets" class="cat-nav__dd-item">Premium Bouquets</a>
+          </div>
+        </div>
+        <div class="cat-nav__item">
+          <a href="../rakhi-hampers" class="cat-nav__link">Premium Hampers</a>
+        </div>
+      </div>
+    </div>
     <div class="nav__mobile">
       <a href="../index">Home</a>
-      <a href="../menu">Menu</a>
-      <div class="nav__mobile-sub">
-        <a href="../birthday-cakes">→ Classic Birthday Cakes</a>
-        <a href="../wedding-cakes">→ Wedding Cakes</a>
-        <a href="../engagement-cakes">→ Engagement Cakes</a>
-        <a href="../half-year-birthday-cakes">→ Half Year Birthday</a>
-        <a href="../gender-reveal-cakes">→ Gender Reveal</a>
-        <a href="../baby-shower-cakes">→ Baby Shower &amp; Naming</a>
-      </div>
+            <a href="../birthday-cakes">Birthday Cakes</a>
+      <a href="../kids-birthday-cakes">Kids Theme Cakes</a>
+      <a href="../engagement-cakes">Engagement Cakes</a>
+      <a href="../cheesecakes">Cheesecakes</a>
+      <a href="../donuts">Donuts</a>
+      <a href="../flowers-bouquets">Flowers &amp; Bouquets</a>
+      <a href="../rakhi-hampers">Premium Hampers</a>
       <a href="../story">Our Story</a>
       <a href="./">Articles</a>
       <a href="../wholesale-bakery-orders">Bulk Orders</a>
@@ -182,9 +221,24 @@
 
         <div class="articles-grid" id="articlesGrid">
 
+          <article class="article-card fade-up" data-cat="trending">
+            <a href="trending-cakes-hyderabad-2026" class="article-card__thumb">
+              <img src="/assets/images/articles/trending-cakes-hyderabad-2026.webp" alt="Trending Cakes in Hyderabad 2026 — What's Selling Out Right Now" loading="eager">
+            </a>
+            <div class="article-card__body">
+              <span class="article-card__tag" style="background:var(--gold);color:#0a0a0a;">🔥 Trending</span>
+              <h2 class="article-card__title">Trending Cakes in Hyderabad 2026 — What's Selling Out Right Now</h2>
+              <p class="article-card__excerpt">Based on actual order data from Krispie's 5 outlets — the top 10 trending cake flavours, designs, and themes right now, from Belgian Chocolate Overload to Rasmalai Fusion and Lotus Biscoff.</p>
+              <div class="article-card__meta">
+                <span>October 2026 · 8 min read</span>
+                <a href="trending-cakes-hyderabad-2026" class="article-card__read">Read →</a>
+              </div>
+            </div>
+          </article>
+
           <article class="article-card fade-up" data-cat="general">
             <a href="best-bakery-in-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop&q=80" alt="Best Bakery in Hyderabad — A Local's Honest 2026 Guide" loading="lazy">
+              <img src="/assets/images/articles/best-bakery-in-hyderabad.webp" alt="Best Bakery in Hyderabad — A Local's Honest 2026 Guide" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -199,7 +253,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="best-cake-shop-in-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=600&h=400&fit=crop&q=80" alt="Best Cake Shop in Hyderabad — Top Picks for 2026" loading="lazy">
+              <img src="/assets/images/articles/best-cake-shop-in-hyderabad.webp" alt="Best Cake Shop in Hyderabad — Top Picks for 2026" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -214,7 +268,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="best-birthday-cakes-in-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=600&h=400&fit=crop&q=80" alt="Best Birthday Cakes in Hyderabad — Top 15 Designs & Where to Order" loading="lazy">
+              <img src="/assets/images/articles/best-birthday-cakes-in-hyderabad.webp" alt="Best Birthday Cakes in Hyderabad — Top 15 Designs & Where to Order" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -229,7 +283,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="best-wedding-cakes-in-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1604431696980-07e518647eed?w=600&h=400&fit=crop&q=80" alt="Best Wedding Cakes in Hyderabad — Designs, Sizes & Pricing" loading="lazy">
+              <img src="/assets/images/articles/best-wedding-cakes-in-hyderabad.webp" alt="Best Wedding Cakes in Hyderabad — Designs, Sizes & Pricing" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -244,7 +298,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="best-eggless-cakes-in-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1605481200194-b59be213d7eb?w=600&h=400&fit=crop&q=80" alt="Best Eggless Cakes in Hyderabad — Complete Buying Guide" loading="lazy">
+              <img src="/assets/images/articles/best-eggless-cakes-in-hyderabad.webp" alt="Best Eggless Cakes in Hyderabad — Complete Buying Guide" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -259,7 +313,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="best-cheesecakes-in-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&h=400&fit=crop&q=80" alt="Best Cheesecakes in Hyderabad — Flavours, Prices & Where to Order" loading="lazy">
+              <img src="/assets/images/articles/best-cheesecakes-in-hyderabad.webp" alt="Best Cheesecakes in Hyderabad — Flavours, Prices & Where to Order" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -274,7 +328,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="best-donuts-in-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop&q=80" alt="Best Donuts in Hyderabad — Top Flavours & Where to Find Them" loading="lazy">
+              <img src="/assets/images/articles/best-donuts-in-hyderabad.webp" alt="Best Donuts in Hyderabad — Top Flavours & Where to Find Them" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -289,7 +343,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="best-bakery-bulk-orders-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1530648672449-81f6c723e2f1?w=600&h=400&fit=crop&q=80" alt="Best Bakery for Bulk & Corporate Orders in Hyderabad" loading="lazy">
+              <img src="/assets/images/articles/best-bakery-bulk-orders-hyderabad.webp" alt="Best Bakery for Bulk & Corporate Orders in Hyderabad" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -304,7 +358,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="cake-delivery-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1607478900766-efe13248b125?w=600&h=400&fit=crop&q=80" alt="Cake Delivery in Hyderabad — Same-Day, Midnight, Express Options" loading="lazy">
+              <img src="/assets/images/articles/cake-delivery-hyderabad.webp" alt="Cake Delivery in Hyderabad — Same-Day, Midnight, Express Options" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -319,7 +373,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="bakery-near-me-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&h=400&fit=crop&q=80" alt="Best Bakery Near Me in Hyderabad — Find Your Local Krispie's" loading="lazy">
+              <img src="/assets/images/articles/bakery-near-me-hyderabad.webp" alt="Best Bakery Near Me in Hyderabad — Find Your Local Krispie's" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -334,7 +388,7 @@
 
           <article class="article-card fade-up" data-cat="birthday-gift-ideas">
             <a href="best-birthday-cake-flavours-hyderabad-2026" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=600&h=400&fit=crop&q=80" alt="The Ultimate Guide to Choosing Birthday Cake Flavours in Hyderabad" loading="lazy">
+              <img src="/assets/images/articles/best-birthday-cake-flavours-hyderabad-2026.webp" alt="The Ultimate Guide to Choosing Birthday Cake Flavours in Hyderabad" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Birthday Gift Ideas</span>
@@ -349,7 +403,7 @@
 
           <article class="article-card fade-up" data-cat="birthday-gift-ideas">
             <a href="perfect-birthday-cake" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=600&h=400&fit=crop&q=80" alt="The Perfect Birthday Cake: Flavours, Trends & Expert Tips" loading="lazy">
+              <img src="/assets/images/articles/perfect-birthday-cake.webp" alt="The Perfect Birthday Cake: Flavours, Trends & Expert Tips" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Birthday Gift Ideas</span>
@@ -364,7 +418,7 @@
 
           <article class="article-card fade-up" data-cat="birthday-gift-ideas">
             <a href="customized-cakes-guide" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1562777717-dc6984f65a63?w=600&h=400&fit=crop&q=80" alt="The Art of Customized Cakes: Making Every Celebration Unforgettable" loading="lazy">
+              <img src="/assets/images/articles/customized-cakes-guide.webp" alt="The Art of Customized Cakes: Making Every Celebration Unforgettable" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Birthday Gift Ideas</span>
@@ -379,7 +433,7 @@
 
           <article class="article-card fade-up" data-cat="birthday-gift-ideas">
             <a href="anniversary-cake-ideas" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1622896784083-cc051313dbab?w=600&h=400&fit=crop&q=80" alt="Anniversary Cake Ideas That Will Make Your Partner Smile" loading="lazy">
+              <img src="/assets/images/articles/anniversary-cake-ideas.webp" alt="Anniversary Cake Ideas That Will Make Your Partner Smile" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Birthday Gift Ideas</span>
@@ -394,7 +448,7 @@
 
           <article class="article-card fade-up" data-cat="kids-birthday-ideas">
             <a href="top-theme-cake-trends-hyderabad-2026" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=600&h=400&fit=crop&q=80" alt="Top 10 Theme Cake Trends Taking Over Hyderabad in 2026" loading="lazy">
+              <img src="/assets/images/articles/top-theme-cake-trends-hyderabad-2026.webp" alt="Top 10 Theme Cake Trends Taking Over Hyderabad in 2026" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Kids Birthday Ideas</span>
@@ -409,7 +463,7 @@
 
           <article class="article-card fade-up" data-cat="kids-birthday-ideas">
             <a href="half-year-birthday-cakes-guide" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?w=600&h=400&fit=crop&q=80" alt="Half-Year Birthday Cakes: The Sweetest New Family Tradition" loading="lazy">
+              <img src="/assets/images/articles/half-year-birthday-cakes-guide.webp" alt="Half-Year Birthday Cakes: The Sweetest New Family Tradition" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Kids Birthday Ideas</span>
@@ -424,7 +478,7 @@
 
           <article class="article-card fade-up" data-cat="kids-birthday-ideas">
             <a href="baby-shower-cakes-modern-guide" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?w=600&h=400&fit=crop&q=80" alt="Baby Shower Cakes: A Modern Hyderabad Family Guide" loading="lazy">
+              <img src="/assets/images/articles/baby-shower-cakes-modern-guide.webp" alt="Baby Shower Cakes: A Modern Hyderabad Family Guide" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Kids Birthday Ideas</span>
@@ -439,7 +493,7 @@
 
           <article class="article-card fade-up" data-cat="kids-birthday-ideas">
             <a href="gender-reveal-cakes-trend" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1559620192-032c4bc4674e?w=600&h=400&fit=crop&q=80" alt="Gender Reveal Cakes — The Hottest New Way to Share Big News" loading="lazy">
+              <img src="/assets/images/articles/gender-reveal-cakes-trend.webp" alt="Gender Reveal Cakes — The Hottest New Way to Share Big News" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Kids Birthday Ideas</span>
@@ -454,7 +508,7 @@
 
           <article class="article-card fade-up" data-cat="wedding-anniversary">
             <a href="wedding-cake-guide-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=600&h=400&fit=crop&q=80" alt="The Complete Wedding Cake Guide for Hyderabad Couples" loading="lazy">
+              <img src="/assets/images/articles/wedding-cake-guide-hyderabad.webp" alt="The Complete Wedding Cake Guide for Hyderabad Couples" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Wedding & Anniversary</span>
@@ -469,7 +523,7 @@
 
           <article class="article-card fade-up" data-cat="wedding-anniversary">
             <a href="engagement-cake-designs-2026" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1611293388250-580b08c4a145?w=600&h=400&fit=crop&q=80" alt="Engagement Cake Designs Trending in 2026" loading="lazy">
+              <img src="/assets/images/articles/engagement-cake-designs-2026.webp" alt="Engagement Cake Designs Trending in 2026" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Wedding & Anniversary</span>
@@ -484,7 +538,7 @@
 
           <article class="article-card fade-up" data-cat="best-bakes-at-krispie-s">
             <a href="black-forest-vs-chocolate-truffle" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1565299543923-37dd37887442?w=600&h=400&fit=crop&q=80" alt="Black Forest vs Chocolate Truffle — An Honest Comparison" loading="lazy">
+              <img src="/assets/images/articles/black-forest-vs-chocolate-truffle.webp" alt="Black Forest vs Chocolate Truffle — An Honest Comparison" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Best Bakes at Krispie's</span>
@@ -499,7 +553,7 @@
 
           <article class="article-card fade-up" data-cat="best-bakes-at-krispie-s">
             <a href="red-velvet-cake-india-story" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1620980776848-84c5cd6298b3?w=600&h=400&fit=crop&q=80" alt="Red Velvet Cake: The Story Behind India's Most Photographed Dessert" loading="lazy">
+              <img src="/assets/images/articles/red-velvet-cake-india-story.webp" alt="Red Velvet Cake: The Story Behind India's Most Photographed Dessert" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Best Bakes at Krispie's</span>
@@ -514,7 +568,7 @@
 
           <article class="article-card fade-up" data-cat="best-bakes-at-krispie-s">
             <a href="butterscotch-cake-hyderabad-obsession" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&h=400&fit=crop&q=80" alt="Butterscotch Cake — Why It's Hyderabad's Sweetest Obsession" loading="lazy">
+              <img src="/assets/images/articles/butterscotch-cake-hyderabad-obsession.webp" alt="Butterscotch Cake — Why It's Hyderabad's Sweetest Obsession" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Best Bakes at Krispie's</span>
@@ -529,7 +583,7 @@
 
           <article class="article-card fade-up" data-cat="best-bakes-at-krispie-s">
             <a href="rasmalai-cake-fusion-trend" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=600&h=400&fit=crop&q=80" alt="Rasmalai Cake: When Indian Mithai Meets Modern Baking" loading="lazy">
+              <img src="/assets/images/articles/rasmalai-cake-fusion-trend.webp" alt="Rasmalai Cake: When Indian Mithai Meets Modern Baking" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Best Bakes at Krispie's</span>
@@ -544,7 +598,7 @@
 
           <article class="article-card fade-up" data-cat="best-bakes-at-krispie-s">
             <a href="iyengar-baking-heritage" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&h=400&fit=crop&q=80" alt="30 Years of Iyengar Baking: How Tradition Shapes Every Bite at Krispie's" loading="lazy">
+              <img src="/assets/images/articles/iyengar-baking-heritage.webp" alt="30 Years of Iyengar Baking: How Tradition Shapes Every Bite at Krispie's" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">Best Bakes at Krispie's</span>
@@ -559,7 +613,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="eggless-cakes-india-guide" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1605481200194-b59be213d7eb?w=600&h=400&fit=crop&q=80" alt="Eggless Cakes: Why India Loves Them and How They're Made" loading="lazy">
+              <img src="/assets/images/articles/eggless-cakes-india-guide.webp" alt="Eggless Cakes: Why India Loves Them and How They're Made" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -574,7 +628,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="how-to-order-custom-cake" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1562777717-dc6984f65a63?w=600&h=400&fit=crop&q=80" alt="How to Order a Custom Cake in Hyderabad: Step by Step" loading="lazy">
+              <img src="/assets/images/articles/how-to-order-custom-cake.webp" alt="How to Order a Custom Cake in Hyderabad: Step by Step" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -589,7 +643,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="same-day-cake-delivery-hyderabad" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1607478900766-efe13248b125?w=600&h=400&fit=crop&q=80" alt="Same-Day Cake Delivery in Hyderabad: Everything You Need to Know" loading="lazy">
+              <img src="/assets/images/articles/same-day-cake-delivery-hyderabad.webp" alt="Same-Day Cake Delivery in Hyderabad: Everything You Need to Know" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -604,7 +658,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="best-bakery-hyderabad-what-makes-one" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&h=400&fit=crop&q=80" alt="What Makes a Great Bakery in Hyderabad? An Insider's Take" loading="lazy">
+              <img src="/assets/images/articles/best-bakery-hyderabad-what-makes-one.webp" alt="What Makes a Great Bakery in Hyderabad? An Insider's Take" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -619,7 +673,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="how-to-store-cake-fresh" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1565299543923-37dd37887442?w=600&h=400&fit=crop&q=80" alt="How to Store Cake at Home So It Stays Fresh for Days" loading="lazy">
+              <img src="/assets/images/articles/how-to-store-cake-fresh.webp" alt="How to Store Cake at Home So It Stays Fresh for Days" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -634,7 +688,7 @@
 
           <article class="article-card fade-up" data-cat="general">
             <a href="diwali-sweet-boxes-modern-gifting" class="article-card__thumb">
-              <img src="https://images.unsplash.com/photo-1602253057119-44d745d9b860?w=600&h=400&fit=crop&q=80" alt="Diwali Sweet Boxes: Modern Indian Festive Gifting Ideas" loading="lazy">
+              <img src="/assets/images/articles/diwali-sweet-boxes-modern-gifting.webp" alt="Diwali Sweet Boxes: Modern Indian Festive Gifting Ideas" loading="lazy">
             </a>
             <div class="article-card__body">
               <span class="article-card__tag">General</span>
@@ -716,7 +770,7 @@
         </div>
 
         <div class="footer__col">
-          <h4 class="footer__col-title">Navigate</h4>
+          <h3 class="footer__col-title">Navigate</h3>
           <a href="../index">Home</a>
           <a href="../menu">Our Menu</a>
           <a href="../story">Our Story</a>
@@ -725,7 +779,7 @@
         </div>
 
         <div class="footer__col">
-          <h4 class="footer__col-title">Our Outlets</h4>
+          <h3 class="footer__col-title">Our Outlets</h3>
           <div class="footer__outlet"><span class="footer__outlet-name">Lalbazar</span><a href="https://maps.google.com/?q=Krispies+Bakery+Lalbazar+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a></div>
           <div class="footer__outlet"><span class="footer__outlet-name">Suchitra</span><a href="https://maps.google.com/?q=Krispies+Bakery+Suchitra+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a></div>
           <div class="footer__outlet"><span class="footer__outlet-name">Boduppal</span><a href="https://maps.google.com/?q=Krispies+Bakery+Boduppal+Hyderabad" target="_blank" rel="noopener" class="footer__outlet-map">View on Map ↗</a></div>
@@ -734,7 +788,7 @@
         </div>
 
         <div class="footer__col">
-          <h4 class="footer__col-title">Get in Touch</h4>
+          <h3 class="footer__col-title">Get in Touch</h3>
           <div class="footer__contact-item"><span class="footer__contact-label">Phone</span><a href="tel:+917975218850">+91 79752 18850</a></div>
           <div class="footer__contact-item"><span class="footer__contact-label">Instagram</span><a href="https://www.instagram.com/krispies.in" target="_blank" rel="noopener">@krispies.in</a></div>
           <div class="footer__contact-item"><span class="footer__contact-label">Facebook</span><a href="https://www.facebook.com/krispies.in" target="_blank" rel="noopener">krispies.in</a></div>

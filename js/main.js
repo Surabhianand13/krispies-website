@@ -141,11 +141,18 @@ if (nav) {
 /* ---- NAV: hamburger ---- */
 const burger   = document.querySelector('.nav__hamburger');
 const mobileMenu = document.querySelector('.nav__mobile');
+function closeMobileMenu() {
+  if (!mobileMenu) return;
+  mobileMenu.classList.remove('open');
+  if (burger) {
+    burger.setAttribute('aria-expanded', 'false');
+    burger.querySelectorAll('span').forEach(s => s.removeAttribute('style'));
+  }
+}
 if (burger && mobileMenu) {
   burger.addEventListener('click', () => {
     const open = mobileMenu.classList.toggle('open');
     burger.setAttribute('aria-expanded', open);
-    const [s1,,s3] = burger.querySelectorAll('span');
     if (open) {
       burger.querySelectorAll('span')[0].style.cssText = 'transform:translateY(7px) rotate(45deg)';
       burger.querySelectorAll('span')[1].style.opacity = '0';
@@ -154,12 +161,19 @@ if (burger && mobileMenu) {
       burger.querySelectorAll('span').forEach(s => s.removeAttribute('style'));
     }
   });
+  /* accordion groups */
+  mobileMenu.querySelectorAll('.nav__mob-group-head').forEach(head => {
+    head.addEventListener('click', e => {
+      if (e.target.closest('a')) return; // let the link navigate normally
+      const group = head.closest('.nav__mob-group');
+      const wasOpen = group.classList.contains('open');
+      mobileMenu.querySelectorAll('.nav__mob-group').forEach(g => g.classList.remove('open'));
+      if (!wasOpen) group.classList.add('open');
+    });
+  });
+  /* close menu when any link is clicked */
   mobileMenu.querySelectorAll('a').forEach(a =>
-    a.addEventListener('click', () => {
-      mobileMenu.classList.remove('open');
-      burger.setAttribute('aria-expanded', 'false');
-      burger.querySelectorAll('span').forEach(s => s.removeAttribute('style'));
-    })
+    a.addEventListener('click', closeMobileMenu)
   );
 }
 

@@ -6,17 +6,20 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=(self)
+  # Advertise llms.txt to AI crawlers that look for it via Link header
+  Link: <https://www.krispies.in/llms.txt>; rel="alternate"; type="text/plain"; title="LLMs.txt"
 
 # HTML — always fresh so content changes show instantly
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
-# CSS/JS with query-string versioning — revalidate so v= changes are picked up
+# CSS/JS: long-lived immutable cache — URL includes ?v= version string so cache
+# busting happens automatically when files change; no need to revalidate.
 /css/*
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=31536000, immutable
 
 /js/*
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=31536000, immutable
 
 # WebP images — long-lived cache (committed to repo, won't change without a deploy)
 /assets/images/*.webp

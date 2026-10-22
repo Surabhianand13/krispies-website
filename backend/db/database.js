@@ -165,6 +165,13 @@ db.exec(`
   -- memory (see that file for why) -- this table is on the same shared
   -- SQLite file every instance reads/writes, so a hit counted by one
   -- instance is visible to all of them.
+  CREATE TABLE IF NOT EXISTS push_subscriptions (
+    endpoint   TEXT    PRIMARY KEY,
+    auth       TEXT    NOT NULL,
+    p256dh     TEXT    NOT NULL,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS rate_limit_hits (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     bucket     TEXT    NOT NULL,
@@ -208,6 +215,7 @@ safeAddColumn('orders',   'customer_email',     'TEXT');
 safeAddColumn('orders',   'payment_method',     'TEXT');
 safeAddColumn('orders',   'customer_id',        'TEXT');
 safeAddColumn('orders',   'razorpay_order_id',  'TEXT');
+safeAddColumn('products', 'also_in',           "TEXT NOT NULL DEFAULT '[]'");
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products(slug)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)'); } catch (_) {}

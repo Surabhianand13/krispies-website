@@ -29,14 +29,6 @@ function uniqueSlug(base, excludeId) {
   return slug;
 }
 
-const VALID_CATEGORIES = [
-  'birthday-cakes', 'customized-cakes', 'wedding-cakes',
-  'engagement-cakes', 'baby-shower-cakes',
-  'half-year-birthday-cakes', 'gender-reveal-cakes',
-  'bento-cakes',
-  'cheesecakes', 'donuts', 'biscuits', 'floral-cakes', 'love-cakes',
-  'rakhi-hampers',
-];
 const VALID_TAGS = ['bestseller', 'new', 'seasonal', 'custom'];
 
 // GET /api/products — public active only; ?all=1 needs JWT
@@ -91,8 +83,8 @@ router.post('/', requireAuth, productValidators(), (req, res) => {
   const p = buildProduct(id, req.body);
   p.slug = uniqueSlug(slugify(req.body.slug || req.body.name), id);
   db.prepare(`
-    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, trending, active, sort_order)
-    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @trending, @active, @sort_order)
+    INSERT INTO products (id, name, category, tag, flavour, description, mrp, discount, images, variant_groups, prep_hours, slug, featured, trending, active, sort_order, also_in)
+    VALUES (@id, @name, @category, @tag, @flavour, @description, @mrp, @discount, @images, @variant_groups, @prep_hours, @slug, @featured, @trending, @active, @sort_order, @also_in)
   `).run(p);
 
   res.status(201).json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(p.id), null, { raw: true }));
@@ -114,7 +106,7 @@ router.put('/:id', requireAuth, productValidators(), (req, res) => {
         mrp=@mrp, discount=@discount, images=@images,
         variant_groups=@variant_groups, prep_hours=@prep_hours, slug=@slug,
         featured=@featured, trending=@trending, active=@active, sort_order=@sort_order,
-        updated_at=datetime('now')
+        also_in=@also_in, updated_at=datetime('now')
     WHERE id=@id
   `).run(p);
 
@@ -165,7 +157,7 @@ router.patch('/bulk-discount',
   [
     body('discount').isFloat({ min: 0, max: 100 }).withMessage('Discount must be 0-100.'),
     body('scope').isIn(['all', 'category', 'selected']).withMessage('Invalid scope.'),
-    body('category').if(body('scope').equals('category')).isIn(VALID_CATEGORIES).withMessage('Invalid category.'),
+    body('category').if(body('scope').equals('category')).trim().notEmpty().withMessage('Category is required.'),
     body('productIds').if(body('scope').equals('selected')).isArray({ min: 1 }).withMessage('Select at least one product.'),
   ],
   (req, res) => {
@@ -233,11 +225,12 @@ function buildProduct(id, body) {
     featured:       body.featured ? 1 : 0,
     trending:       body.trending ? 1 : 0,
     active:         body.active !== false && body.active !== 0 ? 1 : 0,
-    // Lower shows first within a category (ties break by newest first, the
-    // old default). Left at 0, a product just falls back to that recency
-    // order; an admin only needs to set this to pin something earlier or
-    // push it later.
     sort_order:     parseInt(body.sortOrder, 10) || 0,
+    also_in:        JSON.stringify(
+      Array.isArray(body.alsoIn)
+        ? body.alsoIn.map(c => String(c).trim()).filter(Boolean)
+        : []
+    ),
   };
 }
 
@@ -304,11 +297,15 @@ function toProduct(row, ratingsMap, opts = {}) {
     }
   }
 
+  let alsoIn = [];
+  try { alsoIn = JSON.parse(row.also_in || '[]'); } catch (_) {}
+
   return {
     id:            row.id,
     name:          row.name,
     slug:          row.slug,
     category:      row.category,
+    alsoIn,
     tag:           row.tag,
     flavour:       row.flavour || null,
     description:   row.description,
@@ -334,7 +331,7 @@ function toProduct(row, ratingsMap, opts = {}) {
 function productValidators() {
   return [
     body('name').trim().notEmpty().withMessage('Name is required.'),
-    body('category').isIn(VALID_CATEGORIES).withMessage('Invalid category.'),
+    body('category').trim().notEmpty().withMessage('Category is required.'),
     body('tag').optional({ nullable: true }).isIn([...VALID_TAGS, null, '']).withMessage('Invalid tag.'),
     body('description').trim().notEmpty().withMessage('Description is required.'),
     body('mrp').optional().isFloat({ min: 0 }).withMessage('MRP must be a positive number.'),

@@ -14,6 +14,7 @@ const { body, validationResult } = require('express-validator');
 const db        = require('../db/database');
 const { newOrderEmail, customerOrderConfirmationEmail } = require('../utils/email');
 const { sendPurchaseEvent } = require('../utils/metaCapi');
+const { sendOrderPush }     = require('../utils/push');
 const { optionalCustomerAuth, requireAuth } = require('../middleware/auth');
 const { VALID_OUTLETS } = require('../utils/constants');
 const { dbRateLimit } = require('../middleware/dbRateLimit');
@@ -256,6 +257,7 @@ function buildOrderRow(body, extra = {}, req = null) {
   const noteParts = [
     body.delivery_mode    ? `Mode: ${body.delivery_mode}`           : '',
     body.delivery_address ? `Address: ${body.delivery_address}`     : '',
+    body.delivery_time    ? `Time: ${body.delivery_time}`           : '',
     body.payment_method   ? `Payment: ${body.payment_method}`       : '',
     body.notes            ? body.notes                               : '',
   ].filter(Boolean);
@@ -498,13 +500,34 @@ router.post('/verify',
     return res.status(400).json({ error: 'Payment could not be verified.' });
   }
 
-  // Mark the order as confirmed
-  db.prepare(`UPDATE orders SET status = 'confirmed', updated_at = datetime('now') WHERE id = ?`)
-    .run(internal_order_id);
+  // Mark the order as confirmed and append the Razorpay payment ID to notes
+  // so admin can cross-reference the payment in the Razorpay dashboard.
+  db.prepare(`UPDATE orders SET status = 'confirmed', payment_method = 'online',
+    notes = COALESCE(notes,'') || ' [Paid:' || ? || ']', updated_at = datetime('now') WHERE id = ?`)
+    .run(razorpay_payment_id, internal_order_id);
 
   const confirmedOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(internal_order_id);
   if (confirmedOrder) {
+    // Try to attach the first product image so the customer email can show it.
+    // items is text like "Chocolate Truffle × 2" — strip the trailing "× N".
+    try {
+      const itemName = (confirmedOrder.items || '').replace(/\s*[×x]\s*\d+\s*$/i, '').trim();
+      const prod = itemName
+        ? db.prepare(`SELECT images FROM products WHERE name = ? LIMIT 1`).get(itemName)
+        : null;
+      if (prod) {
+        const imgs = JSON.parse(prod.images || '[]');
+        if (imgs.length) {
+          const frontendUrl = process.env.FRONTEND_URL || 'https://www.krispies.in';
+          // Absolute URL for email clients — prepend domain if not already absolute
+          confirmedOrder.product_image_url = /^https?:\/\//.test(imgs[0])
+            ? imgs[0]
+            : `${frontendUrl}/${imgs[0].replace(/^\//, '')}`;
+        }
+      }
+    } catch (_) {}
     notifyOrder(confirmedOrder);
+    sendOrderPush(confirmedOrder).catch(() => {});
     sendPurchaseEvent(confirmedOrder, req).catch(() => {});
   }
 

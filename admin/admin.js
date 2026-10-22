@@ -38,6 +38,7 @@ async function login(password) {
   if (!res.ok) return false;
   const { token } = await res.json();
   sessionStorage.setItem(SESSION_KEY, token);
+  setupPushAfterLogin();
   return true;
 }
 
@@ -86,20 +87,26 @@ function esc(str) {
 
 // ── LABEL MAPS ────────────────────────────────────
 const CATEGORY_LABELS = {
-  'birthday-cakes':       'Birthday Cakes',
-  'wedding-cakes':        'Wedding Cakes',
-  'engagement-cakes':     'Engagement Cakes',
-  'baby-shower-cakes':    'Baby Shower Cakes',
+  'birthday-cakes':           'Birthday Cakes',
+  'wedding-cakes':            'Wedding Cakes',
+  'engagement-cakes':         'Engagement Cakes',
+  'baby-shower-cakes':        'Baby Shower Cakes',
   'half-year-birthday-cakes': 'Half Year Birthday Cakes',
   'gender-reveal-cakes':      'Gender Reveal Cakes',
-  'bento-cakes':          'Bento Cakes',
-  'customized-cakes':     'Customized Cakes',
-  'floral-cakes':         'Floral Cakes',
-  'love-cakes':           'Love Cakes (Him/Her)',
-  'cheesecakes':          'Cheesecakes',
-  'donuts':               'Donuts',
-  'biscuits':             'Biscuits',
-  'rakhi-hampers':        'Rakhi & Sweets Hampers',
+  'bento-cakes':              'Bento Cakes',
+  'customized-cakes':         'Customized Cakes',
+  'floral-cakes':             'Floral Cakes',
+  'love-cakes':               'Love Cakes (Him/Her)',
+  'super-hero-cakes':         'Super Hero Cakes',
+  'anime-cakes':              'Anime Cakes',
+  'number-alphabet-cakes':    'Number & Alphabet Cakes',
+  'bon-voyage-cakes':         'Bon Voyage Cakes',
+  'trending-cakes':           'Trending Cakes',
+  'cheesecakes':              'Cheesecakes',
+  'donuts':                   'Donuts',
+  'flowers-bouquets':         'Flowers & Bouquets',
+  'biscuits':                 'Biscuits',
+  'rakhi-hampers':            'Rakhi & Sweets Hampers',
 };
 const TAG_LABELS = {
   'bestseller': 'Bestseller',
@@ -224,4 +231,69 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.sidebar__link').forEach(a => {
     if (a.getAttribute('href') === page) a.classList.add('active');
   });
+});
+
+// ── PUSH NOTIFICATIONS ────────────────────────────
+// Registers a service worker and subscribes the admin browser to Web Push so
+// a notification fires on every new confirmed (paid) order, even if this tab
+// is in the background or closed. Runs silently — never blocks page load.
+
+const PUSH_SUB_KEY = 'krispies_push_subscribed';
+
+async function _urlBase64ToUint8Array(base64) {
+  const pad  = '='.repeat((4 - base64.length % 4) % 4);
+  const b64  = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw  = atob(b64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function initPushNotifications() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (!sessionStorage.getItem(SESSION_KEY)) return; // not logged in yet
+
+  try {
+    // Register the service worker (no-op if already registered)
+    const reg = await navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' });
+
+    // Fetch VAPID public key
+    const res = await fetch(`${BACKEND_URL}/api/push/vapid-public-key`);
+    if (!res.ok) return; // not configured — skip silently
+    const { publicKey } = await res.json();
+
+    // Check existing subscription
+    let sub = await reg.pushManager.getSubscription();
+
+    if (!sub) {
+      // First time — ask permission
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return;
+
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: await _urlBase64ToUint8Array(publicKey),
+      });
+    }
+
+    // Save subscription on backend (idempotent — safe to call on every login)
+    await fetch(`${BACKEND_URL}/api/push/subscribe`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeader() },
+      body:    JSON.stringify(sub.toJSON()),
+    });
+
+    localStorage.setItem(PUSH_SUB_KEY, '1');
+  } catch (_) {
+    // Silently ignore — push is a nice-to-have, not a blocker
+  }
+}
+
+// Called from login() after a successful auth — start push setup
+async function setupPushAfterLogin() {
+  // Small delay so the page has time to store the token first
+  setTimeout(initPushNotifications, 500);
+}
+
+// Run on every admin page load when already logged in
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(SESSION_KEY)) initPushNotifications();
 });

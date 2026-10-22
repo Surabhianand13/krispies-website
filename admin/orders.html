@@ -184,16 +184,61 @@ function renderOrders(list) {
     const isToday  = delivery === new Date().toISOString().slice(0,10);
     const isTomr   = delivery === new Date(Date.now()+86400000).toISOString().slice(0,10);
     const delBadge = isToday ? '🔴 Today' : isTomr ? '🟡 Tomorrow' : fmtDate(delivery);
+    // Parse structured fields from notes ("Mode: delivery | Address: … | Time: … | …")
+    const notes       = o.notes || '';
+    const modeM       = notes.match(/Mode:\s*([^|[\]]+)/i);
+    const addrM       = notes.match(/Address:\s*([^|[\]]+)/i);
+    const timeM       = notes.match(/Time:\s*([^|[\]]+)/i);
+    const delivMode   = modeM ? modeM[1].trim() : '';
+    const addrLine    = addrM ? addrM[1].trim() : '';
+    const delivTime   = timeM ? timeM[1].trim() : '';
+    // Special instructions = notes minus all the structured fields and Razorpay IDs
+    const specialInst = notes
+      .replace(/Mode:\s*[^|[\]]+\|?/gi, '')
+      .replace(/Address:\s*[^|[\]]+\|?/gi, '')
+      .replace(/Time:\s*[^|[\]]+\|?/gi, '')
+      .replace(/Payment:\s*[^|[\]]+\|?/gi, '')
+      .replace(/\[RZP:[^\]]*\]/g, '')
+      .replace(/\[Paid:[^\]]*\]/g, '')
+      .replace(/\s*\|\s*/g, ' ')
+      .trim();
+    // Payment badge: for online orders show whether payment was actually completed
+    const method   = (o.payment_method || o.paymentMethod || '').toLowerCase();
+    const st       = o.status;
+    let payCell;
+    if (method === 'online') {
+      if (st === 'confirmed' || st === 'ready' || st === 'delivered') {
+        payCell = `<span style="display:inline-flex;align-items:center;gap:3px;background:#1a3a25;color:#3aac6e;border:1px solid #2d6043;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:600;white-space:nowrap;">✓ Paid</span>`;
+      } else if (st === 'pending') {
+        payCell = `<span style="display:inline-flex;align-items:center;gap:3px;background:#2d1f06;color:#d97706;border:1px solid #7c4a0c;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:600;white-space:nowrap;">⏳ Unpaid</span>`;
+      } else if (st === 'cancelled') {
+        payCell = `<span style="color:#888;font-size:0.72rem;">—</span>`;
+      } else {
+        payCell = `<span style="color:#888;font-size:0.72rem;">${esc(method)}</span>`;
+      }
+    } else {
+      payCell = `<span class="td-muted" style="font-size:0.72rem;">${esc(method || '—')}</span>`;
+    }
+    const email  = o.customer_email || o.customerEmail || '';
     return `<tr>
       <td>
         <div class="td-name">${name}</div>
         ${phone ? `<div class="td-muted" style="font-size:0.7rem;">${esc(phone)}</div>` : ''}
+        ${email ? `<div class="td-muted" style="font-size:0.67rem;margin-top:1px;">${esc(email)}</div>` : ''}
+        ${addrLine ? `<div class="td-muted" style="font-size:0.67rem;margin-top:2px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(addrLine)}">📍 ${esc(addrLine)}</div>` : ''}
       </td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" class="td-muted">${esc(o.items || '—')}</td>
+      <td style="max-width:160px;" class="td-muted">
+        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.items||'')}">${esc(o.items || '—')}</div>
+        ${specialInst ? `<div style="font-size:0.67rem;color:#a07a3a;margin-top:3px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(specialInst)}">💬 ${esc(specialInst)}</div>` : ''}
+      </td>
       <td><strong>${fmtPrice(o.amount)}</strong></td>
       <td class="td-muted">${esc(OUTLET_LABELS[o.outlet] || o.outlet || '—')}</td>
-      <td style="white-space:nowrap;">${delBadge}</td>
-      <td class="td-muted" style="font-size:0.72rem;">${esc(o.payment_method || o.paymentMethod || '—')}</td>
+      <td style="white-space:nowrap;">
+        <div>${delBadge}</div>
+        ${delivTime ? `<div style="font-size:0.67rem;color:var(--text-muted);margin-top:2px;">🕐 ${esc(delivTime)}</div>` : ''}
+        ${delivMode ? `<div style="font-size:0.67rem;margin-top:2px;color:${delivMode==='pickup'?'#6ea8fe':'#a07a3a'};">${delivMode==='pickup'?'🏪 Pickup':'🚗 Delivery'}</div>` : ''}
+      </td>
+      <td>${payCell}</td>
       <td>
         <select class="status-select" onchange="updateStatus('${o.id}', this.value, this)">
           ${['pending','confirmed','ready','delivered','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
