@@ -218,6 +218,18 @@ async function _fetchWithRetry(url, delays = [0, 4000, 8000]) {
 async function loadProducts() {
   // Show cached products immediately so users aren't staring at "Loading…"
   // while we wait for the backend. The fresh fetch updates the view once done.
+
+  // 1. SSR-embedded preload (Cloudflare Function / middleware sets this on every
+  //    page load via window.__shopCatalogPreload). Used first so first-time
+  //    visitors on any browser see interactive cards without a backend call.
+  try {
+    if (Array.isArray(window.__shopCatalogPreload) && window.__shopCatalogPreload.length) {
+      _productsCache = window.__shopCatalogPreload;
+      renderAll();
+    }
+  } catch (_) {}
+
+  // 2. localStorage cache (returning visitor, fast path)
   try {
     const cached = JSON.parse(localStorage.getItem(PROD_KEY));
     if (Array.isArray(cached) && cached.length) {
