@@ -117,7 +117,11 @@ function renderProduct(res, p) {
       element(el) {
         el.append(og
           + `<script type="application/ld+json" id="pdpJsonLd">${jsonForScript(productJsonLd(p))}</script>`
-          + `<script type="application/ld+json">${jsonForScript(breadcrumbLd)}</script>`, { html: true });
+          + `<script type="application/ld+json">${jsonForScript(breadcrumbLd)}</script>`
+          // Embed the full product object so product-detail.js can render the
+          // interactive version immediately — no backend round-trip needed even
+          // on a first visit or during a Render cold start.
+          + `<script>window.__pdpPreload=${jsonForScript(p)};</script>`, { html: true });
       },
     })
     .on('#pdpLoading', { element(el) { el.replace(body, { html: true }); } })

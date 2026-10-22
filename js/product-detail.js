@@ -644,17 +644,27 @@ document.addEventListener('shop:ready', () => {
   _pdpRenderRatings(p.slug);
 });
 
-// For returning visitors who have a localStorage cache: render the interactive
-// product page immediately when this script loads, without waiting up to 36 s
-// for shop:ready to fire. The shop:ready handler above will re-render with
-// fresh backend data once it arrives.
+// For returning visitors (localStorage cache) AND first-time visitors
+// (window.__pdpPreload embedded by the Cloudflare Function): render the
+// interactive page immediately, without waiting up to 36s for shop:ready.
+// The shop:ready handler above will re-render with fresh backend data once
+// it arrives. __pdpPreload is checked first so first-time visits on Windows
+// (or any browser with no localStorage) don't get stuck on the static SSR view.
 ;(function _pdpTryCache() {
   try {
     const slug = _pdpSlugFromUrl();
     if (!slug) return;
-    const cached = JSON.parse(localStorage.getItem('krispies_products') || '[]');
-    if (!Array.isArray(cached) || !cached.length) return;
-    const p = cached.find(x => x.slug === slug || x.id === slug);
+    let p = null;
+    // 1. SSR-embedded preload (Cloudflare Function sets this on every page load)
+    if (window.__pdpPreload) {
+      const pre = window.__pdpPreload;
+      if (pre.slug === slug || pre.id === slug) p = pre;
+    }
+    // 2. localStorage cache (returning visitor)
+    if (!p) {
+      const cached = JSON.parse(localStorage.getItem('krispies_products') || '[]');
+      if (Array.isArray(cached)) p = cached.find(x => x.slug === slug || x.id === slug) || null;
+    }
     if (!p) return;
     _pdpProduct = p;
     _pdpRender();
