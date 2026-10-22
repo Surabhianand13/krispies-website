@@ -90,7 +90,16 @@ function renderProductGrids(context, res) {
       },
     })
     .on('body', {
-      element(el) {
+      async element(el) {
+        // Embed the full catalog as window.__shopCatalogPreload so shop.js can
+        // render interactive cards immediately — no backend round-trip needed even
+        // on a first visit or during a Render cold start. Without this, fresh
+        // visitors on Windows (or any browser with no localStorage) were stuck
+        // seeing the static SSR cards (no Buy Now button, price ranges only).
+        const catalog = await getCatalog(context);
+        if (catalog && catalog.length) {
+          el.prepend(`<script>window.__shopCatalogPreload=${jsonForScript(catalog)};</script>`, { html: true });
+        }
         el.onEndTag((end) => {
           if (!listed.length) return;
           const ld = {
