@@ -115,8 +115,8 @@
       color: var(--text-on-dark); line-height: 1.82; padding-left: 24px; margin: 0 0 18px;
     }
     .art-body li { margin-bottom: 8px; font-size: 0.97rem; }
-    .art-body a { color: var(--gold); text-decoration: underline; text-decoration-color: rgba(201,168,112,0.35); }
-    .art-body a:hover { color: var(--gold-light); }
+    .art-body a:not(.btn) { color: var(--gold); text-decoration: underline; text-decoration-color: rgba(201,168,112,0.35); }
+    .art-body a:not(.btn):hover { color: var(--gold-light); }
     .art-body strong { color: var(--text-on-dark); }
 
     /* ─── Expert callout box ─── */
@@ -399,7 +399,7 @@
     {
       "@type": "Question",
       "name": "Where can I find the best wedding cake bakery in Hyderabad?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Krispie's has served 1,000+ Hyderabad weddings since 1996 with multi-tier fondant designs, sugar flowers, gold leaf, and on-site delivery. Free tasting included. Book consultation at +91 79752 18850." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Krispie's has served 1,000+ Hyderabad weddings since 1996 with multi-tier fondant designs, sugar flowers, gold leaf, and on-site delivery. Call or WhatsApp +91 79752 18850 to discuss your design." }
     },
     {
       "@type": "Question",
@@ -409,7 +409,7 @@
     {
       "@type": "Question",
       "name": "How early should I book my Hyderabad wedding cake?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Ideal: 3 months in advance for design lock and tasting. Minimum: 6 weeks. For last-minute weddings, 2 weeks possible for standard designs." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Ideal: 3 months in advance for design lock and flavour selection. Minimum: 6 weeks. For last-minute weddings, 2 weeks possible for standard designs." }
     },
     {
       "@type": "Question",
@@ -424,7 +424,7 @@
     {
       "@type": "Question",
       "name": "What is included in Krispie's wedding cake price?",
-      "acceptedAnswer": { "@type": "Answer", "text": "The price includes: cake baking and decoration, multi-tier assembly, on-site delivery within Hyderabad, anniversary cake voucher, and a free tasting session. Custom toppers and sugar flower upgrades may be extra." }
+      "acceptedAnswer": { "@type": "Answer", "text": "The price includes: cake baking and decoration, multi-tier assembly, and on-site delivery and assembly at your Hyderabad venue. Custom toppers and sugar flower upgrades may be extra." }
     },
     {
       "@type": "Question",
@@ -433,8 +433,8 @@
     },
     {
       "@type": "Question",
-      "name": "Does Krispie's offer wedding cake tastings?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Complimentary tastings for booked orders. Without booking: tasting available for ₹2,500 per couple, redeemable against order." }
+      "name": "Can I see the wedding cake designs before ordering?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Share your inspiration on WhatsApp (+91 79752 18850) — Pinterest images, lehenga colours, or venue photos — and our decorator will send back design concepts and pricing within 2 hours." }
     }
   ]
 }
@@ -573,7 +573,7 @@
         <!-- TL;DR -->
         <div class="art-tldr">
           <span class="art-tldr__label">Quick Summary</span>
-          <p>Krispie's is Hyderabad's most-experienced wedding cake bakery — 1,000+ weddings since 1996. Multi-tier fondant, edible sugar flowers, gold leaf detailing, free tasting sessions, and on-site assembly included. Pricing from ₹4,999 (2-tier) to ₹2,00,000+ (couture). Book at least 6 weeks in advance. Call or WhatsApp: <a href="tel:+917975218850">+91 79752 18850</a>.</p>
+          <p>Krispie's is Hyderabad's most-experienced wedding cake bakery — 1,000+ weddings since 1996. Multi-tier fondant, edible sugar flowers, gold leaf detailing, and on-site assembly included. Pricing from ₹4,999 (2-tier) to ₹2,00,000+ (couture). Book at least 6 weeks in advance. Share your design inspiration on WhatsApp: <a href="tel:+917975218850">+91 79752 18850</a>.</p>
         </div>
 
         <img
@@ -895,7 +895,7 @@
 
           <ul>
             <li><strong>3 months in advance (Ideal):</strong> Design consultation, moodboard finalisation, free tasting session, custom sugar flowers and topper commission. Your date is fully protected.</li>
-            <li><strong>6 weeks in advance (Standard):</strong> Works for the majority of designs. Enough time for one design revision and tasting. Most couples who book at this stage are happy.</li>
+            <li><strong>6 weeks in advance (Standard):</strong> Works for the majority of designs. Enough time for one design revision. Most couples who book at this stage are happy.</li>
             <li><strong>2 weeks in advance (Possible):</strong> Standard fondant designs only. No bespoke sugar flowers, limited flavour options. A few designs from our ready-catalogue can be fully decorated in this window.</li>
             <li><strong>Less than 2 weeks:</strong> Limited to simpler single-tier or two-tier designs with fresh cream decoration. Call us directly — we will tell you honestly what is possible.</li>
           </ul>
@@ -913,8 +913,6 @@
             <li>Full cake baking and fondant decoration</li>
             <li>On-site delivery to your Hyderabad venue</li>
             <li>Multi-tier assembly and finishing at the venue</li>
-            <li>Complimentary anniversary cake voucher (redeem on your first anniversary)</li>
-            <li>Free tasting session (once order is confirmed)</li>
           </ul>
 
           <h3>Optional add-ons (priced separately)</h3>
@@ -931,14 +929,8 @@
           <h3>28 Years of Wedding Experience</h3>
           <p>We have made wedding cakes for celebrations at Falaknuma Palace, Taj Krishna, Park Hyatt, ITC Kakatiya, and hundreds of function halls across the city. Our team has seen every lighting condition, every stage size, every caterer's kitchen temperature. That experience is impossible to fake.</p>
 
-          <h3>Free Tasting Sessions for Booked Orders</h3>
-          <p>Once you confirm your booking, you get a complimentary tasting of 5-6 flavours at your nearest Krispie's outlet. Bring your family — the more people who taste, the happier the final decision. Without a booking, tastings are available for ₹2,500 per couple, fully redeemable against your order.</p>
-
           <h3>On-Site Delivery and Stage Assembly</h3>
           <p>We do not drop off a box and leave. Our team brings the tiers separately, assembles the full cake on your venue's display table, adjusts the flower placement, and ensures every detail is perfect before your guests arrive. This is included in your price.</p>
-
-          <h3>Complimentary First-Anniversary Cake</h3>
-          <p>Every Krispie's wedding cake order includes a voucher for a complimentary anniversary cake on your first anniversary — to celebrate your first year together with the same flavours. It is our way of staying part of your story.</p>
 
           <!-- Section 10: FAQ -->
           <h2 id="sec-9">Frequently Asked Questions</h2>
@@ -951,7 +943,7 @@
                 <span class="art-faq__icon">+</span>
               </button>
               <div class="art-faq__a" role="region">
-                <p>Krispie's has served 1,000+ Hyderabad weddings since 1996 with multi-tier fondant designs, hand-crafted sugar flowers, gold leaf finishing, and on-site delivery. A free tasting session is included with every confirmed booking. Book a consultation at <a href="tel:+917975218850">+91 79752 18850</a>.</p>
+                <p>Krispie's has served 1,000+ Hyderabad weddings since 1996 with multi-tier fondant designs, hand-crafted sugar flowers, gold leaf finishing, and on-site delivery. Share your design inspiration on WhatsApp or call us at <a href="tel:+917975218850">+91 79752 18850</a>.</p>
               </div>
             </div>
 
@@ -1017,11 +1009,11 @@
 
             <div class="art-faq__item">
               <button class="art-faq__q" aria-expanded="false">
-                Does Krispie's offer wedding cake tastings?
+                Can I see the wedding cake designs before ordering?
                 <span class="art-faq__icon">+</span>
               </button>
               <div class="art-faq__a" role="region">
-                <p>Complimentary tastings of 5-6 flavours are included for all booked orders. Without a booking, tastings are available for ₹2,500 per couple — fully redeemable if you confirm an order. Walk-in tastings at any outlet, or call to schedule.</p>
+                <p>Yes. Share your inspiration on WhatsApp — a Pinterest image, your lehenga colour, or a photo of your stage decor — and our decorator will send back design concepts and a price estimate within 2 hours. WhatsApp: <a href="https://wa.me/917975218850" target="_blank" rel="noopener">+91 79752 18850</a>.</p>
               </div>
             </div>
 
@@ -1075,9 +1067,9 @@
         </div>
 
         <div class="art-sidebar-cta-card">
-          <h4>Book a Consultation</h4>
-          <p>Share your wedding date, venue, and guest count — we'll respond within 2 hours with a quote and availability.</p>
-          <a href="https://wa.me/917975218850?text=Hi%20Krispie's%2C%20I'd%20like%20to%20book%20a%20wedding%20cake%20consultation." target="_blank" rel="noopener" class="btn btn-gold" style="display:block; text-align:center; margin-bottom:8px;">WhatsApp Now →</a>
+          <h4>Share Your Design</h4>
+          <p>Send us your inspiration — a Pinterest image, lehenga colour, or venue photo — and we'll come back with design ideas and pricing.</p>
+          <a href="https://wa.me/917975218850?text=Hi%20Krispie's%2C%20I'd%20like%20to%20discuss%20a%20wedding%20cake%20design.%20Here%20is%20my%20inspiration..." target="_blank" rel="noopener" class="btn btn-gold" style="display:block; text-align:center; margin-bottom:8px;">Share on WhatsApp →</a>
           <a href="tel:+917975218850" class="btn btn-outline" style="display:block; text-align:center;">Call +91 79752 18850</a>
         </div>
 
