@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add-ons — Krispie's Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar__brand"><div class="sidebar__brand-name">🎂 Krispie's</div><div class="sidebar__brand-sub">Admin Panel</div></div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="analytics.html" class="sidebar__link"><span class="sidebar__icon">📈</span> Analytics</a>
+      <div class="sidebar__section-label">Manage</div>
+      <a href="orders.html"    class="sidebar__link"><span class="sidebar__icon">📦</span> Orders</a>
+      <a href="enquiries.html" class="sidebar__link"><span class="sidebar__icon">💬</span> Enquiries</a>
+      <a href="products.html"  class="sidebar__link"><span class="sidebar__icon">🛍️</span> Products</a>
+      <a href="addons.html"    class="sidebar__link active"><span class="sidebar__icon">🎈</span> Add-ons</a>
+      <a href="customers.html" class="sidebar__link"><span class="sidebar__icon">👤</span> Customers</a>
+    </nav>
+    <div class="sidebar__footer"><button class="sidebar__logout" onclick="logout()">↩ Logout</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="topbar">
+      <div><div class="topbar__title">Add-ons</div><div class="topbar__sub" id="addon-count">Loading…</div></div>
+      <div class="topbar__actions">
+        <button class="btn btn-primary" onclick="openAddAddon()">+ Add Add-on</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <p class="hint" style="margin-bottom:16px;max-width:680px;">
+        These items appear in the "Make it extra special" panel when a customer adds a product to cart.
+        Assign each add-on to one of the 6 tabs — customers can add <strong>multiple items</strong> from any tab.
+      </p>
+
+      <!-- Tab filter bar -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;" id="tabFilterBar"></div>
+
+      <div class="card full-col">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Add-on</th>
+                <th>Tab</th>
+                <th>Price</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="addons-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add-on Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal__hd">
+      <h3 id="modalTitle">Add Add-on</h3>
+      <button class="modal__close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal__body" id="modalBody"></div>
+    <div class="modal__ft">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn">Save Add-on</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+'use strict';
+if (!checkAuth()) throw new Error('Not authenticated');
+
+let allAddons = [];
+let activeFilter = 'all';
+
+const ADDON_TABS = [
+  { key: 'flowers',  label: 'Flowers',          emoji: '🌸' },
+  { key: 'toppers',  label: 'Toppers',           emoji: '🎂' },
+  { key: 'candles',  label: 'Candles',           emoji: '🕯️' },
+  { key: 'props',    label: 'Celebration Props', emoji: '🎉' },
+  { key: 'balloons', label: 'Balloons',          emoji: '🎈' },
+  { key: 'cupcakes', label: 'Cupcakes',          emoji: '🧁' },
+];
+
+function tabLabel(key) {
+  const t = ADDON_TABS.find(x => x.key === key);
+  return t ? `${t.emoji} ${t.label}` : key;
+}
+
+function renderTabFilter() {
+  const bar = document.getElementById('tabFilterBar');
+  const all = [{ key: 'all', label: 'All', emoji: '📋' }, ...ADDON_TABS];
+  bar.innerHTML = all.map(t =>
+    `<button class="btn btn-sm ${activeFilter === t.key ? 'btn-primary' : 'btn-outline'}"
+      onclick="setFilter('${t.key}')">${t.emoji} ${t.label}</button>`
+  ).join('');
+}
+
+function setFilter(key) {
+  activeFilter = key;
+  renderTabFilter();
+  renderAddons();
+}
+
+async function loadAddons() {
+  try {
+    allAddons = await apiFetch('/api/addons?all=1');
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-on${allAddons.length !== 1 ? 's' : ''} total`;
+    renderTabFilter();
+    renderAddons();
+  } catch (e) {
+    showToast('Failed to load add-ons', 'error');
+  }
+}
+
+function renderAddons() {
+  const tb = document.getElementById('addons-tbody');
+  const items = activeFilter === 'all' ? allAddons : allAddons.filter(a => a.tab === activeFilter);
+  if (!items.length) {
+    const msg = activeFilter === 'all' ? 'No add-ons yet' : `No add-ons in ${tabLabel(activeFilter)} yet`;
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">🎈</div>${msg}<br><button class="btn btn-primary" style="margin-top:12px" onclick="openAddAddon('${activeFilter === 'all' ? 'props' : activeFilter}')">+ Add one</button></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = items.map(a => `
+    <tr id="row-${a.id}">
+      <td>
+        <div class="td-name">${esc(a.name)}</div>
+        ${a.image ? `<img src="${esc(a.image)}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;margin-top:4px;" onerror="this.style.display='none'">` : ''}
+      </td>
+      <td><span style="font-size:0.85rem;">${tabLabel(a.tab || 'props')}</span></td>
+      <td>${fmtPrice(a.price)} <span class="td-muted">/ ${esc(a.unit)}</span></td>
+      <td>
+        <label class="toggle" title="${a.active ? 'Click to deactivate' : 'Click to activate'}">
+          <input type="checkbox" ${a.active ? 'checked' : ''} onchange="toggleAddonActive('${a.id}', this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="openEditAddon('${a.id}')" title="Edit">✏️</button>
+          <button class="btn btn-danger  btn-sm btn-icon" onclick="deleteAddon('${a.id}', '${escJsAttr(a.name)}')" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function toggleAddonActive(id, checkbox) {
+  const a = allAddons.find(x => x.id === id);
+  if (!a) return;
+  try {
+    const updated = await apiFetch(`/api/addons/${id}`, 'PUT', addonToBody({ ...a, active: checkbox.checked }));
+    const idx = allAddons.findIndex(x => x.id === id);
+    allAddons[idx] = updated;
+    showToast(checkbox.checked ? 'Add-on activated' : 'Add-on deactivated');
+  } catch (e) {
+    checkbox.checked = !checkbox.checked;
+    showToast(e.message || 'Failed to update', 'error');
+  }
+}
+
+function addonToBody(a) {
+  return { name: a.name, price: a.price, unit: a.unit, image: a.image, tab: a.tab || 'props', active: a.active };
+}
+
+function addonForm(a = {}) {
+  const defaultTab = a.tab || (activeFilter !== 'all' ? activeFilter : 'props');
+  return `
+    <div class="form-row">
+      <label>Name *</label>
+      <input id="f-name" value="${esc(a.name || '')}" placeholder="e.g. Rose Bouquet">
+    </div>
+    <div class="form-row">
+      <label>Tab *<span class="hint-inline"> — which section of the cart panel this appears in</span></label>
+      <select id="f-tab">
+        ${ADDON_TABS.map(t => `<option value="${t.key}" ${defaultTab === t.key ? 'selected' : ''}>${t.emoji} ${t.label}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Price (₹) *</label>
+        <input id="f-price" type="number" min="0" value="${a.price ?? ''}" placeholder="299">
+      </div>
+      <div class="form-row">
+        <label>Unit <span class="hint-inline">(shown next to price)</span></label>
+        <input id="f-unit" value="${esc(a.unit || 'each')}" placeholder="each, bouquet, set of 6…">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Photo <span class="hint-inline">(optional — uses an emoji if left blank)</span></label>
+      <input id="f-image" value="${esc(a.image || '')}" placeholder="https://… or assets/images/addons/rose.jpg">
+      <div class="img-preview" id="img-preview">${a.image ? `<img src="${esc(a.image)}" onerror="this.style.display='none'">` : ''}</div>
+    </div>
+    <div class="form-row">
+      <label class="form-check"><input type="checkbox" id="f-active" ${a.active !== false ? 'checked' : ''}> Active (visible to customers)</label>
+    </div>`;
+}
+
+function setupImagePreview() {
+  setTimeout(() => {
+    const input = document.getElementById('f-image');
+    const preview = document.getElementById('img-preview');
+    input?.addEventListener('input', () => {
+      preview.innerHTML = input.value.trim() ? `<img src="${esc(input.value.trim())}" onerror="this.style.display='none'">` : '';
+    });
+  }, 50);
+}
+
+function openAddAddon(presetTab) {
+  const effectivePreset = presetTab || (activeFilter !== 'all' ? activeFilter : 'props');
+  document.getElementById('modalTitle').textContent = 'Add Add-on';
+  document.getElementById('modalBody').innerHTML = addonForm({ tab: effectivePreset });
+  setupImagePreview();
+  document.getElementById('modalSaveBtn').onclick = () => saveAddon();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditAddon(id) {
+  const a = allAddons.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('modalTitle').textContent = 'Edit Add-on';
+  document.getElementById('modalBody').innerHTML = addonForm(a);
+  setupImagePreview();
+  document.getElementById('modalSaveBtn').onclick = () => saveAddon(id);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function saveAddon(editId) {
+  const name  = document.getElementById('f-name').value.trim();
+  const price = parseFloat(document.getElementById('f-price').value);
+  if (!name)          { showToast('Name is required', 'error'); return; }
+  if (!(price >= 0))  { showToast('Enter a valid price', 'error'); return; }
+
+  const body = {
+    name,
+    price,
+    unit:   document.getElementById('f-unit').value.trim() || 'each',
+    image:  document.getElementById('f-image').value.trim(),
+    tab:    document.getElementById('f-tab').value,
+    active: document.getElementById('f-active').checked,
+  };
+
+  const btn = document.getElementById('modalSaveBtn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    let saved;
+    if (editId) {
+      saved = await apiFetch(`/api/addons/${editId}`, 'PUT', body);
+      const idx = allAddons.findIndex(a => a.id === editId);
+      if (idx !== -1) allAddons[idx] = saved;
+      showToast('Add-on updated — live on the website ✓');
+    } else {
+      saved = await apiFetch('/api/addons', 'POST', body);
+      allAddons.unshift(saved);
+      showToast('Add-on added — live on the website ✓');
+    }
+    closeModal();
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-on${allAddons.length !== 1 ? 's' : ''} total`;
+    renderAddons();
+  } catch (e) {
+    showToast(e.message || 'Failed to save', 'error');
+  } finally {
+    btn.textContent = 'Save Add-on'; btn.disabled = false;
+  }
+}
+
+async function deleteAddon(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    await apiFetch(`/api/addons/${id}`, 'DELETE');
+    allAddons = allAddons.filter(a => a.id !== id);
+    document.getElementById('addon-count').textContent = `${allAddons.length} add-on${allAddons.length !== 1 ? 's' : ''} total`;
+    renderAddons();
+    showToast('Add-on deleted');
+  } catch (e) {
+    showToast(e.message || 'Failed to delete', 'error');
+  }
+}
+
+loadAddons();
+</script>
+</body>
+</html>
