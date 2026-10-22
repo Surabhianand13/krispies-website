@@ -422,7 +422,7 @@ function renderAll() {
   // already on the page (e.g. a brand-new category page with zero products
   // yet) -- otherwise a category with no products yet never gets visited and
   // its grid is stuck on the initial "Loading cakes…" placeholder forever.
-  const fromProducts = getProducts().map(p => p.category);
+  const fromProducts = getProducts().flatMap(p => [p.category, ...(p.alsoIn || [])]);
   const fromPage = [...document.querySelectorAll('[id^="grid-"]')]
     .map(el => el.id.replace(/^grid-/, ''))
     .filter(id => !NON_CATEGORY_GRID_IDS.includes(id));
@@ -430,7 +430,7 @@ function renderAll() {
   categories.forEach(cat => {
     const grid = document.getElementById(`grid-${cat}`);
     if (!grid) return;
-    const items = getProducts().filter(p => p.category === cat && p.active !== false);
+    const items = getProducts().filter(p => p.active !== false && (p.category === cat || (p.alsoIn || []).includes(cat)));
     // data-ssr: the server already rendered this category's products into
     // the grid (functions/_middleware.js). If our own fetch came back empty
     // (backend asleep, no cache), keep those rather than "coming soon".
