@@ -480,6 +480,13 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     '4 minutes ago','5 minutes ago','7 minutes ago','8 minutes ago'
   ];
 
+  // SVG shopping bag icon used when a product has no image
+  const FALLBACK_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="26" height="26">' +
+    '<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="#C9A870" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="#C9A870" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>';
+
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
   function getProducts() {
@@ -487,10 +494,14 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
       const cached = localStorage.getItem('krispies_products');
       if (cached) {
         const list = JSON.parse(cached);
-        if (Array.isArray(list) && list.length) return list.map(p => p.name).filter(Boolean);
+        if (Array.isArray(list) && list.length) {
+          return list
+            .filter(p => p.name && p.active !== false)
+            .map(p => ({ name: p.name, image: (p.images && p.images[0]) || null }));
+        }
       }
     } catch (_) {}
-    return FALLBACK_PRODUCTS;
+    return FALLBACK_PRODUCTS.map(n => ({ name: n, image: null }));
   }
 
   let toastEl = null;
@@ -517,15 +528,19 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     const time    = pick(TIMES);
     const DURATION = 5500; // ms the toast stays visible
 
+    const imgHTML = product.image
+      ? '<img src="' + product.image + '" alt="" loading="lazy" onerror="this.parentNode.innerHTML=\'' + FALLBACK_SVG.replace(/'/g, "\\'") + '\'">'
+      : FALLBACK_SVG;
+
     const el = document.createElement('div');
     el.className = 'fomo-toast';
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
     el.innerHTML =
-      '<div class="fomo-toast__img">🎂</div>' +
+      '<div class="fomo-toast__img">' + imgHTML + '</div>' +
       '<div class="fomo-toast__body">' +
         '<div class="fomo-toast__name">' + name + ' from ' + area + '</div>' +
-        '<div class="fomo-toast__product">just ordered ' + product + '</div>' +
+        '<div class="fomo-toast__product">just ordered ' + product.name + '</div>' +
         '<div class="fomo-toast__time">' + time + '</div>' +
       '</div>' +
       '<button class="fomo-toast__close" aria-label="Dismiss">×</button>' +
