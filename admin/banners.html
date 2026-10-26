@@ -457,7 +457,8 @@ async function saveOrder() {
 document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
 // Init
-requireAuth(() => load());
+if (!checkAuth()) throw new Error('Not authenticated');
+load();
 </script>
 </body>
 </html>
