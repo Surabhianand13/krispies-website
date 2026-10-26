@@ -79,6 +79,7 @@ app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/feed',      require('./routes/feed'));
 app.use('/api/reviews',   require('./routes/reviews'));
 app.use('/api/push',      require('./routes/push'));
+app.use('/api/banners',   require('./routes/banners'));
 
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
