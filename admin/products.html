@@ -640,12 +640,7 @@ function _onCatChange(catVal) {
   if (!CAKE_FLAVOUR_CATS.includes(catVal)) return;
   const alreadyHas = _editVariantGroups.some(g => /flavou?r/i.test(g.name));
   if (alreadyHas) return;
-  const mrp = parseFloat(document.getElementById('f-mrp')?.value) || 0;
-  _editVariantGroups.push({
-    name: 'Flavour',
-    optional: false,
-    options: ADMIN_FLAVOURS.map(f => ({ label: f, price: mrp, image: '' })),
-  });
+  _editVariantGroups.push(_defaultFlavourGroup());
   renderVariantGroups();
   // Scroll to the new group so the admin sees it was added
   setTimeout(() => document.getElementById('variant-groups')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
@@ -749,17 +744,17 @@ function refreshImgUI() {
   document.getElementById('img-preview').innerHTML = _editImages.map(url => `<img src="${esc(url)}" onerror="this.style.display='none'">`).join('');
 }
 
-function _defaultFlavourGroup(mrp) {
+function _defaultFlavourGroup() {
   return {
     name: 'Flavour',
     optional: false,
-    options: ADMIN_FLAVOURS.map(f => ({ label: f, price: mrp || 0, image: '', serving: '' })),
+    options: ADMIN_FLAVOURS.map(f => ({ label: f, price: 0, image: '', serving: '' })),
   };
 }
 
 function openAddProduct() {
   _editImages = [];
-  _editVariantGroups = [_defaultFlavourGroup(0)];
+  _editVariantGroups = [_defaultFlavourGroup()];
   document.getElementById('modalTitle').textContent = 'Add Product';
   document.getElementById('modalBody').innerHTML = productForm();
   setupPricePreview();
@@ -784,7 +779,7 @@ function openEditProduct(id) {
   // Pre-populate a Flavour group if the product doesn't already have one,
   // so admins can fill prices directly without clicking "Add Option Group".
   if (!_editVariantGroups.some(g => /flavou?r/i.test(g.name))) {
-    _editVariantGroups.push(_defaultFlavourGroup(p.mrp || 0));
+    _editVariantGroups.push(_defaultFlavourGroup());
   }
   document.getElementById('modalTitle').textContent = 'Edit Product';
   document.getElementById('modalBody').innerHTML = productForm(p);
