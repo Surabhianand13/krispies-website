@@ -248,7 +248,7 @@
 
 <script src="admin.js"></script>
 <script>
-const API = (window.BACKEND_URL || '') + '/api';
+const API = (typeof BACKEND_URL !== 'undefined' ? BACKEND_URL : '') + '/api';
 let _banners = [];
 let _dragSrc = null;
 
