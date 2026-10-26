@@ -712,7 +712,6 @@ if (!alreadyFixedFlavourPricesV2) {
         changed = true;
         return { ...g, options: g.options.map(o => ({ ...o, price: 0 })) };
       });
-
       if (changed) {
         updateVG.run(JSON.stringify(groups), row.id);
         fixedCount++;
