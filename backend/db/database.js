@@ -664,4 +664,41 @@ if (!alreadySeededRakhi) {
   console.log(`✓ Seeded Rakhi & Sweets Hampers catalog (${rakhiProducts.length} products) — one-time migration complete`);
 }
 
+// ── One-time migration: fix Flavour variant prices accidentally set to MRP
+// PR #155 pre-populated a Flavour variant group with price = product MRP,
+// causing the frontend to sum Weight + Flavour = doubled price. This
+// migration resets any Flavour group whose options all share the same
+// non-zero price (the "copied from MRP" pattern) to price 0 -- flavour
+// is a selector, not a price driver, when weight options set the price.
+const alreadyFixedFlavourPrices = db.prepare('SELECT value FROM settings WHERE key = ?').get('flavour_price_fix_v1');
+if (!alreadyFixedFlavourPrices) {
+  const allProducts = db.prepare('SELECT id, variant_groups FROM products').all();
+  let fixedCount = 0;
+  const updateVG = db.prepare('UPDATE products SET variant_groups = ?, updated_at = datetime(\'now\') WHERE id = ?');
+  db.transaction(() => {
+    for (const row of allProducts) {
+      let groups;
+      try { groups = JSON.parse(row.variant_groups || '[]'); } catch (_) { continue; }
+      if (!Array.isArray(groups) || groups.length < 2) continue;
+      let changed = false;
+      groups = groups.map(g => {
+        if (!/flavou?r/i.test(g.name)) return g;
+        const prices = (g.options || []).map(o => Number(o.price) || 0);
+        const allSame = prices.length > 0 && prices.every(p => p === prices[0]);
+        const nonZero = prices[0] > 0;
+        if (!allSame || !nonZero) return g;
+        changed = true;
+        return { ...g, options: g.options.map(o => ({ ...o, price: 0 })) };
+      });
+      if (changed) {
+        updateVG.run(JSON.stringify(groups), row.id);
+        fixedCount++;
+      }
+    }
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+      .run('flavour_price_fix_v1', 'true');
+  })();
+  if (fixedCount > 0) console.log(`✓ Fixed Flavour variant prices on ${fixedCount} product(s) — one-time migration complete`);
+}
+
 module.exports = db;
