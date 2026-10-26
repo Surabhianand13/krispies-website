@@ -736,4 +736,38 @@ if (!alreadyFixedFlavourPricesV2) {
   if (fixedCount > 0) console.log(`✓ Fixed Flavour variant prices / duplicates on ${fixedCount} product(s)`);
 }
 
+// ── One-time migration v3: zero ALL Flavour option prices for products that
+// have more than one variant group (e.g. Flavour + Weight). v2 only caught
+// groups where every option had the same non-zero price; v3 is unconditional
+// for products with multiple groups so any stale non-zero Flavour price is
+// cleared regardless of whether options differ.
+const alreadyFixedFlavourPricesV3 = db.prepare('SELECT value FROM settings WHERE key = ?').get('flavour_price_fix_v3');
+if (!alreadyFixedFlavourPricesV3) {
+  const allProducts = db.prepare('SELECT id, variant_groups FROM products').all();
+  let fixedCount = 0;
+  const updateVG = db.prepare("UPDATE products SET variant_groups = ?, updated_at = datetime('now') WHERE id = ?");
+  db.transaction(() => {
+    for (const row of allProducts) {
+      let groups;
+      try { groups = JSON.parse(row.variant_groups || '[]'); } catch (_) { continue; }
+      if (!Array.isArray(groups) || groups.length <= 1) continue; // only multi-group products
+      let changed = false;
+      const fixed = groups.map(g => {
+        if (!/^flavou?r$/i.test(g.name)) return g;
+        const hasNonZero = (g.options || []).some(o => Number(o.price) > 0);
+        if (!hasNonZero) return g;
+        changed = true;
+        return { ...g, options: (g.options || []).map(o => ({ ...o, price: 0 })) };
+      });
+      if (changed) {
+        updateVG.run(JSON.stringify(fixed), row.id);
+        fixedCount++;
+      }
+    }
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+      .run('flavour_price_fix_v3', 'true');
+  })();
+  if (fixedCount > 0) console.log(`✓ Fixed Flavour prices (v3) on ${fixedCount} multi-group product(s)`);
+}
+
 module.exports = db;
