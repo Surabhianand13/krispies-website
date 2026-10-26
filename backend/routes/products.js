@@ -210,6 +210,18 @@ function buildProduct(id, body) {
     }))
     .filter(g => g.name && g.options.length > 0);
 
+  // Flavour is a choice dimension, not a pricing dimension. When a product has
+  // multiple variant groups (e.g. Flavour + Weight), the Flavour group must
+  // never add to the price — zero out its option prices on every save so
+  // stale data from an old admin-form bug can't re-enter the DB.
+  if (variantGroups.length > 1) {
+    variantGroups = variantGroups.map(g =>
+      /^flavou?r$/i.test(g.name)
+        ? { ...g, options: g.options.map(o => ({ ...o, price: 0 })) }
+        : g
+    );
+  }
+
   return {
     id,
     name:           String(body.name || '').trim(),
