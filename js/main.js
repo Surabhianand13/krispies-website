@@ -444,3 +444,129 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   });
 });
+
+/* ---- FOMO ORDER NOTIFICATIONS ---- */
+(function () {
+  const NAMES = [
+    'Anitha','Priya','Kavya','Sneha','Divya','Pooja','Meghana','Swathi',
+    'Anusha','Lakshmi','Sravani','Manasa','Sowmya','Madhuri','Pallavi',
+    'Rahul','Arjun','Vikram','Kiran','Sai','Naveen','Aditya','Charan',
+    'Pranav','Rohit','Harsha','Suresh','Ravi','Nikhil','Varun'
+  ];
+  const AREAS = [
+    'Banjara Hills','Jubilee Hills','Madhapur','Gachibowli','Kondapur',
+    'Hitech City','Kukatpally','Secunderabad','Ameerpet','Begumpet',
+    'LB Nagar','Dilsukhnagar','Miyapur','Manikonda','Nallagandla',
+    'Tarnaka','Uppal','Hayathnagar','Shamshabad','Bowenpally'
+  ];
+  const FALLBACK_PRODUCTS = [
+    'Chocolate Truffle Birthday Cake',
+    'Butterscotch Cake',
+    'Black Forest Cake',
+    'Red Velvet Cake',
+    'Mango Cream Cake',
+    'Pineapple Cream Cake',
+    'Vanilla Sponge Cake',
+    'Strawberry Cream Cake',
+    'German Chocolate Cake',
+    'Fresh Fruit Cake',
+    'Cheesecake',
+    'Blueberry Cheesecake',
+    'Chocolate Donuts',
+    'Wedding Cake'
+  ];
+  const TIMES = [
+    'just now','1 minute ago','2 minutes ago','3 minutes ago',
+    '4 minutes ago','5 minutes ago','7 minutes ago','8 minutes ago'
+  ];
+
+  // SVG shopping bag icon used when a product has no image
+  const FALLBACK_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="26" height="26">' +
+    '<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="#C9A870" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="#C9A870" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>';
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function getProducts() {
+    try {
+      const cached = localStorage.getItem('krispies_products');
+      if (cached) {
+        const list = JSON.parse(cached);
+        if (Array.isArray(list) && list.length) {
+          return list
+            .filter(p => p.name && p.active !== false)
+            .map(p => ({ name: p.name, image: (p.images && p.images[0]) || null }));
+        }
+      }
+    } catch (_) {}
+    return FALLBACK_PRODUCTS.map(n => ({ name: n, image: null }));
+  }
+
+  let toastEl = null;
+  let drainTimeout = null;
+  let removeTimeout = null;
+
+  function dismiss() {
+    if (!toastEl) return;
+    clearTimeout(drainTimeout);
+    clearTimeout(removeTimeout);
+    toastEl.classList.remove('fomo-in');
+    toastEl.classList.add('fomo-out');
+    const el = toastEl;
+    removeTimeout = setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 400);
+    toastEl = null;
+  }
+
+  function show() {
+    dismiss(); // clear any existing toast first
+
+    const name    = pick(NAMES);
+    const area    = pick(AREAS);
+    const product = pick(getProducts());
+    const time    = pick(TIMES);
+    const DURATION = 5500; // ms the toast stays visible
+
+    const imgHTML = product.image
+      ? '<img src="' + product.image + '" alt="" loading="lazy" onerror="this.parentNode.innerHTML=\'' + FALLBACK_SVG.replace(/'/g, "\\'") + '\'">'
+      : FALLBACK_SVG;
+
+    const el = document.createElement('div');
+    el.className = 'fomo-toast';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML =
+      '<div class="fomo-toast__img">' + imgHTML + '</div>' +
+      '<div class="fomo-toast__body">' +
+        '<div class="fomo-toast__name">' + name + ' from ' + area + '</div>' +
+        '<div class="fomo-toast__product">just ordered ' + product.name + '</div>' +
+        '<div class="fomo-toast__time">' + time + '</div>' +
+      '</div>' +
+      '<button class="fomo-toast__close" aria-label="Dismiss">×</button>' +
+      '<div class="fomo-toast__bar" style="animation-duration:' + DURATION + 'ms"></div>';
+
+    el.querySelector('.fomo-toast__close').addEventListener('click', function (e) {
+      e.stopPropagation();
+      dismiss();
+    });
+    el.addEventListener('click', dismiss);
+
+    document.body.appendChild(el);
+    toastEl = el;
+
+    // Trigger slide-in on next frame
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fomo-in')));
+
+    drainTimeout = setTimeout(dismiss, DURATION);
+  }
+
+  // Start after a short delay, then repeat on a random interval
+  function schedule() {
+    const delay = 18000 + Math.random() * 14000; // 18–32 s between toasts
+    setTimeout(function () { show(); schedule(); }, delay);
+  }
+
+  // First toast after 8–14 s (let user settle in before the first nudge)
+  setTimeout(function () { show(); schedule(); }, 8000 + Math.random() * 6000);
+})();
