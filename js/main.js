@@ -480,12 +480,22 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     '4 minutes ago','5 minutes ago','7 minutes ago','8 minutes ago'
   ];
 
+  // Priority categories — these big-ticket cakes are more impressive in FOMO toasts
+  const PRIORITY_CATS = ['wedding-cakes','engagement-cakes','customized-cakes','birthday-cakes','floral-cakes','kids-birthday-cakes'];
+
   // SVG shopping bag icon used when a product has no image
   const FALLBACK_SVG =
-    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="26" height="26">' +
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">' +
     '<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="#C9A870" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
     '<path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="#C9A870" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
+
+  const TAG_META = {
+    bestseller: { label: '⭐ Bestseller',     cls: 'bestseller' },
+    new:        { label: '✨ New Arrival',     cls: 'new' },
+    seasonal:   { label: '🌸 Seasonal Fave',  cls: 'seasonal' },
+    custom:     { label: '🎨 Made to Order',  cls: 'custom' },
+  };
 
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
@@ -495,13 +505,17 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
       if (cached) {
         const list = JSON.parse(cached);
         if (Array.isArray(list) && list.length) {
-          return list
-            .filter(p => p.name && p.active !== false)
-            .map(p => ({ name: p.name, image: (p.images && p.images[0]) || null }));
+          const active = list.filter(p => p.name && p.active !== false && p.images && p.images[0]);
+          // Prefer priority categories (appear 3× more often), fall back to all active with images
+          const priority = active.filter(p => PRIORITY_CATS.includes(p.category));
+          const pool = priority.length >= 3
+            ? [...priority, ...priority, ...priority, ...active]
+            : active;
+          return pool.map(p => ({ name: p.name, image: p.images[0], tag: p.tag || null }));
         }
       }
     } catch (_) {}
-    return FALLBACK_PRODUCTS.map(n => ({ name: n, image: null }));
+    return FALLBACK_PRODUCTS.map(n => ({ name: n, image: null, tag: null }));
   }
 
   let toastEl = null;
@@ -532,6 +546,11 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
       ? '<img src="' + product.image + '" alt="" loading="lazy" onerror="this.parentNode.innerHTML=\'' + FALLBACK_SVG.replace(/'/g, "\\'") + '\'">'
       : FALLBACK_SVG;
 
+    const tagMeta = product.tag && TAG_META[product.tag];
+    const tagHTML = tagMeta
+      ? '<div class="fomo-toast__tag fomo-toast__tag--' + tagMeta.cls + '">' + tagMeta.label + '</div>'
+      : '';
+
     const el = document.createElement('div');
     el.className = 'fomo-toast';
     el.setAttribute('role', 'status');
@@ -541,6 +560,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
       '<div class="fomo-toast__body">' +
         '<div class="fomo-toast__name">' + name + ' from ' + area + '</div>' +
         '<div class="fomo-toast__product">just ordered ' + product.name + '</div>' +
+        tagHTML +
         '<div class="fomo-toast__time">' + time + '</div>' +
       '</div>' +
       '<button class="fomo-toast__close" aria-label="Dismiss">×</button>' +
