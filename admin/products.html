@@ -293,7 +293,7 @@ function renderProducts(list) {
       </td>
       <td><span class="badge badge-none" style="font-size:0.63rem;">${CATEGORY_LABELS[p.category] || p.category}</span></td>
       <td>${p.mrp ? fmtPrice(p.mrp) : '—'}</td>
-      <td><strong>${p.variantGroups?.length ? 'From ' : ''}${p.price ? fmtPrice(p.price) : '—'}</strong>${p.discount ? `<br><span class="td-muted" style="font-size:0.68rem;">${p.discount}% off</span>` : ''}</td>
+      <td><strong>${p.priceFrom < p.priceTo ? 'From ' : ''}${p.price ? fmtPrice(p.price) : '—'}</strong>${p.discount ? `<br><span class="td-muted" style="font-size:0.68rem;">${p.discount}% off</span>` : ''}</td>
       <td>${tagBadge(p.tag)}</td>
       <td>
         <label class="toggle" title="${p.active ? 'Click to deactivate' : 'Click to activate'}">
