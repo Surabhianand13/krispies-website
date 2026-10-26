@@ -511,9 +511,9 @@ h1, h2, h3, h4 {
 
 /* ── Category Nav Bar ── */
 .cat-nav {
-  background: #F2C9C3;
+  background: #923D30;
   overflow: visible;
-  border-bottom: 1px solid rgba(146,61,48,0.15);
+  border-bottom: 1px solid rgba(0,0,0,0.15);
 }
 .cat-nav__inner {
   display: flex;
@@ -536,7 +536,7 @@ h1, h2, h3, h4 {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #923D30;
+  color: rgba(255,248,241,0.9);
   white-space: nowrap;
   transition: color 0.2s, border-bottom-color 0.2s, background 0.2s;
   border-bottom: 2px solid transparent;
@@ -544,12 +544,12 @@ h1, h2, h3, h4 {
 }
 .cat-nav__link:hover,
 .cat-nav__item.active .cat-nav__link {
-  color: #6B2518;
-  border-bottom-color: #923D30;
-  background: rgba(146,61,48,0.07);
+  color: #fff;
+  border-bottom-color: rgba(255,248,241,0.7);
+  background: rgba(0,0,0,0.12);
 }
 .cat-nav__item.trend .cat-nav__link {
-  color: #923D30;
+  color: #fff;
   font-weight: 800;
 }
 .cat-nav__item.trend .cat-nav__link::after {
@@ -557,8 +557,8 @@ h1, h2, h3, h4 {
   font-size: 0.5rem;
   font-weight: 800;
   letter-spacing: 0.1em;
-  background: #923D30;
-  color: #fff;
+  background: #fff;
+  color: #923D30;
   padding: 1px 5px;
   border-radius: 3px;
   margin-left: 5px;
@@ -571,8 +571,7 @@ h1, h2, h3, h4 {
 .cat-nav__caret {
   width: 10px; height: 10px; flex-shrink: 0;
   transition: transform 0.2s;
-  color: #923D30;
-  opacity: 0.7;
+  color: rgba(255,248,241,0.65);
 }
 .cat-nav__item:hover .cat-nav__caret {
   transform: rotate(180deg);
@@ -586,7 +585,7 @@ h1, h2, h3, h4 {
   min-width: 210px;
   background: #FFF8F1;
   border: 1px solid rgba(146,61,48,0.18);
-  border-top: 2.5px solid #923D30;
+  border-top: 2.5px solid #F2C9C3;
   border-radius: 0 0 12px 12px;
   box-shadow: 0 12px 36px rgba(146,61,48,0.13), 0 2px 6px rgba(0,0,0,0.06);
   padding: 6px 0;
