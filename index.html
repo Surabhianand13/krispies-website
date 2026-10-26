@@ -1374,6 +1374,41 @@
   </script>
   <script src="js/track.js" defer></script>
   <script>
+  // Dynamic banner loading — replaces the static hero carousel if banners are
+  // configured in the admin panel. Falls back to the static slides on any error.
+  // Runs after DOMContentLoaded so deferred scripts (main.js) have executed.
+  document.addEventListener('DOMContentLoaded', function loadDynamicBanners() {
+    if (typeof BACKEND_URL === 'undefined') return;
+    fetch(BACKEND_URL + '/api/banners')
+      .then(r => r.ok ? r.json() : null)
+      .then(banners => {
+        if (!Array.isArray(banners) || !banners.length) return; // keep static slides
+        const track = document.getElementById('heroTrack');
+        if (!track) return;
+        track.innerHTML = banners.map((b, i) => {
+          const href    = b.link ? ` href="${b.link.replace(/"/g,'&quot;')}"` : '';
+          const tag     = b.link ? 'a' : 'div';
+          const alt     = (b.altText || b.title || '').replace(/"/g, '&quot;');
+          const desktopImg = b.desktopImage || '';
+          const mobileImg  = b.mobileImage  || desktopImg;
+          const n = i + 1, total = banners.length;
+          return `<${tag}${href} class="hero__slide hero__slide--${n} hero__slide--full-img" aria-label="Slide ${n} of ${total}">
+  ${mobileImg && mobileImg !== desktopImg
+    ? `<picture>
+      <source srcset="${mobileImg}" media="(max-width: 640px)">
+      <img src="${desktopImg}" class="hero__slide-img" alt="${alt}"${i === 0 ? ' fetchpriority="high"' : ' loading="lazy"'} decoding="async">
+    </picture>`
+    : `<img src="${desktopImg}" class="hero__slide-img" alt="${alt}"${i === 0 ? ' fetchpriority="high"' : ' loading="lazy"'} decoding="async">`
+  }
+</${tag}>`;
+        }).join('\n');
+        // Reinitialise the carousel with the new slides and rebuilt dots.
+        if (window._heroReinit) window._heroReinit();
+      })
+      .catch(() => {}); // network error → keep static slides
+  });
+  </script>
+  <script>
   function toggleSeoText() {
     var hidden = document.getElementById('seoTextHidden');
     var btn = document.getElementById('seoToggle');

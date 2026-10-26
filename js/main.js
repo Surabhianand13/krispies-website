@@ -318,7 +318,7 @@ if (form) {
   if (!track) return;
 
   const slides = [...track.querySelectorAll('.hero__slide')];
-  const total  = slides.length;
+  let total    = slides.length;
   let cur      = 0;
   let timer;
   let startX   = null; // for swipe support
@@ -377,6 +377,34 @@ if (form) {
   });
 
   startTimer();
+
+  // Allow external code (e.g. dynamic banner loading) to reinitialise the
+  // carousel after the track's children have been replaced.
+  window._heroReinit = function () {
+    clearInterval(timer);
+    const newSlides = [...track.querySelectorAll('.hero__slide')];
+    if (!newSlides.length) return;
+    // Patch the closed-over variables so next/prev/go all see the new state.
+    slides.length = 0;
+    newSlides.forEach(s => slides.push(s));
+    total = newSlides.length;
+    // Rebuild dots:
+    if (dotsWrap) {
+      dotsWrap.innerHTML = '';
+      newSlides.forEach((_, i) => {
+        const d = document.createElement('button');
+        d.className = 'hero__dot' + (i === 0 ? ' active' : '');
+        d.setAttribute('aria-label', `Go to slide ${i + 1}`);
+        d.setAttribute('role', 'tab');
+        d.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+        d.addEventListener('click', () => go(i));
+        dotsWrap.appendChild(d);
+      });
+    }
+    cur = 0;
+    track.style.transform = 'translateX(0)';
+    startTimer();
+  };
 })();
 
 /* ---- WHATSAPP FLOAT BUTTON + FOOTER ROW ---- */
