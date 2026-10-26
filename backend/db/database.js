@@ -664,29 +664,51 @@ if (!alreadySeededRakhi) {
   console.log(`✓ Seeded Rakhi & Sweets Hampers catalog (${rakhiProducts.length} products) — one-time migration complete`);
 }
 
-// ── One-time migration: fix Flavour variant prices accidentally set to MRP
-// PR #155 pre-populated a Flavour variant group with price = product MRP,
-// causing the frontend to sum Weight + Flavour = doubled price. This
-// migration resets any Flavour group whose options all share the same
-// non-zero price (the "copied from MRP" pattern) to price 0 -- flavour
-// is a selector, not a price driver, when weight options set the price.
-const alreadyFixedFlavourPrices = db.prepare('SELECT value FROM settings WHERE key = ?').get('flavour_price_fix_v1');
-if (!alreadyFixedFlavourPrices) {
-  const allProducts = db.prepare('SELECT id, variant_groups FROM products').all();
+// ── One-time migration v2: fix Flavour variant prices + deduplicate groups
+// Supersedes flavour_price_fix_v1. Handles:
+//   1. Flavour group where all options share the same non-zero price
+//      (MRP-copy bug from PR #155) → reset those prices to 0.
+//   2. Duplicate Flavour groups (both at same non-zero price) → keep
+//      only the first, reset its prices to 0.
+//   3. Products with ONLY a Flavour group and all same non-zero prices
+//      → delete the group entirely; MRP/discount drives the price.
+const alreadyFixedFlavourPricesV2 = db.prepare('SELECT value FROM settings WHERE key = ?').get('flavour_price_fix_v2');
+if (!alreadyFixedFlavourPricesV2) {
+  const allProducts = db.prepare('SELECT id, mrp, variant_groups FROM products').all();
   let fixedCount = 0;
   const updateVG = db.prepare('UPDATE products SET variant_groups = ?, updated_at = datetime(\'now\') WHERE id = ?');
   db.transaction(() => {
     for (const row of allProducts) {
       let groups;
       try { groups = JSON.parse(row.variant_groups || '[]'); } catch (_) { continue; }
-      if (!Array.isArray(groups) || groups.length < 2) continue;
+      if (!Array.isArray(groups) || !groups.length) continue;
+
+      const isFlavourGroup = g => /flavou?r/i.test(g.name);
+      const allSameNonZeroPrice = g => {
+        const prices = (g.options || []).map(o => Number(o.price) || 0);
+        return prices.length > 0 && prices[0] > 0 && prices.every(p => p === prices[0]);
+      };
+
+      // Deduplicate: remove any Flavour group after the first
+      let seenFlavour = false;
+      groups = groups.filter(g => {
+        if (!isFlavourGroup(g)) return true;
+        if (!seenFlavour) { seenFlavour = true; return true; }
+        return false; // drop duplicate Flavour groups
+      });
+
+      // If the only remaining group is a Flavour with all-same non-zero prices,
+      // drop the whole group — MRP/discount is the authoritative price.
+      if (groups.length === 1 && isFlavourGroup(groups[0]) && allSameNonZeroPrice(groups[0])) {
+        updateVG.run('[]', row.id);
+        fixedCount++;
+        continue;
+      }
+
+      // Otherwise reset any Flavour group with all-same non-zero prices to 0.
       let changed = false;
       groups = groups.map(g => {
-        if (!/flavou?r/i.test(g.name)) return g;
-        const prices = (g.options || []).map(o => Number(o.price) || 0);
-        const allSame = prices.length > 0 && prices.every(p => p === prices[0]);
-        const nonZero = prices[0] > 0;
-        if (!allSame || !nonZero) return g;
+        if (!isFlavourGroup(g) || !allSameNonZeroPrice(g)) return g;
         changed = true;
         return { ...g, options: g.options.map(o => ({ ...o, price: 0 })) };
       });
@@ -696,9 +718,9 @@ if (!alreadyFixedFlavourPrices) {
       }
     }
     db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
-      .run('flavour_price_fix_v1', 'true');
+      .run('flavour_price_fix_v2', 'true');
   })();
-  if (fixedCount > 0) console.log(`✓ Fixed Flavour variant prices on ${fixedCount} product(s) — one-time migration complete`);
+  if (fixedCount > 0) console.log(`✓ Fixed Flavour variant prices / duplicates on ${fixedCount} product(s)`);
 }
 
 module.exports = db;
