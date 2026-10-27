@@ -66,9 +66,10 @@ router.get('/google-merchant.xml', (_req, res) => {
     if (!price) return ''; // Merchant Center requires a positive price
 
     const link = `${SITE_URL}/products/${encodeURIComponent(row.slug)}`;
-    const imageLink = `${SITE_URL}/${images[0]}`;
+    const absImg = img => /^https?:\/\//i.test(img) ? img : `${SITE_URL}/${img.replace(/^\//, '')}`;
+    const imageLink = absImg(images[0]);
     const extraImages = images.slice(1, 11)
-      .map(img => `    <g:additional_image_link>${escXml(SITE_URL + '/' + img)}</g:additional_image_link>`)
+      .map(img => `    <g:additional_image_link>${escXml(absImg(img))}</g:additional_image_link>`)
       .join('\n');
     const category = GOOGLE_CATEGORY[row.category] || DEFAULT_CATEGORY;
     const availability = row.active === 1 ? 'in stock' : 'out of stock';
