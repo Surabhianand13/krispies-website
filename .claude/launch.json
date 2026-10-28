@@ -7,6 +7,12 @@
       "runtimeArgs": ["serve", "."],
       "port": 3737,
       "autoPort": true
+    },
+    {
+      "name": "krispies-pages",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["wrangler", "pages", "dev", ".", "--port", "8788", "--compatibility-date", "2026-05-01"],
+      "port": 8788
     }
   ]
 }
