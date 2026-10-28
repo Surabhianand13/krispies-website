@@ -16,8 +16,9 @@
 # Shopify CDN file paths that may be indexed from old backlinks or cached crawls
 /cdn/*                                       /                   301
 
-# Product clean URLs → product-page.html (rewrite, URL stays clean)
-/products/:slug          /product-page.html?slug=:slug   200
+# Product clean URLs → product-page (rewrite, URL stays clean)
+# Using extensionless target avoids Cloudflare's .html-stripping 308 redirect
+/products/:slug          /product-page   200
 
 # Store pages — trailing slash and .html redirects
 /stores                  /stores/            302
