@@ -25,7 +25,7 @@ export async function onRequest(context) {
     return Response.redirect(new URL(LEGACY_REDIRECTS[slug], request.url).toString(), 301);
   }
 
-  const res = await fetchProductPageShell(request, env);
+  const res = await fetchProductPageShell(request);
   if (!res.ok || request.method !== 'GET') return res;
 
   let catalog = await getCatalog(context);
@@ -49,26 +49,20 @@ export async function onRequest(context) {
   return renderProduct(res, p);
 }
 
-// env.ASSETS.fetch() runs through the same html-extension-stripping
-// middleware used for ordinary static requests. We fetch the canonical
-// extensionless path (/product-page) directly. The redirect-follow loop
-// handles edge cases where the ASSETS layer still sends a redirect,
-// breaking out if redirected to the same URL to avoid an infinite loop.
-async function fetchProductPageShell(request, env) {
-  const assetUrl = new URL(request.url);
-  assetUrl.pathname = '/product-page';
-  assetUrl.search = '';
-  let res = await env.ASSETS.fetch(new Request(assetUrl.toString(), { method: 'GET', headers: request.headers }));
-  let seen = new Set([assetUrl.toString()]);
-  let hops = 0;
-  while (res.status >= 300 && res.status < 400 && res.headers.get('location') && hops++ < 5) {
-    const next = new URL(res.headers.get('location'), assetUrl);
-    next.search = '';
-    if (seen.has(next.toString())) break; // redirect loop — give up
-    seen.add(next.toString());
-    res = await env.ASSETS.fetch(new Request(next.toString(), { method: 'GET', headers: request.headers }));
-  }
-  return res;
+// env.ASSETS.fetch() returns a redirect for /product-page due to
+// Cloudflare's html-extension-stripping middleware, causing the 308 to
+// propagate to the browser. Using a plain fetch() to the public URL
+// (with redirect:follow) sidesteps the ASSETS layer entirely and reliably
+// returns the page HTML since /product-page serves 200 publicly.
+async function fetchProductPageShell(request) {
+  const shellUrl = new URL('/product-page', request.url);
+  shellUrl.search = '';
+  shellUrl.hash = '';
+  return fetch(shellUrl.toString(), {
+    method: 'GET',
+    headers: { accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
+    redirect: 'follow',
+  });
 }
 
 function renderProduct(res, p) {
