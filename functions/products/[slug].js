@@ -49,24 +49,22 @@ export async function onRequest(context) {
   return renderProduct(res, p);
 }
 
-// env.ASSETS.fetch() serves static files directly, bypassing _redirects
-// entirely — so the /product-page → /menu redirect added for browsers
-// never fires here. We pass a clean GET request (not the original browser
-// request) to avoid any browser-specific headers triggering redirects.
-// If ASSETS returns a 308/301 (html-extension-stripping), we follow it
-// once provided it stays on the same host and isn't toward /menu.
+// Fetch product-page.html via env.ASSETS. _redirects no longer has a rule
+// for /product-page (removed to avoid this fetch landing on the menu), so
+// ASSETS serves the file directly. The only redirect we might see is
+// Cloudflare's html-extension-stripping 308 for /product-page → itself
+// without .html; follow it once if so.
 async function fetchProductPageShell(request, env) {
   const url = new URL('/product-page', request.url);
   url.search = '';
   url.hash = '';
-  const cleanReq = new Request(url.toString(), {
+  let res = await env.ASSETS.fetch(new Request(url.toString(), {
     method: 'GET',
     headers: { accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
-  });
-  let res = await env.ASSETS.fetch(cleanReq);
-  if ((res.status === 301 || res.status === 302 || res.status === 308) && res.headers.get('location')) {
+  }));
+  if ((res.status === 301 || res.status === 308) && res.headers.get('location')) {
     const loc = new URL(res.headers.get('location'), url);
-    if (loc.hostname === url.hostname && !loc.pathname.startsWith('/menu')) {
+    if (loc.hostname === url.hostname) {
       res = await env.ASSETS.fetch(new Request(loc.toString(), {
         method: 'GET',
         headers: { accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
