@@ -25,7 +25,7 @@ export async function onRequest(context) {
     return Response.redirect(new URL(LEGACY_REDIRECTS[slug], request.url).toString(), 301);
   }
 
-  const res = await fetchProductPageShell(request);
+  const res = await fetchProductPageShell(request, env);
   if (!res.ok || request.method !== 'GET') return res;
 
   let catalog = await getCatalog(context);
@@ -49,20 +49,31 @@ export async function onRequest(context) {
   return renderProduct(res, p);
 }
 
-// env.ASSETS.fetch() returns a redirect for /product-page due to
-// Cloudflare's html-extension-stripping middleware, causing the 308 to
-// propagate to the browser. Using a plain fetch() to the public URL
-// (with redirect:follow) sidesteps the ASSETS layer entirely and reliably
-// returns the page HTML since /product-page serves 200 publicly.
-async function fetchProductPageShell(request) {
-  const shellUrl = new URL('/product-page', request.url);
-  shellUrl.search = '';
-  shellUrl.hash = '';
-  return fetch(shellUrl.toString(), {
+// env.ASSETS.fetch() serves static files directly, bypassing _redirects
+// entirely — so the /product-page → /menu redirect added for browsers
+// never fires here. We pass a clean GET request (not the original browser
+// request) to avoid any browser-specific headers triggering redirects.
+// If ASSETS returns a 308/301 (html-extension-stripping), we follow it
+// once provided it stays on the same host and isn't toward /menu.
+async function fetchProductPageShell(request, env) {
+  const url = new URL('/product-page', request.url);
+  url.search = '';
+  url.hash = '';
+  const cleanReq = new Request(url.toString(), {
     method: 'GET',
     headers: { accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
-    redirect: 'follow',
   });
+  let res = await env.ASSETS.fetch(cleanReq);
+  if ((res.status === 301 || res.status === 302 || res.status === 308) && res.headers.get('location')) {
+    const loc = new URL(res.headers.get('location'), url);
+    if (loc.hostname === url.hostname && !loc.pathname.startsWith('/menu')) {
+      res = await env.ASSETS.fetch(new Request(loc.toString(), {
+        method: 'GET',
+        headers: { accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
+      }));
+    }
+  }
+  return res;
 }
 
 function renderProduct(res, p) {
