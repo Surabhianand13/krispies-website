@@ -20,9 +20,8 @@
 # Using extensionless target avoids Cloudflare's .html-stripping 308 redirect
 /products/:slug          /product-page   200
 
-# Bare /product-page (no slug) → menu; this URL is indexed by Google but
-# shows "Product not found" — redirect visitors somewhere useful instead
-/product-page            /menu           301
+# /product-page without a slug shows "Product not found" — noindex meta in
+# product-page.html prevents search engines from caring about that.
 
 # Store pages — trailing slash and .html redirects
 /stores                  /stores/            302
