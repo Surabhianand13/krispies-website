@@ -28,6 +28,8 @@ export const CATEGORY_PAGES = {
   'birthday-cakes':           'Birthday Cakes',
   'wedding-cakes':            'Wedding Cakes',
   'engagement-cakes':         'Engagement Cakes',
+  'bride-to-be-cakes':        'Bride to Be Cakes',
+  'corporate-cakes':          'Corporate Cakes',
   'baby-shower-cakes':        'Kids Birthday & Baby Shower Cakes',
   'half-year-birthday-cakes': 'Half Year Birthday Cakes',
   'gender-reveal-cakes':      'Gender Reveal Cakes',
