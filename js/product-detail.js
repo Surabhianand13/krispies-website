@@ -478,7 +478,10 @@ function _pdpUpdateWishlist() {
 function _pdpShareWA() {
   const url = window.location.href;
   const text = `Check out this cake from Krispie's: ${_pdpProduct?.name || ''} — ${url}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  if (window.gtag) {
+    window.gtag('event', 'conversion', { send_to: 'AW-17232345443/ry9rCLni2dgcEOPygplA' });
+  }
+  window.open(`https://wa.me/917975218850?text=${encodeURIComponent(text)}`, '_blank');
 }
 function _pdpCopyLink() {
   const url = window.location.href;
