@@ -106,7 +106,7 @@ function renderProductGrids(context, res) {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             itemListElement: listed.map((p, i) => ({
-              '@type': 'ListItem', position: i + 1, url: productUrl(p), name: p.name,
+              '@type': 'ListItem', position: i + 1, url: productUrl(p), name: `Krispie's ${p.name}`,
             })),
           };
           end.before(`<script type="application/ld+json">${jsonForScript(ld)}</script>`, { html: true });
