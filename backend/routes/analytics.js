@@ -233,7 +233,7 @@ router.get('/summary', requireAuth, (req, res) => {
 router.get('/live', requireAuth, (req, res) => {
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  const pendingOrders   = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE status='pending'`).get().c;
+  const pendingOrders   = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE status IN ('pending','confirmed')`).get().c;
   const unreadEnquiries = db.prepare(`SELECT COUNT(*) as c FROM messages WHERE status='unread'`).get().c;
   const todayOrders     = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE created_at >= ?`).get(todayStr + ' 00:00:00').c;
   const todayRevenue    = db.prepare(`SELECT COALESCE(SUM(amount),0) as t FROM orders WHERE status='delivered' AND created_at >= ?`).get(todayStr + ' 00:00:00').t;

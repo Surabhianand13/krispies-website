@@ -115,8 +115,45 @@ tr:hover td { background: #faf8f5; }
 .badge-pending   { background:#fff7ed; color:#c2410c; }
 .badge-confirmed { background:#dbeafe; color:#1d4ed8; }
 .badge-ready     { background:#fef9c3; color:#92400e; }
+.badge-accepted  { background:#f0fdf4; color:#0f6e3e; border:1px solid #bbf7d0; }
 .badge-delivered { background:#dcfce7; color:#166534; }
 .badge-cancelled { background:#fee2e2; color:#b91c1c; }
+
+/* ── New-order ring banner ── */
+.nr-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #c2410c;
+  color: #fff;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  animation: nr-slide-in 0.3s ease;
+}
+@keyframes nr-slide-in {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+.nr-banner__icon  { font-size: 1.3rem; flex-shrink: 0; }
+.nr-banner__text  { flex: 1; }
+.nr-banner__link  { background: #fff; color: #c2410c; border: none; white-space: nowrap; }
+.nr-banner__link:hover { background: #ffe4d6; }
+.nr-banner__dismiss {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.6);
+  color: #fff;
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.nr-banner__dismiss:hover { background: rgba(255,255,255,0.15); }
 .badge-unread    { background:#ede9fe; color:#6d28d9; }
 .badge-read      { background:#f3f4f6; color:#6b7280; }
 .badge-responded { background:#dcfce7; color:#166534; }
