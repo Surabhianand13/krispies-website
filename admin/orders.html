@@ -39,9 +39,10 @@
     <div class="page-body">
 
       <!-- KPI strip -->
-      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);">
+      <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr);">
         <div class="kpi-card kpi-card--orange"><div class="kpi-card__label">Pending</div><div class="kpi-card__value" id="cnt-pending">—</div><div class="kpi-card__icon">⏳</div></div>
         <div class="kpi-card kpi-card--blue"><div class="kpi-card__label">Confirmed</div><div class="kpi-card__value" id="cnt-confirmed">—</div><div class="kpi-card__icon">✅</div></div>
+        <div class="kpi-card kpi-card--green" style="--kpi-accent:#0f6e3e;"><div class="kpi-card__label">Accepted</div><div class="kpi-card__value" id="cnt-accepted">—</div><div class="kpi-card__icon">👍</div></div>
         <div class="kpi-card kpi-card--brand"><div class="kpi-card__label">Ready</div><div class="kpi-card__value" id="cnt-ready">—</div><div class="kpi-card__icon">🎂</div></div>
         <div class="kpi-card kpi-card--green"><div class="kpi-card__label">Delivered</div><div class="kpi-card__value" id="cnt-delivered">—</div><div class="kpi-card__icon">🚀</div></div>
         <div class="kpi-card kpi-card--purple"><div class="kpi-card__label">Revenue (month)</div><div class="kpi-card__value" id="cnt-revenue">—</div><div class="kpi-card__icon">💰</div></div>
@@ -54,6 +55,7 @@
           <option value="">All Statuses</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
+          <option value="accepted">Accepted</option>
           <option value="ready">Ready</option>
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
@@ -145,7 +147,7 @@ function renderKPIs() {
       monthRev += parseFloat(o.amount || 0);
     }
   });
-  ['pending','confirmed','ready','delivered'].forEach(s => {
+  ['pending','confirmed','accepted','ready','delivered'].forEach(s => {
     document.getElementById(`cnt-${s}`).textContent = counts[s] || 0;
   });
   document.getElementById('cnt-revenue').textContent = fmtPrice(monthRev);
@@ -209,7 +211,7 @@ function renderOrders(list) {
     const st       = o.status;
     let payCell;
     if (method === 'online') {
-      if (st === 'confirmed' || st === 'ready' || st === 'delivered') {
+      if (st === 'confirmed' || st === 'accepted' || st === 'ready' || st === 'delivered') {
         payCell = `<span style="display:inline-flex;align-items:center;gap:3px;background:#1a3a25;color:#3aac6e;border:1px solid #2d6043;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:600;white-space:nowrap;">✓ Paid</span>`;
       } else if (st === 'pending') {
         payCell = `<span style="display:inline-flex;align-items:center;gap:3px;background:#2d1f06;color:#d97706;border:1px solid #7c4a0c;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:600;white-space:nowrap;">⏳ Unpaid</span>`;
@@ -243,7 +245,7 @@ function renderOrders(list) {
       <td>${payCell}</td>
       <td>
         <select class="status-select" onchange="updateStatus('${o.id}', this.value, this)">
-          ${['pending','confirmed','ready','delivered','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+          ${['pending','confirmed','accepted','ready','delivered','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
         </select>
       </td>
       <td>
@@ -288,7 +290,7 @@ function orderForm(o = {}) {
         <select id="f-platform">${[['website','Website'],['phone','Phone'],['walk-in','Walk-in'],['bulk','Bulk / Corporate']].map(([v,l])=>`<option value="${v}" ${(o.platform||'website')==v?'selected':''}>${l}</option>`).join('')}</select>
       </div>
       <div class="form-row"><label>Status</label>
-        <select id="f-status">${['pending','confirmed','ready','delivered','cancelled'].map(s=>`<option value="${s}" ${(o.status||'pending')==s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select>
+        <select id="f-status">${['pending','confirmed','accepted','ready','delivered','cancelled'].map(s=>`<option value="${s}" ${(o.status||'pending')==s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select>
       </div>
       <div class="form-row" style="grid-column:1/-1;"><label>Notes / Address</label><textarea id="f-notes" rows="2" placeholder="Delivery address, special instructions…">${esc(o.notes||'')}</textarea></div>
     </div>`;
