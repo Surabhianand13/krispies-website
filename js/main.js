@@ -117,6 +117,24 @@ function krTrackPurchase(orderId, total, items) {
   }
 }
 
+/* ── AD ATTRIBUTION ─────────────────────────────────────────────────────────
+   Capture gclid + UTM params on every ad-click landing (last-click model, the
+   same as Google Ads default). Written to localStorage so they survive any
+   navigation before checkout and are attached to the order payload so admin
+   can see which orders came from Google Ads. Overwritten on every fresh click
+   so we always have the attribution for the most recent ad that drove the visit. */
+(function () {
+  const p = new URLSearchParams(location.search);
+  const fields = ['gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  const hit = {};
+  fields.forEach(f => { const v = p.get(f); if (v) hit[f] = v; });
+  if (hit.gclid || hit.utm_source) {
+    hit.captured_url = location.pathname;
+    hit.captured_at  = new Date().toISOString();
+    try { localStorage.setItem('kr_ad_params', JSON.stringify(hit)); } catch (_) {}
+  }
+})();
+
 /* ---- WHATSAPP CLICK → GOOGLE ADS CONVERSION ----
    Delegated listener so this covers every WhatsApp link/button on the site
    -- the floating button and footer row (both injected below, present on

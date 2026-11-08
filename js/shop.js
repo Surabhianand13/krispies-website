@@ -1809,6 +1809,9 @@ function _chkOrderPayload(method) {
     cartItems = null;
   }
 
+  let adParams = null;
+  try { adParams = JSON.parse(localStorage.getItem('kr_ad_params') || 'null'); } catch (_) {}
+
   return {
     customer_name:    _chkCust.name,
     customer_phone:   _chkCust.phone,
@@ -1835,6 +1838,7 @@ function _chkOrderPayload(method) {
     payment_method:   method,
     status:           'pending',
     turnstileToken:   getTurnstileToken(_chkTurnstileWidgetId),
+    ad_params:        adParams || undefined,
   };
 }
 
@@ -1907,8 +1911,12 @@ async function _chkSubmitRazorpay() {
           if (!verifyRes.ok || !verifyData.success) {
             throw new Error(verifyData.error || 'Verification failed');
           }
-          /* Only show success after server confirms the signature */
-          _chkShowSuccess(data.internal_order_id, payload.amount);
+          /* Only show success after server confirms the signature.
+             Use the backend-confirmed amount (paise → ₹) so the Google Ads
+             conversion value matches what was actually charged, not the
+             display total the client computed before the backend re-priced. */
+          const confirmedINR = verifyData.confirmed_amount ?? (data.amount / 100);
+          _chkShowSuccess(data.internal_order_id, confirmedINR);
         } catch(verifyErr) {
           /* Payment was captured by Razorpay but our server couldn't verify —
              show a specific message so the customer can contact us with their payment ID */

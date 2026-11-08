@@ -68,6 +68,18 @@ function generateTestCode() {
   return TEST_CODE_PREFIX + crypto.randomBytes(4).toString('hex').toUpperCase();
 }
 
+/* Sanitize ad attribution params sent by the client (gclid, UTM fields).
+   Only allow known string keys, each capped at 500 chars. */
+function sanitizeAdParams(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const allowed = ['gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'captured_at', 'captured_url'];
+  const clean = {};
+  allowed.forEach(k => {
+    if (typeof raw[k] === 'string' && raw[k].length <= 500) clean[k] = raw[k];
+  });
+  return Object.keys(clean).length ? clean : null;
+}
+
 /* Returns { amount: 1 } on a valid redemption, or { error } if the code
    looks like a test code but doesn't match a live one -- distinct from
    "not a test code at all", which the caller treats as an ordinary
@@ -290,6 +302,7 @@ function buildOrderRow(body, extra = {}, req = null) {
     status:         'pending',
     payment_method: body.payment_method || null,
     notes:          noteParts.join(' | ') || null,
+    ad_params:      (() => { const c = sanitizeAdParams(body.ad_params); return c ? JSON.stringify(c) : null; })(),
     ...extra,
   };
 }
@@ -315,10 +328,10 @@ function checkPhoneOrderLimit(phone) {
 const INSERT_SQL = `
   INSERT INTO orders
     (id, customer_id, customer_name, customer_phone, customer_email, items, quantity, amount,
-     platform, outlet, order_date, delivery_date, status, payment_method, notes)
+     platform, outlet, order_date, delivery_date, status, payment_method, notes, ad_params)
   VALUES
     (@id, @customer_id, @customer_name, @customer_phone, @customer_email, @items, @quantity, @amount,
-     @platform, @outlet, @order_date, @delivery_date, @status, @payment_method, @notes)
+     @platform, @outlet, @order_date, @delivery_date, @status, @payment_method, @notes, @ad_params)
 `;
 
 /* ════════════════════════════════════════════════
@@ -459,7 +472,8 @@ router.post('/verify',
 
   // Prevent replay: if already confirmed, return success without re-processing
   if (existingOrder.status === 'confirmed') {
-    return res.json({ success: true, message: 'Order already confirmed.' });
+    const row = db.prepare('SELECT amount FROM orders WHERE id = ?').get(internal_order_id);
+    return res.json({ success: true, message: 'Order already confirmed.', confirmed_amount: row?.amount ?? null });
   }
 
   // Only a still-pending order can ever become confirmed here -- e.g. an
@@ -531,7 +545,7 @@ router.post('/verify',
     sendPurchaseEvent(confirmedOrder, req).catch(() => {});
   }
 
-  res.json({ success: true, message: 'Payment verified. Order confirmed.' });
+  res.json({ success: true, message: 'Payment verified. Order confirmed.', confirmed_amount: confirmedOrder?.amount ?? null });
 });
 
 module.exports = router;
