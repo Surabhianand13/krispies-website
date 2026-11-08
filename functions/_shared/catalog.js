@@ -165,7 +165,7 @@ export function productJsonLd(p) {
   const ld = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
-    name: p.name,
+    name: `Krispie's ${p.name}`,
     description: p.description || '',
     sku: p.id,
     url,

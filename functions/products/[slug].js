@@ -79,8 +79,8 @@ function renderProduct(res, p) {
   const images = productImages(p);
   const catLabel = categoryLabel(p.category);
   const catHref = CATEGORY_PAGES[p.category] ? `/${p.category}` : '/menu';
-  const title = `${p.name} | ${catLabel} in Hyderabad | Krispie's`;
-  const desc = `${p.name} from Krispie's, Hyderabad — ${priceText(p)}. ${p.description || ''}`
+  const title = `Krispie's ${p.name} | ${catLabel} in Hyderabad`;
+  const desc = `Krispie's ${p.name} — ${priceText(p)} from Krispie's Bakery, Hyderabad. ${p.description || ''}`
     .replace(/\s+/g, ' ').trim().slice(0, 300);
 
   const breadcrumbLd = {
@@ -89,7 +89,7 @@ function renderProduct(res, p) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
       { '@type': 'ListItem', position: 2, name: catLabel, item: `${SITE}${catHref}` },
-      { '@type': 'ListItem', position: 3, name: p.name, item: url },
+      { '@type': 'ListItem', position: 3, name: `Krispie's ${p.name}`, item: url },
     ],
   };
 

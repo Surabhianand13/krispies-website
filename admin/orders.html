@@ -224,12 +224,20 @@ function renderOrders(list) {
       payCell = `<span class="td-muted" style="font-size:0.72rem;">${esc(method || '—')}</span>`;
     }
     const email  = o.customer_email || o.customerEmail || '';
+    let adAttr = null;
+    try { adAttr = JSON.parse(o.ad_params || 'null'); } catch (_) {}
+    const adBadge = adAttr?.gclid
+      ? `<div style="font-size:0.65rem;color:#1a73e8;margin-top:2px;" title="gclid: ${esc(adAttr.gclid)}">🎯 Google Ads</div>`
+      : (adAttr?.utm_source
+          ? `<div style="font-size:0.65rem;color:#9333ea;margin-top:2px;">📊 ${esc(adAttr.utm_source)}${adAttr.utm_campaign ? ' / ' + esc(adAttr.utm_campaign) : ''}</div>`
+          : '');
     return `<tr>
       <td>
         <div class="td-name">${name}</div>
         ${phone ? `<div class="td-muted" style="font-size:0.7rem;">${esc(phone)}</div>` : ''}
         ${email ? `<div class="td-muted" style="font-size:0.67rem;margin-top:1px;">${esc(email)}</div>` : ''}
         ${addrLine ? `<div class="td-muted" style="font-size:0.67rem;margin-top:2px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(addrLine)}">📍 ${esc(addrLine)}</div>` : ''}
+        ${adBadge}
       </td>
       <td style="max-width:160px;" class="td-muted">
         <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(o.items||'')}">${esc(o.items || '—')}</div>
