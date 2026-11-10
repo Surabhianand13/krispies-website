@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // when the count drops to 0 on the next poll.
 
 (function () {
-  let ringInterval   = null;   // setInterval ID for the ring loop
+  let rang           = false;  // already played ding for this batch
   let audioCtx       = null;   // created lazily on first user interaction
   let lastCount      = null;   // last-seen pendingOrders value
   let bannerEl       = null;   // the floating banner DOM element
@@ -358,14 +358,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startRing(count) {
-    if (ringInterval) return; // already ringing
-    playDing();
-    ringInterval = setInterval(playDing, 3000);
+    if (!rang) { playDing(); rang = true; }
     showBanner(count);
   }
 
   function stopRing() {
-    if (ringInterval) { clearInterval(ringInterval); ringInterval = null; }
+    rang = false;
     hideBanner();
   }
 
@@ -404,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      if (isNew) dismissed = false; // new order arrived — override dismiss
+      if (isNew) { dismissed = false; rang = false; } // new order — re-alert once
 
       if (!dismissed) startRing(count);
       else showBanner(count); // keep banner visible (count may have changed)
