@@ -300,26 +300,30 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── NEW-ORDER RING ALERT ──────────────────────────
-// Polls /api/analytics/live every 30 s. When pendingOrders > 0 (pending or
-// confirmed orders not yet acted on), plays a looping Zomato-style ring and
-// shows a dismissible banner. Ring + banner stop when the admin dismisses or
-// when the count drops to 0 on the next poll.
+// Polls /api/analytics/live every 30 s. When pendingOrders > dismissedCount,
+// plays a single ding and shows a dismissible banner. Dismissed state is
+// persisted in sessionStorage so navigating between admin pages doesn't
+// re-trigger the alert for orders the admin has already seen.
 
 (function () {
-  let rang           = false;  // already played ding for this batch
-  let audioCtx       = null;   // created lazily on first user interaction
-  let lastCount      = null;   // last-seen pendingOrders value
-  let bannerEl       = null;   // the floating banner DOM element
-  let dismissed      = false;  // admin explicitly dismissed this batch
+  let audioCtx = null;
+  let bannerEl = null;
+  const SS_KEY = 'nr_dismissed_count'; // sessionStorage key
 
-  // ---- sound ----
-  function ensureCtx() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function getDismissed() {
+    try { return parseInt(sessionStorage.getItem(SS_KEY) || '0', 10) || 0; } catch { return 0; }
+  }
+  function setDismissed(n) {
+    try { sessionStorage.setItem(SS_KEY, String(n)); } catch {}
+  }
+  function clearDismissed() {
+    try { sessionStorage.removeItem(SS_KEY); } catch {}
   }
 
+  // ---- sound ----
   function playDing() {
     try {
-      ensureCtx();
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       // Two-tone ding-ding (C6 → A5, like a doorbell)
       [[1047, 0], [880, 0.35]].forEach(([freq, delay]) => {
         const osc  = audioCtx.createOscillator();
@@ -336,18 +340,20 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (_) {}
   }
 
+  // Resume audio context on first user click (browser policy)
+  document.addEventListener('click', () => {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }, { once: false, capture: true });
+
   // ---- banner ----
   function showBanner(count) {
-    if (bannerEl) {
-      bannerEl.querySelector('.nr-banner__count').textContent =
-        count === 1 ? '1 new order!' : `${count} new orders!`;
-      return;
-    }
+    const label = count === 1 ? '1 new order!' : `${count} new orders!`;
+    if (bannerEl) { bannerEl.querySelector('.nr-banner__count').textContent = label; return; }
     bannerEl = document.createElement('div');
     bannerEl.className = 'nr-banner';
     bannerEl.innerHTML =
       `<span class="nr-banner__icon">🔔</span>` +
-      `<span class="nr-banner__text"><strong class="nr-banner__count">${count === 1 ? '1 new order!' : count + ' new orders!'}</strong> Needs your attention</span>` +
+      `<span class="nr-banner__text"><strong class="nr-banner__count">${label}</strong> Needs your attention</span>` +
       `<a class="nr-banner__link btn btn-primary btn-sm" href="orders.html">View Orders</a>` +
       `<button class="nr-banner__dismiss" onclick="window._nrDismiss()" aria-label="Dismiss">✕</button>`;
     document.body.appendChild(bannerEl);
@@ -357,55 +363,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bannerEl) { bannerEl.remove(); bannerEl = null; }
   }
 
-  function startRing(count) {
-    if (!rang) { playDing(); rang = true; }
-    showBanner(count);
-  }
-
-  function stopRing() {
-    rang = false;
-    hideBanner();
-  }
+  // ---- polling ----
+  let lastCount = null;
 
   window._nrDismiss = function () {
-    dismissed = true;
-    stopRing();
+    // Persist the dismissed count so navigating to another admin page doesn't re-alert
+    setDismissed(lastCount || 0);
+    hideBanner();
   };
 
-  // Resume audio context on first user click (browser policy)
-  document.addEventListener('click', () => {
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-  }, { once: false, capture: true });
-
-  // ---- polling ----
   async function checkNewOrders() {
     if (!sessionStorage.getItem(SESSION_KEY)) return;
     try {
       const d = await apiFetch('/api/analytics/live');
       const count = d.pendingOrders || 0;
 
-      // Update sidebar badge on every page that has it
+      // Update sidebar badge
       const sbEl = document.getElementById('sb-orders');
       if (sbEl) sbEl.textContent = count;
 
       if (count === 0) {
-        stopRing();
-        dismissed = false; // reset so next wave rings again
+        clearDismissed();
+        hideBanner();
         lastCount = 0;
         return;
       }
 
-      const isNew = lastCount !== null && count > lastCount;
-      if (dismissed && !isNew) {
-        // Count hasn't increased; stay dismissed
-        lastCount = count;
-        return;
+      const dismissed = getDismissed();
+      const isIncreased = lastCount !== null && count > lastCount;
+
+      if (isIncreased && count > dismissed) {
+        // New orders arrived beyond what the admin dismissed → re-alert once
+        clearDismissed();
+        playDing();
+      } else if (lastCount === null && count > dismissed) {
+        // First poll of this page load: orders exist that weren't dismissed → ding once
+        playDing();
       }
 
-      if (isNew) { dismissed = false; rang = false; } // new order — re-alert once
-
-      if (!dismissed) startRing(count);
-      else showBanner(count); // keep banner visible (count may have changed)
+      if (count > getDismissed()) {
+        showBanner(count);
+      } else {
+        hideBanner();
+      }
 
       lastCount = count;
     } catch (_) {}
