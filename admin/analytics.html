@@ -18,6 +18,12 @@
       gap: 14px;
       margin-bottom: 24px;
     }
+    @media (max-width: 1100px) {
+      .analytics-stat-cards { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .analytics-stat-cards { grid-template-columns: repeat(2, 1fr); }
+    }
     .a-card {
       background: var(--black-2);
       border: 1px solid var(--border);
@@ -371,14 +377,26 @@
 
 checkAuth();
 
-// sidebar badges — real counts from the backend, not localStorage
-(async function() {
+// ── live counters — polls every 60 s ─────────────────────────────────────
+let _liveData = {};
+async function refreshLive() {
   try {
-    const d = await apiFetch('/api/analytics/live');
+    _liveData = await apiFetch('/api/analytics/live');
+    const d = _liveData;
+    // sidebar badges
     if (d.unreadEnquiries > 0) { const b = document.getElementById('unreadBadge'); b.textContent = d.unreadEnquiries; b.style.display = 'inline-flex'; }
     if (d.pendingOrders   > 0) { const b = document.getElementById('ordersBadge'); b.textContent = d.pendingOrders;   b.style.display = 'inline-flex'; }
+    // live stat tiles (updated separately from the main render loop)
+    const lv = document.getElementById('liveTile');
+    const ca = document.getElementById('cartTile');
+    const tv = document.getElementById('todayVisitorsTile');
+    if (lv) lv.textContent = d.liveVisitors ?? '—';
+    if (ca) ca.textContent = d.todayCartAdds ?? '0';
+    if (tv) tv.textContent = d.todayVisitors ?? '—';
   } catch (e) {}
-})();
+}
+refreshLive();
+setInterval(refreshLive, 60000);
 
 // ── constants ─────────────────────────────────────────
 const GOLD    = '#C9A870';
@@ -412,14 +430,21 @@ const KNOWN_PAGES = {
   '/terms':                             { label: 'Terms',                icon: '📄' },
 };
 const SOURCE_META = {
-  'direct':   { label: 'Direct',    icon: '🔗' },
-  'google':   { label: 'Google',    icon: '🔍' },
-  'facebook': { label: 'Facebook',  icon: '📘' },
-  'instagram':{ label: 'Instagram', icon: '📸' },
-  'zomato':   { label: 'Zomato',    icon: '🍽️' },
-  'swiggy':   { label: 'Swiggy',    icon: '🛵' },
-  'internal': { label: 'Internal',  icon: '↩️' },
-  'other':    { label: 'Other',     icon: '🌐' },
+  'direct':         { label: 'Direct / Type-in',   icon: '🔗' },
+  'google-organic': { label: 'Google Search',       icon: '🔍' },
+  'google-ads':     { label: 'Google Ads',          icon: '🟢' },
+  'meta-ads':       { label: 'Meta Ads (FB/IG)',    icon: '🟦' },
+  'facebook':       { label: 'Facebook',            icon: '📘' },
+  'instagram':      { label: 'Instagram',           icon: '📸' },
+  'instagram-ads':  { label: 'Instagram Ads',       icon: '🎯' },
+  'whatsapp':       { label: 'WhatsApp',            icon: '💬' },
+  'zomato':         { label: 'Zomato',              icon: '🍽️' },
+  'swiggy':         { label: 'Swiggy',              icon: '🛵' },
+  'chatgpt':        { label: 'ChatGPT / AI',        icon: '🤖' },
+  'perplexity':     { label: 'Perplexity AI',       icon: '🤖' },
+  'other-search':   { label: 'Other Search',        icon: '🔍' },
+  'internal':       { label: 'Internal',            icon: '↩️' },
+  'other':          { label: 'Other',               icon: '🌐' },
 };
 
 // ── helpers ─────────────────────────────────────────
@@ -636,6 +661,13 @@ async function render() {
   const sessChg = changeMeta(range.visitors, prevRange && prevRange.visitors);
 
   document.getElementById('statCards').innerHTML = `
+    <div class="a-card theme-green" style="border:1.5px solid rgba(82,183,136,0.4)">
+      <div class="a-card__accent" style="background:#52B788"></div>
+      <div class="a-card__icon">🟢</div>
+      <div class="a-card__label">Live on Site</div>
+      <div class="a-card__value" id="liveTile">${_liveData.liveVisitors ?? '—'}</div>
+      <div class="a-card__sub" style="color:var(--muted)">Active last 5 min · auto-refresh 60s</div>
+    </div>
     <div class="a-card theme-gold">
       <div class="a-card__accent"></div>
       <div class="a-card__icon">👁️</div>
@@ -648,32 +680,25 @@ async function render() {
     <div class="a-card theme-blue">
       <div class="a-card__accent"></div>
       <div class="a-card__icon">🚶</div>
-      <div class="a-card__label">Visitors</div>
-      <div class="a-card__value">${range.visitors}</div>
+      <div class="a-card__label">Visitors Today</div>
+      <div class="a-card__value" id="todayVisitorsTile">${_liveData.todayVisitors ?? range.visitors}</div>
       <div class="a-card__sub">
         <span class="a-card__change ${sessChg.cls}">${sessChg.text}</span>
       </div>
     </div>
-    <div class="a-card theme-green">
+    <div class="a-card theme-purple">
       <div class="a-card__accent"></div>
-      <div class="a-card__icon">📋</div>
-      <div class="a-card__label">Enquiries Today</div>
-      <div class="a-card__value">${enquiries.today ?? 0}</div>
-      <div class="a-card__sub" style="color:var(--muted)">${enquiries.total ?? 0} total enquiries</div>
+      <div class="a-card__icon">🛒</div>
+      <div class="a-card__label">Cart Adds Today</div>
+      <div class="a-card__value" id="cartTile">${_liveData.todayCartAdds ?? '0'}</div>
+      <div class="a-card__sub" style="color:var(--muted)">Add to Cart clicks</div>
     </div>
     <div class="a-card theme-orange">
       <div class="a-card__accent"></div>
       <div class="a-card__icon">📦</div>
       <div class="a-card__label">Orders Today</div>
       <div class="a-card__value">${orders.today ?? 0}</div>
-      <div class="a-card__sub" style="color:var(--muted)">${orders.total ?? 0} total orders</div>
-    </div>
-    <div class="a-card theme-purple">
-      <div class="a-card__accent"></div>
-      <div class="a-card__icon">📱</div>
-      <div class="a-card__label">Top Device</div>
-      <div class="a-card__value" style="font-size:1.3rem; text-transform:capitalize; padding-top:4px">${topDev}</div>
-      <div class="a-card__sub" style="color:var(--muted)">${topDevPct}% of traffic · ${pps} pages/visitor</div>
+      <div class="a-card__sub" style="color:var(--muted)">${orders.total ?? 0} total · ${pps} pages/session</div>
     </div>
   `;
 

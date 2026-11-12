@@ -10,6 +10,23 @@
     } catch (e) { return null; }
   }
 
+  // Persist UTM params from the landing URL so they survive to checkout
+  function getUtm() {
+    try {
+      var p = new URLSearchParams(location.search);
+      var src = p.get('utm_source'), med = p.get('utm_medium'), cam = p.get('utm_campaign');
+      var stored;
+      try { stored = JSON.parse(localStorage.getItem('kr_utm') || 'null'); } catch(_) {}
+      // Fresh UTM params on this URL override what's stored
+      if (src) {
+        var fresh = { utm_source: src, utm_medium: med || null, utm_campaign: cam || null };
+        try { localStorage.setItem('kr_utm', JSON.stringify(fresh)); } catch(_) {}
+        return fresh;
+      }
+      return stored || {};
+    } catch (e) { return {}; }
+  }
+
   function send(endpoint, data) {
     try {
       var payload = JSON.stringify(Object.assign({ session_id: sid() }, data));
@@ -21,12 +38,13 @@
     } catch (e) {}
   }
 
-  // Page view
-  send('/api/analytics/track', {
+  // Page view — include UTM attribution
+  var utm = getUtm();
+  send('/api/analytics/track', Object.assign({
     path: location.pathname,
     referrer: document.referrer || null,
     device_type: /mobile|android|iphone|ipad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-  });
+  }, utm));
 
   // Auto-capture clicks
   document.addEventListener('click', function (e) {
@@ -46,5 +64,16 @@
 
   window.krTrack = function(type, label, meta) {
     send('/api/analytics/event', { type: type, label: label || null, path: location.pathname, meta: meta || null });
+  };
+
+  // Called by shop.js _commitToCart — fires add_to_cart event
+  window.krTrackAddToCart = function(product, qty, price) {
+    if (!product) return;
+    send('/api/analytics/event', {
+      type: 'add_to_cart',
+      label: (product.name || '').slice(0, 60),
+      path: location.pathname,
+      meta: { category: product.category || null, price: price || 0, qty: qty || 1 },
+    });
   };
 })();

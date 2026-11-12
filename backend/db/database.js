@@ -229,7 +229,10 @@ safeAddColumn('orders',   'payment_method',     'TEXT');
 safeAddColumn('orders',   'customer_id',        'TEXT');
 safeAddColumn('orders',   'razorpay_order_id',  'TEXT');
 safeAddColumn('orders',   'ad_params',          'TEXT');
-safeAddColumn('products', 'also_in',           "TEXT NOT NULL DEFAULT '[]'");
+safeAddColumn('products',    'also_in',      "TEXT NOT NULL DEFAULT '[]'");
+safeAddColumn('page_views',  'utm_source',   'TEXT');
+safeAddColumn('page_views',  'utm_medium',   'TEXT');
+safeAddColumn('page_views',  'utm_campaign', 'TEXT');
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products(slug)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)'); } catch (_) {}
 try { db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)'); } catch (_) {}
