@@ -22,17 +22,24 @@ const trackingLimiter = dbRateLimit({
 // POST /api/analytics/track — public, lightweight page view tracking
 router.post('/track', trackingLimiter, (req, res) => {
   try {
-    const { session_id, path, referrer, device_type } = req.body || {};
+    const { session_id, path, referrer, device_type, utm_source, utm_medium, utm_campaign } = req.body || {};
     if (!path) return res.status(400).json({ error: 'path required' });
 
-    // Detect device from user-agent if not provided
     const ua = req.headers['user-agent'] || '';
     const device = device_type || (/mobile|android|iphone|ipad/i.test(ua) ? 'mobile' : 'desktop');
 
     db.prepare(`
-      INSERT INTO page_views (session_id, path, referrer, device_type, created_at)
-      VALUES (?, ?, ?, ?, datetime('now'))
-    `).run(session_id || null, path.slice(0, 255), (referrer || '').slice(0, 255), device);
+      INSERT INTO page_views (session_id, path, referrer, device_type, utm_source, utm_medium, utm_campaign, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).run(
+      session_id || null,
+      path.slice(0, 255),
+      (referrer || '').slice(0, 255),
+      device,
+      (utm_source  || '').slice(0, 64) || null,
+      (utm_medium  || '').slice(0, 64) || null,
+      (utm_campaign|| '').slice(0, 128)|| null,
+    );
 
     res.json({ ok: true });
   } catch (e) {
@@ -143,30 +150,48 @@ router.get('/summary', requireAuth, (req, res) => {
     GROUP BY type ORDER BY c DESC
   `).all(selectedFrom);
 
-  // Traffic sources for the selected range — bucket raw referrer hostnames
-  // into the same categories the old client-side tracker used.
-  function bucketReferrer(ref) {
+  // Traffic sources — UTM source takes priority over referrer-based bucketing.
+  // This handles paid campaigns (Meta Ads, Google Ads) correctly even when
+  // the referrer is stripped by the browser or a redirect.
+  function bucketSource(utmSource, ref) {
+    // UTM source wins when present
+    if (utmSource) {
+      const u = utmSource.toLowerCase();
+      if (/facebook|fb|meta/.test(u))         return 'meta-ads';
+      if (/instagram|ig/.test(u))             return 'instagram-ads';
+      if (/google/.test(u))                   return 'google-ads';
+      if (/whatsapp/.test(u))                 return 'whatsapp';
+      if (/zomato/.test(u))                   return 'zomato';
+      if (/swiggy/.test(u))                   return 'swiggy';
+      return u.slice(0, 30);
+    }
+    // Fall back to referrer
     if (!ref) return 'direct';
     let host;
     try { host = new URL(ref).hostname.replace(/^www\./, ''); } catch (e) { return 'direct'; }
-    if (host === 'krispies.in')          return 'internal';
-    if (/google/.test(host))             return 'google';
-    if (/facebook|fb\.com/.test(host))   return 'facebook';
-    if (/instagram/.test(host))          return 'instagram';
-    if (/zomato/.test(host))             return 'zomato';
-    if (/swiggy/.test(host))             return 'swiggy';
+    if (host === 'krispies.in')               return 'internal';
+    if (/google/.test(host))                  return 'google-organic';
+    if (/facebook|fb\.com/.test(host))        return 'facebook';
+    if (/instagram/.test(host))               return 'instagram';
+    if (/zomato/.test(host))                  return 'zomato';
+    if (/swiggy/.test(host))                  return 'swiggy';
+    if (/whatsapp/.test(host))                return 'whatsapp';
+    if (/chatgpt|openai/.test(host))          return 'chatgpt';
+    if (/perplexity/.test(host))              return 'perplexity';
+    if (/bing|yahoo|duckduckgo|brave/.test(host)) return 'other-search';
     return 'other';
   }
   const rawReferrers = db.prepare(`
-    SELECT referrer, COUNT(*) as c FROM page_views WHERE created_at >= ?
-    GROUP BY referrer
+    SELECT utm_source, referrer, COUNT(*) as c FROM page_views WHERE created_at >= ?
+    GROUP BY utm_source, referrer
   `).all(selectedFrom);
   const sourceBuckets = {};
   rawReferrers.forEach(r => {
-    const bucket = bucketReferrer(r.referrer);
+    const bucket = bucketSource(r.utm_source, r.referrer);
     sourceBuckets[bucket] = (sourceBuckets[bucket] || 0) + r.c;
   });
   const sources = Object.entries(sourceBuckets)
+    .filter(([k]) => k !== 'internal')
     .map(([source, c]) => ({ source, c }))
     .sort((a, b) => b.c - a.c);
 
@@ -238,8 +263,10 @@ router.get('/live', requireAuth, (req, res) => {
   const todayOrders     = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE created_at >= ?`).get(todayStr + ' 00:00:00').c;
   const todayRevenue    = db.prepare(`SELECT COALESCE(SUM(amount),0) as t FROM orders WHERE status='delivered' AND created_at >= ?`).get(todayStr + ' 00:00:00').t;
   const todayVisitors   = db.prepare(`SELECT COUNT(DISTINCT session_id) as c FROM page_views WHERE created_at >= ? AND session_id IS NOT NULL`).get(todayStr + ' 00:00:00').c;
+  const liveVisitors    = db.prepare(`SELECT COUNT(DISTINCT session_id) as c FROM page_views WHERE created_at >= datetime('now','-5 minutes') AND session_id IS NOT NULL`).get().c;
+  const todayCartAdds   = db.prepare(`SELECT COUNT(*) as c FROM events WHERE type='add_to_cart' AND created_at >= ?`).get(todayStr + ' 00:00:00').c;
 
-  res.json({ pendingOrders, unreadEnquiries, todayOrders, todayRevenue, todayVisitors });
+  res.json({ pendingOrders, unreadEnquiries, todayOrders, todayRevenue, todayVisitors, liveVisitors, todayCartAdds });
 });
 
 module.exports = router;
