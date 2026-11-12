@@ -216,7 +216,7 @@ router.get('/summary', requireAuth, (req, res) => {
     SELECT status, COUNT(*) as c FROM orders GROUP BY status
   `).all();
 
-  const ordersToday = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE created_at >= ?`).get(ranges.today).c;
+  const ordersToday = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE created_at >= ? AND status != 'cancelled'`).get(ranges.today).c;
   const ordersTotal = db.prepare(`SELECT COUNT(*) as c FROM orders`).get().c;
 
   // Enquiries summary
@@ -260,7 +260,7 @@ router.get('/live', requireAuth, (req, res) => {
 
   const pendingOrders   = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE status = 'confirmed'`).get().c;
   const unreadEnquiries = db.prepare(`SELECT COUNT(*) as c FROM messages WHERE status='unread'`).get().c;
-  const todayOrders     = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE created_at >= ?`).get(todayStr + ' 00:00:00').c;
+  const todayOrders     = db.prepare(`SELECT COUNT(*) as c FROM orders WHERE created_at >= ? AND status != 'cancelled'`).get(todayStr + ' 00:00:00').c;
   const todayRevenue    = db.prepare(`SELECT COALESCE(SUM(amount),0) as t FROM orders WHERE status='delivered' AND created_at >= ?`).get(todayStr + ' 00:00:00').t;
   const todayVisitors   = db.prepare(`SELECT COUNT(DISTINCT session_id) as c FROM page_views WHERE created_at >= ? AND session_id IS NOT NULL`).get(todayStr + ' 00:00:00').c;
   const liveVisitors    = db.prepare(`SELECT COUNT(DISTINCT session_id) as c FROM page_views WHERE created_at >= datetime('now','-5 minutes') AND session_id IS NOT NULL`).get().c;
