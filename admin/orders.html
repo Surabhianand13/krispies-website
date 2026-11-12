@@ -38,13 +38,13 @@
 
     <div class="page-body">
 
-      <!-- KPI strip -->
+      <!-- KPI strip — click any status card to filter the list -->
       <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr);">
-        <div class="kpi-card kpi-card--orange"><div class="kpi-card__label">Pending</div><div class="kpi-card__value" id="cnt-pending">—</div><div class="kpi-card__icon">⏳</div></div>
-        <div class="kpi-card kpi-card--blue"><div class="kpi-card__label">Confirmed</div><div class="kpi-card__value" id="cnt-confirmed">—</div><div class="kpi-card__icon">✅</div></div>
-        <div class="kpi-card kpi-card--green" style="--kpi-accent:#0f6e3e;"><div class="kpi-card__label">Accepted</div><div class="kpi-card__value" id="cnt-accepted">—</div><div class="kpi-card__icon">👍</div></div>
-        <div class="kpi-card kpi-card--brand"><div class="kpi-card__label">Ready</div><div class="kpi-card__value" id="cnt-ready">—</div><div class="kpi-card__icon">🎂</div></div>
-        <div class="kpi-card kpi-card--green"><div class="kpi-card__label">Delivered</div><div class="kpi-card__value" id="cnt-delivered">—</div><div class="kpi-card__icon">🚀</div></div>
+        <div class="kpi-card kpi-card--orange" style="cursor:pointer" title="Click to filter" onclick="filterByStatus('pending')"><div class="kpi-card__label">Pending</div><div class="kpi-card__value" id="cnt-pending">—</div><div class="kpi-card__icon">⏳</div></div>
+        <div class="kpi-card kpi-card--blue" style="cursor:pointer" title="Click to filter" onclick="filterByStatus('confirmed')"><div class="kpi-card__label">Confirmed</div><div class="kpi-card__value" id="cnt-confirmed">—</div><div class="kpi-card__icon">✅</div></div>
+        <div class="kpi-card kpi-card--green" style="--kpi-accent:#0f6e3e;cursor:pointer" title="Click to filter" onclick="filterByStatus('accepted')"><div class="kpi-card__label">Accepted</div><div class="kpi-card__value" id="cnt-accepted">—</div><div class="kpi-card__icon">👍</div></div>
+        <div class="kpi-card kpi-card--brand" style="cursor:pointer" title="Click to filter" onclick="filterByStatus('ready')"><div class="kpi-card__label">Ready</div><div class="kpi-card__value" id="cnt-ready">—</div><div class="kpi-card__icon">🎂</div></div>
+        <div class="kpi-card kpi-card--green" style="cursor:pointer" title="Click to filter" onclick="filterByStatus('delivered')"><div class="kpi-card__label">Delivered</div><div class="kpi-card__value" id="cnt-delivered">—</div><div class="kpi-card__icon">🚀</div></div>
         <div class="kpi-card kpi-card--purple"><div class="kpi-card__label">Revenue (month)</div><div class="kpi-card__value" id="cnt-revenue">—</div><div class="kpi-card__icon">💰</div></div>
       </div>
 
@@ -79,7 +79,7 @@
       </div>
 
       <!-- Orders table -->
-      <div class="card full-col">
+      <div class="card full-col" id="orders-table">
         <div class="tbl-wrap">
           <table>
             <thead>
@@ -151,6 +151,12 @@ function renderKPIs() {
     document.getElementById(`cnt-${s}`).textContent = counts[s] || 0;
   });
   document.getElementById('cnt-revenue').textContent = fmtPrice(monthRev);
+}
+
+function filterByStatus(status) {
+  document.getElementById('f-status').value = status;
+  filterOrders();
+  document.getElementById('orders-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function filterOrders() {
