@@ -608,3 +608,175 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   // First toast after 8–14 s (let user settle in before the first nudge)
   setTimeout(function () { show(); schedule(); }, 8000 + Math.random() * 6000);
 })();
+
+/* ================================================================
+   SEARCH PANEL
+   ================================================================ */
+(function () {
+  'use strict';
+
+  const TRENDING = [
+    'Birthday Cakes', 'Wedding Cakes', 'Photo Cakes',
+    'Anniversary Cakes', 'Kids Theme Cakes',
+    'Chocolate Truffle', 'Butterscotch Cake', 'Red Velvet',
+  ];
+
+  const SEARCH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+  const CLOSE_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+  function getProducts() {
+    try { return JSON.parse(localStorage.getItem('krispies_products') || '[]'); } catch (e) { return []; }
+  }
+
+  function fmtPrice(p) {
+    return '₹' + Math.round(p).toLocaleString('en-IN');
+  }
+
+  function esc(s) {
+    const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+  }
+
+  function cardHtml(prods) {
+    return prods.map(function (p) {
+      const img = p.images && p.images[0] ? p.images[0] : '';
+      const price = p.priceFrom != null ? p.priceFrom : (p.price || 0);
+      const imgHtml = img
+        ? '<img src="' + esc(img) + '" alt="' + esc(p.name) + '" loading="lazy" onerror="this.parentNode.innerHTML=\'<div class=ksearch-card__img-ph>🎂</div>\'">'
+        : '<div class="ksearch-card__img-ph">🎂</div>';
+      return '<a href="products/' + esc(encodeURIComponent(p.slug || p.id)) + '" class="ksearch-card" onclick="window._kSearchClose()">' +
+        '<div class="ksearch-card__img">' + imgHtml + '</div>' +
+        '<div class="ksearch-card__info">' +
+          '<div class="ksearch-card__name">' + esc(p.name) + '</div>' +
+          (price ? '<div class="ksearch-card__price">' + fmtPrice(price) + '</div>' : '') +
+        '</div>' +
+      '</a>';
+    }).join('');
+  }
+
+  function renderDefault(body) {
+    const all = getProducts().filter(function (p) { return p.active !== false; });
+    const featured = all.filter(function (p) { return p.featured; }).slice(0, 8);
+    const recs = featured.length >= 3 ? featured : all.slice(0, 8);
+
+    const pillsHtml = TRENDING.map(function (t) {
+      return '<button class="ksearch-pill" onclick="window._kSearchQuery(\'' + t.replace(/'/g, "\\'") + '\')">' +
+        esc(t) + ' <span class="ksearch-pill-arrow">→</span></button>';
+    }).join('');
+
+    body.innerHTML =
+      '<div class="ksearch-section">' +
+        '<div class="ksearch-section__label">Trending Searches</div>' +
+        '<div class="ksearch-pills">' + pillsHtml + '</div>' +
+      '</div>' +
+      (recs.length ? '<div class="ksearch-section">' +
+        '<div class="ksearch-section__label">Recommended</div>' +
+        '<div class="ksearch-cards">' + cardHtml(recs) + '</div>' +
+      '</div>' : '');
+  }
+
+  function renderResults(body, query) {
+    const q = query.toLowerCase().trim();
+    const all = getProducts().filter(function (p) { return p.active !== false; });
+    const hits = all.filter(function (p) {
+      return (p.name || '').toLowerCase().includes(q) ||
+             (p.category || '').toLowerCase().includes(q) ||
+             (p.description || '').toLowerCase().includes(q);
+    }).slice(0, 12);
+
+    if (!hits.length) {
+      body.innerHTML = '<div class="ksearch-empty">No results for <strong>"' + esc(query) + '"</strong> — try a different word or browse our <a href="menu">full menu →</a></div>';
+      return;
+    }
+    body.innerHTML =
+      '<div class="ksearch-section">' +
+        '<div class="ksearch-section__label">' + hits.length + ' result' + (hits.length > 1 ? 's' : '') + ' for "' + esc(query) + '"</div>' +
+        '<div class="ksearch-cards">' + cardHtml(hits) + '</div>' +
+      '</div>';
+  }
+
+  /* Panel state */
+  var panel = null, bodyEl = null, inputEl = null, timer = null;
+
+  function buildPanel() {
+    var el = document.createElement('div');
+    el.id = 'kSearchPanel';
+    el.className = 'ksearch-panel';
+    el.setAttribute('aria-hidden', 'true');
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', 'Search');
+    el.innerHTML =
+      '<div class="ksearch-backdrop"></div>' +
+      '<div class="ksearch-box" role="search">' +
+        '<div class="ksearch-input-row">' +
+          SEARCH_SVG +
+          '<input type="search" id="kSearchInput" placeholder="Search cakes, flavours, occasions…" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search">' +
+          '<button class="ksearch-close-btn" id="kSearchCloseBtn" aria-label="Close search">' + CLOSE_SVG + '</button>' +
+        '</div>' +
+        '<div class="ksearch-body" id="kSearchBody"></div>' +
+      '</div>';
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function openPanel() {
+    if (!panel) {
+      panel  = buildPanel();
+      bodyEl = document.getElementById('kSearchBody');
+      inputEl = document.getElementById('kSearchInput');
+
+      document.getElementById('kSearchCloseBtn').addEventListener('click', closePanel);
+      panel.querySelector('.ksearch-backdrop').addEventListener('click', closePanel);
+
+      inputEl.addEventListener('input', function () {
+        clearTimeout(timer);
+        var q = inputEl.value.trim();
+        timer = setTimeout(function () {
+          if (q.length < 1) renderDefault(bodyEl);
+          else renderResults(bodyEl, q);
+        }, 180);
+      });
+
+      inputEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { closePanel(); return; }
+        if (e.key === 'Enter' && inputEl.value.trim()) {
+          window.location.href = 'search?q=' + encodeURIComponent(inputEl.value.trim());
+        }
+      });
+    }
+
+    renderDefault(bodyEl);
+    panel.classList.add('ksearch-open');
+    panel.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('ksearch-lock');
+    if (inputEl) { inputEl.value = ''; setTimeout(function () { inputEl.focus(); }, 80); }
+  }
+
+  function closePanel() {
+    if (!panel) return;
+    panel.classList.remove('ksearch-open');
+    panel.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('ksearch-lock');
+  }
+
+  /* Exposed for use in pill onclick & card onclick */
+  window._kSearchClose = closePanel;
+  window._kSearchQuery = function (q) {
+    if (!panel) openPanel();
+    if (inputEl) inputEl.value = q;
+    if (bodyEl) renderResults(bodyEl, q);
+  };
+
+  /* Intercept clicks on the search icon (all pages) */
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a[href="search"][aria-label="Search"]');
+    if (link) { e.preventDefault(); openPanel(); }
+  });
+
+  /* Press / to open (when not in a text field) */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      openPanel();
+    }
+  });
+})();
