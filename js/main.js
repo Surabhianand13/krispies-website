@@ -766,11 +766,23 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (bodyEl) renderResults(bodyEl, q);
   };
 
-  /* Intercept clicks on the search icon (all pages) */
+  /* Intercept clicks on the desktop search icon */
   document.addEventListener('click', function (e) {
     var link = e.target.closest('a[href="search"][aria-label="Search"]');
     if (link) { e.preventDefault(); openPanel(); }
   });
+
+  /* Inject a search button next to the hamburger for mobile
+     (nav__cta is hidden at max-width:900px so the icon isn't reachable) */
+  var hamburger = document.querySelector('.nav__hamburger');
+  if (hamburger) {
+    var mobBtn = document.createElement('button');
+    mobBtn.className = 'nav__mob-search';
+    mobBtn.setAttribute('aria-label', 'Open search');
+    mobBtn.innerHTML = SEARCH_SVG;
+    mobBtn.addEventListener('click', openPanel);
+    hamburger.parentNode.insertBefore(mobBtn, hamburger);
+  }
 
   /* Press / to open (when not in a text field) */
   document.addEventListener('keydown', function (e) {
