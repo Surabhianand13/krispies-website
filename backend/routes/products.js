@@ -113,6 +113,71 @@ router.put('/:id', requireAuth, productValidators(), (req, res) => {
   res.json(toProduct(db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id), null, { raw: true }));
 });
 
+// PATCH /api/products/bulk-set-flavours — must be before /:id routes
+// Sets the standard flavour variant group on all non-birthday-cake products.
+// For products that already have Weight/size variants, flavour prices are
+// deltas (0, 100, 200…) added to the selected weight price at checkout.
+// For products with no other variant group, flavour prices are absolute
+// (mrp + delta) so toProduct applies discount exactly once on reads.
+router.patch('/bulk-set-flavours', requireAuth, (req, res) => {
+  const FLAVOURS = [
+    { label: 'Pineapple',          price: 0   },
+    { label: 'Vanilla',            price: 0   },
+    { label: 'Strawberry',         price: 0   },
+    { label: 'Butterscotch',       price: 200 },
+    { label: 'Blueberry',          price: 100 },
+    { label: 'Black Forest',       price: 200 },
+    { label: 'White Forest',       price: 200 },
+    { label: 'Chocolate Truffle',  price: 300 },
+    { label: 'Red Velvet',         price: 300 },
+    { label: 'Choco Vanilla Oreo', price: 300 },
+    { label: 'Rasmalai',           price: 400 },
+    { label: 'Rabdi Pista',        price: 500 },
+    { label: 'White Almond',       price: 500 },
+    { label: 'Choco Almond',       price: 500 },
+  ];
+
+  const rows = db.prepare(`SELECT * FROM products WHERE category != 'birthday-cakes'`).all();
+  const stmt = db.prepare(`UPDATE products SET variant_groups=?, updated_at=datetime('now') WHERE id=?`);
+
+  let updated = 0;
+  const updateAll = db.transaction(() => {
+    for (const row of rows) {
+      let groups = [];
+      try { groups = JSON.parse(row.variant_groups || '[]'); } catch (_) {}
+      if (!Array.isArray(groups)) groups = [];
+
+      // hasWeightGroup: any group other than Flavour already exists
+      const hasWeightGroup = groups.some(g => g.name.toLowerCase() !== 'flavour');
+
+      // For weight-based products: store deltas (0, 100, 200…) so the final
+      // price = weight_option_price + flavour_delta.
+      // For simple products (no weight group): store mrp + delta as the
+      // absolute option price; toProduct applies the product discount on
+      // reads so the customer sees (mrp + delta) * (1 - discount/100).
+      const baseMrp = hasWeightGroup ? 0 : (parseFloat(row.mrp) || 0);
+
+      const flavourOptions = FLAVOURS.map(f => ({
+        label: f.label,
+        price: baseMrp + f.price,
+        image: null,
+      }));
+
+      // Remove any existing Flavour group and re-add the standard one
+      groups = groups
+        .filter(g => g.name.toLowerCase() !== 'flavour')
+        .map(g => ({ ...g, optional: false }));
+      groups.push({ name: 'Flavour', optional: false, options: flavourOptions });
+
+      stmt.run(JSON.stringify(groups), row.id);
+      updated++;
+    }
+  });
+  updateAll();
+
+  res.json({ updated, message: `Standard flavours set on ${updated} products.` });
+});
+
 // PATCH /api/products/:id/toggle-active
 router.patch('/:id/toggle-active', requireAuth, (req, res) => {
   const row = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
@@ -146,69 +211,6 @@ router.delete('/:id', requireAuth, (req, res) => {
   if (!existing) return res.status(404).json({ error: 'Product not found.' });
   db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
   res.json({ message: 'Product deleted.' });
-});
-
-// PATCH /api/products/bulk-discount — set the same discount % across many
-// products at once (site-wide, one category, or a hand-picked list) instead
-// of editing each product individually. Applies to both simple and
-// variant-priced products, since discount now works the same way for both.
-// PATCH /api/products/bulk-set-flavours
-// Sets the standard flavour variant group on all non-birthday-cake products.
-// For products that already have Weight/size variants, flavour prices are deltas
-// (sum model). For products with no variants, prices are base price + delta.
-router.patch('/bulk-set-flavours', requireAuth, (req, res) => {
-  const FLAVOURS = [
-    { label: 'Pineapple',          price: 0   },
-    { label: 'Vanilla',            price: 0   },
-    { label: 'Strawberry',         price: 0   },
-    { label: 'Butterscotch',       price: 200 },
-    { label: 'Blueberry',          price: 100 },
-    { label: 'Black Forest',       price: 200 },
-    { label: 'White Forest',       price: 200 },
-    { label: 'Chocolate Truffle',  price: 300 },
-    { label: 'Red Velvet',         price: 300 },
-    { label: 'Choco Vanilla Oreo', price: 300 },
-    { label: 'Rasmalai',           price: 400 },
-    { label: 'Rabdi Pista',        price: 500 },
-    { label: 'White Almond',       price: 500 },
-    { label: 'Choco Almond',       price: 500 },
-  ];
-
-  const rows = db.prepare(`SELECT * FROM products WHERE category != 'birthday-cakes'`).all();
-  const stmt = db.prepare(`UPDATE products SET variant_groups=?, updated_at=datetime('now') WHERE id=?`);
-
-  let updated = 0;
-  const updateAll = db.transaction(() => {
-    for (const row of rows) {
-      let groups = [];
-      try { groups = JSON.parse(row.variant_groups || '[]'); } catch (_) {}
-      if (!Array.isArray(groups)) groups = [];
-
-      // Base price used only when product has NO other variant groups
-      const hasWeightGroup = groups.some(g => g.name.toLowerCase() !== 'flavour');
-      const basePrice = (!hasWeightGroup)
-        ? Math.round((parseFloat(row.mrp) || 0) * (1 - (parseFloat(row.discount) || 0) / 100))
-        : 0;
-
-      const flavourOptions = FLAVOURS.map(f => ({
-        label: f.label,
-        price: basePrice + f.price,
-        image: null,
-      }));
-
-      // Remove any existing Flavour group and re-add the standard one
-      groups = groups
-        .filter(g => g.name.toLowerCase() !== 'flavour')
-        .map(g => ({ ...g, optional: false })); // ensure non-optional
-      groups.push({ name: 'Flavour', optional: false, options: flavourOptions });
-
-      stmt.run(JSON.stringify(groups), row.id);
-      updated++;
-    }
-  });
-  updateAll();
-
-  res.json({ updated, message: `Standard flavours set on ${updated} products.` });
 });
 
 router.patch('/bulk-discount',
