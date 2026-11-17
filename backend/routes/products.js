@@ -150,12 +150,23 @@ router.patch('/bulk-set-flavours', requireAuth, (req, res) => {
       // hasWeightGroup: any group other than Flavour already exists
       const hasWeightGroup = groups.some(g => g.name.toLowerCase() !== 'flavour');
 
-      // For weight-based products: store deltas (0, 100, 200…) so the final
-      // price = weight_option_price + flavour_delta.
-      // For simple products (no weight group): store mrp + delta as the
-      // absolute option price; toProduct applies the product discount on
-      // reads so the customer sees (mrp + delta) * (1 - discount/100).
-      const baseMrp = hasWeightGroup ? 0 : (parseFloat(row.mrp) || 0);
+      // Base price for flavour options:
+      // - Weight products: 0 (flavour prices are deltas on top of the weight price)
+      // - Flavour-only products: use the cheapest existing flavour option price
+      //   so we preserve the product's real price point (e.g. ₹1299 stays ₹1299
+      //   for Pineapple after the update). Fall back to MRP if no valid price.
+      let baseMrp = 0;
+      if (!hasWeightGroup) {
+        const existingFlavour = groups.find(g => g.name.toLowerCase() === 'flavour');
+        const existingPrices = (existingFlavour?.options || [])
+          .map(o => parseFloat(o.price) || 0)
+          .filter(p => p > 0);
+        if (existingPrices.length) {
+          baseMrp = Math.min(...existingPrices);
+        } else {
+          baseMrp = parseFloat(row.mrp) || 0;
+        }
+      }
 
       const flavourOptions = FLAVOURS.map(f => ({
         label: f.label,
@@ -163,7 +174,8 @@ router.patch('/bulk-set-flavours', requireAuth, (req, res) => {
         image: null,
       }));
 
-      // Remove any existing Flavour group and re-add the standard one
+      // Remove any existing Flavour group and re-add the standard one.
+      // Always set optional: false — customer must pick a flavour.
       groups = groups
         .filter(g => g.name.toLowerCase() !== 'flavour')
         .map(g => ({ ...g, optional: false }));
