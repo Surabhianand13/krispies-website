@@ -1038,11 +1038,12 @@ function haversine(lat1, lng1, lat2, lng2) {
 
 /* ── Delivery fee tiers ── */
 function deliveryFee(km) {
-  if (km <= 5)  return 100;
+  if (km <= 3)  return 80;
+  if (km <= 6)  return 100;
   if (km <= 10) return 150;
   if (km <= 15) return 200;
-  if (km <= 25) return 300;
-  return 350;
+  if (km <= 20) return 500;
+  return 1000;
 }
 const MAX_DELIVERY_KM = 30;
 
