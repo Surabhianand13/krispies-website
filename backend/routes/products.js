@@ -147,30 +147,14 @@ router.patch('/bulk-set-flavours', requireAuth, (req, res) => {
       try { groups = JSON.parse(row.variant_groups || '[]'); } catch (_) {}
       if (!Array.isArray(groups)) groups = [];
 
-      // hasWeightGroup: any group other than Flavour already exists
-      const hasWeightGroup = groups.some(g => g.name.toLowerCase() !== 'flavour');
-
-      // Base price for flavour options:
-      // - Weight products: 0 (flavour prices are deltas on top of the weight price)
-      // - Flavour-only products: use the cheapest existing flavour option price
-      //   so we preserve the product's real price point (e.g. ₹1299 stays ₹1299
-      //   for Pineapple after the update). Fall back to MRP if no valid price.
-      let baseMrp = 0;
-      if (!hasWeightGroup) {
-        const existingFlavour = groups.find(g => g.name.toLowerCase() === 'flavour');
-        const existingPrices = (existingFlavour?.options || [])
-          .map(o => parseFloat(o.price) || 0)
-          .filter(p => p > 0);
-        if (existingPrices.length) {
-          baseMrp = Math.min(...existingPrices);
-        } else {
-          baseMrp = parseFloat(row.mrp) || 0;
-        }
-      }
-
+      // All flavour prices are flat deltas (Pineapple/Vanilla/Strawberry = 0,
+      // Blueberry = +100, Butterscotch/Black Forest/White Forest = +200, etc.)
+      // across every product. For weight-based products the customer pays
+      // weight_price + flavour_delta; for other products the Weight group
+      // carries the base price separately.
       const flavourOptions = FLAVOURS.map(f => ({
         label: f.label,
-        price: baseMrp + f.price,
+        price: f.price,
         image: null,
       }));
 
