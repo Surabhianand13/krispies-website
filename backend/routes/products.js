@@ -147,14 +147,17 @@ router.patch('/bulk-set-flavours', requireAuth, (req, res) => {
       try { groups = JSON.parse(row.variant_groups || '[]'); } catch (_) {}
       if (!Array.isArray(groups)) groups = [];
 
-      // All flavour prices are flat deltas (Pineapple/Vanilla/Strawberry = 0,
-      // Blueberry = +100, Butterscotch/Black Forest/White Forest = +200, etc.)
-      // across every product. For weight-based products the customer pays
-      // weight_price + flavour_delta; for other products the Weight group
-      // carries the base price separately.
+      // For products with a Weight/Size group, flavour prices are flat deltas
+      // (Pineapple=0, Blueberry=+100, etc.) — customer pays weight + delta.
+      // For products with NO Weight group (e.g. bento cakes with one fixed size),
+      // the real price lives in MRP/discount, so we use that as the base and add
+      // the deltas on top so the product isn't priced at ₹0.
+      const hasWeightGroup = groups.some(g => g.name.toLowerCase() !== 'flavour');
+      const base = hasWeightGroup ? 0 : Math.round((parseFloat(row.mrp) || 0) * (1 - (parseFloat(row.discount) || 0) / 100));
+
       const flavourOptions = FLAVOURS.map(f => ({
         label: f.label,
-        price: f.price,
+        price: base + f.price,
         image: null,
       }));
 
