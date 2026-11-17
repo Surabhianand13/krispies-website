@@ -32,6 +32,7 @@
       <div><div class="topbar__title">Products</div><div class="topbar__sub" id="prod-count">Loading…</div></div>
       <div class="topbar__actions">
         <button class="btn btn-outline" onclick="openBulkOffer()">🏷️ Bulk Offer</button>
+        <button class="btn btn-outline" id="bulkFlavourBtn" onclick="bulkSetFlavours()">🌿 Set Standard Flavours</button>
         <button class="btn btn-primary" onclick="openAddProduct()">+ Add Product</button>
       </div>
     </div>
@@ -147,6 +148,24 @@ function toggleSelectAllProducts(cb) {
     if (cb.checked) _selectedProductIds.add(el.value); else _selectedProductIds.delete(el.value);
   });
   updateBulkOfferSelectedCount();
+}
+
+// ── Bulk Set Standard Flavours ────────────────────────────────────────────
+async function bulkSetFlavours() {
+  const btn = document.getElementById('bulkFlavourBtn');
+  if (!confirm('Set the standard 14-flavour list on ALL products (except Birthday Cakes)?\n\nThis will replace any existing Flavour group with the standard one.\nWeight groups and all other settings are untouched.')) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ Updating…';
+  try {
+    const data = await apiFetch('/api/products/bulk-set-flavours', 'PATCH');
+    showToast(`✅ ${data.updated} products updated with standard flavours`, 'success');
+    await loadProducts();
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🌿 Set Standard Flavours';
+  }
 }
 
 // ── Bulk Offer ────────────────────────────────────────────────────────────
