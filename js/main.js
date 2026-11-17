@@ -523,7 +523,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
       if (cached) {
         const list = JSON.parse(cached);
         if (Array.isArray(list) && list.length) {
-          const active = list.filter(p => p.name && p.active !== false && p.images && p.images[0]);
+          const active = list.filter(p => p.name && !!p.active && p.images && p.images[0]);
           // Prefer priority categories (appear 3× more often), fall back to all active with images
           const priority = active.filter(p => PRIORITY_CATS.includes(p.category));
           const pool = priority.length >= 3
@@ -561,7 +561,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     const DURATION = 5500; // ms the toast stays visible
 
     const imgHTML = product.image
-      ? '<img src="' + product.image + '" alt="" loading="lazy" onerror="this.parentNode.innerHTML=\'' + FALLBACK_SVG.replace(/'/g, "\\'") + '\'">'
+      ? '<img src="' + product.image + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
       : FALLBACK_SVG;
 
     const tagMeta = product.tag && TAG_META[product.tag];
@@ -601,7 +601,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 
   // Start after a short delay, then repeat on a random interval
   function schedule() {
-    const delay = 18000 + Math.random() * 14000; // 18–32 s between toasts
+    const delay = 60000; // 60 s between toasts
     setTimeout(function () { show(); schedule(); }, delay);
   }
 
