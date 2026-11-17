@@ -45,9 +45,7 @@ function _pdpRender() {
   // to one category -- true for any product that needs no advance notice,
   // not just rakhi. Products that DO need notice already get that called
   // out via prepNote below, so this only shows when it's a genuine claim.
-  const deliveryBadge = (Number(p.prepHours) || 0) === 0
-    ? `<div class="pdp__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Same-Day Delivery Available</div>`
-    : '';
+  const deliveryBadge = `<div class="pdp__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Same-Day Delivery Available</div>`;
   const vegBadge = `<div class="pdp__badge pdp__badge--veg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2a26.6 26.6 0 0 1 10 20c.9-6.82 1.5-9.5 4-14"/><path d="M16 8c4 0 6-2 6-6-4 0-6 2-6 6"/></svg>100% Veg</div>`;
   const badgeHtml = `<div class="pdp__badges">${deliveryBadge}${vegBadge}</div>`;
 
