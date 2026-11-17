@@ -650,11 +650,20 @@ const CAKE_FLAVOUR_CATS = ['wedding-cakes','engagement-cakes','baby-shower-cakes
 
 // Canonical flavour list shared with the frontend PDP_FLAVOURS constant
 const ADMIN_FLAVOURS = [
-  'Chocolate Truffle','Belgium Chocolate','Black Forest',
-  'Red Velvet','Pineapple','Butterscotch',
-  'White Forest','Vanilla','Strawberry','Blueberry',
-  'Choco Vanilla Oreo','Rasmalai','Rabdi Pista',
-  'White Almond','Choco Almond',
+  { label: 'Pineapple',          price: 0   },
+  { label: 'Vanilla',            price: 0   },
+  { label: 'Strawberry',         price: 0   },
+  { label: 'Butterscotch',       price: 200 },
+  { label: 'Blueberry',          price: 100 },
+  { label: 'Black Forest',       price: 200 },
+  { label: 'White Forest',       price: 200 },
+  { label: 'Chocolate Truffle',  price: 300 },
+  { label: 'Red Velvet',         price: 300 },
+  { label: 'Choco Vanilla Oreo', price: 300 },
+  { label: 'Rasmalai',           price: 400 },
+  { label: 'Rabdi Pista',        price: 500 },
+  { label: 'White Almond',       price: 500 },
+  { label: 'Choco Almond',       price: 500 },
 ];
 
 function _onCatChange(catVal) {
@@ -769,7 +778,7 @@ function _defaultFlavourGroup() {
   return {
     name: 'Flavour',
     optional: false,
-    options: ADMIN_FLAVOURS.map(f => ({ label: f, price: 0, image: '', serving: '' })),
+    options: ADMIN_FLAVOURS.map(f => ({ label: f.label, price: f.price, image: '', serving: '' })),
   };
 }
 
