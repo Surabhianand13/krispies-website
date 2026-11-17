@@ -1552,7 +1552,9 @@ function _chkDeliveryHTML() {
     </div>`;
 
   const sub = _chkSubtotal();
-  const fee = _chkDelivery.fee || 0;
+  const rawFee = _chkDelivery.fee || 0;
+  const freeDelivery = sub >= 5000;
+  const fee = freeDelivery ? 0 : rawFee;
   const disc = _chkCouponDiscount(sub, fee);
   const canPay = !!_chkDelivery.store;
 
@@ -1562,10 +1564,17 @@ function _chkDeliveryHTML() {
       ${_chkCouponHTML()}
       <div class="chk-total-box">
         <div class="chk-total-row"><span>Subtotal (&#215;${_chkCart.qty})</span><span>&#8377;${sub.toLocaleString('en-IN')}</span></div>
-        <div class="chk-total-row"><span>Delivery to ${_chkDelivery.store}</span><span>&#8377;${fee}${!hasLoc?' <span style="font-size:0.7em;color:#888">(est.)</span>':''}</span></div>
+        <div class="chk-total-row">
+          <span>Delivery to ${_chkDelivery.store}</span>
+          <span>${freeDelivery
+            ? '<span style="color:#1a7a3c;font-weight:700;">FREE</span>'
+            : `&#8377;${rawFee}${!hasLoc?' <span style="font-size:0.7em;color:#888">(est.)</span>':''}`
+          }</span>
+        </div>
+        ${freeDelivery ? `<div class="chk-total-row" style="color:#1a7a3c;font-size:0.8rem;"><span>🎉 Free delivery on orders above ₹5,000</span></div>` : ''}
         ${disc > 0 ? `<div class="chk-total-row" style="color:#1a7a3c"><span>Coupon (${_chkCoupon.code})</span><span>&#8722;&#8377;${disc.toLocaleString('en-IN')}</span></div>` : ''}
         <div class="chk-total-row chk-total-row--grand"><span>Total</span><span>&#8377;${(sub + fee - disc).toLocaleString('en-IN')}</span></div>
-        ${!hasLoc ? `<div style="font-size:0.72rem;color:#888;margin-top:4px;">Delivery fee adjusted to your exact distance at fulfilment. Use My Location above for accurate fee.</div>` : ''}
+        ${!hasLoc && !freeDelivery ? `<div style="font-size:0.72rem;color:#888;margin-top:4px;">Delivery fee adjusted to your exact distance at fulfilment. Use My Location above for accurate fee.</div>` : ''}
       </div>
       <div id="chkTurnstileContainer" style="margin:12px 0;"></div>
       <div class="chk-pay-btns">
