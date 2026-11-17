@@ -5652,6 +5652,22 @@ textarea.chk-input { resize: vertical; min-height: 80px; }
 /* Body scroll lock */
 body.ksearch-lock { overflow: hidden; }
 
+/* Mobile search button (injected by JS next to hamburger) */
+.nav__mob-search {
+  display: none;
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  color: var(--gold-dark, #9A4A3A);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+.nav__mob-search svg { width: 20px; height: 20px; }
+@media (max-width: 900px) {
+  .nav__mob-search { display: flex; }
+}
+
 /* Desktop: grid for cards */
 @media (min-width: 640px) {
   .ksearch-cards {
